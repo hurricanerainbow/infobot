@@ -169,8 +169,8 @@ sub querytext {
 		# get reply
 		return 'server read error' unless read(S1, $buffer, 46) == 46;
     my ($infolen,$infocode,$style,$maxPlayers,$maxShots,
-			$rogueSize,$redSize,$greenSize,$blueSize,$purpleSize,$obsSize,
-			$rogueMax,$redMax,$greenMax,$blueMax,$purpleMax,$obsMax,
+			$rogueSize,$redSize,$greenSize,$blueSize,$purpleSize,$observerSize,
+			$rogueMax,$redMax,$greenMax,$blueMax,$purpleMax,$observerMax,
 			$shakeWins,$shakeTimeout,
 			$maxPlayerScore,$maxTeamScore,$maxTime,$timeElapsed) = unpack("n23", $buffer);
 		return "bad server data $infocode" unless $infocode == 0x7167;
