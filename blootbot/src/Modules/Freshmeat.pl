@@ -99,7 +99,7 @@ sub showPackage {
 
 sub downloadIndex {
     my $start_time	= &main::gettimeofday(); # set the start time.
-    my $idx		= "$main::bot_base_dir/Temp/fm_index.txt";
+    my $idx		= "$main::param{tempDir}/fm_index.txt";
 
     &main::msg($main::who, "Updating freshmeat index... please wait");
 
@@ -194,7 +194,7 @@ sub downloadIndex {
 }
 
 sub freshmeatAnnounce {
-    my $file = "$main::bot_base_dir/Temp/fm_recent.txt";
+    my $file = "$main::param{tempDir}/fm_recent.txt";
     my @old;
 
     ### if file exists, lets read it.

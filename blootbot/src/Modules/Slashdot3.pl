@@ -46,7 +46,7 @@ sub Slashdot {
 }
 
 sub slashdotAnnounce {
-    my $file = "Temp/slashdot.xml";
+    my $file = "$main::param{tempDir}/slashdot.xml";
 
     my @Cxml = &main::getURL("http://www.slashdot.org/slashdot.xml");
     if (!scalar @Cxml) {
