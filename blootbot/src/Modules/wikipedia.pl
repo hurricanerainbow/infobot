@@ -137,7 +137,7 @@ sub wikipedia_get_text {
 	if (/<title>(.*?)<\/title>/) {
 	  $title = $1;
 	  $title =~ s/&amp\;/&/g;
-	} elsif (/#REDIRECT\s*\[\[(.*?)\]\]/) {
+	} elsif (/#REDIRECT\s*\[\[(.*?)\]\]/i) {
 	  $redirect = $1;
 	  $redirect =~ tr/ /_/;
 	  last;
