@@ -65,36 +65,34 @@ sub process {
     if ($message =~ /^join(\s+(.*))?\s*$/i) {
 	return 'join: not addr' unless ($addressed);
 
-	$2 =~ /^($mask{chan})(,(\S+))?/;
-	my($thischan, $key) = (lc $1, $3);
-	my $chankey	= lc $thischan;
-	$chankey	.= " $key"	if (defined $key);
+	$2 =~ /^($mask{chan})(\s+(\S+))?/;
+	my($joinchan, $key) = (lc $1, $3);
 
-	if ($thischan eq "") {
+	if ($joinchan eq "") {
 	    &help("join");
 	    return;
 	}
 
-	if ($thischan !~ /^$mask{chan}$/) {
-	    &msg($who, "$thischan is not a valid channel name.");
+	if ($joinchan !~ /^$mask{chan}$/) {
+	    &msg($who, "$joinchan is not a valid channel name.");
 	    return;
 	}
 
 	if (&IsFlag("o") ne "o") {
-	    if (!exists $chanconf{$thischan}) {
-		&msg($who, "I am not allowed to join $thischan.");
+	    if (!exists $chanconf{$joinchan}) {
+		&msg($who, "I am not allowed to join $joinchan.");
 		return;
 	    }
 
-	    if (&validChan($thischan)) {
-		&msg($who,"warn: I'm already on $thischan, joining anyway...");
+	    if (&validChan($joinchan)) {
+		&msg($who,"warn: I'm already on $joinchan, joining anyway...");
 	    }
 	}
-	$cache{join}{$thischan} = $who;	# used for on_join self.
+	$cache{join}{$joinchan} = $who;	# used for on_join self.
 
-	&joinchan($chankey);
-	&status("JOIN $chankey <$who>");
-	&msg($who, "joining $chankey");
+	&status("JOIN $joinchan $key <$who>");
+	&msg($who, "joining $joinchan $key");
+	&joinchan($joinchan, $key);
 	&joinNextChan();	# hack.
 
 	return;

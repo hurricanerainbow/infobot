@@ -170,6 +170,11 @@ sub irc {
 
     $ircstats{'Server'}	= "$server:$port";
 
+    #&DEBUG("foo" . <STDIN>);
+    #open(FH, "<:utf8", "input");
+    #$irc->addfh(<STDIN>, \&on_stdin, "r");
+    #close(STDIN);
+
     $irc->start;
 }
 
@@ -445,8 +450,9 @@ sub dcc_close {
 }
 
 sub joinchan {
-    my ($chan)	= @_;
-    my $key	= &getChanConf("chankey", $chan) || "";
+    my ($chan, $key) = @_;
+    $key ||= &getChanConf("chankey", $chan);
+    $key ||= "";
 
     # forgot for about 2 years to implement channel keys when moving
     # over to Net::IRC...
@@ -456,7 +462,7 @@ sub joinchan {
 	&status("join: already on $chan?");
     }
     #} else {
-	&status("joining $b_blue$chan$ob");
+	&status("joining $b_blue$chan $key$ob");
 
 	return if ($conn->join($chan, $key));
     	return if (&validChan($chan));
