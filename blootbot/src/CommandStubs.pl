@@ -541,7 +541,7 @@ sub seen {
 	    $reply .= " (".&Time2String(time() - $userstats{lc $seen[0]}{'Join'}).")";
 	}
 
-	if (&IsParam("seenStats")) {
+	if (&IsChanConf("seenStats") > 0) {
 	    my $i;
 	    $i = $userstats{lc $seen[0]}{'Count'};
 	    $reply .= ".  Has said a total of \002$i\002 messages" if (defined $i);

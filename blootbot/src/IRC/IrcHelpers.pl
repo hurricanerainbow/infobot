@@ -221,8 +221,8 @@ sub hookMsg {
     }
     push(@ignore, keys %{ $ignore{"*"} }) if (exists $ignore{"*"});
 
-    if ((!$skipmessage or &IsChanConf("seenStoreAll")) and
-	&IsChanConf("seen") and
+    if ((!$skipmessage or &IsChanConf("seenStoreAll") > 0) and
+	&IsChanConf("seen") > 0 and
 	$msgType =~ /public/
     ) {
 	$seencache{$who}{'time'} = time();

@@ -50,6 +50,7 @@ _default
     +seen
     seenFlushInterval 60
     seenMaxDays 90
+    +seenStoreAll
     +seenStats
     +slashdot
     +spell
