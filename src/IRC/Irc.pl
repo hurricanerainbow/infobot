@@ -175,7 +175,9 @@ sub irc {
 
     $ircstats{'Server'}	= "$server:$port";
 
-#    $irc->addfh(STDIN, \&on_stdin, "r");
+    # works? needs to actually do something
+    # should likely listen on a tcp port instead
+    #$irc->addfh(STDIN, \&on_stdin, "r");
 
     &status("starting main loop");
 
@@ -469,7 +471,7 @@ sub joinchan {
 	&status("joining $b_blue$chan $key$ob");
 
 	return if ($conn->join($chan, $key));
-    	return if (&validChan($chan));
+	return if (&validChan($chan));
 
 	&DEBUG("joinchan: join failed. trying connect!");
 	&clearIRCVars();
