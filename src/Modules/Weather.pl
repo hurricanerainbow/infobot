@@ -60,10 +60,8 @@ sub queryText {
 	}
 
 	$content = $response->content;
-	$content =~ s|.*?current weather conditions.*?<BR>([^<]*)<.*?</TR>||is;
+	$content =~ s|.*?current weather conditions.*?<BR>([^<]*?)\s*<.*?</TR>||is;
 	my $place = $1;
-	$content =~ s|.*?<TR>(?:\s*<[^>]+>)*\s*([^<]+)\s<.*?</TR>||is;
-	$place .= $1;
 	chomp $place;
 
 	$content =~ s|.*?<TR>(?:\s*<[^>]+>)*\s*([^<]+)\s<.*?</TR>||is;
@@ -72,7 +70,8 @@ sub queryText {
 
 	$content =~ s|.*?conditions at.*?</TD>||is;
 
-	$content =~ s|.*?<OPTION SELECTED>\s+([^<]+)\s<OPTION>.*?</TR>||s;
+	#$content =~ s|.*?<OPTION SELECTED>\s+([^<]+)\s<OPTION>.*?</TR>||s; # local time
+	$content =~ s|.*?<BR>\s+([^<]+?)\s*</FORM>.*?</TR>||s; # UTC
 	my $time = $1;
 	$time =~ s/-//g;
 	$time =~ s/\s+/ /g;
