@@ -53,6 +53,7 @@ cm      centimeter
 mm      millimeter
 micron  micrometer
 inch    2.54 cm        # This is the official definition and is exact
+mil	milliinch
 in      inch
 barleycorn	1/3 inch	# Tim Riker <Tim@Rikers.org
 inches  inch           # plural
