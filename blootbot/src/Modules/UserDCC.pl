@@ -95,7 +95,7 @@ sub userDCC {
     # dump variables.
     if ($message =~ /^dumpvars$/i) {
 	return unless (&hasFlag("o"));
-	return '' unless (&IsParam("dumpvars"));
+	return unless (&IsParam("dumpvars"));
 
 	&status("Dumping all variables...");
 	&dumpallvars();
@@ -470,11 +470,13 @@ sub userDCC {
 	    return;
 	}
 
-	my $chan;
-	if ($args =~ s/^($mask{chan})\s*//) {
-	    $chan	= $1;
-	} else {
-	    $chan	= "_default";
+	my @chans;
+	while ($args =~ s/^($mask{chan})\s*//) {
+	    push(@chans, $1);
+	}
+
+	if (!scalar @chans) {
+	    push(@chans, "_default");
 	    $no_chan	= 1;
 	}
 
@@ -483,110 +485,27 @@ sub userDCC {
 	### TODO: "cannot set values without +m".
 	return unless (&hasFlag("m"));
 
-	if ($cmd eq "+chan") {
-	    if (exists $chanconf{$chan}) {
-		&pSReply("chan $chan already exists.");
-		return;
-	    }
-	    $chanconf{$chan}{_time_added}	= time();
-	    $chanconf{$what}{autojoin}		= 1;
+	# READ ONLY.
+	if (defined $what and $what !~ /^[-+]/ and !defined $val and $no_chan) {
+	    &pSReply("Showing $what values on all channels...");
 
-	    &pSReply("Joining $chan...");
-	    &joinchan($chan);
+	    my %vals;
+	    foreach (keys %chanconf) {
+		my $val = $chanconf{$_}{$what} || "NOT-SET";
+		$vals{$val}{$_} = 1;
+	    }
+
+	    foreach (keys %vals) {
+		&pSReply("  $what = $_: ".join(' ', keys %{ $vals{$_} } ) );
+	    }
+
+	    &pSReply("End of list.");
 
 	    return;
 	}
 
-	if (!exists $chanconf{$chan}) {
-	    &pSReply("no such channel $chan");
-	    return;
-	}
-
-	my $update	= 0;
-### FIX THIS UP.
-    if (defined $what) {
-	if ($what =~ s/^\+(\S+)/$1/) {
-	    my $was	= $chanconf{$chan}{$1};
-	    if (defined $was and $was eq "1") {
-		&pSReply("setting $what for $chan already 1.");
-		return;
-	    }
-
-	    $was	= ($was) ? "; was '$was'" : "";
-	    &pSReply("Setting $what for $chan to '1'$was.");
-
-	    $chanconf{$chan}{$what} = 1;
-
-	    $update++;
-	} elsif ($what =~ s/^\-(\S+)/$1/) {
-	    my $was	= $chanconf{$chan}{$1};
-	    # hrm...
-	    if (!defined $was) {
-		&pSReply("setting $what for $chan is not set.");
-		return;
-	    }
-
-	    if ($was eq "0") {
-		&pSReply("setting $what for $chan already 0.");
-		return;
-	    }
-
-	    $was	= ($was) ? "; was '$was'" : "";
-	    &pSReply("Setting $what for $chan to '0'$was.");
-
-	    $chanconf{$chan}{$what} = 0;
-
-	    $update++;
-	} elsif (defined $val) {
-	    my $was	= $chanconf{$chan}{$what};
-	    if (defined $was and $was eq $val) {
-		&pSReply("setting $what for $chan already '$val'.");
-		return;
-	    }
-	    $was	= ($was) ? "; was '$was'" : "";
-	    &pSReply("Setting $what for $chan to '$val'$was.");
-
-	    $chanconf{$chan}{$what} = $val;
-
-	    $update++;
-	} else {
-	    if (exists $chanconf{$chan}{$what}) {
-		&pSReply("$what for $chan is '$chanconf{$chan}{$what}'");
-	    } else {
-		&pSReply("$what for $chan is not set.'");
-	    }
-	}
-    }
-### END OF cheap insert of if statement.
-
-	if ($update) {
-	    $utime_chanfile = time();
-	    $ucount_chanfile++;
-	    return;
-	}
-
-	if ($cmd eq "chanset" and !defined $what) {
-	    &DEBUG("showing channel conf.");
-
-	    foreach $chan ($chan, "_default") {
-		&pSReply("chan: $chan");
-		### TODO: merge 2 or 3 per line.
-		my @items;
-		my $str = "";
-		foreach (sort keys %{ $chanconf{$chan} }) {
-		    my $newstr = join(', ', @items);
-		    if (length $newstr > 60) {
-			&pSReply("    $str");
-			@items = ();
-		    }
-		    $str = $newstr;
-		    push(@items, "$_ => $chanconf{$chan}{$_}");
-		}
-
-		&pSReply("    $str") if (@items);
-	    }
-
-	    return;
+	foreach (@chans) {
+	    &chanSet($cmd, $_, $what, $val);
 	}
 
 	return;
@@ -595,6 +514,7 @@ sub userDCC {
     if ($message =~ /^(chanunset|\-chan)(\s+(.*))?$/) {
 	return unless (&hasFlag("m"));
 	my $args	= $3;
+	my $no_chan	= 0;
 
 	if (!defined $args) {
 	    &help("chanunset");
@@ -610,6 +530,7 @@ sub userDCC {
 	} else {
 	    &VERB("no chan arg; setting to default.",2);
 	    $chan	= "_default";
+	    $no_chan	= 1;
 	}
 
 	if (!exists $chanconf{$chan}) {
@@ -618,13 +539,40 @@ sub userDCC {
 	}
 
 	if ($args ne "") {
-	    if (&getChanConf($args,$chan)) {
-		&pSReply("Unsetting channel ($chan) option $args. (was $chanconf{$chan}{$args})");
-		delete $chanconf{$chan}{$args};
 
-	    } else {
+	    if (!&getChanConf($args,$chan)) {
 		&pSReply("$args does not exist for $chan");
+		return;
 	    }
+
+	    my @chans = &ChanConfList($args);
+	    &DEBUG("scalar chans => ".scalar(@chans) );
+	    if (scalar @chans == 1 and $chans[0] eq "_default" and !$no_chan) {
+		&psReply("ok, $args was set only for _default; unsetting for _defaul but setting for other chans.");
+
+		my $val = $chanconf{$_}{_default};
+		foreach (keys %chanconf) {
+		    $chanconf{$_}{$args} = $val;
+		}
+		delete $chanconf{_default}{$args};
+
+		return;
+	    }
+
+	    if ($no_chan and !exists($chanconf{_default}{$args})) {
+		&pSReply("ok, $args for _default does not exist, removing from all chans.");
+
+		foreach (keys %chanconf) {
+		    next unless (exists $chanconf{$_}{$args});
+		    &DEBUG("delete chanconf{$_}{$args};");
+		    delete $chanconf{$_}{$args};
+		}
+
+		return;
+	    }
+
+	    &pSReply("Unsetting channel ($chan) option $args. (was $chanconf{$chan}{$args})");
+	    delete $chanconf{$chan}{$args};
 
 	    return;
 	}
