@@ -23,6 +23,11 @@ sub msg {
     print("$nick: $msg\n");
 }
 
+sub IsNickInChan {
+    my ($nick,$chan) = @_;
+    return 1;
+}
+
 sub performStrictReply {
     &msg($who, @_);
 }
