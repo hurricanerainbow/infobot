@@ -87,7 +87,8 @@ sub shmWrite {
 	$str = $read ."||". $str;
     }
 
-    if (!shmwrite($key, '', $position, $size)) {
+    if (!shmwrite($key, $str, $position, $size)) {
+	&DEBUG("shmWrite($key, $str)");
 	&ERROR("shmWrite: failed: $!");
     }
 }
