@@ -78,10 +78,11 @@ sub parseCmdHook {
 	    $cmdstats{$hash{'Cmdstats'}}++;
 	}
 
+	&DEBUG("pCH: ended.");
+
 	return 1;
     }
 
-    &DEBUG("pCH: ended.");
     return 0;
 }
 
@@ -131,6 +132,21 @@ sub parseCmdHook {
 	'Module' => 'userinfo') );
 &addCmdHook('rootWarn', ('CODEREF' => 'CmdrootWarn',
 	'Identifier' => 'rootWarn', 'Module' => 'rootwarn') );
+&addCmdHook('seen', ('CODEREF' => 'seen', 'Identifier' => 'seen') );
+&addCmdHook('dict', ('CODEREF' => 'Dict::Dict',
+	'Identifier' => 'dict', 'Help' => 'dict',
+	'Forker' => 1, 'Cmdstats' => 'Dict') );
+&addCmdHook('slashdot', ('CODEREF' => 'Slashdot::Slashdot',
+	'Identifier' => 'slashdot', 'Forker' => 1,
+	'Cmdstats' => 'Slashdot') );
+&addCmdHook('uptime', ('CODEREF' => 'uptime', 'Identifier' => 'uptime',
+	'Cmdstats' => 'Uptime') );
+&addCmdHook('freshmeat', ('CODEREF' => 'Freshmeat::Freshmeat',
+	'Identifier' => 'freshmeat', 'Cmdstats' => 'Freshmeat',
+	'Module' => 'freshmeat', 'Help' => 'freshmeat') );
+
+
+
 
 &status("CMD: loaded ".scalar(keys %cmdhooks)." command hooks.");
 
@@ -173,50 +189,6 @@ sub Modules {
 
 	    return $noreply;
 	}
-    }
-
-    # Dict. xk++
-    if ($message =~ /^dict(\s+(.*))?$/i) {
-	return $noreply unless (&hasParam("dict"));
-
-	my $query = $2;
-	$query =~ s/^[\s\t]+//;
-	$query =~ s/[\s\t]+$//;
-	$query =~ s/[\s\t]+/ /;
-
-	if (!defined $query) {
-	    &help("dict");
-	    return $noreply;
-	}
-
-	if (length $query > 30) {
-	    &msg($who,"dictionary word is too long.");
-	    return $noreply;
-	}
-
-	&Forker("dict", sub { &Dict::Dict($query); } );
-
-	$cmdstats{'Dict'}++;
-	return $noreply;
-    }
-
-    # Freshmeat. xk++
-    if ($message =~ /^(fm|freshmeat)(\s+(.*))?$/i) {
-	return $noreply unless (&hasParam("freshmeat"));
-
-	my $query = $3;
-
-	if (!defined $query) {
-	    &help("freshmeat");
-	    &msg($who, "I have \002".&countKeys("freshmeat")."\002 entries.");
-	    return $noreply;
-	}
-
-	&loadMyModule($myModules{'freshmeat'});
-	&Freshmeat::Freshmeat($query);
-
-	$cmdstats{'Freshmeat'}++;
-	return $noreply;
     }
 
     # google searching. Simon++
@@ -283,84 +255,6 @@ sub Modules {
 	return $noreply;
     }
 
-    # seen.
-    if ($message =~ /^seen(\s+(\S+))?$/) {
-	return $noreply unless (&hasParam("seen"));
-
-	my $person = $2;
-	if (!defined $person) {
-	    &help("seen");
-
-	    my $i = &countKeys("seen");
-	    &msg($who,"there ". &fixPlural("is",$i) ." \002$i\002 ".
-		"seen ". &fixPlural("entry",$i) ." that I know of.");
-
-	    return $noreply;
-	}
-
-	my @seen;
-	$person =~ s/\?*$//;
-
-	&seenFlush();	# very evil hack. oh well, better safe than sorry.
-
-	### TODO: Support &dbGetRowInfo(); like in &FactInfo();
-	my $select = "nick,time,channel,host,message";
-	if ($person eq "random") {
-	    @seen = &randKey("seen", $select);
-	} else {
-	    @seen = &dbGet("seen", "nick", $person, $select);
-	}
-
-	if (scalar @seen < 2) {
-	    foreach (@seen) {
-		&DEBUG("seen: _ => '$_'.");
-	    }
-	    &performReply("i haven't seen '$person'");
-	    return $noreply;
-	}
-
-	# valid seen.
-	my $reply;
-	### TODO: multi channel support. may require &IsNick() to return
-	###	all channels or something.
-	my @chans = &GetNickInChans($seen[0]);
-	if (scalar @chans) {
-	    $reply = "$seen[0] is currently on";
-
-	    foreach (@chans) {
-		$reply .= " ".$_;
-		next unless (exists $userstats{lc $seen[0]}{'Join'});
-		$reply .= " (".&Time2String(time() - $userstats{lc $seen[0]}{'Join'}).")";
-	    }
-
-	    if (&IsParam("seenStats")) {
-		my $i;
-		$i = $userstats{lc $seen[0]}{'Count'};
-		$reply .= ".  Has said a total of \002$i\002 messages" if (defined $i);
-		$i = $userstats{lc $seen[0]}{'Time'};
-		$reply .= ".  Is idling for ".&Time2String(time() - $i) if (defined $i);
-	    }
-	} else {
-	    my $howlong = &Time2String(time() - $seen[1]);
-	    $reply = "$seen[0] <$seen[3]> was last seen on IRC ".
-			"in channel $seen[2], $howlong ago, ".
-			"saying\002:\002 '$seen[4]'.";
-	}
-
-	&performStrictReply($reply);
-	return $noreply;
-    }
-
-    # slashdot headlines: from Chris Tessone.
-    if ($message =~ /^slashdot$/i) {
-	return $noreply unless (&hasParam("slashdot"));
-
-	&Forker("slashdot", sub { &Slashdot::Slashdot() });
-
-	$cmdstats{'Slashdot'}++;
-	return $noreply;
-    }
-
     # Topic management. xk++
     # may want to add a flag(??) for topic in the near future. -xk
     if ($message =~ /^topic(\s+(.*))?$/i) {
@@ -409,26 +303,6 @@ sub Modules {
 	return $noreply;
     }
 
-    # Uptime. xk++
-    if ($message =~ /^uptime$/i) {
-	return $noreply unless (&hasParam("uptime"));
-
-	my $count = 1;
- 	&msg($who, "- Uptime for $ident -");
-	&msg($who, "Now: ". &Time2String(&uptimeNow()) ." running $bot_version");
-	foreach (&uptimeGetInfo()) {
-	    /^(\d+)\.\d+ (.*)/;
-	    my $time = &Time2String($1);
-	    my $info = $2;
-
-	    &msg($who, "$count: $time $2");
-	    $count++;
-	}
-
-	$cmdstats{'Uptime'}++;
-	return $noreply;
-    }
-
     # wingate.
     if ($message =~ /^wingate$/i) {
 	return $noreply unless (&hasParam("wingate"));
@@ -448,6 +322,102 @@ sub Modules {
 
     # do nothing and let the other routines have a go
     return '';
+}
+
+# Freshmeat. xk++
+sub freshmeat {
+    my ($query) = @_;
+
+    if (!defined $query) {
+	&help("freshmeat");
+	&msg($who, "I have \002".&countKeys("freshmeat")."\002 entries.");
+	return $noreply;
+    }
+
+    &Freshmeat::Freshmeat($query);
+}
+
+# Uptime. xk++
+sub uptime {
+    my $count = 1;
+    &msg($who, "- Uptime for $ident -");
+    &msg($who, "Now: ". &Time2String(&uptimeNow()) ." running $bot_version");
+
+    foreach (&uptimeGetInfo()) {
+	/^(\d+)\.\d+ (.*)/;
+	my $time = &Time2String($1);
+	my $info = $2;
+
+	&msg($who, "$count: $time $2");
+	$count++;
+    }
+}
+
+# seen.
+sub seen {
+    my($person) = @_;
+
+    if (!defined $person) {
+	&help("seen");
+
+	my $i = &countKeys("seen");
+	&msg($who,"there ". &fixPlural("is",$i) ." \002$i\002 ".
+		"seen ". &fixPlural("entry",$i) ." that I know of.");
+
+	return $noreply;
+    }
+
+    my @seen;
+    $person =~ s/\?*$//;
+
+    &seenFlush();	# very evil hack. oh well, better safe than sorry.
+
+    ### TODO: Support &dbGetRowInfo(); like in &FactInfo();
+    my $select = "nick,time,channel,host,message";
+    if ($person eq "random") {
+	@seen = &randKey("seen", $select);
+    } else {
+	@seen = &dbGet("seen", "nick", $person, $select);
+    }
+
+    if (scalar @seen < 2) {
+	foreach (@seen) {
+	    &DEBUG("seen: _ => '$_'.");
+	}
+	&performReply("i haven't seen '$person'");
+	return $noreply;
+    }
+
+    # valid seen.
+    my $reply;
+    ### TODO: multi channel support. may require &IsNick() to return
+    ###	all channels or something.
+    my @chans = &GetNickInChans($seen[0]);
+    if (scalar @chans) {
+	$reply = "$seen[0] is currently on";
+
+	foreach (@chans) {
+	    $reply .= " ".$_;
+	    next unless (exists $userstats{lc $seen[0]}{'Join'});
+	    $reply .= " (".&Time2String(time() - $userstats{lc $seen[0]}{'Join'}).")";
+	}
+
+	if (&IsParam("seenStats")) {
+	    my $i;
+	    $i = $userstats{lc $seen[0]}{'Count'};
+	    $reply .= ".  Has said a total of \002$i\002 messages" if (defined $i);
+	    $i = $userstats{lc $seen[0]}{'Time'};
+	    $reply .= ".  Is idling for ".&Time2String(time() - $i) if (defined $i);
+	}
+    } else {
+	my $howlong = &Time2String(time() - $seen[1]);
+	$reply = "$seen[0] <$seen[3]> was last seen on IRC ".
+		 "in channel $seen[2], $howlong ago, ".
+		 "saying\002:\002 '$seen[4]'.";
+    }
+
+    &performStrictReply($reply);
+    return $noreply;
 }
 
 # User Information Services. requested by Flugh.
