@@ -29,7 +29,6 @@ sub setupSchedulers {
     &leakCheck(2);	# mandatory
     &ignoreCheck(1);	# mandatory
     &seenFlushOld(2);
-#    &ircCheck(2);	# mandatory
     &ircCheck(1);	# mandatory
     &miscCheck(1);	# mandatory
     &miscCheck2(2);	# mandatory
@@ -708,6 +707,9 @@ sub ignoreCheck {
 	    $count++;
 	}
     }
+
+    $cache{ignoreCheckTime} = time();
+
     &VERB("ignore: $count items deleted.",2);
 }
 
@@ -716,6 +718,8 @@ sub ircCheck {
 	&ScheduleThis(15, "ircCheck");
 	return if ($_[0] eq "2");	# defer.
     }
+
+    $cache{statusSafe} = 1;
 
     my @x	= &getJoinChans();
     my $iconf	= scalar( @x );
@@ -756,14 +760,14 @@ sub ircCheck {
 
     if (grep /^\s*$/, keys %channels) {
 	&WARN("ircCheck: we have a NULL chan in hash channels? removing!");
-	if (exists $channels{''}) {
-	    &DEBUG("ircCheck: ok it existed!");
-	} else {
-	    &DEBUG("ircCheck: this hsould never happen!");
+	if (!exists $channels{''}) {
+	    &DEBUG("ircCheck: this should never happen!");
 	}
 
 	delete $channels{''};
     }
+
+    $cache{statusSafe} = 0;
 
     ### USER FILE.
     if ($utime_userfile > $wtime_userfile and time() - $wtime_userfile > 3600) {

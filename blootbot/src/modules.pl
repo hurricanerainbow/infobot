@@ -247,7 +247,7 @@ sub reloadModule {
 	return if ($age == $moduleAge{$file});
 
 	if ($age < $moduleAge{$file}) {
-	    &WARN("rM: we're not gonna downgrade the file. use 'touch'.");
+	    &WARN("rM: we're not gonna downgrade '$file'; use touch.");
 	    return;
 	}
 

@@ -189,6 +189,9 @@ sub on_endofmotd {
 	@joinchan = &getJoinChans(1);
     }
 
+    # ok, we're free to do whatever we want now. go for it!
+    $running = 1;
+
     # unfortunately, Net::IRC does not implement this :(
     # invalid command... what is it?
 #    &rawout("NOTIFY $ident");
@@ -893,7 +896,7 @@ sub on_quit {
 ###    $chan	= $reason;	# no.
 
     my $count	= 0;
-    foreach (keys %channels) {
+    foreach (grep !/^_default$/, keys %channels) {
 	# fixes inconsistent chanstats bug #1.
 	if (!&IsNickInChan($nick,$_)) {
 	    $count++;
