@@ -658,6 +658,7 @@ sub shmFlush {
     }
 
     foreach (split '\|\|', $shmmsg) {
+	next if (/^$/);
 	&VERB("shm: Processing '$_'.",2);
 
 	if (/^DCC SEND (\S+) (\S+)$/) {
@@ -880,6 +881,8 @@ sub factoidCheck {
 }
 
 sub dccStatus {
+    return unless (scalar keys %{ $dcc{CHAT} });
+
     if (@_) {
 	&ScheduleThis(10, "dccStatus");
 	return if ($_[0] eq "2");	# defer.
@@ -889,9 +892,10 @@ sub dccStatus {
 
     my $time = strftime("%H:%M", localtime(time()) );
 
-    return unless (scalar keys %{ $DCC{CHAT} });
-
     foreach (keys %channels) {
+	my $users	= keys %{ $channels{$_}{''};
+	my $chops	= keys %{ $channels{$_}{o};
+	my $bans	= keys %{ $channels{$_}{b};
 	&DCCBroadcast("[$time] $_: $users members ($chops chops), $bans bans","+o");
     }
 }
@@ -931,7 +935,7 @@ sub getChanConfDefault {
 
     if (exists $param{$what}) {
 	if (!exists $cache{config}{$what}) {
-	    &DEBUG("backward-compat: found param{$what} instead.");
+	    &status("gCCD: backward-compat: found param{$what} ($param{$what}) instead.");
 	    $cache{config}{$what} = 1;
 	}
 
@@ -942,9 +946,11 @@ sub getChanConfDefault {
     if (defined $val) {
 	return $val;
     }
+
     $param{$what}	= $default;
-    &status("gCCD: not configured; setting param{$what} = $default");
-    ### TODO: set some vars?
+    &status("gCCD: setting default for param{$what} = $default");
+    $cache{config}{$what} = 1;
+
     return $default;
 }
 
