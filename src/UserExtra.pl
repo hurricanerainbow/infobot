@@ -167,7 +167,7 @@ sub chaninfo {
     }
 
     # TODO: show top 3 with percentages?
-    my($count) = (sort { $new{$a} <=> $new{$b} } keys %new)[0];
+    my($count) = (sort { $new{$b} <=> $new{$a} } keys %new)[0];
     if ($count) {
 	$reply .= ".  \002$count\002 has said the most with a total of \002$new{$count}\002 messages";
     }
