@@ -79,7 +79,6 @@ sub DebianDownload {
 	    my $last_refresh = (stat($file))[9];
 	    $update++ if (time() - $last_refresh > $refresh);
 	} else {
-	    &main::DEBUG("Debian: local '$file' does not exist.");
 	    $update++;
 	}
 
@@ -101,6 +100,13 @@ sub DebianDownload {
 
 	    # error internally to ftp.
 	    # hope it doesn't do anything bad.
+	    if ($file =~ /Contents-woody-i386-non-US/) {
+		&main::DEBUG("Skipping Contents-woody-i386-non-US.");
+		$file =~ s/woody/potato/;
+		$path =~ s/woody/potato/;
+###		next;
+	    }
+
 	    if (!&main::ftpGet($host,$path,$thisfile,$file)) {
 		&main::DEBUG("deb: down: ftpGet($host,$path,$thisfile,$file) == BAD.");
 		$bad++;
