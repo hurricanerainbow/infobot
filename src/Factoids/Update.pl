@@ -70,6 +70,20 @@ sub update {
 	    if ($also_or) {			# 'is also ||'.
 		$rhs = $exists.' || '.$rhs;
 	    } else {
+#		if ($exists =~ s/\,\s*$/,  /) {
+		if ($exists =~ /\,\s*$/) {
+		    &DEBUG("current has trailing comma, just append as is");
+		    # $rhs =~ s/^\s+//;
+		    # $rhs = $exists." ".$rhs;	# keep comma.
+		}
+
+		if ($exists =~ /\.\s*$/) {
+		    &DEBUG("current has trailing period, just append as is with 2 WS");
+		    # $rhs =~ s/^\s+//;
+		    # use ucfirst();?
+		    # $rhs = $exists."  ".$rhs;	# keep comma.
+		}
+
 		if ($rhs =~ /^[A-Z]/) {
 		    if ($rhs =~ /\w+\s*$/) {
 			&status("auto insert period to factoid.");
