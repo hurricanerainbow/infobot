@@ -13,15 +13,19 @@ sub Search {
     my ($type, $str) = @_;
     my $start_time = &::timeget();
     my @list;
+    my $maxshow = $::param{'maxListReplyCount'} || 10;
 
     $type =~ s/s$//;	# nice work-around.
 
-    if ($type eq "value") {	# search by value.
+    if ($type eq "value") {
+	# search by value.
 	@list = &::searchTable("factoids", "factoid_key", "factoid_value", $str);
-    } else {			# search by key.
+    } else {
+	# search by key.
 	@list = &::searchTable("factoids", "factoid_key", "factoid_key", $str);
     }
 
+    @list=grep(!/\#DEL\#$/,@list) if (scalar(@list) > $maxshow);
     my $delta_time = sprintf("%.02f", &::timedelta($start_time) );
     &::status("search: took $delta_time sec for query.") if ($delta_time > 0);
 
