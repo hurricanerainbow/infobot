@@ -7,6 +7,3 @@ CREATE TABLE connections (
  timeadded INT UNSIGNED DEFAULT 'UNIX_TIMESTAMP()',
  PRIMARY KEY (server,port,nick)
 );
-INSERT INTO connections (server, port, nick, nickservpass, ircname) VALUES ('localhost','6667','abot','0password', 'abot blootbot');
-INSERT INTO connections (server, port, nick, nickservpass, ircname) VALUES ('localhost','6667','bbot','0password', 'bbot blootbot');
-INSERT INTO connections (server, port, nick, nickservpass, ircname) VALUES ('localhost','6667','cbot','0password', 'cbot blootbot');
