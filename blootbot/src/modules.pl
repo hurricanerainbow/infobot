@@ -6,6 +6,7 @@
 #
 
 if (&IsParam("useStrict")) { use strict; }
+use vars qw($AUTOLOAD);
 
 ###
 ### REQUIRED MODULES.
@@ -330,5 +331,12 @@ $no_syscall = 0;
     $no_syscall = 1;
 #}
 #&showProc(" (syscall)");
+
+sub AUTOLOAD {
+    &ERROR("UNKNOWN FUNCTION CALLED: $AUTOLOAD");
+    foreach (@_) {
+	&status("  => $_");
+    }
+}
 
 1;
