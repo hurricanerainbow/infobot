@@ -333,7 +333,7 @@ sub status {
 	    print "$printable\n";
 	}
     } else {
-	print "VERBOSITY IS OFF?\n";
+	#print "VERBOSITY IS OFF?\n";
     }
 
     # log the line into a file.

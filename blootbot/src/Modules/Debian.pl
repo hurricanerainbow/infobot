@@ -140,6 +140,13 @@ sub DebianDownload {
 #		system("cp debian/Contents-potato-i386-non-US.gz debian/Contents-woody-i386-non-US.gz");
 #	    }
 
+	    my $exit = CORE::system("/bin/gzip -t $file >/dev/null 2>&1");
+	    if ($exit) {
+		&::WARN("deb: $file is corrupted :/");
+		unlink $file;
+		next;
+	    }
+
 	    &::DEBUG("deb: download: good.") if ($debug);
 	    $good++;
 	} else {
@@ -150,7 +157,7 @@ sub DebianDownload {
     }
 
     # ok... lets just run this.
-    &::miscCheck();
+    &::miscCheck() if (&::whatInterface() =~ /IRC/);
 
     if ($good) {
 	&generateIndex($dist);
@@ -394,6 +401,7 @@ sub searchAuthor {
 	    $package = "";
 
 	} else {
+	    chop;
 	    &::WARN("debian: invalid line: '$_' (1).");
 	}
     }
@@ -503,6 +511,7 @@ sub searchDesc {
 	    $package = "";
 
 	} else {
+	    chop;
 	    &::WARN("debian: invalid line: '$_'. (2)");
 	}
     }
@@ -589,7 +598,7 @@ sub getPackageInfo {
 	# package line.
 	if (/^Package: (.*)\n$/) {
 	    $pkg = $1;
-	    if ($pkg =~ /^$package$/i) {
+	    if ($pkg =~ /^\Q$package\E$/i) {
 		$found++;	# we can use pkg{'package'} instead.
 		$pkg{'package'} = $pkg;
 	    }

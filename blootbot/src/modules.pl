@@ -109,12 +109,8 @@ sub loadDBModules {
 
     } elsif ($param{'DBType'} =~ /^dbm$/i) {
 
-	&status("  using Berkeley DBM 1.85/2.0 support.");
-	&ERROR("dbm support is broken... if you want it, fix it yourself!");
-	&shutdown();
-	exit 1;
-
-#	require "$bot_src_dir/db_dbm.pl";
+	&status("  using Berkeley DBM support.");
+	require "$bot_src_dir/db_dbm.pl";
     } else {
 
 	&status("DB support DISABLED.");
@@ -145,7 +141,8 @@ sub loadFactoidsModules {
 }
 
 sub loadIRCModules {
-    if (&whatInterface() =~ /IRC/) {
+    my ($interface) = &whatInterface();
+    if ($interface =~ /IRC/) {
 	&status("Loading IRC modules...");
 
 	eval "use Net::IRC";
@@ -154,18 +151,20 @@ sub loadIRCModules {
 	    exit 1;
 	}
 	&showProc(" (Net::IRC)");
-
     } else {
 	&status("IRC support DISABLED.");
-	return;
+	# disabling forking.
+	$param{forking}	= 0;
+	$param{noSHM}	= 1;
     }
 
-    foreach ( &getPerlFiles("$bot_src_dir/IRC") ) {
-	my $mod = "$bot_src_dir/IRC/$_";
+    foreach ( &getPerlFiles("$bot_src_dir/$interface") ) {
+	my $mod = "$bot_src_dir/$interface/$_";
 
+	&status("Loading Modules \"$mod\"");
 	eval "require \"$mod\"";
 	if ($@) {
-	    &ERROR("lIRCM => $@");
+	    &ERROR("require \"$mod\" => $@");
 	    &shutdown();
 	    exit 1;
         }

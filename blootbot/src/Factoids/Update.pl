@@ -224,9 +224,9 @@ sub update {
 	&status("update: <$who> \'$lhs\' =$mhs=> \'$rhs\'; was \'$exists\'");
 
 	# should dbReplace be used here?
-	&delFactoid($lhs);
-	&setFactInfo($lhs,"created_by", $nuh);
-	&setFactInfo($lhs,"created_time", time());
+	#&delFactoid($lhs); # breaks dbm. leave it and use modified_* - Tim Riker <Tim@Rikers.org>
+	&setFactInfo($lhs,"modified_by", $nuh);
+	&setFactInfo($lhs,"modified_time", time());
 	&setFactInfo($lhs,"factoid_value", $rhs);
 
 	if (!defined $rhs or $rhs eq "") {

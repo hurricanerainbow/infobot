@@ -23,13 +23,16 @@ sub cliloop {
     $who = "local";
     $orig{who} = "local";
     $ident = $param{'ircNick'};
-    $talkchannel = "#CLI";
+    $chan = $talkchannel = "#cli";
     $addressed = 1;
+    $msgType = 'public';
 
     print ">>> ";
     while (<STDIN>) {
 	$orig{message} = $_;
-	$_ = &process("local", 'public', $_);
+	$message = $_;
+	chomp $message;
+	$_ = &process() if $message;
 	print ">>> ";
     }
 }

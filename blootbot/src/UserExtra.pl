@@ -232,7 +232,7 @@ sub karma {
 sub ispell {
     my $query = shift;
 
-    if (! -x "/usr/bin/spell") {
+    if (! -x "/usr/bin/ispell") {
 	&msg($who, "no binary found.");
 	return;
     }
@@ -825,6 +825,8 @@ sub userCommands {
 	if ($param{'ircNick'} eq $ident) {
 	    &msg($who, "I hope you're right. I'll try anyway.");
 	}
+	&DEBUG("ircNick => $param{'ircNick'}");
+	&DEBUG("ident => $ident");
 
 	if (! &IsNickInAnyChan( $param{ircNick} ) ) {
 	    my $str = "attempting to change nick to $param{'ircNick'}";
@@ -832,8 +834,9 @@ sub userCommands {
 	    &msg($who, $str);
 	    &nick($param{'ircNick'});
 	} else {
-	    &msg($who, "hrm... can't do it");
+	    &msg($who, "hrm.. I shouldn't do it (BUG?) but doing it anyway!");
 	    &DEBUG("wN: nick is somewhere... should try later.");
+	    &nick($param{'ircNick'});
 	}
 
 	return;
