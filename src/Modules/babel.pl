@@ -27,23 +27,23 @@ BEGIN {
   # expects.
     use vars qw!%lang_code $lang_regex!;
     %lang_code = (
-                'fr' => 'fr',
-                'sp' => 'es',
-                'es' => 'es',
-                'po' => 'pt',
-                'pt' => 'pt',
-                'it' => 'it',
-                'ge' => 'de',
-                'de' => 'de',
-                'gr' => 'de',
-                'en' => 'en',
-                'zh' => 'zh',
-                'ja' => 'ja',
-                'jp' => 'ja',
-                'ko' => 'ko',
-                'kr' => 'ko',
-                'ru' => 'ru'
-               );
+		'fr' => 'fr',
+		'sp' => 'es',
+		'es' => 'es',
+		'po' => 'pt',
+		'pt' => 'pt',
+		'it' => 'it',
+		'ge' => 'de',
+		'de' => 'de',
+		'gr' => 'de',
+		'en' => 'en',
+		'zh' => 'zh',
+		'ja' => 'ja',
+		'jp' => 'ja',
+		'ko' => 'ko',
+		'kr' => 'ko',
+		'ru' => 'ru'
+	       );
 
   # Here's how we recognize the language you're asking for.  It looks
   # like RTSL saves you a few keystrokes in #perl, huh?
@@ -60,7 +60,8 @@ sub babelfish {
 
   my $ua = new LWP::UserAgent;
   $ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
-  $ua->agent("Mozilla/4.5 " . $ua->agent);        # Let's pretend
+  # Let's pretend
+  $ua->agent("Mozilla/4.5 " . $ua->agent);
   $ua->timeout(5);
 
   my $req =
@@ -115,11 +116,11 @@ sub translate {
 
 if (0) {
     if (-t STDIN) {
-        #my $result = babel::babelfish('en','sp','hello world');
-        #my $result = babel::babelfish('en','sp','The cheese is old and moldy, where is the bathroom?');
-        my $result = babel::babelfish('en','gr','doesn\'t seem to translate things longer than 40 characters');
-        $result =~ s/; /\n/g;
-        print "Babelfish says: \"$result\"\n";
+	#my $result = babel::babelfish('en','sp','hello world');
+	#my $result = babel::babelfish('en','sp','The cheese is old and moldy, where is the bathroom?');
+	my $result = babel::babelfish('en','gr','doesn\'t seem to translate things longer than 40 characters');
+	$result =~ s/; /\n/g;
+	print "Babelfish says: \"$result\"\n";
     }
 }
 

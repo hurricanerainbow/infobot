@@ -15,7 +15,7 @@ Problem #2: [UPDATED 20000224]
 	has not received notification of the new topic before
 	changing to the second modification of the topic, it
 	would use the absolute first (0) topic as a reference,
-	therefore missing out on the first alteration of the 
+	therefore missing out on the first alteration of the
 	topic.
 
 	A very cheap solution exists. Edit IrcHooks.pl, search for
@@ -53,7 +53,7 @@ Problem #4: 199912xx
 	just 1 (total of 2), depending on the return of SELECT. If this
 	still persists and memory leaks are happening, first make
 	sure you are not using broken mysql tables, secondly bitch at the
-	mysql-perl author that there is a memory leak when a broken table 
+	mysql-perl author that there is a memory leak when a broken table
 	is in use.
 
 Problem #5:
@@ -71,7 +71,7 @@ Problem #5:
 	since __WARN__ hooks are not called from inside one.
 
 	### From 'perlvar'...
-	Note that __DIE__/__WARN__ handlers are very special in one 
+	Note that __DIE__/__WARN__ handlers are very special in one
 	respect: they may be called to report (probable) errors found by
 	the parser.  In such a case the parser may be in inconsistent
 	state, so any attempt to evaluate Perl code from such a handler

@@ -11,10 +11,10 @@ INSTALL.mysql
 
 = Possible problems
     - if connection to localhost is (short) refused, run
-            '/etc/init.d/mysql stop'
-            '/etc/init.d/mysql start'
+	    '/etc/init.d/mysql stop'
+	    '/etc/init.d/mysql start'
     - if connection for user is refused, reload grant tables with
-            'mysqladmin -u root -p reload'
+	    'mysqladmin -u root -p reload'
 
 * [OPTIONAL]
     - run 'scripts/dbm2mysql.pl old-db' to convert dbm database file

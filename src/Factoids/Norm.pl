@@ -28,7 +28,7 @@ sub normquery {
 	s/,?\s*(pretty )*please\??\s*$/\?/i;
 
 	# what country is ...
-	if ($in =~ 
+	if ($in =~
 	    s/wh(at|ich)\s+(add?res?s|country|place|net (suffix|domain))/wh$1 /ig) {
 	    if ((length($in) == 2) && ($in !~ /^\./)) {
 		$in = '.'.$in;

@@ -5,7 +5,7 @@
 
 use strict;
 use vars qw($bot_base_dir $bot_src_dir $bot_misc_dir $bot_state_dir
-	    $bot_data_dir $bot_config_dir $bot_log_dir $bot_run_dir 
+	    $bot_data_dir $bot_config_dir $bot_log_dir $bot_run_dir
 	    $bot_pid $memusage %param
 );
 
@@ -47,7 +47,7 @@ BEGIN {
 # prevent duplicate processes of the same bot
 &duperuncheck();
 
-# initialize everything 
+# initialize everything
 &startup();	# first time initialization.
 &setup();
 

@@ -172,7 +172,7 @@ sub downloadIndex {
 
     ### lets get on with business.
     # set the last refresh time. fixes multiple spawn bug.
-    &::dbSet("freshmeat", 
+    &::dbSet("freshmeat",
 	{ "projectname_short"	=> "_" },
 	{ "latest_version"	=> time(),
 	  "desc_short"		=> "dummy project to track date" }
@@ -341,7 +341,7 @@ sub xml_end {
 
 	if ($i % 200 == 0 and $i != 0) {
 	    &::showProc();
-	    &::status("FM: unlocking and locking ($i): ". 
+	    &::status("FM: unlocking and locking ($i): ".
 		&::Time2String( time() - $locktime ) );
 	    $locktime = time();
 

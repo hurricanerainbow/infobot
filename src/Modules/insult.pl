@@ -18,7 +18,7 @@ sub Insult {
 
     $line = "No luck, $::who" unless (defined $line);
 
-    if ($insultwho ne $::who) { 
+    if ($insultwho ne $::who) {
 	$line =~ s/^\s*You are/$insultwho is/i;
     }
 

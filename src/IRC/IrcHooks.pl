@@ -899,7 +899,7 @@ sub on_public {
 	$v++;
 
 	# don't allow ppl to cheat the stats :-)
-	if (defined $t && $time - $t > 60) { 
+	if (defined $t && $time - $t > 60) {
 	    &sqlReplace("stats", {
 		nick	=> $who,
 		type	=> $x,

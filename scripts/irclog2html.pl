@@ -273,7 +273,7 @@ sub main {
 
 			elsif ($line =~ /^&gt\;&gt\;&gt\; /) {
 				$line =~ s/^&gt\;&gt\;&gt\; /\*\*\* /;
-					
+
 				# Process changed nick results, and remember colours accordingly #
 				if ($line =~ /\*\*\* (.*?) are|is now known as (.*)/) {
 					my $nick_old;

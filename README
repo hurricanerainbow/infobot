@@ -50,7 +50,7 @@ cases. preliminary pgsql support has been added but someone with pgperl
 knowledge needs to fix it up or at least unify the module with mysql.
 
 INSTALLATION
-  - Read the included INSTALL file 
+  - Read the included INSTALL file
 
 NOTICE
 	Be warned that this bot consumes quite a lot of memory upon start
@@ -66,7 +66,7 @@ However, these people do not realize the potential of open wingates.
 test all modifications properly (and extensively).  Suggestions are
 welcomed.
 
-	gp@OPN is currently working on a C version of infobot or 
+	gp@OPN is currently working on a C version of infobot or
 blootbot, not based on the above source base.  Core factoid code and
 mysql support works - but that is it.
 
@@ -80,7 +80,7 @@ features listed in 'TODO'.
 you to find the cookies than for me to hand-feed them to you ;)
 
 	See 'EXAMPLES' for various usage of factoids and "hidden"
-variables.  If you're hardcore, check out 'CommandStubs.pl' and 
+variables.  If you're hardcore, check out 'CommandStubs.pl' and
 'UserExtras.pl' for cool features.
 
 	topic [help]		- Topic help.

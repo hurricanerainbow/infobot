@@ -558,7 +558,7 @@ sub searchTable {
     $str =~ s/\*/%/g;
     # end of string fix.
 
-    my $query = "SELECT $select FROM $table WHERE $key LIKE ". 
+    my $query = "SELECT $select FROM $table WHERE $key LIKE ".
 		&sqlQuote($str);
     my $sth = $dbh->prepare($query);
 

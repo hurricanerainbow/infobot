@@ -29,7 +29,7 @@ sub getReply {
     $message =~ tr/A-Z/a-z/;
     $message =~ s/^cmd:/CMD:/;
 
-    my ($count, $fauthor, $result) = &sqlSelect("factoids", 
+    my ($count, $fauthor, $result) = &sqlSelect("factoids",
 	"requested_count,created_by,factoid_value",
 	{ factoid_key => $message }
     );

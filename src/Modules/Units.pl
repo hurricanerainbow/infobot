@@ -1,6 +1,6 @@
 #   Units.pl: convert units of measurement
 #     Author: M-J. Dominus (mjd-perl-units-id-iut+buobvys+@plover.com)
-#    License: GPL, Copyright (C) 1996,1999 
+#    License: GPL, Copyright (C) 1996,1999
 #       NOTE: Integrated into blootbot by xk.
 
 package Units;
@@ -122,7 +122,7 @@ sub convertUnits {
   } else {
     &::performStrictReply("$from cannot be correctly converted to $to.");
 
-#    print 
+#    print
 #      "conformability (Not the same dimension)\n",
 #      "\t", $from, " is ", text_unit($hu), "\n",
 #      "\t", $to, " is ", text_unit($wu), "\n",
@@ -149,7 +149,7 @@ sub read_defs {
     print ">>> $_\n" if $DEBUG_d;
     my $r = definition_line($_);
     unless (defined $r) {
-      warn "Error in line $. of $file: $PARSE_ERROR.  Skipping.\n";  
+      warn "Error in line $. of $file: $PARSE_ERROR.  Skipping.\n";
     }
   }
   print STDERR "Loaded file `$file'.\n" if $show_file_loading;
@@ -302,7 +302,7 @@ sub text_unit {
     $text .= " $d";
     $text .= "^$e" if $e > 1;
   }
-  
+
   $text;
 }
 ################################################################
@@ -313,7 +313,7 @@ sub text_unit {
 BEGIN {
   sub sh { ['shift', $_[0]]  };
   sub go { ['goto', $_[0]] };
-  @actions = 
+  @actions =
     (
      # Initial state
      {PREFIX => sh(1),
@@ -355,7 +355,7 @@ BEGIN {
       DIVIDE => sh(12),
       _ =>  ['reduce', 1, 'topunit'],
      },
-     # State 8:   unit -> constant . unit 
+     # State 8:   unit -> constant . unit
      #            unit -> constant .
      {PREFIX => sh(1),
       NUMBER => sh(2), # Shift-reduce conflict resolved in favor of shift
@@ -389,7 +389,7 @@ BEGIN {
      },
      # State 11:  unit -> unit TIMES . unit
      {PREFIX => sh(1),
-      NUMBER => sh(2), 
+      NUMBER => sh(2),
       NAME   => sh(3),
       FUNDAMENTAL => sh(4),
       FRACTION => sh(5),
@@ -399,7 +399,7 @@ BEGIN {
      },
      # State 12:  unit -> unit DIVIDE . unit
      {PREFIX => sh(1),
-      NUMBER => sh(2), 
+      NUMBER => sh(2),
       NAME   => sh(3),
       FUNDAMENTAL => sh(4),
       FRACTION => sh(5),
@@ -409,7 +409,7 @@ BEGIN {
      },
      # State 13:  unit -> unit . TIMES unit
      #            unit -> unit . DIVIDE unit
-     #            unit -> constant unit . 
+     #            unit -> constant unit .
      #            unit -> unit . NUMBER
      {NUMBER => sh(10), # Shift-reduce conflict resolved in favor of shift
       TIMES => sh(11),  # Shift-reduce conflict resolved in favor of shift
@@ -419,16 +419,16 @@ BEGIN {
      # State 14: unit => '(' unit ')' .
      { _ => ['reduce', 3, 'unit', sub {$_[1]}] },
      # State 15: unit  ->  unit . TIMES unit
-     #           unit  ->  unit TIMES unit . 
+     #           unit  ->  unit TIMES unit .
      #           unit  ->  unit . DIVIDE unit
-     #           unit  ->  unit . NUMBER 
+     #           unit  ->  unit . NUMBER
      {NUMBER => sh(10), # Shift-reduce conflict resolved in favor of shift
       _ => ['reduce', 3, 'unit', sub {unit_multiply($_[0], $_[2])}],
      },
      # State 16: unit  ->  unit . TIMES unit
-     #           unit  ->  unit DIVIDE unit . 
-     #           unit  ->  unit . DIVIDE unit 
-     #           unit  ->  unit . NUMBER  
+     #           unit  ->  unit DIVIDE unit .
+     #           unit  ->  unit . DIVIDE unit
+     #           unit  ->  unit . NUMBER
      {NUMBER => sh(10), # Shift-reduce conflict resolved in favor of shift
       _ => ['reduce', 3, 'unit', sub{unit_divide($_[2], $_[0])}],
      },
@@ -463,7 +463,7 @@ sub parse_unit {
       $PARSE_ERROR = 'Syntax error';
       return Zero;
     }
-    
+
     my ($primary, @actargs) = @$action;
     print STDERR "  $primary (@actargs)\n" if $DEBUG_p;
     if ($primary eq 'accept') {
@@ -489,7 +489,7 @@ sub parse_unit {
       push @state_st, $STATE;
 #      $STATE = $state_st[-1];
       print STDERR "Post-reduction state is $STATE.\n" if $DEBUG_p;
-      
+
       # Now look for `goto' actions
       my $goto = $actions[$STATE]{$result_type};
       unless ($goto && $goto->[0] eq 'goto') {
@@ -509,16 +509,16 @@ sub parse_unit {
 sub lex {
   my ($s) = @_;
   my @t = split /(
-                   \*{3}        # Special `new unit' symbol
-                |  [()*-]	# Symbol
-                |  \s*(?:\/|\bper\b)\s*      # Division
-	        |  \d*\.\d+(?:[eE]-?\d+)? # Decimal number
-                |  \d+\|\d+     # Fraction
-                |  \d+          # Integer
-#                |  (?:$PREF)-?  # Prefix (handle differently)
+		   \*{3}        # Special `new unit' symbol
+		|  [()*-]	# Symbol
+		|  \s*(?:\/|\bper\b)\s*      # Division
+		|  \d*\.\d+(?:[eE]-?\d+)? # Decimal number
+		|  \d+\|\d+     # Fraction
+		|  \d+          # Integer
+#		|  (?:$PREF)-?  # Prefix (handle differently)
 		|  [A-Za-z_][A-Za-z_.]* # identifier
-	        |  \s+		# White space
-                )/ox, $s;
+		|  \s+		# White space
+		)/ox, $s;
   @t = grep {$_ ne ''} @t;	# Discard empty and all-white tokens
   \@t;
 }

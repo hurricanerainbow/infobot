@@ -18,7 +18,7 @@ $w3search_regex   = "google";
 
 ### COMMAND HOOK IMPLEMENTATION.
 # addCmdHook("SECTION", 'TEXT_HOOK',
-#	(CODEREF	=> 'Blah', 
+#	(CODEREF	=> 'Blah',
 #	Forker		=> 1,
 #	CheckModule	=> 1,			# ???
 #	Module		=> 'blah.pl'		# preload module.
@@ -190,7 +190,7 @@ sub parseCmdHook {
 	'Forker' => 1, 'Identifier' => 'kernel',
 	'Cmdstats' => 'Kernel', 'NoArgs' => 1) );
 &addCmdHook("extra", 'listauth', ('CODEREF' => 'CmdListAuth',
-	'Identifier' => 'search', Module => 'factoids', 
+	'Identifier' => 'search', Module => 'factoids',
 	'Help' => 'listauth') );
 &addCmdHook("extra", 'quote', ('CODEREF' => 'Quote::Quote',
 	'Forker' => 1, 'Identifier' => 'quote',
