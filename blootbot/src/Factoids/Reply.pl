@@ -67,7 +67,7 @@ sub getReply {
 	    &setFactInfo($lhs,"requested_time", time());
 	    &setFactInfo($lhs,"requested_count", $count);
 	} else {
-	    &dbReplace("factoids", (
+	    &dbReplace("factoids", "factoid_key", (
 		factoid_key	=> $lhs,
 		requested_by	=> $nuh,
 		requested_time	=> time(),
@@ -252,6 +252,7 @@ sub substVars {
     $date	=~ s/\:\d+(\s+\w+)\s+\d+$/$1/;
     $reply	=~ s/\$date/$date/gi;
     $date	=~ s/\w+\s+\w+\s+\d+\s+//;
+    # todo: support UTC.
     $reply	=~ s/\$time/$date/gi;
 
     # dollar variables.
@@ -274,20 +275,30 @@ sub substVars {
 
     if ($reply =~ /\$rand/) {
 	my $rand  = rand();
-	my $randp = int($rand*100);
-	$reply =~ s/\$randpercentage/$randp/g;	# ???
-	# randnick.
+
+	# $randnick.
 	if ($reply =~ /\$randnick/) {
 	    my @nicks = keys %{ $channels{$chan}{''} };
 	    my $randnick = $nicks[ int($rand*$#nicks) ];
-	    s/\$randnick/$randnick/;
+	    $reply =~ s/\$randnick/$randnick/g;
 	}
 
+	# eg: $rand100.3
 	### TODO: number of digits. 'x.y'
-	if ($reply =~ /\$rand(\d+)/) {
-	    # will this work as it does in C?
-	    $rand = sprintf("%*f", $1, $rand);
+	# too hard.
+	if ($reply =~ /\$rand(\d+)(\.(\d+))?/) {
+	    my $max = $1;
+	    my $dot = $3 || 0;
+	    &status("dot => $dot, max => $max, rand=>$rand");
+	    $rand = sprintf("%.*f", $dot, $rand*$max);
+	    my $orig = $&;
+
+	    &status("swapping $orig to $rand");
+	    &status("reply => $reply");
+	    $reply =~ s/$orig/$rand/eg;
+	    &status("reply => $reply");
 	}
+
 	$reply =~ s/\$rand/$rand/g;
     }
 

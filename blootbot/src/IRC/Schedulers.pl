@@ -246,8 +246,17 @@ sub seenFlushOld {
     my $max_time = &getChanConfDefault("seenMaxDays", 30) *60*60*24;
     my $delete   = 0;
 
-    if ($param{'DBType'} =~ /^pg|postgres|mysql/i) {
-	my $query = "SELECT nick,time FROM seen GROUP BY nick HAVING UNIX_TIMESTAMP() - time > $max_time";
+    if ($param{'DBType'} =~ /^pgsql|mysql/i) {
+	my $query;
+
+	if ($param{'DBType'} =~ /^mysql$/i) {
+	    $query = "SELECT nick,time FROM seen GROUP BY nick HAVING ".
+			"UNIX_TIMESTAMP() - time > $max_time";
+	} else {	# pgsql.
+	    $query = "SELECT nick,time FROM seen WHERE ".
+		"extract(epoch from timestamp 'now') - time > $max_time";
+	}
+
 	my $sth = $dbh->prepare($query);
 	$sth->execute;
 
@@ -364,7 +373,6 @@ sub chanlimitCheck {
     }
 
     my $str = join(' ', &ChanConfList("chanlimitcheck") );
-    &DEBUG("chanlimitCheck: str => $str");
 
     foreach $chan ( &ChanConfList("chanlimitcheck") ) {
 	next unless (&validChan($chan));
@@ -383,6 +391,7 @@ sub chanlimitCheck {
 		&status("chanlimit: netsplit; removing it for $chan.");
 		&rawout("MODE $chan -l");
 		$cache{chanlimitChange}{$chan} = time();
+		&status("chanlimit: netsplit; removed.");
 	    }
 
 	    next;
@@ -541,9 +550,9 @@ sub seenFlush {
     $stats{'new'}	= 0;
     $stats{'old'}	= 0;
 
-    if ($param{'DBType'} =~ /^mysql|pg|postgres/i) {
+    if ($param{'DBType'} =~ /^(mysql|pgsql)$/i) {
 	foreach $nick (keys %seencache) {
-	    my $retval = &dbReplace("seen", (
+	    my $retval = &dbReplace("seen", "nick", (
 			"nick" => $seencache{$nick}{'nick'},
 			"time" => $seencache{$nick}{'time'},
 			"host" => $seencache{$nick}{'host'},

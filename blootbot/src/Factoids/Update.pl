@@ -114,7 +114,7 @@ sub update {
 	} else {
 	    ### BROKEN!!!
 	    # I'd prefer to use dbReplace but it don't work.
-	    &dbReplace("factoids", (
+	    &dbReplace("factoids", "factoid_key", (
 		factoid_key	=> $lhs,
 		created_by	=> time(),
 		factoid_value	=> $rhs,

@@ -44,16 +44,24 @@ sub Countdown {
 	### SQL SPECIFIC.
 	my ($to_days,$dayname,$monname);
 
-	if ($param{'DBType'} =~ /pg|postgres|mysql/i) {
+	if ($param{'DBType'} =~ /^mysql$/i) {
 	    $to_days = (&dbRawReturn("SELECT TO_DAYS(NOW()) - TO_DAYS('$sqldate')"))[0];
 	    $dayname = (&dbRawReturn("SELECT DAYNAME('$sqldate')"))[0];
 	    $monname = (&dbRawReturn("SELECT MONTHNAME('$sqldate')"))[0];
+
+	} elsif ($param{'DBType'} =~ /^pgsql$/i) {
+	    $to_days = (&dbRawReturn("SELECT date_trunc('day', 
+				'now'::timestamp - '$sqldate')"))[0];
+	    $dayname = qw(Sun Mon Tue Wed Thu Fri Sat)[(&dbRawReturn("SELECT extract(dow from timestamp '$sqldate')"))[0]];
+	    $monname = qw(BAD Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)[(&dbRawReturn("SELECT extract(month from timestamp '$sqldate')"))[0]];
+
 	} elsif ($param{'DBType'} =~ /^dbm$/i) {
 	    &DEBUG("Countdown: FIXME!!!");
 #	    $to_days = 
 #	    $dayname = 
 #	    $monname = 
 	    return 1;
+
 	} else {
 	    &ERROR("Countdown: invalid DBType?");
 	    return 1;

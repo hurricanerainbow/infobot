@@ -186,7 +186,7 @@ sub downloadIndex {
     # set the last refresh time. fixes multiple spawn bug.
     &::dbSet("freshmeat", 
 	{ "projectname_short"	=> "_" },
-	{ "latest_version"	=> time()
+	{ "latest_version"	=> time(),
 	  "desc_short"		=> "" }
     );
 
@@ -326,6 +326,9 @@ sub xml_end {
     $pkg{$text} = $string;
 
     if ($expat->depth == 0) {
+
+	# old code.
+	if (0) {
 	for (my $j=0; $j<scalar @cols; $j++) {
 	    $data[$j] = $pkg{ $cols[$j] };
 	}
@@ -333,6 +336,18 @@ sub xml_end {
 
 	&::dbSetRow("freshmeat", [@data], "DELAY");
 	undef @data;
+	}
+
+	# new code.
+	$i++;
+	my %data;
+	foreach(@cols) {
+	    $data{$_} = $pkg{$_};
+	}
+	&::dbReplace("freshmeat", "projectname_short", %data);
+	undef %data;
+	# end of new code.
+
 	undef %pkg;
 
 	if ($i % 200 == 0 and $i != 0) {

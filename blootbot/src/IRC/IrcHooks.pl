@@ -353,7 +353,8 @@ sub on_disconnect {
     $ircstats{'DisconnectTime'}		= time();
     $ircstats{'DisconnectReason'}	= $what;
     $ircstats{'DisconnectCount'}++;
-    $ircstats{'TotalTime'}	+= time() - $ircstats{'ConnectTime'};
+    $ircstats{'TotalTime'}	+= time() - $ircstats{'ConnectTime'}
+					if ($ircstats{'ConnectTime'});
 
     # clear any variables on reconnection.
     $nickserv = 0;
@@ -858,7 +859,7 @@ sub on_public {
 	    );
 		
 
-	    &dbReplace("stats", %hash);
+	    &dbReplace("stats", "nick", %hash);
 	    # does not work, atleast with old mysql!!! :(
 #	    &dbReplace("stats", (nick => $who, type => $x, -counter => "counter+1") );
 	}

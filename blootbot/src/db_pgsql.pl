@@ -13,7 +13,8 @@ sub openDB {
     $dbh = DBI->connect($connectstr, $param{'SQLUser'}, $param{'SQLPass'});
 
     if (!$dbh->err) {
-	&status("Opened PgSQL connection to $param{'SQLHost'}");
+	&status("Opened pgSQL connection".
+		(exists $param{'SQLHost'} ? " to ".$param{'SQLHost'} : ""));
     } else {
 	&ERROR("cannot connect to $param{'SQLHost'}.");
 	&ERROR("pgSQL: ".$dbh->errstr);
@@ -29,7 +30,7 @@ sub openDB {
 sub closeDB {
     return 0 unless ($dbh);
 
-    &status("Closed pgSQL connection to $param{'SQLHost'}.");
+    &status("Closed pgSQL connection.");
     $dbh->disconnect();
 
     return 1;
@@ -147,11 +148,7 @@ sub dbGetColNiceHash {
 	return;
     }
 
-    # todo: get column names, do $hash{$primkey}{blah} = ...
-    while (my @row = $sth->fetchrow_array) {
-	# todo: reverse it to make it easier to count.
-    }
-
+    %retval = %{ $sth->fetchrow_hashref() };
     $sth->finish;
 
     return %retval;
@@ -162,8 +159,8 @@ sub dbGetColNiceHash {
 sub dbGetColInfo {
     my ($table) = @_;
 
-#    my $query = "SELECT * FROM $table LIMIT 1;";
-    my $query = "SHOW COLUMNS from $table";
+    my $query = "SELECT * FROM $table LIMIT 1;";
+#    my $query = "SHOW COLUMNS from $table";
     my %retval;
 
     my $sth = $dbh->prepare($query);
@@ -175,18 +172,10 @@ sub dbGetColInfo {
 	return;
     }
 
-    if (0) {
-	%retval=%{$sth->fetchrow_hashref()};
-	return keys %retval;
-    }
-
-    my @cols;
-    while (my @row = $sth->fetchrow_array) {
-	push(@cols, $row[0]);
-    }
+    %retval = %{ $sth->fetchrow_hashref() };
     $sth->finish;
 
-    return @cols;
+    return keys %retval;
 }
 
 #####
@@ -257,21 +246,15 @@ sub dbUpdate {
 #####
 # Usage: &dbInsert($table, $primkey, $primval, %hash);
 sub dbInsert {
-    my ($table, $primkey, $primval, %hash, $delay) = @_;
+    my ($table, $primkey, $primval, %hash) = @_;
     my (@keys, @vals);
-    my $p	= "";
-
-    if ($delay) {
-	&DEBUG("dbI: delay => $delay");
-	$p	= " DELAYED";
-    }
 
     foreach (keys %hash) {
 	push(@keys, $_);
 	push(@vals, &dbQuote($hash{$_}));
     }
 
-    &dbRaw("Insert($table)", "INSERT $p INTO $table (".join(',',@keys).
+    &dbRaw("Insert($table)", "INSERT INTO $table (".join(',',@keys).
                ") VALUES (".join(',',@vals).")"
     );
 
@@ -279,13 +262,15 @@ sub dbInsert {
 }
 
 #####
-# Usage: &dbReplace($table, %hash);
+# Usage: &dbReplace($table, $key, %hash);
 #  Note: dbReplace does optional dbQuote.
 sub dbReplace {
-    my ($table, %hash) = @_;
+    my ($table, $key, %hash) = @_;
     my (@keys, @vals);
-    my $iquery = "INSERT INTO $table ";
-    my $uquery = "UPDATE $table SET ";
+    my $where	= "WHERE $key=".&dbQuote($hash{$key});
+    my $squery	= "SELECT $key FROM $table $where;";
+    my $iquery	= "INSERT INTO $table ";
+    my $uquery	= "UPDATE $table SET ";
 
     foreach (keys %hash) {
 	if (s/^-//) {   # as is.
@@ -297,19 +282,22 @@ sub dbReplace {
 	}
 	$uquery .= "$keys[-1] = $vals[-1], ";
     }
-    $uquery = ~s/, $/;/;
+    $uquery = ~s/, $/ $where;/;
     $iquery .= "(". join(',',@keys) .") VALUES (". join(',',@vals) .");";
 
-    &DEBUG($query) if (0);
+    &DEBUG($squery) if (0);
 
-    if(!&dbRaw("Replace($table)", $iquery)) {
+    if(&dbRawReturn($squery)) {
 	&dbRaw("Replace($table)", $uquery);
-    }
+    } else {
+	&dbRaw("Replace($table)", $iquery);
+     }
+
 
     return 1;
 }
 
-#####
+##### MADE REDUNDANT BY LEAR.
 # Usage: &dbSetRow($table, $vref, $delay);
 #  Note: dbSetRow does dbQuote.
 sub dbSetRow ($@$) {
@@ -407,7 +395,7 @@ sub sumKey {
 sub randKey {
     my ($table, $select) = @_;
     my $rand	= int(rand(&countKeys($table) - 1));
-    my $query	= "SELECT $select FROM $table LIMIT $rand,1";
+    my $query	= "SELECT $select FROM $table LIMIT 1,$rand";
 
     my $sth	= $dbh->prepare($query);
     &SQLDebug($query);
