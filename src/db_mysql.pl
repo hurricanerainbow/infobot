@@ -465,12 +465,14 @@ sub searchTable {
     }
 
     $str =~ s/\_/\\_/g;
-    $str =~ s/\?/\_/g;	# '.' should be supported, too.
+    $str =~ s/\?/_/g;	# '.' should be supported, too.
+    $str =~ s/\*/%/g;	# for mysql.
     # end of string fix.
 
     my $query = "SELECT $select FROM $table WHERE $key LIKE ". 
 		&dbQuote($str);
     my $sth = $dbh->prepare($query);
+    &DEBUG("query => '$query'.");
     &SQLDebug($query);
     if (!$sth->execute) {
 	&WARN("Search($query)");

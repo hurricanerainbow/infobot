@@ -459,6 +459,11 @@ sub on_join {
     my $i		= scalar(keys %{ $channels{$chan} });
     my $j		= $cache{maxpeeps}{$chan} || 0;
 
+    if (time() > $sched{shmFlush}{TIME} + 3600) {
+	&DEBUG("looks like schedulers died somewhere... restarting...");
+	&setupSchedulers();
+    }
+
     $chanstats{$chan}{'Join'}++;
     $userstats{lc $who}{'Join'} = time() if (&IsChanConf("seenStats"));
     $cache{maxpeeps}{$chan}	= $i if ($i > $j);

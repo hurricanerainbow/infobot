@@ -5,7 +5,6 @@
 #   Created: 20000124
 #
 
-#use strict;
 use POSIX qw(_exit);
 
 sub openSHM {
@@ -13,7 +12,7 @@ sub openSHM {
     my $size = 2000;
 
     if (&IsParam("noSHM")) {
-	&status("Created shared memory: disabled. [bot may become  unreliable]");
+	&status("Created shared memory: disabled. [bot may become unreliable]");
 	return 0;
     }
 
@@ -214,6 +213,49 @@ sub delForked {
     &status("--- fork finished for '$name' ---");
 
     POSIX::_exit(0);
+}
+
+sub shmFlush {
+    return if ($$ != $::bot_pid); # fork protection.
+
+    if (@_) {
+	&ScheduleThis(5, "shmFlush");
+	return if ($_[0] eq "2");
+    }
+
+    my $time;
+    my $shmmsg = &shmRead($shm);
+    $shmmsg =~ s/\0//g;         # remove padded \0's.
+    if ($shmmsg =~ s/^(\d+): //) {
+	$time	= $1;
+    }
+
+    foreach (split '\|\|', $shmmsg) {
+	next if (/^$/);
+	&VERB("shm: Processing '$_'.",2);
+
+	if (/^DCC SEND (\S+) (\S+)$/) {
+	    my ($nick,$file) = ($1,$2);
+	    if (exists $dcc{'SEND'}{$who}) {
+		&msg($nick, "DCC already active.");
+	    } else {
+		&DEBUG("shm: dcc sending $2 to $1.");
+		$conn->new_send($1,$2);
+		$dcc{'SEND'}{$who} = time();
+	    }
+	} elsif (/^SET FORKPID (\S+) (\S+)/) {
+	    $forked{$1}{PID} = $2;
+	} elsif (/^DELETE FORK (\S+)$/) {
+	    delete $forked{$1};
+	} elsif (/^EVAL (.*)$/) {
+	    &DEBUG("evaling '$1'.");
+	    eval $1;
+	} else {
+	    &DEBUG("shm: unknown msg. ($_)");
+	}
+    }
+
+    &shmWrite($shm,"") if ($shmmsg ne "");
 }
 
 1;

@@ -244,7 +244,7 @@ sub hookMsg {
 	# better to ignore an extra message than to allow one to get
 	# through, although it would be better to go through ignore
 	# checking again.
-	if (time() - $cache{ignoreCheckTime} > 60) {
+	if (time() - ($cache{ignoreCheckTime} || 0) > 60) {
 	    &ignoreCheck();
 	}
 

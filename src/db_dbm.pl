@@ -16,17 +16,13 @@ use vars qw(@factoids_format @rootwarn_format @seen_format);
 @factoids_format = (
 	"factoid_key",
 	"factoid_value",
-
 	"created_by",
 	"created_time",
-
 	"modified_by",
 	"modified_time",
-
 	"requested_by",
 	"requested_time",
 	"requested_count",
-
 	"locked_by",
 	"locked_time"
 );
@@ -59,16 +55,22 @@ use vars qw(@factoids_format @rootwarn_format @seen_format);
 	"message"
 );
 
-my @dbm	= ("factoids","freshmeat","rootwarn","seen");
+@stats_format = (
+	"nick",
+	"type",
+	"counter"
+);
+
+my @dbm	= ("factoids","freshmeat","rootwarn","seen","stats");
 
 sub openDB {
-
+    use DB_File;
     foreach (@dbm) {
 	next unless (&IsParam($_));
 
 	my $file = "$param{'DBName'}-$_";
 
-	if (dbmopen(%{ $_ }, $file, 0644)) {
+	if (dbmopen(%{ $_ }, $file, 0666)) {
 	    &status("Opened DBM $_ ($file).");
 	} else {
 	    &ERROR("Failed open to DBM $_ ($file).");
@@ -92,35 +94,43 @@ sub closeDB {
 }
 
 #####
-# Usage: &dbGet($table, $primkey, $primval, $select);
+# Usage: &dbQuote($str);
+sub dbQuote {
+    return $_[0];
+}
+
+#####
+# Usage: &dbGet($table, $select, $where);
 sub dbGet {
-    my ($db, $key, $val, $select) = @_;
+    my ($table, $select, $where) = @_;
+    my ($key, $val) = split('=',$where) if $where =~ /=/;
     my $found = 0;
     my @retval;
     my $i;
-    &DEBUG("dbGet($db, $key, $val, $select);");
+    &DEBUG("dbGet($table, $select, $where);");
     # TODO: support change that's done for db_mysql!
+    return unless $key;
 
-    if (!scalar @{ "${db}_format" }) {
-	&ERROR("dG: no valid format layout for $db.");
+    if (!scalar @{ "${table}_format" }) {
+	&ERROR("dG: no valid format layout for $table.");
 	return;
     }
 
-    if (!defined ${ "$db" }{lc $val}) {	# dbm hash exception.
-	&DEBUG("dbGet: '$val' does not exist in $db.");
+    if (!defined ${ "$table" }{lc $val}) {	# dbm hash exception.
+	&DEBUG("dbGet: '$val' does not exist in $table.");
 	return;
     }
 
     # return the whole row.
     if ($select eq "*") {
-	return split $;, ${ "$db" }{lc $val};
+	return split $;, ${ "$table" }{lc $val};
     } else {
 	&DEBUG("dbGet: select => '$select'.");
     }
 
-    my @array = split "$;", ${ "$db" }{lc $val};
-    for (0 .. $#{ "${db}_format" }) {
-	my $str = ${ "${db}_format" }[$_];
+    my @array = split "$;", ${ "$table" }{lc $val};
+    for (0 .. $#{ "${table}_format" }) {
+	my $str = ${ "${table}_format" }[$_];
 	next unless (grep /^$str$/, split(/\,/, $select));
 
 	$array[$_] ||= '';
@@ -139,42 +149,193 @@ sub dbGet {
 
 #####
 # Usage: &dbGetCol();
+# Usage: &dbGetCol($table, $select, $where, [$type]);
 sub dbGetCol {
-    &DEBUG("STUB: &dbGetCol();");
+    my ($table, $select, $where, $type) = @_;
+    &DEBUG("STUB: &dbGetCol($table, $select, $where, $type);");
+}
+
+#####
+# Usage: &dbGetColNiceHash($table, $select, $where);
+sub dbGetColNiceHash {
+    my ($table, $select, $where) = @_;
+    &DEBUG("dbGetColNiceHash($table, $select, $where);");
+    my ($key, $val) = split('=',$where) if $where =~ /=/;
+    my (%hash) = ();
+    return unless ${$table}{lc $val};
+    @hash{@{"${table}_format"}} = split $;, ${$table}{lc $val};
+    return %hash;
 }
 
 #####
 # Usage: &dbGetColInfo();
 sub dbGetColInfo {
-    my ($db) = @_;
+    my ($table) = @_;
 
-    if (scalar @{ "${db}_format" }) {
-	return @{ "${db}_format" };
+    if (scalar @{ "${table}_format" }) {
+	return @{ "${table}_format" };
     } else {
-	&ERROR("dbGCI: invalid format name ($db) [${db}_format].");
+	&ERROR("dbGCI: invalid format name ($table) [${table}_format].");
 	return;
     }
 }
 
 #####
-# Usage: &dbSet($db, $primkey, $primval, $key, $val);
-sub dbSet {
-    my ($db, $primkey, $primval, $key, $val) = @_;
+# Usage: &dbInsert($table, $primkey, %hash);
+#  Note: dbInsert should do dbQuote.
+sub dbInsert {
+    my ($table, $primkey, %hash) = @_;
     my $found = 0;
-    &DEBUG("dbSet($db, $primkey, $primval, $key, $val);");
+    &DEBUG("dbInsert($table, $primkey, ...)");
 
-    my $info = ${$db}{lc $primval};	# case insensitive.
+    my $info = ${$table}{lc $primkey} || '';	# primkey or primval?
+
+    if (!scalar @{ "${table}_format" }) {
+	&ERROR("dbI: array ${table}_format does not exist.");
+	return 0;
+    }
+
+    my $i;
+    my @array = split $;, $info;
+    $array[0]=$primkey;
+    delete $hash{${ "${table}_format" }[0]};
+    for $i (1 .. $#{ "${table}_format" }) {
+	my $col = ${ "${table}_format" }[$i];
+	$array[$i]=$hash{$col};
+	$array[$i]='' unless $array[$i];
+	delete $hash{$col};
+	&DEBUG("dbI: setting $table->$primkey\{$col\} => '$array[$i]'.");
+
+#	$array[$i] ||= '';
+#	foreach (keys %hash) {
+#	    my $col = ${ "${table}_format" }[$i];
+#	    next unless ($col eq $_);
+#	    next unless $hash{$_};
+#
+#	    &DEBUG("dbI: setting $table->$primkey\{$col\} => '$hash{$_}'.");
+#	    $array[$i] = $hash{$_};
+#	    delete $hash{$_};
+#	}
+    }
+
+    if (scalar keys %hash) {
+	&ERROR("dbI: not added...");
+	foreach (keys %hash) {
+	    &ERROR("dbI:   '$_' => '$hash{$_}'");
+	}
+	return 0;
+    }
+
+    ${$table}{lc $primkey}	= join $;, @array;
+
+    return 1;
+}
+
+sub dbUpdate {
+    &FIXME("STUB: &dbUpdate(@_); => somehow use dbInsert!");
+}
+
+#####
+# Usage: &dbSetRow($table, @values);
+sub dbSetRow {
+    my ($table, @values) = @_;
+    &DEBUG("dbSetRow(@_);");
+    my $key = lc $values[0];
+
+    if (!scalar @{ "${table}_format" }) {
+	&ERROR("dbSR: array ${table}_format does not exist.");
+	return 0;
+    }
+
+    if (defined ${$table}{$key}) {
+	&WARN("dbSetRow: $table {$key} already exists?");
+    }
+
+    if (scalar @values != scalar @{ "${table}_format" }) {
+	&WARN("dbSetRow: scalar values != scalar ${table}_format.");
+    }
+
+    for (0 .. $#{ "${table}_format" }) {
+	if (defined $array[$_] and $array[$_] ne "") {
+	    &DEBUG("dbSetRow: array[$_] != NULL($array[$_]).");
+	}
+	$array[$_] = $values[$_];
+    }
+
+    ${$table}{$key}	= join $;, @array;
+}
+
+#####
+# Usage: &dbDel($table, $primkey, $primval, [$key]);
+sub dbDel {
+    my ($table, $primkey, $primval, $key) = @_;
+    &DEBUG("dbDel($table, $primkey, $primval);");
+
+    if (!scalar @{ "${table}_format" }) {
+	&ERROR("dbD: array ${table}_format does not exist.");
+	return 0;
+    }
+
+    if (!defined ${$table}{lc $primval}) {
+	&WARN("dbDel: lc $primval does not exist in $table.");
+    } else {
+	delete ${$table}{lc $primval};
+    }
+
+    return '';
+}
+
+#####
+# Usage: &dbReplace($table, $key, %hash);
+#  Note: dbReplace does optional dbQuote.
+sub dbReplace {
+    my ($table, $key, %hash) = @_;
+    &DEBUG("dbReplace($table, $key, %hash);");
+
+    &dbDel($table, $key, $hash{$key}, %hash);
+    &dbInsert($table, $hash{$key}, %hash);
+    return 1;
+}
+
+#####
+# Usage: &dbSet($table, $primhash_ref, $hash_ref);
+sub dbSet {
+    my ($table, $phref, $href) = @_;
+    &DEBUG("dbSet(@_)");
+    my ($key) = keys %{$phref};
+    my $where = $key . "=" . $phref->{$key};
+
+    my %hash = &dbGetColNiceHash($table, "*", $where);
+    foreach (keys %{$href}) {
+	&DEBUG("dbSet: setting $_=${$href}{$_}");
+	$hash{$_} = ${$href}{$_};
+    }
+    &dbReplace($table, $key, %hash);
+    return 1;
+
+    my $p = join(' AND ', map {
+		$_."=".&dbQuote($href->{$_})
+	} keys %{$href}
+    );
+    &WARN("dbSet not implemented yet $where $p"); return 0;
+
+    # Usage: &dbSet($table, $primkey, $primval, $key, $val);
+    my ($table, $primkey, $primval, $key, $val) = @_;
+    my $found = 0;
+    &DEBUG("dbSet($table, $primkey, $primval, $key, $val);");
+
+    my $info = ${$table}{lc $primval};	# case insensitive.
     my @array = ($info) ? split(/$;/, $info) : ();
 
     # new entry.
-    if (!defined ${$db}{lc $primval}) {
+    if (!defined ${$table}{lc $primval}) {
 	# we assume primary key as first one. bad!
 	$array[0] = $primval;		# case sensitive.
     }
 
-    for (0 .. $#{ "${db}_format" }) {
+    for (0 .. $#{ "${table}_format" }) {
 	$array[$_] ||= '';	# from undefined to ''.
-	next unless (${ "${db}_format" }[$_] eq $key);
+	next unless (${ "${table}_format" }[$_] eq $key);
 	&DEBUG("dbSet: Setting array[$_]($key) to '$val'.");
 	$array[$_] = $val;
 	$found++;
@@ -187,102 +348,9 @@ sub dbSet {
     }
 
     &DEBUG("setting $primval => '".join('|', @array)."'.");
-    ${$db}{lc $primval}	= join $;, @array;
+    ${$table}{lc $primval}	= join $;, @array;
 
     return 1;
-}
-
-sub dbUpdate {
-    &FIXME("STUB: &dbUpdate(@_); => somehow use dbInsert!");
-}
-
-sub dbInsert {
-    my ($db, $primkey, %hash) = @_;
-    my $found = 0;
-
-    my $info = ${$db}{lc $primkey} || '';	# primkey or primval?
-
-    if (!scalar @{ "${db}_format" }) {
-	&ERROR("dbI: array ${db}_format does not exist.");
-	return 0;
-    }
-
-    my $i;
-    my @array = split $;, $info;
-    for $i (0 .. $#{ "${db}_format" }) {
-	$array[$i] ||= '';
-
-	foreach (keys %hash) {
-	    my $col = ${ "${db}_format" }[$i];
-	    next unless ($col eq $_);
-
-	    &DEBUG("dbI: setting $db->$primkey\{$col} => '$hash{$_}'.");
-	    $array[$i] = $hash{$_};
-	    delete $hash{$_};
-	}
-    }
-
-    if (scalar keys %hash) {
-	&ERROR("dbI: not added...");
-	foreach (keys %hash) {
-	    &ERROR("dbI:   '$_' => '$hash{$_}'");
-	}
-	return 0;
-    }
-
-    ${$db}{lc $primkey}	= join $;, @array;
-
-    return 1;
-}
-
-#####
-# Usage: &dbSetRow($db, @values);
-sub dbSetRow {
-    my ($db, @values) = @_;
-    my $key = lc $values[0];
-
-    if (!scalar @{ "${db}_format" }) {
-	&ERROR("dbSR: array ${db}_format does not exist.");
-	return 0;
-    }
-
-    if (defined ${$db}{$key}) {
-	&WARN("dbSetRow: $db {$key} already exists?");
-    }
-
-    if (scalar @values != scalar @{ "${db}_format" }) {
-	&WARN("dbSetRow: scalar values != scalar ${db}_format.");
-    }
-
-    for (0 .. $#{ "${db}_format" }) {
-	if (defined $array[$_] and $array[$_] ne "") {
-	    &DEBUG("dbSetRow: array[$_] != NULL($array[$_]).");
-	}
-	$array[$_] = $values[$_];
-    }
-
-    ${$db}{$key}	= join $;, @array;
-
-    &DEBUG("STUB: &dbSetRow(@_);");
-}
-
-#####
-# Usage: &dbDel($db, NULL, $primval);
-sub dbDel {
-    my ($db, $primkey, $primval) = @_;
-
-    if (!scalar @{ "${db}_format" }) {
-	&ERROR("dbD: array ${db}_format does not exist.");
-	return 0;
-    }
-
-    if (!defined ${$db}{lc $primval}) {
-	&WARN("dbDel: lc $primval does not exist in $db.");
-    } else {
-	delete ${$db}{lc $primval};
-    }
-
-    return '';
 }
 
 sub dbRaw {
@@ -312,18 +380,20 @@ sub randKey {
 }
 
 ##### $select is misleading???
-# Usage: &searchTable($db, $returnkey, $primkey, $str);
+# Usage: &searchTable($table, $returnkey, $primkey, $str);
 sub searchTable {
-    my ($db, $primkey, $key, $str) = @_;
+    return;
+    my ($table, $primkey, $key, $str) = @_;
+    &DEBUG("searchTable($table, $primkey, $key, $str)");
 
-    if (!scalar @{ "${db}_format" }) {
-	&ERROR("sT: no valid format layout for $db.");
+    if (!scalar @{ "${table}_format" }) {
+	&ERROR("sT: no valid format layout for $table.");
 	return;
     }   
 
     my @results;
-    foreach (keys %{$db}) {
-	my $val = &dbGet($db, "NULL", $_, $key) || '';
+    foreach (keys %{$table}) {
+	my $val = &dbGet($table, "NULL", $_, $key) || '';
 	next unless ($val =~ /\Q$str\E/);
 	push(@results, $_);
     }
@@ -404,6 +474,17 @@ sub delFactoid {
 	&WARN("delF: nothing to deleted? ($faqtoid)");
 	return;
     }
+}
+
+sub checkTables {
+#     &openDB();
+#     &closeDB();
+#    foreach ("factoids", "freshmeat", "rootwarn", "seen", "stats") {
+#    foreach (@dbm) {
+#	next if (exists $table{$_});
+#	&status("  creating new table $_...");
+#	&dbCreateTable($_);
+#    }
 }
 
 1;

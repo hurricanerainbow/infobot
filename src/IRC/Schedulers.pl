@@ -875,49 +875,6 @@ sub miscCheck2 {
     closedir DIR;
 }
 
-sub shmFlush {
-    return if ($$ != $::bot_pid); # fork protection.
-
-    if (@_) {
-	&ScheduleThis(5, "shmFlush");
-	return if ($_[0] eq "2");
-    }
-
-    my $time;
-    my $shmmsg = &shmRead($shm);
-    $shmmsg =~ s/\0//g;         # remove padded \0's.
-    if ($shmmsg =~ s/^(\d+): //) {
-	$time	= $1;
-    }
-
-    foreach (split '\|\|', $shmmsg) {
-	next if (/^$/);
-	&VERB("shm: Processing '$_'.",2);
-
-	if (/^DCC SEND (\S+) (\S+)$/) {
-	    my ($nick,$file) = ($1,$2);
-	    if (exists $dcc{'SEND'}{$who}) {
-		&msg($nick, "DCC already active.");
-	    } else {
-		&DEBUG("shm: dcc sending $2 to $1.");
-		$conn->new_send($1,$2);
-		$dcc{'SEND'}{$who} = time();
-	    }
-	} elsif (/^SET FORKPID (\S+) (\S+)/) {
-	    $forked{$1}{PID} = $2;
-	} elsif (/^DELETE FORK (\S+)$/) {
-	    delete $forked{$1};
-	} elsif (/^EVAL (.*)$/) {
-	    &DEBUG("evaling '$1'.");
-	    eval $1;
-	} else {
-	    &DEBUG("shm: unknown msg. ($_)");
-	}
-    }
-
-    &shmWrite($shm,"") if ($shmmsg ne "");
-}
-
 ### this is semi-scheduled
 sub getNickInUse {
     if ($ident eq $param{'ircNick'}) {
@@ -1174,30 +1131,6 @@ sub scheduleList {
     }
 
     &DEBUG("end of sList.");
-}
-
-sub getChanConfDefault {
-    my($what, $default, $chan) = @_;
-
-    if (exists $param{$what}) {
-	if (!exists $cache{config}{$what}) {
-	    &status("conf: backward-compat: found param{$what} ($param{$what}) instead.");
-	    $cache{config}{$what} = 1;
-	}
-
-	return $param{$what};
-    }
-
-    my $val = &getChanConf($what, $chan);
-    if (defined $val) {
-	return $val;
-    }
-
-    $param{$what}	= $default;
-    &status("conf: auto-setting param{$what} = $default");
-    $cache{config}{$what} = 1;
-
-    return $default;
 }
 
 sub mkBackup {

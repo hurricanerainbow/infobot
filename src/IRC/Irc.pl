@@ -604,7 +604,8 @@ sub nick {
     if ($bad) {
 	&WARN("Nick: not going to try and get my nick back. [".
 		scalar(localtime). "]");
-	return;
+# hrm... over time we lose track of our own nick.
+#	return;
     }
 
     if ($nick =~ /^$mask{nick}$/) {
@@ -612,6 +613,8 @@ sub nick {
 
 	if (defined $ident) {
 	    &status("nick: Changing nick to $nick (from $ident)");
+	    # following shouldn't be here :(
+	    $ident	= $nick;
 	} else {
 	    &DEBUG("first time nick change.");
 	    $ident	= $nick;

@@ -100,10 +100,10 @@ sub doExit {
 	&status("--- Start of quit.");
 	$ident ||= "blootbot";	# lame hack.
 
-	&closeDCC();
+	&closeDCC() if (&whatInterface() =~ /IRC/); 
 	&closePID();
 	&closeStats();
-	&seenFlush();
+	&seenFlush() if (&whatInterface() =~ /IRC/);
 	&quit($param{'quitMsg'}) if (&whatInterface() =~ /IRC/);
 	&writeUserFile();
 	&writeChanFile();
@@ -302,6 +302,27 @@ sub getChanConf {
 #    &DEBUG("gCC: returning _default... ");
     return $chanconf{"_default"}{$param};
 }
+
+sub getChanConfDefault {
+    my($what, $default, $chan) = @_;
+
+    if (exists $param{$what}) {
+	if (!exists $cache{config}{$what}) {
+	    &status("conf: backward-compat: found param{$what} ($param{$what}) instead.");
+	    $cache{config}{$what} = 1;
+	}
+
+	return $param{$what};
+    }
+    my $val = &getChanConf($what, $chan);
+    return $val if (defined $val);
+
+    $param{$what}	= $default;
+    &status("conf: auto-setting param{$what} = $default");
+    $cache{config}{$what} = 1;
+    return $default;
+}
+
 
 #####
 #  Usage: &findChanConf($param);
