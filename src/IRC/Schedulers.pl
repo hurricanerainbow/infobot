@@ -370,6 +370,7 @@ sub newsFlush {
 
 sub chanlimitCheck {
     my $interval = &getChanConfDefault("chanlimitcheckInterval", 10);
+    my $mynick=$conn->nick();
 
     if (@_) {
 	&ScheduleThis($interval, "chanlimitCheck");
@@ -411,7 +412,7 @@ sub chanlimitCheck {
 	    next;
 	}
 
-	if (!exists $channels{$chan}{'o'}{$ident}) {
+	if (!exists $channels{$chan}{'o'}{$mynick}) {
 	    &status("chanlimit: dont have ops on $chan.") unless (exists $cache{warn}{chanlimit}{$chan});
 	    $cache{warn}{chanlimit}{$chan} = 1;
 	    &chanServCheck($chan);
@@ -678,6 +679,7 @@ sub ircCheck {
     $cache{statusSafe} = 1;
     foreach (sort keys %conns) {
 	$conn=$conns{$_};
+	my $mynick=$conn->nick();
 	&DEBUG("ircCheck for $_");
 	my @join = &getJoinChans(1);
 	if (scalar @join) {
@@ -697,7 +699,7 @@ sub ircCheck {
 	    } else {
 		&status('ircCheck: possible lost in space; checking.'.
 		    scalar(gmtime) );
-		&msg($ident, "TEST");
+		&msg($mynick, "TEST");
 		$cache{connect} = time();
 	    }
 	}

@@ -10,7 +10,7 @@ no strict 'refs';
 
 use vars qw(%floodjoin %nuh %dcc %cache %conns %channels %param %mask
 	%chanconf %orig %ircPort %ircstats %last %netsplit);
-use vars qw($irc $nickserv $ident $conn $msgType $who $talkchannel
+use vars qw($irc $nickserv $conn $msgType $who $talkchannel
 	$addressed);
 use vars qw($notcount $nottime $notsize $msgcount $msgtime $msgsize
 		$pubcount $pubtime $pubsize);
@@ -273,6 +273,7 @@ sub msg {
 
 # Usage: &action(nick || chan, txt);
 sub action {
+    my $mynick = $conn->nick();
     my ($target, $txt) = @_;
     if (!defined $txt) {
 	&WARN("action: txt == NULL.");
@@ -284,7 +285,7 @@ sub action {
 	chop($txt) while (length $txt > 480);
     }
 
-    &status("* $ident/$target $txt");
+    &status("* $mynick/$target $txt");
     $conn->me($target, $txt);
 }
 
@@ -521,6 +522,7 @@ sub deop {
 sub kick {
     my ($nick,$chan,$msg) = @_;
     my (@chans) = ($chan eq "") ? (keys %channels) : lc($chan);
+    my $mynick = $conn->nick();
 
     if ($chan ne "" and &validChan($chan) == 0) {
 	&ERROR("kick: invalid channel $chan.");
@@ -535,7 +537,7 @@ sub kick {
 	    next;
 	}
 
-	if (!exists $channels{$chan}{o}{$ident}) {
+	if (!exists $channels{$chan}{o}{$mynick}) {
 	    &status("kick: do not have ops on $chan :(");
 	    next;
 	}
@@ -548,6 +550,7 @@ sub kick {
 sub ban {
     my ($mask,$chan) = @_;
     my (@chans) = ($chan =~ /^\*?$/) ? (keys %channels) : lc($chan);
+    my $mynick = $conn->nick();
     my $ban	= 0;
 
     if ($chan !~ /^\*?$/ and &validChan($chan) == 0) {
@@ -556,7 +559,7 @@ sub ban {
     }
 
     foreach $chan (@chans) {
-	if (!exists $channels{$chan}{o}{$ident}) {
+	if (!exists $channels{$chan}{o}{$mynick}) {
 	    &status("ban: do not have ops on $chan :(");
 	    next;
 	}
@@ -572,12 +575,13 @@ sub ban {
 sub unban {
     my ($mask,$chan) = @_;
     my (@chans) = ($chan =~ /^\*?$/) ? (keys %channels) : lc($chan);
+    my $mynick = $conn->nick();
     my $ban	= 0;
 
     &DEBUG("unban: mask = $mask, chan = @chans");
 
     foreach $chan (@chans) {
-	if (!exists $channels{$chan}{o}{$ident}) {
+	if (!exists $channels{$chan}{o}{$mynick}) {
 	    &status("unBan: do not have ops on $chan :(");
 	    next;
 	}
