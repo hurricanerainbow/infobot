@@ -23,7 +23,6 @@ use vars qw(@ircServers);
 #use open ':std';
 
 $nickserv	= 0;
-$postprocess;
 my $maxlinelen	= 400;
 
 sub ircloop {
