@@ -280,7 +280,7 @@ sub on_dcc_close {
     if (exists $dcc{'SEND'}{$nick} and -f "$param{tempDir}/$nick.txt") {
 	&status("${b_green}DCC SEND$ob close from $b_cyan$nick$ob");
 
-	&status("dcc_close: purging $nick.txt from Debian.pl");
+	&status("dcc_close: purging DCC send $nick.txt");
 	unlink "$param{tempDir}/$nick.txt";
 
 	delete $dcc{'SEND'}{$nick};
