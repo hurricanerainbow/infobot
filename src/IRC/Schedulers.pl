@@ -674,6 +674,12 @@ sub miscCheck {
 	CORE::system("/bin/cp $f $f~");
     }
 
+    # flush cache{lobotomy}
+    foreach (keys %{ $cache{lobotomy} }) {
+	next unless (time() - $cache{lobotomy}{$_} > 60*60);
+	delete $cache{lobotomy}{$_};
+    }
+
     ### check modules if they've been modified. might be evil.
     &reloadAllModules();
 }
@@ -742,6 +748,8 @@ sub getNickInUse {
 }
 
 sub uptimeLoop {
+    return unless &IsChanConf("uptime");
+
     if (@_) {
 	&ScheduleThis(60, "uptimeLoop");
 	return if ($_[0] eq "2");	# defer.
@@ -987,7 +995,7 @@ sub getChanConfDefault {
 
     if (exists $param{$what}) {
 	if (!exists $cache{config}{$what}) {
-	    &status("gCCD: backward-compat: found param{$what} ($param{$what}) instead.");
+	    &status("conf: backward-compat: found param{$what} ($param{$what}) instead.");
 	    $cache{config}{$what} = 1;
 	}
 
@@ -1000,7 +1008,7 @@ sub getChanConfDefault {
     }
 
     $param{$what}	= $default;
-    &status("gCCD: auto-setting param{$what} = $default");
+    &status("conf: auto-setting param{$what} = $default");
     $cache{config}{$what} = 1;
 
     return $default;
