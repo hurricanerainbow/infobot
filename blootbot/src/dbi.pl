@@ -274,8 +274,6 @@ sub dbSet {
 	return;
     }
 
-    my $result = &dbGet($table, join(',', keys %{$phref}), $where);
-
     my(@keys,@vals);
     foreach (keys %{$href}) {
 	push(@keys, $_);
@@ -286,6 +284,8 @@ sub dbSet {
 	&WARN("dbset: keys or vals is NULL.");
 	return;
     }
+
+    my $result = &dbGet($table, join(',', keys %{$phref}), $where);
 
     my $query;
     if (defined $result) {
