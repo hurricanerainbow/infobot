@@ -164,7 +164,7 @@ sub do_add {
 	return;
     }
 
-    return unless (&hasFlag("T"));
+    return if ($channels{$chan}{t} and !&hasFlag("T"));
 
     my @prev = &topicDecipher($chan);
     my $new  = "$args ($orig{who})";
