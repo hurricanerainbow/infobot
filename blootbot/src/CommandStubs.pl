@@ -697,7 +697,7 @@ sub cookie {
     if ($arg) {
 	my @list = &searchTable("factoids", "factoid_key", "factoid_value", $arg);
 	$key  = &getRandom(@list);
-	$val  = &getFactInfo("factoids", $key, "factoid_value");
+	$value  = &getFactInfo($key, "factoid_value");
     } else {
 	($key,$value) = &randKey("factoids","factoid_key,factoid_value");
     }
