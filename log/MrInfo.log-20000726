@@ -1,0 +1,615 @@
+09:04.28 Loading ignore list...
+09:04.28   dpkg!*@*.com
+09:04.28   *!*@*.il
+09:04.28   apt!*@*
+09:04.28 Loaded ignore infobot.ignore (3 masks)
+09:04.28 Loaded lang infobot.lang (59 items)
+09:04.28 Loaded ircServers ircII.servers (2 servers)
+09:04.28 Loaded userlist infobot.users (2 users)
+09:04.28   GmLB:
+09:04.28     flags: +mrsteon
+09:04.28   default:
+09:04.28     flags: +mrt
+09:04.28 Created shared memory (shm) key: [347044]
+09:04.28 !WARN! PERL: DBI->connect failed: Access denied for user: 'blootbot@localhost' (Using password: YES) at ./src/db_mysql.pl line 14
+09:04.28 !ERROR! cannot connect to localhost.
+09:04.28 !WARN! closeDB: connection already closed?
+09:04.28 Closed shared memory (shm) key: [347044]
+09:05.30 Loading ignore list...
+09:05.30   dpkg!*@*.com
+09:05.30   *!*@*.il
+09:05.30   apt!*@*
+09:05.30 Loaded ignore infobot.ignore (3 masks)
+09:05.30 Loaded lang infobot.lang (59 items)
+09:05.30 Loaded ircServers ircII.servers (2 servers)
+09:05.30 Loaded userlist infobot.users (2 users)
+09:05.30   GmLB:
+09:05.30     flags: +mrsteon
+09:05.30   default:
+09:05.30     flags: +mrt
+09:05.30 Created shared memory (shm) key: [347428]
+09:05.31 Opened MySQL connection to localhost
+09:05.31 Setup: 9969 factoids.
+09:05.31 Initial memory usage: 7380 kB
+09:05.31 !DEBUG! ircloop: _ => 'irc.linux.com'.
+09:05.31 Connecting to port 6667 of server irc.linux.com ...
+09:05.34   resolved to 198.186.203.64.
+09:05.34 !DEBUG! clearIRCVars() called!
+09:05.34 There are 636 victims and 641 hiding on 26 servers
+09:05.34 14 operator(s) online
+09:05.34 414 channels formed
+09:05.34 I have 208 clients and 5 servers
+09:05.34 -irc.linux.com- Highest connection count: 265 (256 clients)
+09:05.34 !DEBUG! on_EOM: calling sS in 60s.
+09:05.34 Changing user modes to +iw.
+09:05.34 End of motd. Now lets join some channels...
+09:05.34 joining #debian-bots
+09:05.34 joinNextChan: 1 chans to join.
+09:05.34 -irc.linux.com- Welcome to Open Projects!  You are on 2 ca 1(2) ft 14(14) tr.
+09:05.34 >>> mode [+f] by InfoCup
+09:05.35 >>> mode [+iw] by InfoCup
+09:05.35 >>> join/#debian-bots InfoCup (root@d239-76.hcvlny.optonline.net)
+09:05.35 #debian-bots: sync in 0.000s.
+09:05.35 #debian-bots: [3 total]
+09:05.35 joining #odd
+09:05.39 >>> join/#odd InfoCup (root@d239-76.hcvlny.optonline.net)
+09:05.39 #odd: sync in 0.000s.
+09:05.39 #odd: [1 ops || 1 total]
+09:05.39 ChanServ: <== 'Welcome to Optical Delusion Design, or as we know it ODD. Please have fun and enjoy your stay.'.
+09:06.08 >>> CTCP VERSION request from GmLB
+09:06.34 Writing uptime file for first time usage (nothing special).
+09:06.34 !ERROR! limitcheck: dont have ops on #debian-bots.
+09:06.34 FORK(684) fork starting for 'slashdot', PID == 684.
+09:06.34 FORK(685) fork starting for 'kernel', PID == 685.
+09:06.34 FORK(684) !DEBUG! lMM: setting moduleAge{./src/Modules/Slashdot3.pl} = time();
+09:06.34 FORK(684) myModule: Loaded Slashdot3.pl ...
+09:06.34 FORK(684) MEM: (Slashdot3.pl) increased by 712 kB. (total: 8092 kB)
+09:06.34 FORK(684) !DEBUG! sdA: mking dir.
+09:06.34 FORK(685) !DEBUG! lMM: setting moduleAge{./src/Modules/Kernel.pl} = time();
+09:06.34 FORK(685) myModule: Loaded Kernel.pl ...
+09:06.34 FORK(685) MEM: (Kernel.pl) increased by 740 kB. (total: 8120 kB)
+09:06.35 FORK(684) Module: Loaded LWP::UserAgent ...
+09:06.35 FORK(684) MEM: (LWP::UserAgent) increased by 932 kB. (total: 9024 kB)
+09:06.35 FORK(684) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+09:06.38 FORK(685) fork: took 4s for kernel.
+09:06.38 FORK(685) fork finished for 'kernel'.
+09:06.54 MEM: increased by 692 kB. (total: 8072 kB)
+09:06.54 gmlb is addressing me
+09:06.54 <GmLB/#debian-bots> InfoCup: kernel?
+09:06.54 shm: Processing 'DELETE FORK kernel'.
+09:06.54 !WARN! PERL: Use of uninitialized value at ./src/CommandStubs.pl line 36.
+09:06.54 !DEBUG! Question: hrm... result => ''.
+09:06.54 notfound: <gmlb> kernel
+09:06.54 !DEBUG! lMM: setting moduleAge{./src/Modules/Math.pl} = time();
+09:06.54 myModule: Loaded Math.pl ...
+09:06.54 MEM: (Math.pl) increased by 52 kB.
+09:06.54 unparseable: kernel?
+09:06.54 </#debian-bots> GmLB: I give up, what is it?
+09:06.59 gmlb is addressing me
+09:06.59 <GmLB/#debian-bots> InfoCup: Who are you
+09:07.00 !DEBUG! Question: hrm... result => ''.
+09:07.00 notfound: <gmlb> Who are you :: InfoCup
+09:07.00 IGNORE statement: <gmlb> Who are you
+09:07.00 </#debian-bots> what are you talking about?, GmLB
+09:07.02 MEM: increased by 16 kB.
+09:07.02 gmlb is addressing me
+09:07.02 <GmLB/#debian-bots> InfoCup: rape
+09:07.02 !DEBUG! isFlag: userHandle == 'default'.
+09:07.02 question: <gmlb> rape
+09:07.02 </#debian-bots> rape is probably vt. 1. To screw someone or something, violently; in particular, to destroy a program or information irrecoverably. Often used in describing file-system damage. "So-and-so was running a program that did absolute disk I/O and ended up raping the master directory." 2. To strip a piece of hardware for parts.
+09:07.24 gmlb is addressing me
+09:07.24 [GmLB] help
+09:07.24 >gmlb< I learn mainly by observing declarative statements such as "x is at http://www.xxx.com", and then reply when people ask things like "where can i find x?"
+09:07.24 >gmlb< 37 topics: action, addressing, alternation, author, babelfish, chaninfo, cookie, corrections, crypt, dict, dollar variables, factinfo, factstats, find, forget, freshmeat, insult, join, karma, kernel, kick, lart, listauth, listkeys, listvalues, lobotomy, lock, main, maths, nickometer, nslookup, part, quote, rename, reply, rot13, search
+09:07.24 >gmlb< 13 topics: seen, slashdot, spell, topic, topic add, topic del, topic mod, topic mv, topic restore, unlobotomy, unlock, wantnick, weather
+09:12.09 MEM: increased by 16 kB.
+09:12.09 gmlb is addressing me
+09:12.09 [GmLB] babelfish
+09:12.09 !DEBUG! Question: hrm... result => ''.
+09:12.09 unparseable: babelfish
+09:12.09 >gmlb< no idea
+09:12.13 MEM: increased by 16 kB.
+09:12.13 gmlb is addressing me
+09:12.13 [GmLB] help babelfish
+09:12.13 >gmlb<    Desc: Frontend to babelfish translating service provided by digital.com
+09:12.13 >gmlb<   Usage: x to <lang>: <words>
+09:12.13 >gmlb<   Usage: translate from <lang>: <words>
+09:12.13 >gmlb< Example: x to de: your cars rock
+09:12.22 gmlb is addressing me
+09:12.22 [GmLB] fish to french
+09:12.22 !DEBUG! Question: hrm... result => ''.
+09:12.22 unparseable: fish to french
+09:12.22 >gmlb< wish i knew, GmLB
+09:12.46 gmlb is addressing me
+09:12.46 [GmLB] x to de: You car rock
+09:12.46 !WARN! Fork: looks like we lost 'slashdot', executed 372 ago.
+09:12.46 FORK(691) fork starting for 'babelfish', PID == 691.
+09:12.46 FORK(691) !WARN! loadMyModule: module is NULL.
+09:12.46 FORK(691) !DEBUG! Forker: failed?
+09:12.57 gmlb is addressing me
+09:12.57 [GmLB] x to de: You car rock
+09:12.57 >gmlb< babelfish is already running 11s
+09:13.18 FORK(691) gmlb is addressing me
+09:13.18 FORK(691) [GmLB] google for chickens
+09:13.18 FORK(691) double fork detected; not forking.
+09:13.18 FORK(691) !DEBUG! lMM: setting moduleAge{./src/Modules/W3Search.pl} = time();
+09:13.18 FORK(691) myModule: Loaded W3Search.pl ...
+09:13.19 FORK(691) Module: Loaded WWW::Search ...
+09:13.19 FORK(691) MEM: (WWW::Search) increased by 1160 kB. (total: 9332 kB)
+09:13.20 FORK(691) >gmlb< Google says chickens is at http://usda.mannlib.cornell.edu/reports/nassr/poultry/pec-bb/ or http://vfih.editthispage.com/stories/storyReader$11 or http://www.apbnews.com/safetycenter/injury/2000/05/19/chickens0519_01.html
+09:13.29 gmlb is addressing me
+09:13.29 [GmLB] google for humphrey
+09:13.29 FORK(692) fork starting for 'wwwsearch', PID == 692.
+09:13.29 FORK(692) !DEBUG! lMM: setting moduleAge{./src/Modules/W3Search.pl} = time();
+09:13.29 FORK(692) myModule: Loaded W3Search.pl ...
+09:13.29 FORK(692) Module: Loaded WWW::Search ...
+09:13.29 FORK(692) MEM: (WWW::Search) increased by 1160 kB. (total: 9332 kB)
+09:13.30 FORK(692) >gmlb< Google says humphrey is at http://www.hhh.umn.edu/welcome.html or http://www.humphrey.com/ or http://www.humphrey.com/Company/company.html
+09:13.30 FORK(692) fork: took 1s for wwwsearch.
+09:13.30 FORK(692) fork finished for 'wwwsearch'.
+09:13.37 FORK(691) MEM: increased by 732 kB. (total: 10064 kB)
+09:13.37 FORK(691) gmlb is addressing me
+09:13.37 FORK(691) [GmLB] google for zchicken
+09:13.37 FORK(691) shm: Processing 'DELETE FORK wwwsearch'.
+09:13.37 FORK(691) double fork detected; not forking.
+09:13.39 FORK(691) >gmlb< Google says zchicken is at http://ywmm.zchicken.com/Zchicken_main.html or http://www.guestbook4free.com/en/18018/entries/ or http://download.cnet.com/downloads/0-10060-107-916322.html
+09:14.46 FORK(691) gmlb is addressing me
+09:14.46 FORK(691) [GmLB] stock
+09:14.47 FORK(691) !DEBUG! Question: hrm... result => ''.
+09:14.47 FORK(691) unparseable: stock
+09:14.47 FORK(691) >gmlb< wish i knew, GmLB
+09:14.49 gmlb is addressing me
+09:14.49 [GmLB] help stock
+09:14.49 >gmlb< no help on stock.  Use 'help' without arguments.
+09:14.51 FORK(691) gmlb is addressing me
+09:14.51 FORK(691) [GmLB] help stocks
+09:14.51 FORK(691) >gmlb< no help on stocks.  Use 'help' without arguments.
+09:14.55 gmlb is addressing me
+09:14.55 [GmLB] help lookup
+09:14.55 >gmlb< no help on lookup.  Use 'help' without arguments.
+09:14.56 FORK(691) gmlb is addressing me
+09:14.56 FORK(691) [GmLB] help
+09:14.56 FORK(691) >gmlb< I learn mainly by observing declarative statements such as "x is at http://www.xxx.com", and then reply when people ask things like "where can i find x?"
+09:14.56 FORK(691) >gmlb< 37 topics: action, addressing, alternation, author, babelfish, chaninfo, cookie, corrections, crypt, dict, dollar variables, factinfo, factstats, find, forget, freshmeat, insult, join, karma, kernel, kick, lart, listauth, listkeys, listvalues, lobotomy, lock, main, maths, nickometer, nslookup, part, quote, rename, reply, rot13, search
+09:14.56 FORK(691) >gmlb< 13 topics: seen, slashdot, spell, topic, topic add, topic del, topic mod, topic mv, topic restore, unlobotomy, unlock, wantnick, weather
+09:15.01 gmlb is addressing me
+09:15.01 [GmLB] slashdot
+09:15.01 FORK(732) fork starting for 'slashdot', PID == 732.
+09:15.01 FORK(732) !DEBUG! lMM: setting moduleAge{./src/Modules/Slashdot3.pl} = time();
+09:15.01 FORK(732) myModule: Loaded Slashdot3.pl ...
+09:15.02 FORK(732) Module: Loaded LWP::UserAgent ...
+09:15.02 FORK(732) MEM: (LWP::UserAgent) increased by 928 kB. (total: 9100 kB)
+09:15.02 FORK(732) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+09:15.02 FORK(732) >gmlb< Slashdot Headlines (7 shown; 10 total): Two-Faced Napster? ;; Inside Echelon ;; SETI Accelerator Hoax Revealed ;; MPAA v. 2600 NY Trial Has Ended ;; IBM Does Bluetooth  On Linux ;; Kuro5hin Forced Down By DOS ;; 30+ GB Databases On Unix?.
+09:15.02 FORK(732) fork: took 1s for slashdot.
+09:15.02 FORK(732) fork finished for 'slashdot'.
+09:15.14 FORK(691) gmlb is addressing me
+09:15.14 FORK(691) [GmLB] topic
+09:15.14 FORK(691) shm: Processing 'DELETE FORK slashdot'.
+09:15.14 FORK(691) !WARN! PERL: Use of uninitialized value at ./src/CommandStubs.pl line 486.
+09:15.14 FORK(691) >gmlb< Try 'help topic'
+09:15.17 FORK(691) gmlb is addressing me
+09:15.17 FORK(691) [GmLB] help topic
+09:15.17 FORK(691) >gmlb< Usage for 'topic [#chan] <params>':
+09:15.17 FORK(691) >gmlb< ---------------- Subtopic:
+09:15.17 FORK(691) >gmlb< add <TOPIC>    - Append <TOPIC> to topic.
+09:15.17 FORK(691) >gmlb< del <#>        - Remove subtopic <#> from topic.
+09:15.17 FORK(691) >gmlb< list           - Display subtopics.
+09:15.17 FORK(691) >gmlb< mod s/old/new/ - Search and replace topic.
+09:15.17 FORK(691) >gmlb< mv <ARGS>      - 'topic mv'.
+09:15.17 FORK(691) >gmlb< shuffle        - Randomly organize subtopics.
+09:15.17 FORK(691) >gmlb< ---------------- Topic
+09:15.17 FORK(691) >gmlb< history        - Show previous topics.
+09:15.17 FORK(691) >gmlb< restore <#>    - Restore topic to <#>.
+09:15.17 FORK(691) >gmlb< rehash         - Rehash changes to topic.
+09:15.17 FORK(691) >gmlb< info           - Who and time info.
+09:15.17 FORK(691) >gmlb< ---------------- Misc
+09:15.17 FORK(691) >gmlb< about          - Read the file :)
+09:15.17 FORK(691) >gmlb< help           - This screen.
+09:15.17 FORK(691) >gmlb< NOTE: #chan arg is only required if command is sent over private message to nick, otherwise it is not needed if sent to the channel.
+09:15.17 FORK(691) >gmlb< NOTE: commands can be preceeded? with '-' in order not to enforce changes to topic.
+09:15.17 FORK(691) >gmlb< End of help.
+09:15.24 gmlb is addressing me
+09:15.24 [GmLB] weather
+09:15.24 !DEBUG! Question: hrm... result => ''.
+09:15.24 unparseable: weather
+09:15.24 >gmlb< I'm not sure, is it larger than a breadbox?
+09:17.44 FORK(684) !DEBUG! sdA: failure (Cxml == NULL).
+09:17.44 FORK(684) fork: took 11m 10s for slashdot.
+09:17.44 FORK(684) fork finished for 'slashdot'.
+09:21.34 shm: Processing 'DELETE FORK slashdot'.
+09:35.34 !ERROR! limitcheck: dont have ops on #debian-bots.
+09:35.34 FORK(691) !ERROR! limitcheck: dont have ops on #debian-bots.
+10:01.34 !ERROR! limitcheck: dont have ops on #debian-bots.
+10:05.34 FORK(691) !ERROR! limitcheck: dont have ops on #debian-bots.
+10:10.34 FORK(691) double fork detected; not forking.
+10:10.34 FORK(691) !DEBUG! lMM: setting moduleAge{./src/Modules/Slashdot3.pl} = time();
+10:10.34 FORK(691) myModule: Loaded Slashdot3.pl ...
+10:10.34 FORK(691) Module: Loaded LWP::UserAgent ...
+10:10.34 FORK(691) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+10:10.34 !WARN! Fork: looks like we lost 'babelfish', executed 3468 ago.
+10:10.34 !WARN! Fork: looks like we lost 'wwwsearch', executed 3425 ago.
+10:10.34 FORK(749) fork starting for 'slashdot', PID == 749.
+10:10.34 FORK(749) !DEBUG! lMM: setting moduleAge{./src/Modules/Slashdot3.pl} = time();
+10:10.34 FORK(749) myModule: Loaded Slashdot3.pl ...
+10:10.35 FORK(749) Module: Loaded LWP::UserAgent ...
+10:10.35 FORK(749) MEM: (LWP::UserAgent) increased by 928 kB. (total: 9100 kB)
+10:10.35 FORK(749) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+10:10.36 FORK(749) getURL: Done (took 1s, 3 k/sec)
+10:10.36 FORK(749) Slashdot: no new headlines.
+10:10.36 FORK(749) fork: took 2s for slashdot.
+10:10.36 FORK(749) fork finished for 'slashdot'.
+10:11.34 FORK(691) shm: Processing 'DELETE FORK slashdot'.
+10:31.34 !ERROR! limitcheck: dont have ops on #debian-bots.
+10:35.34 FORK(691) !ERROR! limitcheck: dont have ops on #debian-bots.
+10:48.39 <GmLB/#debian-bots> slashdot
+10:48.44 FORK(691) gmlb is addressing me
+10:48.44 FORK(691) <GmLB/#debian-bots> InfoCup: slashdot
+10:48.44 FORK(691) double fork detected; not forking.
+10:48.44 FORK(691) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+10:48.44 FORK(691) </#debian-bots> Slashdot Headlines (7 shown; 10 total): GTK-Themes To Be Supported By KDE2 ;; G4 Powerbooks Predicted For January 2001 ;; Two-Faced Napster? ;; Inside Echelon ;; SETI Accelerator Hoax Revealed ;; MPAA v. 2600 NY Trial Has Ended ;; IBM Does Bluetooth  On Linux.
+11:04.34 !ERROR! limitcheck: dont have ops on #debian-bots.
+11:05.18 FORK(691) gmlb is addressing me
+11:05.18 FORK(691) [GmLB] fuck
+11:05.18 FORK(691) !DEBUG! Question: hrm... result => ''.
+11:05.18 FORK(691) unparseable: fuck
+11:05.18 FORK(691) >gmlb< i haven't a clue
+11:05.20 gmlb is addressing me
+11:05.20 [GmLB] rape
+11:05.20 !DEBUG! isFlag: userHandle == 'default'.
+11:05.20 question: <gmlb> rape
+11:05.20 >gmlb< somebody said rape was vt. 1. To screw someone or something, violently; in particular, to destroy a program or information irrecoverably. Often used in describing file-system damage. "So-and-so was running a program that did absolute disk I/O and ended up raping the master directory." 2. To strip a piece of hardware for parts.
+11:05.23 FORK(691) gmlb is addressing me
+11:05.23 FORK(691) [GmLB] shit
+11:05.23 FORK(691) !DEBUG! Question: hrm... result => ''.
+11:05.23 FORK(691) unparseable: shit
+11:05.23 FORK(691) >gmlb< bugger all, i dunno
+11:05.24 gmlb is addressing me
+11:05.24 [GmLB] sex
+11:05.25 !DEBUG! isFlag: userHandle == 'default'.
+11:05.25 question: <gmlb> sex
+11:05.25 >gmlb< [sex] /seks/ [Sun Users' Group & elsewhere] n. 1. Software EXchange. A technique invented by the blue-green algae hundreds of millions of years ago to speed up their evolution, which had been terribly slow up until then. Today, SEX parties are popular among hackers and others (of course, these are no longer limited to exchanges of genetic software). In general, SEX parties are a {Good Thing}, but unprotected SEX can propagate a virus. See also {pubic directory}. 2. The rather Freudian mnemonic often used for Sign EXtend, a machine instruction found in the PDP-11 and many other architectures. DEC's engineers nearly got a PDP-11 assembler that used the `SEX' mnemonic out the door at one time, but (for once) marketing wasn't asleep and forced a change. That wasn't the last time this happened, either. The author of `The Intel 8086 Primer', who was one of the original designers of the 8086, noted that there was originally a `SEX' instruction on that processor, too. He says that Intel management got cold feet and decreed that it be changed, and thus the instruction was renamed `CBW' and `CWD' (depending on what was being extended). Amusingly, the Intel 8048 (the microcontroller used in IBM PC keyboards) is also missing straight `SEX' but has logical-or and logical-and instructions `ORL' and `ANL'. The Motorola 6809, used in the U.K.'s `Dragon 32' personal computer, actually had an official `SEX' instruction; the 6502 in the Apple II it competed with did not. British hackers thought this made perfect mythic sense; after all, it was commonly observed, you could have sex with a dragon, but you can't have sex with an apple.
+11:06.34 FORK(691) gmlb is addressing me
+11:06.34 FORK(691) [GmLB] hackers
+11:06.34 FORK(691) !DEBUG! Question: hrm... result => ''.
+11:06.34 FORK(691) unparseable: hackers
+11:06.34 FORK(691) >gmlb< wish i knew
+11:06.36 MEM: increased by 12 kB.
+11:06.36 gmlb is addressing me
+11:06.36 [GmLB] hacker
+11:06.36 !DEBUG! isFlag: userHandle == 'default'.
+11:06.36 question: <gmlb> hacker
+11:06.36 >gmlb< hacker is, like, [originally, someone who makes furniture with an axe] n. 1. A person who enjoys exploring the details of programmable systems and how to stretch their capabilities, as opposed to most users, who prefer to learn only the minimum necessary. 2. One who programs enthusiastically (even obsessively) or who enjoys programming rather than just theorizing about programming. 3. A person capable of appreciating {hack value}. 4. A person who is good at programming quickly. 5. An expert at a particular program, or one who frequently does work using it or on it; as in `a UNIX hacker'. (Definitions 1 through 5 are correlated, and people who fit them congregate.) 6. An expert or enthusiast of any kind. One might be an astronomy hacker, for example. 7. One who enjoys the intellectual challenge of creatively overcoming or circumventing limitations. 8. [deprecated] A malicious meddler who tries to discover sensitive information by poking around. Hence `password hacker', `network hacker'. See cracker. It is better to be described as a hacker by others than to describe oneself that way. Hackers consider themselves something of an elite (a meritocracy based on ability), though one to which new members are gladly welcome. There is thus a certain ego satisfaction to be had in identifying yourself as a hacker (but if you claim to be one and are not, you'll quickly be labeled bogus).
+11:08.34 FORK(691) !ERROR! limitcheck: dont have ops on #debian-bots.
+11:10.34 !WARN! Fork: looks like we lost 'slashdot', executed 3600 ago.
+11:10.34 FORK(789) fork starting for 'slashdot', PID == 789.
+11:10.34 FORK(789) !DEBUG! lMM: setting moduleAge{./src/Modules/Slashdot3.pl} = time();
+11:10.34 FORK(789) myModule: Loaded Slashdot3.pl ...
+11:10.34 FORK(789) MEM: (Slashdot3.pl) increased by 16 kB.
+11:10.35 FORK(789) Module: Loaded LWP::UserAgent ...
+11:10.35 FORK(789) MEM: (LWP::UserAgent) increased by 932 kB. (total: 9132 kB)
+11:10.35 FORK(789) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+11:10.35 FORK(789) sending slashdot update to #debian-bots.
+11:10.35 FORK(789) -#debian-bots- Slashdot: News for nerds, stuff that matters -- GTK-Themes To Be Supported By KDE2
+11:10.36 FORK(789) fork: took 2s for slashdot.
+11:10.36 FORK(789) fork finished for 'slashdot'.
+11:11.34 shm: Processing 'DELETE FORK slashdot'.
+11:13.18 >>> GmLB has signed off IRC ([x]chat)
+11:14.34 FORK(691) double fork detected; not forking.
+11:14.34 FORK(691) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+11:25.43 FORK(691) !DEBUG! sdA: failure (Cxml == NULL).
+11:32.34 !ERROR! limitcheck: dont have ops on #debian-bots.
+11:37.34 FORK(691) !ERROR! limitcheck: dont have ops on #debian-bots.
+12:04.34 !ERROR! limitcheck: dont have ops on #debian-bots.
+12:07.34 FORK(691) !ERROR! limitcheck: dont have ops on #debian-bots.
+12:10.34 FORK(806) fork starting for 'slashdot', PID == 806.
+12:10.35 FORK(806) !DEBUG! lMM: setting moduleAge{./src/Modules/Slashdot3.pl} = time();
+12:10.35 FORK(806) myModule: Loaded Slashdot3.pl ...
+12:10.35 FORK(806) MEM: (Slashdot3.pl) increased by 20 kB.
+12:10.35 FORK(806) Module: Loaded LWP::UserAgent ...
+12:10.35 FORK(806) MEM: (LWP::UserAgent) increased by 928 kB. (total: 9132 kB)
+12:10.35 FORK(806) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+12:10.36 FORK(806) Slashdot: no new headlines.
+12:10.36 FORK(806) fork: took 2s for slashdot.
+12:10.36 FORK(806) fork finished for 'slashdot'.
+12:10.44 FORK(691) shm: Processing 'DELETE FORK slashdot'.
+12:26.43 FORK(691) double fork detected; not forking.
+12:26.43 FORK(691) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+12:26.43 FORK(691) Slashdot: no new headlines.
+12:27.09 >>> apt has signed off IRC (Ping timeout for apt[achilles.nyip.net])
+12:27.14 >>> join/#debian-bots apt (apt@achilles.nyip.net)
+12:30.34 !ERROR! limitcheck: dont have ops on #debian-bots.
+12:36.34 FORK(691) !ERROR! limitcheck: dont have ops on #debian-bots.
+12:53.08 disconnect from irc.linux.com (Connection reset by peer).
+12:53.08 FORK(691) disconnect from irc.linux.com (ERROR :Closing Link: InfoCup[d239-76.hcvlny.optonline.net] by irc.linux.com (Ping timeout for InfoCup[d239-76.hcvlny.optonline.net])).
+12:53.08 !DEBUG! clearIRCVars() called!
+12:53.08 FORK(691) !DEBUG! clearIRCVars() called!
+12:53.08 disconnect from irc.linux.com (ERROR :Closing Link: InfoCup[24.189.239.76] by irc.linux.com (Overridden by other sign on)).
+12:53.08 !DEBUG! clearIRCVars() called!
+12:53.09 FORK(691) disconnect from irc.linux.com (ERROR :Closing Link: InfoCup[24.189.239.76] by irc.linux.com (Overridden by other sign on)).
+12:53.09 FORK(691) !DEBUG! clearIRCVars() called!
+12:53.09 There are 626 victims and 648 hiding on 26 servers
+12:53.09 14 operator(s) online
+12:53.09 1 unknown connection(s)
+12:53.09 437 channels formed
+12:53.09 I have 172 clients and 6 servers
+12:53.09 -irc.linux.com- Highest connection count: 265 (256 clients)
+12:53.09 Changing user modes to +iw.
+12:53.09 FORK(691) !DEBUG! on_nick_taken: changing nick to InfoCup8.
+12:53.09 End of motd. Now lets join some channels...
+12:53.09 joining #debian-bots
+12:53.09 joinNextChan: 1 chans to join.
+12:53.09 -irc.linux.com- Welcome to Open Projects!  You are on 1 ca 1(2) ft 14(14) tr.
+12:53.09 >>> mode [+f] by InfoCup
+12:53.09 >>> mode [+iw] by InfoCup
+12:53.09 >>> join/#debian-bots InfoCup (root@d239-76.hcvlny.optonline.net)
+12:53.09 #debian-bots: sync in 0.000s.
+12:53.09 #debian-bots: [2 total]
+12:53.09 joining #odd
+12:53.09 FORK(691) There are 626 victims and 649 hiding on 26 servers
+12:53.09 FORK(691) 14 operator(s) online
+12:53.09 FORK(691) 1 unknown connection(s)
+12:53.09 FORK(691) 437 channels formed
+12:53.09 FORK(691) I have 173 clients and 6 servers
+12:53.09 FORK(691) -irc.linux.com- Highest connection count: 265 (256 clients)
+12:53.09 FORK(691) Changing user modes to +iw.
+12:53.09 FORK(691) End of motd. Now lets join some channels...
+12:53.09 FORK(691) joining #debian-bots
+12:53.09 FORK(691) joinNextChan: 1 chans to join.
+12:53.09 FORK(691) -irc.linux.com- Welcome to Open Projects!  You are on 2 ca 2(2) ft 14(14) tr.
+12:53.09 FORK(691) >>> mode [+f] by InfoCup8
+12:53.09 FORK(691) >>> mode [+iw] by InfoCup8
+12:53.09 FORK(691) >>> join/#debian-bots InfoCup8 (root@d239-76.hcvlny.optonline.net)
+12:53.10 FORK(691) #debian-bots: sync in 0.000s.
+12:53.10 FORK(691) #debian-bots: [3 total]
+12:53.10 FORK(691) joining #odd
+12:53.10 >>> join/#debian-bots InfoCup8 (root@d239-76.hcvlny.optonline.net)
+12:53.13 >>> join/#odd InfoCup (root@d239-76.hcvlny.optonline.net)
+12:53.13 #odd: sync in 0.000s.
+12:53.13 #odd: [1 ops || 1 total]
+12:53.13 ChanServ: <== 'Welcome to Optical Delusion Design, or as we know it ODD. Please have fun and enjoy your stay.'.
+12:53.15 >>> join/#odd InfoCup8 (root@d239-76.hcvlny.optonline.net)
+12:53.15 FORK(691) >>> join/#odd InfoCup8 (root@d239-76.hcvlny.optonline.net)
+12:53.15 FORK(691) #odd: sync in 0.000s.
+12:53.15 FORK(691) #odd: [1 ops || 2 total]
+12:53.15 FORK(691) ChanServ: <== 'Welcome to Optical Delusion Design, or as we know it ODD. Please have fun and enjoy your stay.'.
+13:04.34 !ERROR! limitcheck: dont have ops on #debian-bots.
+13:05.34 FORK(691) !WARN! PERL: Use of uninitialized value at ./src/IRC/Schedulers.pl line 367.
+13:05.34 FORK(691) !WARN! ircCheck: ident(InfoCup8) != param{ircNick}().
+13:06.34 FORK(691) !ERROR! limitcheck: dont have ops on #debian-bots.
+13:09.34 !WARN! Fork: looks like we lost 'slashdot', executed 3540 ago.
+13:09.34 FORK(825) fork starting for 'kernel', PID == 825.
+13:09.34 FORK(691) double fork detected; not forking.
+13:09.34 FORK(691) !DEBUG! lMM: setting moduleAge{./src/Modules/Kernel.pl} = time();
+13:09.34 FORK(691) myModule: Loaded Kernel.pl ...
+13:09.34 FORK(825) !DEBUG! lMM: setting moduleAge{./src/Modules/Kernel.pl} = time();
+13:09.34 FORK(825) myModule: Loaded Kernel.pl ...
+13:09.34 FORK(825) MEM: (Kernel.pl) increased by 48 kB.
+13:09.35 FORK(825) !DEBUG! kA: no new kernels.
+13:09.35 FORK(825) fork: took 1s for kernel.
+13:09.35 FORK(825) fork finished for 'kernel'.
+13:09.36 FORK(691) !DEBUG! kA: no new kernels.
+13:10.34 shm: Processing 'DELETE FORK kernel'.
+13:10.34 FORK(827) fork starting for 'slashdot', PID == 827.
+13:10.35 FORK(827) !DEBUG! lMM: setting moduleAge{./src/Modules/Slashdot3.pl} = time();
+13:10.35 FORK(827) myModule: Loaded Slashdot3.pl ...
+13:10.35 FORK(827) MEM: (Slashdot3.pl) increased by 20 kB.
+13:10.35 FORK(827) Module: Loaded LWP::UserAgent ...
+13:10.35 FORK(827) MEM: (LWP::UserAgent) increased by 932 kB. (total: 9136 kB)
+13:10.35 FORK(827) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+13:10.36 FORK(827) getURL: Done (took 1s, 3 k/sec)
+13:10.36 FORK(827) sending slashdot update to #debian-bots.
+13:10.36 FORK(827) -#debian-bots- Slashdot: News for nerds, stuff that matters -- Kuro5hin - Bitter and Hopeful
+13:10.36 FORK(691) -InfoCup/#debian-bots- Slashdot: News for nerds, stuff that matters -- Kuro5hin - Bitter and Hopeful
+13:10.37 FORK(827) fork: took 3s for slashdot.
+13:10.37 FORK(827) fork finished for 'slashdot'.
+13:10.44 FORK(691) shm: Processing 'DELETE FORK slashdot'.
+13:26.43 FORK(691) double fork detected; not forking.
+13:26.43 FORK(691) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+13:29.23 FORK(691) !DEBUG! sdA: failure (Cxml == NULL).
+13:34.34 !ERROR! limitcheck: dont have ops on #debian-bots.
+13:34.34 FORK(691) !ERROR! limitcheck: dont have ops on #debian-bots.
+14:05.34 FORK(691) !ERROR! limitcheck: dont have ops on #debian-bots.
+14:08.34 !ERROR! limitcheck: dont have ops on #debian-bots.
+14:10.34 !WARN! Fork: looks like we lost 'slashdot', executed 3600 ago.
+14:10.34 FORK(842) fork starting for 'slashdot', PID == 842.
+14:10.34 FORK(842) !DEBUG! lMM: setting moduleAge{./src/Modules/Slashdot3.pl} = time();
+14:10.34 FORK(842) myModule: Loaded Slashdot3.pl ...
+14:10.34 FORK(842) MEM: (Slashdot3.pl) increased by 20 kB.
+14:10.35 FORK(842) Module: Loaded LWP::UserAgent ...
+14:10.35 FORK(842) MEM: (LWP::UserAgent) increased by 932 kB. (total: 9136 kB)
+14:10.35 FORK(842) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+14:13.15 FORK(842) !DEBUG! sdA: failure (Cxml == NULL).
+14:13.15 FORK(842) fork: took 2m 41s for slashdot.
+14:13.15 FORK(842) fork finished for 'slashdot'.
+14:15.44 FORK(691) shm: Processing 'DELETE FORK slashdot'.
+14:28.23 FORK(691) double fork detected; not forking.
+14:28.23 FORK(691) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+14:30.08 FORK(691) getURL: Done (took 1m 45s, 0 k/sec)
+14:30.08 FORK(691) Slashdot: no new headlines.
+14:35.05 FORK(691) child caught SIGINT (pid 691).
+14:35.05 parent caught SIGINT (pid 679).
+14:35.05 QUIT InfoCup has quit IRC (BEE RICHT BAK)
+14:35.05 Closed MySQL connection to localhost.
+14:35.05 Closed shared memory (shm) key: [347428]
+14:35.09 Loading ignore list...
+14:35.09   dpkg!*@*.com
+14:35.09   *!*@*.il
+14:35.09   apt!*@*
+14:35.09 Loaded ignore infobot.ignore (3 masks)
+14:35.09 Loaded lang infobot.lang (59 items)
+14:35.09 Loaded ircServers ircII.servers (2 servers)
+14:35.09 Loaded userlist infobot.users (2 users)
+14:35.09   GmLB:
+14:35.09     flags: +mrsteon
+14:35.09   default:
+14:35.09     flags: +mrt
+14:35.09 Created shared memory (shm) key: [718854]
+14:35.10 Opened MySQL connection to localhost
+14:35.11 Setup: 9969 factoids.
+14:35.11 Initial memory usage: 7380 kB
+14:35.11 !DEBUG! ircloop: _ => 'irc.linux.com'.
+14:35.11 Connecting to port 6667 of server irc.linux.com ...
+14:35.14   resolved to 198.186.203.64.
+14:35.14 !DEBUG! clearIRCVars() called!
+14:35.15 There are 613 victims and 637 hiding on 26 servers
+14:35.15 17 operator(s) online
+14:35.15 440 channels formed
+14:35.15 I have 204 clients and 6 servers
+14:35.15 -irc.linux.com- Highest connection count: 265 (256 clients)
+14:35.15 !DEBUG! on_EOM: calling sS in 60s.
+14:35.15 Changing user modes to +iw.
+14:35.15 End of motd. Now lets join some channels...
+14:35.15 joining #debian-bots
+14:35.15 joinNextChan: 1 chans to join.
+14:35.15 -irc.linux.com- Welcome to Open Projects!  You are on 1 ca 1(2) ft 14(14) tr.
+14:35.15 >>> mode [+f] by InfoCup
+14:35.15 >>> mode [+iw] by InfoCup
+14:35.15 >>> join/#debian-bots InfoCup (root@d239-76.hcvlny.optonline.net)
+14:35.15 #debian-bots: sync in 0.000s.
+14:35.15 #debian-bots: [2 total]
+14:35.15 joining #odd
+14:35.19 >>> join/#odd InfoCup (root@d239-76.hcvlny.optonline.net)
+14:35.19 #odd: sync in 0.000s.
+14:35.19 #odd: [1 ops || 1 total]
+14:35.19 ChanServ: <== 'Welcome to Optical Delusion Design, or as we know it ODD. Please have fun and enjoy your stay.'.
+14:35.42 >>> join/#odd GmLB (danny@d239-76.hcvlny.optonline.net)
+14:35.42 >>> mode/#odd [+o GmLB] by ChanServ
+14:36.15 !ERROR! limitcheck: dont have ops on #debian-bots.
+14:36.16 FORK(875) fork starting for 'slashdot', PID == 875.
+14:36.16 FORK(875) !DEBUG! lMM: setting moduleAge{./src/Modules/Slashdot3.pl} = time();
+14:36.16 FORK(875) myModule: Loaded Slashdot3.pl ...
+14:36.16 FORK(875) MEM: (Slashdot3.pl) increased by 712 kB. (total: 8092 kB)
+14:36.16 FORK(876) fork starting for 'kernel', PID == 876.
+14:36.16 FORK(876) !DEBUG! lMM: setting moduleAge{./src/Modules/Kernel.pl} = time();
+14:36.16 FORK(876) myModule: Loaded Kernel.pl ...
+14:36.16 FORK(876) MEM: (Kernel.pl) increased by 740 kB. (total: 8120 kB)
+14:36.16 FORK(875) Module: Loaded LWP::UserAgent ...
+14:36.16 FORK(875) MEM: (LWP::UserAgent) increased by 932 kB. (total: 9024 kB)
+14:36.16 FORK(875) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+14:36.16 FORK(875) Slashdot: no new headlines.
+14:36.16 FORK(875) fork: took 0s for slashdot.
+14:36.16 FORK(875) fork finished for 'slashdot'.
+14:36.17 FORK(876) !DEBUG! kA: no new kernels.
+14:36.17 FORK(876) fork: took 1s for kernel.
+14:36.17 FORK(876) fork finished for 'kernel'.
+14:41.16 shm: Processing 'DELETE FORK slashdot'.
+14:41.16 shm: Processing 'DELETE FORK kernel'.
+15:04.15 !ERROR! limitcheck: dont have ops on #debian-bots.
+15:21.46 >>> join/#debian-bots GmLB (danny@d239-76.hcvlny.optonline.net)
+15:21.51 >>> GmLB has signed off IRC ([x]chat)
+15:21.58 HUP called.
+15:21.58 Closed MySQL connection to localhost.
+15:21.58 Closed shared memory (shm) key: [718854]
+15:21.58 Loading ignore list...
+15:21.58   dpkg!*@*.com
+15:21.58   *!*@*.il
+15:21.58   apt!*@*
+15:21.58 Loaded ignore infobot.ignore (3 masks)
+15:21.58 Loaded lang infobot.lang (59 items)
+15:21.58 Loaded ircServers ircII.servers (2 servers)
+15:21.58 Loaded userlist infobot.users (2 users)
+15:21.58   GmLB:
+15:21.58     flags: +mrsteon
+15:21.58   default:
+15:21.58     flags: +mrt
+15:21.58 Created shared memory (shm) key: [914566]
+15:21.58 Opened MySQL connection to localhost
+15:21.58 Setup: 9969 factoids.
+15:21.58 Initial memory usage: 8072 kB
+15:21.58 End of HUP.
+15:32.17 FORK(1273) fork starting for 'slashdot', PID == 1273.
+15:32.17 FORK(1273) !DEBUG! lMM: setting moduleAge{./src/Modules/Slashdot3.pl} = time();
+15:32.17 FORK(1273) myModule: Loaded Slashdot3.pl ...
+15:32.17 FORK(1273) MEM: (Slashdot3.pl) increased by 28 kB.
+15:32.19 FORK(1273) Module: Loaded LWP::UserAgent ...
+15:32.19 FORK(1273) MEM: (LWP::UserAgent) increased by 932 kB. (total: 9032 kB)
+15:32.20 FORK(1273) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+15:32.21 FORK(1273) getURL: Done (took 1s, 3 k/sec)
+15:32.21 FORK(1273) sending slashdot update to #debian-bots.
+15:32.21 FORK(1273) -#debian-bots- Slashdot: News for nerds, stuff that matters -- Napster Shut Down Until Trial :: Peeking At The Future: "Perfect Mirror" Cables
+15:32.22 FORK(1273) fork: took 6s for slashdot.
+15:32.22 FORK(1273) fork finished for 'slashdot'.
+15:34.16 !ERROR! limitcheck: dont have ops on #debian-bots.
+15:36.16 shm: Processing 'DELETE FORK slashdot'.
+16:07.16 !ERROR! limitcheck: dont have ops on #debian-bots.
+16:29.17 FORK(1494) fork starting for 'slashdot', PID == 1494.
+16:29.17 FORK(1494) !DEBUG! lMM: setting moduleAge{./src/Modules/Slashdot3.pl} = time();
+16:29.17 FORK(1494) myModule: Loaded Slashdot3.pl ...
+16:29.17 FORK(1494) MEM: (Slashdot3.pl) increased by 28 kB.
+16:29.19 FORK(1494) Module: Loaded LWP::UserAgent ...
+16:29.19 FORK(1494) MEM: (LWP::UserAgent) increased by 932 kB. (total: 9032 kB)
+16:29.19 FORK(1494) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+16:29.19 FORK(1494) Slashdot: no new headlines.
+16:29.19 FORK(1494) fork: took 2s for slashdot.
+16:29.19 FORK(1494) fork finished for 'slashdot'.
+16:31.16 shm: Processing 'DELETE FORK slashdot'.
+16:33.16 !ERROR! limitcheck: dont have ops on #debian-bots.
+17:01.17 !ERROR! limitcheck: dont have ops on #debian-bots.
+17:32.17 FORK(1801) fork starting for 'slashdot', PID == 1801.
+17:32.17 FORK(1801) !DEBUG! lMM: setting moduleAge{./src/Modules/Slashdot3.pl} = time();
+17:32.17 FORK(1801) myModule: Loaded Slashdot3.pl ...
+17:32.17 FORK(1801) MEM: (Slashdot3.pl) increased by 28 kB.
+17:32.21 FORK(1801) Module: Loaded LWP::UserAgent ...
+17:32.21 FORK(1801) MEM: (LWP::UserAgent) increased by 932 kB. (total: 9032 kB)
+17:32.21 FORK(1801) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+17:32.22 FORK(1801) getURL: Done (took 1s, 3 k/sec)
+17:32.23 FORK(1801) Slashdot: no new headlines.
+17:32.23 FORK(1801) fork: took 6s for slashdot.
+17:32.23 FORK(1801) fork finished for 'slashdot'.
+17:34.17 !ERROR! limitcheck: dont have ops on #debian-bots.
+17:36.17 shm: Processing 'DELETE FORK slashdot'.
+18:05.17 !ERROR! limitcheck: dont have ops on #debian-bots.
+18:35.17 !ERROR! limitcheck: dont have ops on #debian-bots.
+18:36.17 FORK(2547) fork starting for 'slashdot', PID == 2547.
+18:36.17 FORK(2547) !DEBUG! lMM: setting moduleAge{./src/Modules/Slashdot3.pl} = time();
+18:36.17 FORK(2547) myModule: Loaded Slashdot3.pl ...
+18:36.17 FORK(2547) MEM: (Slashdot3.pl) increased by 32 kB.
+18:36.18 FORK(2547) Module: Loaded LWP::UserAgent ...
+18:36.18 FORK(2547) MEM: (LWP::UserAgent) increased by 932 kB. (total: 9036 kB)
+18:36.19 FORK(2547) getURL: getting 'http://www.slashdot.org/slashdot.xml'
+18:36.19 FORK(2547) Slashdot: no new headlines.
+18:36.19 FORK(2547) fork: took 2s for slashdot.
+18:36.19 FORK(2547) fork finished for 'slashdot'.
+18:40.16 shm: Processing 'DELETE FORK slashdot'.
+18:40.16 FORK(2553) fork starting for 'kernel', PID == 2553.
+18:40.16 FORK(2553) !DEBUG! lMM: setting moduleAge{./src/Modules/Kernel.pl} = time();
+18:40.16 FORK(2553) myModule: Loaded Kernel.pl ...
+18:40.16 FORK(2553) MEM: (Kernel.pl) increased by 60 kB.
+18:40.17 FORK(2553) sending kernel update to #debian-bots.
+18:40.17 FORK(2553) -#debian-bots- Kernel:  The latest prepatch (alpha) version *appears* to be: 2.4.0-test5/pre6
+18:40.17 FORK(2553) fork: took 1s for kernel.
+18:40.17 FORK(2553) fork finished for 'kernel'.
+18:41.17 shm: Processing 'DELETE FORK kernel'.
+18:57.51 >>> join/#odd GmLB (danny@d239-76.hcvlny.optonline.net)
+18:57.52 >>> mode/#odd [+o GmLB] by ChanServ
+18:58.07 >>> join/#debian-bots GmLB (danny@d239-76.hcvlny.optonline.net)
+19:06.17 !ERROR! limitcheck: dont have ops on #debian-bots.
+19:08.19 !WARN! PERL: Use of uninitialized value at ./src/IRC/IrcHooks.pl line 196.
+19:08.19 DCC CHAT established with GmLB ()
+19:08.21 !DEBUG! chat: no pass required.
+19:08.21 DCC CHAT: user GmLB is here!
+19:08.21 =gmlb= 
+19:08.31 =gmlb= .<pass>ynnad
+19:08.31 !DEBUG! lMM: setting moduleAge{./src/Modules/UserDCC.pl} = time();
+19:08.31 myModule: Loaded UserDCC.pl ...
+19:08.31 MEM: (UserDCC.pl) increased by 152 kB.
+19:08.31 !WARN! PERL: Use of uninitialized value at /usr/lib/perl5/Net/IRC/Connection.pm line 1414.
+19:08.31 !WARN! PERL: Use of uninitialized value at /usr/lib/perl5/Net/IRC/Connection.pm line 1436.
+19:08.31 =gmlb= 
+19:08.33 =gmlb= well
+19:08.33 =gmlb= 
+19:08.37 =gmlb= die
+19:08.37 =gmlb= 
+19:08.39 =gmlb= .die
+19:08.39 !DEBUG! isFlag: userHandle == 'default'.
+19:08.39 DCC CHAT: <gmlb> die -- not enough flags.
+19:08.39 !WARN! pSR: dcc{'CHAT'}{gmlb} does not exist.
+19:08.39 =gmlb= 
+19:33.07 !DEBUG! dcc_close: nick => 'GmLB'.
+19:33.07 DCC CHAT close from GmLB
+19:33.08 >>> GmLB has signed off IRC ([x]chat)
+19:33.36 parent caught SIGTERM (pid 859).
+19:33.38 QUIT InfoCup has quit IRC (BEE RICHT BAK)
+19:33.39 Closed MySQL connection to localhost.
+19:33.39 Closed shared memory (shm) key: [914566]

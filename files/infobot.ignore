@@ -1,0 +1,11 @@
+# infobot.ignore file.
+# examples.
+
+# ignore public messages from...
+PUBLIC	dpkg!*@*.com
+
+# ignore all messages from...
+ALL	*!*@*.il
+
+# ignore private messages from
+PRIVATE	apt!*@*

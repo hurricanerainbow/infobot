@@ -1,0 +1,29 @@
+Method of installation.
+-----------------------
+
+- Move infobot.config to infobot.config.used
+- Copy samle.config to infobot.config
+- Edit files/infobot.config, modify to taste.
+- Edit files/ircII.server to modify list of IRC servers to connect.
+- Depends on:
+	- Net::IRC perl module
+		- Debian: (apt-get install libnet-irc-perl)
+	- WWW::Search
+		- Debian: (apt-get install libwww-search-perl)
+	- LWP
+		- Debian: (apt-get install libwww-perl)
+	- HTML::Parser
+		- Debian: (apt-get install libhtml-parse-perl)
+
+- Choice of database
+	- MySQL (see INSTALL.mysql)
+	- PgSQL (see INSTALL.pgsql, DOES NOT WORK YET)
+	- Berkeley DBM (see INSTALL.dbm)
+
+[OPTIONAL,FIXME]
+- 'scripts/insertDB.pl files/sample.insert'.
+
+- There are "bugs" in the perl modules. (see INSTALL.patches) on how to
+  fix.
+
+- Finally, './infobot'

@@ -1,0 +1,212 @@
+# Revised: 19991109.
+#  Author: xk
+###
+
+main: I learn mainly by observing declarative statements such as "x is at http://www.xxx.com", and then reply when people ask things like "where can i find x?"
+
+author: oznoid (mailto:lenzo@ri.cmu.edu) is my original author.
+
+corrections: If I come back with "...but x is at http://xx.xx.xx" or something like that, and you want to change the entry, use "no, x is at http://sdfsdfsdf".  The "No," tells me to supercede the existing value.
+corrections: you can append stuff to a factoid with "also". "x is also at ..."
+
+action: This is used to override the usual response. "x is <REPLY> does the hokey-pokey". When asked about x, the bot does this "* infobot does the hokey-pokey"
+
+reply: There is a special tag, <reply>, that is used to override the usual response.  Usually, a response is "X is Y", but it can be made "Y" by making the entry "X is <reply> Y".  
+reply: This is a good way to close junk entries; use "X is <reply>" with nothing after it.
+
+alternation: The || symbol in an entry causes an infobot to choose one of the replies at random. "X is Y|Z" will produce "X is Y" or "X is Z" randomly.
+
+# now the commands...
+lobotomy: i can be given a lobotomy ([o] is required) if people start to abuse me.  to bring me back to life, give me an unlobotomy
+
+unlobotomy: which is not possible in real life, an unlobotomy will bring me back to life in the case of a lobotomy.
+
+addressing: it is a good idea if i stay in REQUIRE mode then i won't yell out random crap if i listen in too hard.  currently there is no way to turn this of on-the-fly.
+
+forget: FIXME
+
+find: D: Debian Packages (fallback to Contents) Search
+find: U: ## [dcc] [dist] <string>
+find: E: ## strings.h
+find: E: ## dcc usr/bin
+find: E: ## slink x11amp
+
+rename: D: Factoid renaming.
+rename: U: ## 'from' 'to'
+rename: E: ## 'infobot' 'blootbot'
+
+nslookup: D: Query DNS.
+nslookup: U: ## <host|ip>
+nslookup: E: ## debian.org
+nslookup: E: ## 3.1.33.7
+
+spell: you've guessed it right, i'm a spell checker. give me any word and i can confirm whether it's good or bad.
+
+crypt: it's good that you thought about encryption. i can do it for you.
+crypt: U: ## <string> <salt>
+crypt: E: ## changeme 69
+
+join: U: ## <#chan> [key]
+join: E: ## #debian
+join: E: ## #debian rules
+
+kick: U: ## <nick> [#chan]
+kick: E: ## oznoid
+kick: E: ## larne #debian
+
+wantnick: if someone's taken my nick (i hope not) and i'm using some temporary nick, i can change back to my original nick if it's not taken (again).
+
+chaninfo: D: Display channel statistics on Op, Ban, Deop, Unban, Part, Join, SignOff, PublicMsg, Kick and Topic.
+chaninfo: U: ## [#channel]
+chaninfo: E: ##
+chaninfo: E: ## #debian
+
+dict: D: DICT Protocol Client.
+dict: U: ## <query>
+dict: E: ## AI
+dict: E: ## 1 linux
+
+freshmeat: D: Frontend to www.freshmeat.net
+freshmeat: U: ## <query>
+freshmeat: E: ## infobot
+
+factstats: D: Display statistical data (max of 15) about factoids.
+factstats: U: ## <type>
+factstats: == author    -- top author of factoids.
+factstats: == broken    -- broken factoids.
+factstats: == dupe      -- duplicate factoids.
+factstats: == locked    -- locked factoids.
+factstats: == new       -- recent addition of factoids.
+factstats: == partdupe  -- initial partial duplicate factoids.
+factstats: == profanity -- possibly offensive factoids.
+factstats: == redir     -- redirection in factoids.
+factstats: == requested -- most requested factoids.
+factstats: == toolong   -- factoid {key|value} exceeding specified length.
+factstats: == unrequest -- unrequested factoids.
+factstats: E: ## new
+
+lart: D: Luser Attitude Readjustment Tool
+lart: U: ## [#chan] <who>
+lart: E: ## lenzo infobot's bugginess
+lart: E: ## #perl everyone perl \=\= lamerville
+
+listauth: D: Search the factoid extension db by creator.
+listauth: U: ## <search>
+listauth: E: ## xk
+
+listkeys: D: Search the factoid database by key (factoid).
+listkeys: U: ## <regex>
+listkeys: E: ## infobot
+
+listvalues: D: Search the factoid database by value (description).
+listvalues: U: ## <regex>
+listvalues: E: ## infobot
+
+quote: D: Frontend to yahoo's online stock market share listing.
+quote: U: ## <query>
+quote: E: ## RHAT
+
+weather: D: Frontend to www.weather.com.
+weather: U: ## <query>
+weather: E: ## Sydney
+weather: E: ## Perth, Australia
+weather: N: For first timers, please search for the city as all search results are kept in the local cache. You can then query 'city, location'.
+
+topic add: D: Add your own topic.
+topic add: U: ## <topic>
+topic add: E: ## This is a test
+
+topic del: D: Delete one or two subtopics.
+topic del: U: ## <#>
+topic del: E: ## 1
+topic del: E: ## 1-3,5
+
+topic mod: D: Search and replace strings in the topic.
+topic mod: U: ## <REGEX>
+topic mod: E: s/test/TEST/
+topic mod: E: s#msg test#/msg test#g
+
+topic mv: D: Move subtopics around.
+topic mv: U: ## <#> <before|after|swap> <#>
+topic mv: E: ## 1 after 2
+topic mv: E: ## first before last
+
+topic restore: U: ## <#>
+topic restore: E: ## 3
+
+topic: Usage for 'topic [#chan] <params>':
+topic:   ---------------- __Subtopic__:
+topic:   add <TOPIC>    - Append <TOPIC> to topic.
+topic:   del <#>        - Remove subtopic <#> from topic.
+topic:   list           - Display subtopics.
+topic:   mod s/old/new/ - Search and replace topic.
+topic:   mv <ARGS>      - 'topic mv'.
+topic:   shuffle        - Randomly organize subtopics.
+topic:   ---------------- __Topic__
+topic:   history        - Show previous topics.
+topic:   restore <#>    - Restore topic to <#>.
+topic:   rehash         - Rehash changes to topic.
+topic:   info           - Who and time info.
+topic:   ---------------- __Misc__
+topic:   about          - Read the file :)
+topic:   help           - This screen.
+topic: NOTE: #chan arg is only required if command is sent over private message to nick, otherwise it is not needed if sent to the channel.
+topic: NOTE: commands can be preceeded? with '-' in order not to enforce changes to topic.
+topic: End of help.
+
+part: U: ## <#channel>
+part: E: ## #debian
+
+seen: U: ## <nick>
+seen: E: ## infobot
+
+factinfo: D: View statistical information about a particular factoid.
+factinfo: U: ## <factoid>
+factinfo: E: ## test
+
+cookie: i can feed your appetite with random factoids.
+
+slashdot: D: News for nerds, Stuff that matters. [tm]
+slashdot: U: ##
+
+babelfish: D: Frontend to babelfish translating service provided by digital.com
+babelfish: U: x to <lang>: <words>
+babelfish: U: translate from <lang>: <words>
+babelfish: E: x to de: your cars rock
+
+insult: FIXME
+
+search: U: ## <engine> for <string>
+search: E: ## google for evil
+
+nickometer: FIXME
+
+rot13: FIXME
+
+karma: Karma is a community rating system.  Use "X++" to increase the karma, or "X--" to decrease it.  Ask for ratings using "karma for X?"
+
+kernel: D: Frontend to linux.kernel.org's finger response.
+kernel: U: ##
+
+maths: FIXME
+
+lock: D: Factoid locking to prevent removal by others.
+lock: U: ## <factoid>
+lock: E: ## abuse
+lock: N: By default, only registered "ops" on the bots or factoids matching the user's nick are able to lock factoids.
+lock: N: Requires factoid extension (extra) support enabled.
+
+unlock: D: Factoid unlocking to allow removal by others.
+unlock: U: ## <factoid>
+unlock: E: ## abuse
+
+dollar variables: D: To be used in factoids
+dollar variables: $date        - ...
+dollar variables: $time        - ...
+dollar variables: $who         - ...
+dollar variables: $username    - ...
+dollar variables: $host        - ...
+dollar variables: $channel     - ...
+dollar variables: $lastspeaker - ...
+dollar variables: $factoid     - ...
+dollar variables: ...          - ...

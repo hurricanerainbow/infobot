@@ -1,0 +1,94 @@
+#
+# Countdown.pl: Count down to a particular date.
+#       Author: xk <xk@leguin.openprojects.net>
+#      Version: v0.1 (20000104)
+#      Created: 20000104
+#
+
+use strict;
+
+#use vars qw();
+
+sub Countdown {
+    my ($query) = @_;
+    my $file = "$infobot_base_dir/$param{'ircUser'}.countdown";
+    my (%date, %desc);
+    my $reply;
+
+    if (!open(IN,$file)) {
+	&ERROR("cannot open $file.");
+	return 0;
+    }
+
+    while (<IN>) {
+	chop;
+	s/[\s\t]+/ /g;
+
+	if (/^(\d{8}) (\S+) (.*)$/) {
+	    $date{$2} = $1;
+	    $desc{$2} = $3;
+	}
+    }
+    close IN;
+
+    if (defined $query) {			# argument.
+	if (!exists $date{$query}) {
+	    &msg($who,"error: $query is not in my countdown list.");
+	    return 0;
+	}
+
+	$date{$query} =~ /^(\d{4})(\d{2})(\d{2})$/;
+	my($year,$month,$day) = ($1,$2,$3);
+	my $sqldate = "$1-$2-$3";
+
+	### SQL SPECIFIC.
+	my ($to_days,$dayname,$monname);
+
+	if ($param{'DBType'} =~ /pg|postgres|mysql/i) {
+	    $to_days = (&dbRawReturn("SELECT TO_DAYS(NOW()) - TO_DAYS('$sqldate')"))[0];
+	    $dayname = (&dbRawReturn("SELECT DAYNAME('$sqldate')"))[0];
+	    $monname = (&dbRawReturn("SELECT MONTHNAME('$sqldate')"))[0];
+	} elsif ($param{'DBType'} =~ /^dbm$/i) {
+	    &DEBUG("Countdown: FIXME!!!");
+#	    $to_days = 
+#	    $dayname = 
+#	    $monname = 
+	    return 1;
+	} else {
+	    &ERROR("Countdown: invalid DBType?");
+	    return 1;
+	}
+
+	if ($to_days =~ /^\D+$/) {
+	    my $str = "to_days is not integer.";
+	    &msg($who,$str);
+	    &ERROR($str);
+
+	    return 1;
+	}
+
+	my @gmtime = gmtime(time());
+	my $daysec = ($gmtime[2]*60*60) + ($gmtime[1]*60) + ($gmtime[0]);
+	my $time   = ($to_days*24*60*60);
+
+	if ($to_days >= 0) {	# already passed.
+	    $time  += $daysec;
+	    $reply  = "T plus ". &Time2String($time) ." ago";
+	} else {		# time to go.
+	    $time   = -$time - $daysec;
+	    $reply  = "T minus ". &Time2String($time);
+	}
+	$reply    .= ", \002(\002$desc{$query}\002)\002 at $dayname, $monname $day $year";
+
+	&performStrictReply($reply .".");
+	return 1;
+    } else {				# no argument.
+	my $prefix = "Countdown list ";
+
+	&performStrictReply( &formListReply(0, $prefix, sort keys %date) );
+
+	return 1;
+    }
+}
+
+1;
