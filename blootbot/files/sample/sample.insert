@@ -1,0 +1,3 @@
+hello => <REPLY> hi(, $who)?
+status => <REPLY> FIXME...
+rnd => <REPLY> $who: (0-10)

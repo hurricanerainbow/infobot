@@ -1,0 +1,347 @@
+###
+# parameter settings file for blootbot
+# by the dms
+###
+
+# [str] Interface: [IRC/CLI]
+#   IRC		-- Internet Relay Chat
+#   CLI		-- Command Line Interface
+set Interface		IRC
+
+# IRC.
+set ircNick		blootbot
+set ircUser		blootbot
+set ircName		blootbot experimental bot
+set ircUMode		+iw
+###set ircHost		vh.virtualhost.org
+
+# default quit message
+set quitMsg		adios amigos
+
+### CHANNELS.
+set channel #DEBIAN-bots {
+    +nickserv		PASSWORD
+    +chanserv				# gain chanops.
+
+    +logfile		logs/$chan.log
+}
+
+# hrm, not sure if this would look nice.
+set channel default {
+    # blah blah blah
+}
+
+#####
+# logfile
+#####
+
+# [file] where to put logging info. comment out to disable.
+set logfile		log/$ircUser.log
+
+# [str] Type of logging.
+#   DAILY	-- Create a new log each day.
+#   DEFAULT	-- One continuous log file.
+set logType		DAILY
+
+# [int] Maximum log size, if logfile is defined, in bytes.
+set maxLogSize		10000000
+
+#####
+# Factoid DB Configuration
+#####
+
+# [str] Ability to remember/tell factoids
+#	none	-- disable.
+#	mysql	-- MySQL
+#	pgsql	-- PostGreSQL (NOT SUPPORTED YET)
+#	dbm	-- Berkeley DBM
+### REQUIRED by factoids,freshmeat,karma,seen,...
+set DBType		mysql
+
+# [str] DBM filename prefix // MYSQL/PGSQL database.
+#	eg: blootbot-factoids, blootbot-seen
+#	eg: /var/db/mysql/blootbot/factoids.*
+set DBName		blootbot
+
+# [str] Hostname of database server
+set SQLHost		localhost
+
+# [str] mysql user allowed to insert,update,delete stuff from tables.
+set SQLUser		blootbot
+
+# [str] mysql password.
+set SQLPass		PASSWORD
+
+#####
+# factoid-related configuration
+#####
+
+# [bool] Factoid support.
+set factoids		true
+
+# [int] maximum length of factoid key.
+set maxKeySize		32
+
+# [int] maximum length of factoid value.
+set maxDataSize		450
+
+# [int] minimum length of unaddressed (message) question without question
+#	before it is answered involuntarily.
+#	This ignores the 'addressing' setting.
+#	0 to disable.
+set minVolunteerLength	0
+
+# [str] when should the bot bother learning new factoids.
+#   ADDRESSED	-- only learn when addressed.
+#   HUNGRY	-- learn irrelevent of addressing. this will catch
+#		   _everything_, use at your own risk. I tried this ages
+#		   ago and it caught quite funny responses but who knows
+#		   if my modifications will prevent this or not, perhaps
+#		   IsInvalid must be disabled?
+set learn		ADDRESSED
+
+# [str] different behaviour with URLs.
+#   REQUIRE	-- means it will need to be a url type (e.g. file:, http:)
+#   OPTIONAL	-- will take anything
+#   REJECT	-- will not accept any urls.  this makes it easy to
+#		   run 2 with different nicks and styles.
+#		   ^^^ what's the point of this???
+set acceptUrl		OPTIONAL
+
+# [bool] profanity checking.
+set profanityCheck	false
+
+# [0/1] tell so-and-so about such-and-such of a factoid.
+set allowTelling	1
+
+# [str] other bots to ask for factoids which they may have.
+#set friendlyBots	url purl script mrapi
+
+#####
+# factoid related and unrelated features, mainly Extras.
+#####
+
+# [str] addressing is when you name the bot. FIXME
+#   REQUIRE	-- the bot only does something if addressed.
+#   OPTIONAL	-- the bot responds (does not learn) irrelevent of
+#		   addressing.
+set addressing		REQUIRE
+
+# [char] One-character easy recognition.
+set addressCharacter	~
+
+# [str] how the bot should send messages.
+#   PRIVATE	-- reply to private messages only, rejecting public msgs.
+#   DEFAULT	-- reply to public _and_ private queries.
+set talkMethod		DEFAULT
+
+# [str] how long the output string should be before it is changed from
+#	public to private. Value of '1' has same behaviour as superseeded
+#	option 'preferReply PRIVATE'.
+#	"+" before bot commands overrides this option temporarily.
+###set minLengthBeforePrivate 192
+
+# [int] maximum length of reply for Extras function before popping list to
+#	reduce number of elements.
+set maxListReplyLength	450
+
+# [int] maximum number of elements in list allowed for Extras function
+#	before popping elements to reduce total count.
+set maxListReplyCount	15
+
+# [0/1] allow people outside any channels the bot is on to use the bot
+#	for factoids and commands.
+set disallowOutsiders	1
+
+# [int] time, in seconds. (different messages)
+set floodMessages	10:30
+# [int] same messages.
+set floodRepeat		2:10
+
+# [int] Amount of time for auto-ignore (flooding) to expire.
+set ignoreAutoExpire	5
+
+# [int] Amount of time for forced-online ignore to expire. minutes.
+set ignoreTempExpire	60
+
+#####
+# Internal (simple) bot commands
+#####
+
+# [0/1] irc-cli calculator.
+set perlMath		1
+
+# [0/1] ord/chr etc
+set allowConv		1
+
+# [0/1] do you want to allow DNS lookup
+set allowDNS		1
+
+# [0/1] Forking... enable for non-nix OS or to reduce mem usage.
+#	This should work for Win32 and MacOS. About time, hey :)
+set forking		1
+
+# [int] Backlog... ideal to see what happened to the bot on console.
+#	maximum number of lines to backlog.
+set backlog		24
+
+#####
+# Miscellaneous...
+#####
+
+# [bool] Display a bit too much info about stuff.
+#   0	-- disable.
+#   1	-- minimal.
+#   2	-- extra.
+set VERBOSITY		1
+
+# [0/1] Warn messages.
+set WARN		1
+
+# [0/1] Debugging messages.
+set DEBUG		1
+
+# [0/1] Work In Progress...
+set WIP			1
+
+# debugging...
+###set dumpvars		1
+###set dumpvarsAtExit	1
+# log to specific file or global log file.
+###set dumpvarsLogFile	dumpvars.log
+
+# [0/1] allow 'use strict', makes bot unreliable.
+set useStrict		0
+
+#####
+# Extras
+#####
+
+# [str] anything which requires LWP + http proxy.
+###set httpProxy		http://HOSTNAME:PORT/
+
+### DEFAULT/GLOBAL OPTIONS.
+### OVERRIDDEN BY CHANNEL OPTIONS.
+
+# [0/1] babelfish translator.  jdf++. FIXME [DOES NOT WORK]
+set babelfish		false
+
+# [0/1] offer free factoid cookies
+set cookie		true
+
+# [0/1] Countdown to specific dates
+set countdown		true
+
+# [0/1] Debian file and package search.
+set debian		false
+# [int] how often to update the debian table, in days.
+set debianRefreshInterval 1
+# [0/1] extra stuff...
+set debianExtra		true
+
+# [0/1] Frontend to dict.org's wordnet.
+set dict		false
+
+# [0/1] Freshmeat
+set freshmeat		false
+# [int] how often to update the freshmeat table, in hours.
+set freshmeatRefreshInterval 24
+# [chans|all] 10items/hour, might be annoying.
+###set freshmeatAnnounce	#debian-bots
+# [bool] if factoid does not exist, check freshmeat for it.
+set freshmeatForFactoid		false
+
+# [0/1] insult server
+set insult		false
+
+# [0/1] karma
+set karma		true
+
+# [0/1] Frontend to kernel.org
+set kernel		false
+###set kernelAnnounce	#debian-bots
+
+# [0/1] LART.
+set lart		true
+
+# [array] Channel limit adjuster. List of channels.
+###set limitcheck		#debian-bots
+# [int] Interval (or more than), in minutes.
+set limitcheckInterval	10
+# [int] Adjust channel limit to 10 above total users in channel.
+set limitcheckPlus	10
+
+# [0/1] nickometer
+set nickometer		true
+
+# [0/1] Frontend to the stock market.
+set quote		false
+
+# [0/1] Display random text in the channel.
+set randomQuote		true
+# [str] Channels.
+set randomQuoteChannels	#debian-bots
+# [int] Interval (or more than), in minutes.
+set randomQuoteInterval	60
+
+# [0/1] Display random text in the channel.
+set randomFactoid	true
+# [str] Channels.
+set randomFactoidChannels	#debian-bots
+# [int] Interval (or more than), in minutes.
+set randomFactoidInterval	60
+
+# [0/1] Warn users about root.
+set rootWarn		false
+#   passive	-- be polite plus stuff, compliant to OPN, heh.
+#   aggressive	-- ...
+set rootWarnMode	passive
+
+# [0/1] Factoid search.
+set search		false
+
+# [0/1] persistant "seen".
+set seen		true
+# [0/1] seen statistics for online users like idle time, total message
+#	count.
+set seenStats		true
+# [int] if someone's been away for more than xx days, delete their info.
+#	info.
+set seenMaxDays		30
+# [int] interval to flush cached seen info. in minutes.
+set seenFlushInterval	60
+# [bool] store all information, irrevelent of addressing.
+#	may chew more CPU?
+set seenStoreAll	1
+
+# [0/1] slashdot headlines.
+set slashdot		false
+###set slashdotAnnounce	#debian-bots
+
+# [0/1] frontend to ispell.
+set spell		false
+
+# [0/1] Advanced topic management.
+set topic		true
+
+# [0/1] User Information Services.
+set userinfo		true
+
+# [0/1] Uptime daemon
+set uptime		true
+
+# [0/1] Wingate checking and banning mechanism. FIXME.
+###set wingate		false
+# [int] seconds. minimum time to check.
+set wingateInterval	60
+# [str] Wingate.
+set wingateBan		true
+# [str] Wingate.
+set wingateKick		DIE DIE DIE
+
+# [0/1] google search.. simon++. requires libwww-search-perl + 5lines of
+#	modifications.
+set wwwsearch		false
+
+# [0/1] Unit conversion tool.
+set units		true
