@@ -243,9 +243,9 @@ sub searchContents {
     while (<IN>) {
 	last if ($found > 100);
 
-	next unless if (/^\.?\/?(.*?)[\t\s]+(\S+)\n$/);
-
+	next unless (/^\.?\/?(.*?)[\t\s]+(\S+)\n$/);
 	my ($file,$package) = ("/".$1,$2);
+
 	if ($query =~ /[\/\*\\]/) {
 	    next unless (eval { $file =~ /$regex/ });
 	    return unless &checkEval($@);
