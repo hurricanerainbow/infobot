@@ -797,7 +797,7 @@ sub do_verstats {
 	return;
     }
 
-    &msg($who, "Sending CTCP VERSION...");
+    &msg($who, "Sending CTCP VERSION to #chan...");
     $conn->ctcp("VERSION", $chan);
     $cache{verstats}{chan}	= $chan;
     $cache{verstats}{who}	= $who;
@@ -806,12 +806,11 @@ sub do_verstats {
     $conn->schedule(30, sub {
 	my $c		= lc $cache{verstats}{chan};
 	@vernicktodo	= ();
+
 	foreach (keys %{ $channels{$c}{''} } ) {
 	    next if (grep /^\Q$_\E$/i, @vernick);
 	    push(@vernicktodo, $_);
 	}
-
-	&DEBUG("verstats(30): we have ".scalar(@vernicktodo)." nicks to do");
 
 	&verstats_flush();
     } );
