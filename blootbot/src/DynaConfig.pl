@@ -125,8 +125,7 @@ sub writeUserFile {
 
 	my $count = scalar keys %{ $bans{$chan} };
 	if (!$count) {
-	    &WARN("bans: chan $chan has no other attributes;
-skipping.");
+	    &WARN("bans: chan $chan has no other attributes; skipping.");
 	    next;
 	}
 
@@ -223,6 +222,58 @@ sub writeChanFile {
     my $time		= scalar(localtime);
     print OUT "#v1: blootbot -- $ident -- written $time\n\n";
 
+    if ($flag_quit) {
+
+	### Process 1: if defined in _default, remove same definition
+	###		from non-default channels.
+	foreach (keys %{ $chanconf{_default} }) {
+	    my $opt	= $_;
+	    my $val	= $chanconf{_default}{$opt};
+	    my @chans;
+
+	    foreach (keys %chanconf) {
+		$chan = $_;
+
+		next if ($chan eq "_default");
+		next unless (exists $chanconf{$chan}{$opt});
+		next unless ($val eq $chanconf{$chan}{$opt});
+		push(@chans,$chan);
+		delete $chanconf{$chan}{$opt};
+	    }
+
+	    if (scalar @chans) {
+		&DEBUG("Removed config $opt to @chans since it's defiend in '_default'");
+	    }
+	}
+
+	### Process 2: if defined in all chans but _default, set in
+	###		_default and remove all others.
+	my (%optsval, %opts);
+	foreach (keys %chanconf) {
+	    $chan = $_;
+	    next if ($chan eq "_default");
+	    my $opt;
+
+	    foreach (keys %{ $chanconf{$chan} }) {
+		$opt = $_;
+		if (exists $optsval{$opt} and $optsval{$opt} eq $chanconf{$chan}{$opt}) {
+		    $opts{$opt}++;
+		    next;
+		}
+		$optsval{$opt}	= $chanconf{$chan}{$opt};
+		$opts{$opt}	= 1;
+	    }
+	}
+
+	&DEBUG("chans => ".scalar(keys %chanconf)." - 1");
+	foreach (keys %opts) {
+	    &DEBUG("  opts{$_} => $opts{$_}");
+	}
+
+	### other optimizations are in UserDCC.pl
+    }
+
+    ### lets do it...
     foreach (sort keys %chanconf) {
 	$chan	= $_;
 
