@@ -6,7 +6,7 @@
 #      NOTE: Based on code by Kevin Lenzo & Patrick Cole  (c) 1997
 #
 
-if (&IsParam("useStrict")) { use strict; }
+use strict;
 
 use vars qw($logDate $loggingstatus $statcount $bot_pid $forkedtime
 	    $statcountfix $addressed $logcount $logtime);
