@@ -69,7 +69,7 @@ sub uptimeWriteFile {
   my $file = $file{utm};
 
   if ($$ != $bot_pid) {
-    &FIXME("uptime: forked process doing weird things!");
+    &FIXME('uptime: forked process doing weird things!');
     exit 0;
   }
 

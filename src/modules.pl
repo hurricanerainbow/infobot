@@ -49,7 +49,7 @@ if ($@) {
 	"DumpVars2"	=> "DumpVars2.pl",
 	"Topic"		=> "Topic.pl",
 	"Units"		=> "Units.pl",
-	"uptime"	=> "Uptime.pl",
+	"Uptime"	=> "Uptime.pl",
 	"userinfo"	=> "UserInfo.pl",
 	"weather"	=> "Weather.pl",
 	"whatis"	=> "WhatIs.pl",
@@ -64,7 +64,7 @@ if ($@) {
 my @myModulesLoadNow;
 my @myModulesReloadNot;
 BEGIN {
-    @myModulesLoadNow	= ('Topic', 'uptime', 'News', 'RootWarn', 'DumpVars2', 'botmail');
+    @myModulesLoadNow	= ('Topic', 'Uptime', 'News', 'RootWarn', 'DumpVars2', 'botmail');
     @myModulesReloadNot	= ('IRC/Irc.pl','IRC/Schedulers.pl');
 }
 
