@@ -121,6 +121,9 @@ sub formListReply {
     my $maxlen	= $param{'maxListReplyLength'} || 400;
     my $reply;
 
+    # remove irc overhead
+    $maxlen -= 30;
+
     # no results.
     return $prefix ."returned no results." unless ($total);
 
@@ -140,9 +143,9 @@ sub formListReply {
 
     # form the reply.
     while () {
-	$reply  = $prefix ."(\002". scalar(@list). "\002 shown";
-	$reply .= "; \002$total\002 total" if ($total != scalar @list);
-	$reply .= "): ". join(" \002;;\002 ", @list) .".";
+	$reply  = $prefix ."(\002". scalar(@list). "\002";
+	$reply .= " of \002$total\002" if ($total != scalar @list);
+	$reply .= "): " . join(" \002;;\002 ", @list) .".";
 
 	last if (length($reply) < $maxlen and scalar(@list) <= $maxshow);
 	last if (scalar(@list) == 1);
