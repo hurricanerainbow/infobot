@@ -12,17 +12,17 @@ use strict;
 
 #use vars qw(PF_INET);
 
-my $server	= "dict.org";	# need a specific host||ip.
-
-###local $SIG{ALRM} = sub { die "alarm\n" };
+# need a specific host||ip.
+#my $server	= "dict.org";
+my $server	= "127.0.0.1";
 
 sub Dict {
     my ($query) = @_;
 #    return unless &::loadPerlModule("IO::Socket");
-    my $socket	= new IO::Socket;
     my $port	= 2628;
     my $proto	= getprotobyname('tcp');
     my @results;
+    my $retval;
 
     for ($query) {
 	s/^[\s\t]+//;
@@ -31,17 +31,19 @@ sub Dict {
     }
 
     # connect.
-# TODO: make strict-safe constants... so we can defer IO::Socket load.
+    # TODO: make strict-safe constants... so we can defer IO::Socket load.
+    my $socket	= new IO::Socket;
     socket($socket, PF_INET, SOCK_STREAM, $proto) or return "error: socket: $!";
     eval {
+	local $SIG{ALRM} = sub { die "alarm" };
 	alarm 10;
-	connect($socket, sockaddr_in($port, inet_aton($server))) or return "error: connect: $!";
+	connect($socket, sockaddr_in($port, inet_aton($server))) or die "error: connect: $!";
 	alarm 0;
     };
 
-    my $retval;
-    if ($@ && $@ ne "alarm\n") {	# failure.
-	$retval = "i could not get info from dict.org";
+    if ($@) {
+	# failure.
+	$retval = "i could not get info from $server '$@'";
     } else {				# success.
 	$socket->autoflush(1);	# required.
 
@@ -102,6 +104,7 @@ sub Dict_Wordnet {
 	chop;	# remove \n
 	chop;	# remove \r
 
+	&::DEBUG("got '$_'");
 	if ($_ eq ".") {				# end of def.
 	    push(@results, $def);
 	} elsif (/^250 /) {				# stats.
@@ -148,6 +151,7 @@ sub Dict_Foldoc {
 	chop;	# remove \n
 	chop;	# remove \r
 
+	&::DEBUG("got '$_'");
 	return if /^552 /;		# no match.
 
 	if ($firsttime) {
