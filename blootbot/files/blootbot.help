@@ -1,5 +1,5 @@
-# Revised: 19991109.
-#  Author: xk
+# Revised: 20050224
+#  Author: Tim Riker <Tim@Rikers.org>
 ###
 
 main: I learn mainly by observing declarative statements such as "x is at http://www.xxx.com", and then reply when people ask things like "where can i find x?"
@@ -326,6 +326,10 @@ part: U: ## <#channel>
 part: E: ## #botpark
 part: NOTE: /kick is an alternative
 
+piglatin: D: translates english text into piglatin
+piglatin: U: ## <string>
+piglatin: E: ## When will blootbot achieve world domination?
+
 quote: D: Frontend to yahoo's online stock market share listing
 quote: U: ## <query...>
 quote: E: ## RHAT,MSFT
@@ -334,12 +338,16 @@ rename: D: Factoid renaming
 rename: U: ## 'from' 'to'
 rename: E: ## 'infobot' 'blootbot'
 
-rot13: D: ROT13's the given string
+rot13: D: ROT13's a given string
 rot13: U: ## <string>
 rot13: E: ## guvf vf n ynzr rknzcyr
 
 say: D: operator command to say things in a channel
 say: U: ## <chan> <what>
+
+scramble: D: scrambles a given string
+scramble: U: ## <string>
+scramble: E: ## When will blootbot achieve world domination?
 
 search: U: ## <engine> for <string>
 search: E: ## google for blootbot
