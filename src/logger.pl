@@ -225,6 +225,7 @@ sub status {
 	$status = "!$statcount! ".$input;
 	if ($statcount > 1000) {
 	    print LOG "ERROR: FORKED PROCESS RAN AWAY; KILLING.\n";
+	    print LOG "VERB: ".(&Time2String(time() - $forkedtime)."\n";
 	    exit 0;
 	}
     } else {
