@@ -60,24 +60,27 @@ sub on_chat {
 
     if (!exists $dcc{'CHATvrfy'}{$nick}) {
 	$userHandle	= &verifyUser($who, $nuh);
-	my $crypto	= $userList{$userHandle}{'pass'};
+	my $crypto	= $users{$userHandle}{PASS};
 	my $success	= 0;
 
 	if (!defined $crypto) {
 	    &DEBUG("chat: no pass required.");
 	    $success++;
+
 	} elsif (&ckpasswd($msg, $crypto)) {
-	    $self->privmsg($sock,"Authorized.");
-	    $self->privmsg($sock,"I'll respond as if through /msg and addressed in public. Addition to that, access to 'user' commands will be allowed, like 'die' and 'jump'.");
-	    # hrm... it's stupid to ask for factoids _within_ dcc chat.
-	    # perhaps it should be default to commands, especially
-	    # commands only authorized through DCC CHAT.
-	    &status("DCC CHAT: passwd is ok.");
+	    # stolen from eggdrop.
+	    $self->privmsg($sock, "Connected to $ident");
+	    $self->privmsg($sock, "Commands start with '.' (like '.quit' or '.help')");
+	    $self->privmsg($sock, "Everything else goes out to the party line.");
+
+	    &dccStatus(2) if (scalar keys %{ $dcc{'CHAT'} } == 1);
+
 	    $success++;
+
 	} else {
 	    &status("DCC CHAT: incorrect pass; closing connection.");
 	    &DEBUG("chat: sock => '$sock'.");
-	    $sock->close();
+###	    $sock->close();
 	    delete $dcc{'CHAT'}{$nick};
 	    &DEBUG("chat: after closing sock. FIXME");
 	    ### BUG: close seizes bot. why?
@@ -85,10 +88,12 @@ sub on_chat {
 
 	if ($success) {
 	    &status("DCC CHAT: user $nick is here!");
-	    &DCCBroadcast("$nick ($uh) has joined the chat arena.");
+#	    &DCCBroadcast("$nick ($uh) has joined the chat arena.");
+	    &DCCBroadcast("*** $nick ($uh) joined the party line.");
+
 	    $dcc{'CHATvrfy'}{$nick} = 1;
-	    if ($userHandle ne "default") {
-		&dccsay($nick,"Flags: $userList{$userHandle}{'flags'}");
+	    if ($userHandle ne "_default") {
+		&dccsay($nick,"Flags: $users{$userHandle}{FLAGS}");
 	    }
 	}
 
@@ -97,13 +102,21 @@ sub on_chat {
 
     $userHandle = &verifyUser($who, $nuh);
     &status("$b_red=$b_cyan$who$b_red=$ob $message");
+
     if ($message =~ s/^\.//) {	# dcc chat commands.
 	### TODO: make use of &Forker(); here?
 	&loadMyModule($myModules{'ircdcc'});
-	return '$noreply from userD' if (&userDCC() eq $noreply);
+
+	&DCCBroadcast("#$who# $message","m");
+
+	my $retval	= &userDCC();
+	return unless (defined $retval);
+	return if ($retval eq $noreply);
+
 	$conn->privmsg($dcc{'CHAT'}{$who}, "Invalid command.");
 
     } else {			# dcc chat arena.
+
 	foreach (keys %{$dcc{'CHAT'}}) {
 	    $conn->privmsg($dcc{'CHAT'}{$_}, "<$who> $orig{message}");
 	}
@@ -145,7 +158,7 @@ sub on_endofmotd {
     &status("End of motd. Now lets join some channels...");
     if (!scalar @joinchan) {
 	&WARN("joinchan array is empty!!!");
-	@joinchan = split /[\t\s]+/, $param{'join_channels'};
+	@joinchan = &getJoinChans();
     }
 
     &joinNextChan();
@@ -225,11 +238,16 @@ sub on_dcc_open {
     } elsif ($type eq 'CHAT') {
 	&status("${b_green}DCC CHAT$ob established with $b_cyan$nick$ob $b_yellow($ob$nuh{$nick}$b_yellow)$ob");
 	$userHandle     = &verifyUser($nick, $nuh{lc $nick});
-	my $crypto	= $userList{$userHandle}{'pass'};
+	my $crypto	= $users{$userHandle}{PASS};
 	$dcc{'CHAT'}{$nick} = $sock;
 
+	foreach (keys %{ $users{$userHandle} }) {
+	    &VERB("   $_ => $users{$userHandle}{$_}",2);
+	}
+
 	if (defined $crypto) {
-	    &dccsay($nick,"Enter Password, $userHandle.");
+###	    &dccsay($nick,"Enter your password, $userHandle.");
+	    &dccsay($nick,"Enter your password.");
 	} else {
 	    &dccsay($nick,"Welcome to blootbot DCC CHAT interface, $userHandle.");
 	}
@@ -942,7 +960,7 @@ sub hookMsg {
 	    &status("FLOOD overflow detected from $floodwho; ignoring");
 
 	    my $expire = $param{'ignoreAutoExpire'} || 5;
-	    $ignoreList{"*!$uh"} = time() + ($expire * 60);
+	    &ignoreAdd("*!$uh", $chan, $expire, "flood overflow auto-detected.");
 	    return;
 	}
 
@@ -975,16 +993,35 @@ sub hookMsg {
     return if ($skipmessage);
     return unless (&IsParam("minVolunteerLength") or $addressed);
 
-    local $ignore = 0;
-    foreach (keys %ignoreList) {
-	my $ignoreRE = $_;
-	my @parts = split /\*/, "a${ignoreRE}a";
-	my $recast = join '\S*', map quotemeta($_), @parts;
-	$recast =~ s/^a(.*)a$/$1/;
-	if ($nuh =~ /^$recast$/) {
+    ### TODO: hash list of already-checked users.
+    ### eg: $ignoreChecked{$mask} = time();
+    local $ignore	= 0;
+    my $checked		= 0;
+
+    if (my @m = grep /^$nuh$/i, keys %ignoreChecked) {
+	&DEBUG("found ignore for $nuh.");
+	foreach (@m) {
+	    &DEBUG("masks => $_  ($ignoreChecked{$_})");
+	}
+    }
+
+    foreach (keys %ignore) {
+	my $c = $_;
+	&DEBUG("c = $_, chan = $chan.");
+
+	foreach (keys %{ $ignore{$c} }) {
+	    my $m = $_;
+	    $m =~ s/\*/\\S*/g;
+
+	    next unless ($nuh =~ /^\Q$m\E$/i);
 	    $ignore++;
+	    $ignoreChecked{$nuh} = $c;
 	    last;
 	}
+    }
+
+    if (!$ignore and !$checked) {
+	push(@ignore_off, $nuh);
     }
 
     if (defined $nuh) {
