@@ -499,10 +499,9 @@ sub userDCC {
 	}
 
 	my $update	= 0;
-	### TODO: $what can be undefined. fix it!
-	if ($what =~ s/^\+(\S+)/$1/) {
+	if (defined $what and $what =~ s/^\+(\S+)/$1/) {
 	    my $was	= $chanconf{$chan}{$1};
-	    if ($was eq "1") {
+	    if (defined $was and $was eq "1") {
 		&pSReply("setting $what for $chan already 1.");
 		return;
 	    }
@@ -513,7 +512,7 @@ sub userDCC {
 	    $chanconf{$chan}{$what} = 1;
 
 	    $update++;
-	} elsif ($what =~ s/^\-(\S+)/$1/) {
+	} elsif (defined $what and $what =~ s/^\-(\S+)/$1/) {
 	    my $was	= $chanconf{$chan}{$1};
 	    # hrm...
 	    if (!defined $was) {
@@ -534,7 +533,7 @@ sub userDCC {
 	    $update++;
 	} elsif (defined $val) {
 	    my $was	= $chanconf{$chan}{$what};
-	    if ($was eq $val) {
+	    if (defined $was and $was eq $val) {
 		&pSReply("setting $1 for $chan already '$val'.");
 		return;
 	    }
@@ -599,7 +598,7 @@ sub userDCC {
 	    $delete	= ($1) ? 1 : 0;
 	    &DEBUG("chan => $chan.");
 	} else {
-	    &DEBUG("no chan arg; setting to default.");
+	    &VERB("no chan arg; setting to default.",2);
 	    $chan	= "_default";
 	}
 
