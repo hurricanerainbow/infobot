@@ -10,11 +10,6 @@ if (&IsParam("useStrict")) { use strict; }
 use POSIX qw(strftime);
 use vars qw(%sched);
 
-#
-# is there a point in ScheduleChecked()?
-# not yet... not unless we run setupSchedulers more than once.
-#
-
 sub setupSchedulers {
     &VERB("Starting schedulers...",2);
 
@@ -45,7 +40,10 @@ sub setupSchedulers {
 #    my $count = map { exists $sched{$_}{TIME} } keys %sched;
     my $count	= 0;
     foreach (keys %sched) {
-	next unless (exists $sched{$_}{TIME});
+#	next unless (exists $sched{$_}{TIME});
+	my $time = $sched{$_}{TIME};
+	next unless (defined $time and $time > time());
+
 	$count++;
     }
 
@@ -62,28 +60,18 @@ sub ScheduleThis {
 	return;
     }
 
-    if (exists $sched{$codename}{RUNNING}) {
-	&WARN("Sched for $codename already exists. forgot ScheduleChecked?");
+    my $time = $sched{$codename}{TIME};
+    if (defined $time and $time > time()) {
+	&WARN("Sched for $codename already exists.");
 	return;
     }
 
-    &VERB("Scheduling \&$codename() for ".&Time2String($waittime),3);
+#    &VERB("Scheduling \&$codename() for ".&Time2String($waittime),3);
+
     my $retval = $conn->schedule($waittime, \&$codename, @args);
     $sched{$codename}{LABEL}	= $retval;
     $sched{$codename}{TIME}	= time()+$waittime;
     $sched{$codename}{RUNNING}	= 1;
-}
-
-sub ScheduleChecked {
-    my ($codename) = shift;
-
-    # what the hell is this for?
-    if (exists $sched{$codename}{RUNNING}) {
-###	&DEBUG("SC: Removed $codename.");
-	delete $sched{$codename}{RUNNING};
-    } else {
-###	&WARN("sched $codename already removed.");
-    }
 }
 
 ####
@@ -94,8 +82,9 @@ sub randomQuote {
     my $interval = &getChanConfDefault("randomQuoteInterval", 60);
     if (@_) {
 	&ScheduleThis($interval, "randomQuote");
-	&ScheduleChecked("randomQuote");
 	return if ($_[0] eq "2");	# defer.
+    } else {
+	delete $sched{"randomQuote"}{RUNNING};
     }
 
     my $line = &getRandomLineFromFile($bot_misc_dir. "/blootbot.randtext");
@@ -121,8 +110,9 @@ sub randomFactoid {
     my $interval = &getChanConfDefault("randomFactoidInterval", 60);
     if (@_) {
 	&ScheduleThis($interval, "randomFactoid");
-	&ScheduleChecked("randomFactoid");
 	return if ($_[0] eq "2");	# defer.
+    } else {
+	delete $sched{"randomFactoid"}{RUNNING};
     }
 
     while (1) {
@@ -151,8 +141,9 @@ sub randomFreshmeat {
 
     if (@_) {
 	&ScheduleThis($interval, "randomFreshmeat");
-	&ScheduleChecked("randomFreshmeat");
 	return if ($_[0] eq "2");	# defer.
+    } else {
+	delete $sched{"randomFreshmeat"}{RUNNING};
     }
 
     my @chans = &ChanConfList("randomFreshmeat");
@@ -173,8 +164,9 @@ sub randomFreshmeat {
 sub logLoop {
     if (@_) {
 	&ScheduleThis(60, "logLoop");
-	&ScheduleChecked("logLoop");
 	return if ($_[0] eq "2");	# defer.
+    } else {
+	delete $sched{"logLoop"}{RUNNING};
     }
 
     return unless (defined fileno LOG);
@@ -246,16 +238,17 @@ sub logLoop {
 sub seenFlushOld {
     if (@_) {
 	&ScheduleThis(1440, "seenFlushOld");
-	&ScheduleChecked("seenFlushOld");
 	return if ($_[0] eq "2");	# defer.
+    } else {
+	delete $sched{"seenFlushOld"}{RUNNING};
     }
 
     # is this global-only?
     return unless (&IsChanConf("seen") > 0);
     return unless (&IsChanConf("seenFlushInterval") > 0);
 
-    my $max_time = ($chanconf{_default}{'seenMaxDays'} || 30)
-				*60*60*24; # global.
+    # global setting. does not make sense for per-channel.
+    my $max_time = &getChanConfDefault("seenMaxDays", 30) *60*60*24;
     my $delete   = 0;
 
     if ($param{'DBType'} =~ /^pg|postgres|mysql/i) {
@@ -289,17 +282,19 @@ sub seenFlushOld {
 }
 
 sub chanlimitCheck {
+    my $interval = &getChanConfDefault("chanlimitcheckInterval", 10);
+
     if (@_) {
-	my $interval = &getChanConf("chanlimitcheckInterval") || 10;
 	&ScheduleThis($interval, "chanlimitCheck");
-	&ScheduleChecked("chanlimitCheck");
 	return if ($_[0] eq "2");
+    } else {
+	delete $sched{"chanlimitCheck"}{RUNNING};
     }
 
     foreach ( &ChanConfList("chanlimitcheck") ) {
 	next unless (&validChan($_));	# ???
 
-	my $limitplus	= &getChanConf("chanlimitcheckPlus",$_) || 5;
+	my $limitplus	= &getChanConfDefault("chanlimitcheckPlus", 5, $_);
 	my $newlimit	= scalar(keys %{$channels{$_}{''}}) + $limitplus;
 	my $limit	= $channels{$_}{'l'};
 
@@ -324,8 +319,9 @@ sub netsplitCheck {
 
     if (@_) {
 	&ScheduleThis(30, "netsplitCheck");
-	&ScheduleChecked("netsplitCheck");
 	return if ($_[0] eq "2");
+    } else {
+	delete $sched{"netsplitCheck"}{RUNNING};
     }
 
     foreach $s1 (keys %netsplitservers) {
@@ -357,8 +353,9 @@ sub floodLoop {
 
     if (@_) {
 	&ScheduleThis(60, "floodLoop");	# minutes.
-	&ScheduleChecked("floodLoop");
 	return if ($_[0] eq "2");
+    } else {
+	delete $sched{"floodLoop"}{RUNNING};
     }
 
     my $time		= time();
@@ -391,8 +388,9 @@ sub seenFlush {
     if (@_) {
 	my $interval = &getChanConfDefault("seenFlushInterval", 60);
 	&ScheduleThis($interval, "seenFlush");
-	&ScheduleChecked("seenFlush");
 	return if ($_[0] eq "2");
+    } else {
+	delete $sched{"seenFlush"}{RUNNING};
     }
 
     if ($param{'DBType'} =~ /^mysql|pg|postgres/i) {
@@ -464,8 +462,9 @@ sub leakCheck {
 
     if (@_) {
 	&ScheduleThis(60, "leakCheck");
-	&ScheduleChecked("leakCheck");
 	return if ($_[0] eq "2");
+    } else {
+	delete $sched{"leakCheck"}{RUNNING};
     }
 
     # flood.
@@ -501,7 +500,9 @@ sub leakCheck {
 sub ignoreCheck {
     if (@_) {
 	&ScheduleThis(60, "ignoreCheck");
-	&ScheduleChecked("ignoreCheck");
+	return if ($_[0] eq "2");	# defer.
+    } else {
+	delete $sched{"ignoreCheck"}{RUNNING};
     }
 
     my $time	= time();
@@ -524,6 +525,14 @@ sub ignoreCheck {
 }
 
 sub ircCheck {
+
+    if (@_) {
+	&ScheduleThis(240, "ircCheck");
+	return if ($_[0] eq "2");	# defer.
+    } else {
+	delete $sched{"ircCheck"}{RUNNING};
+    }
+
     my @array = grep !/^_default$/, keys %chanconf;
     my $iconf = scalar(@array);
     my $inow  = scalar(keys %channels);
@@ -574,12 +583,15 @@ sub ircCheck {
 	&writeChanFile();
 	$wtime_chanfile	= time();
     }
-
-    &ScheduleThis(240, "ircCheck") if (@_);
 }
 
 sub miscCheck {
-    &ScheduleThis(240, "miscCheck") if (@_);
+    if (@_) {
+	&ScheduleThis(240, "miscCheck");
+	return if ($_[0] eq "2");	# defer.
+    } else {
+	delete $sched{"miscCheck"}{RUNNING};
+    }
 
     # SHM check.
     my @ipcs;
@@ -599,26 +611,51 @@ sub miscCheck {
 
 	my ($shmid, $size) = ($2,$5);
 	next unless ($shmid != $shm and $size == 2000);
+	my $z	= &shmRead($shmid);
+	if ($z =~ /^(\d+): /) {
+	    my $time	= $1;
+	    next if (time() - $time < 60*60);
 
-###	&status("SHM: nuking shmid $shmid");
-###	system("/usr/bin/ipcrm shm $shmid >/dev/null");
+	} else {
+	    &DEBUG("shm: $shmid is not ours or old blootbot => ($z)");
+	    next;
+	}
+
+	&status("SHM: nuking shmid $shmid");
+	system("/usr/bin/ipcrm shm $shmid >/dev/null");
     }
+
+    # debian check.
+    opendir(DEBIAN, "$bot_base_dir/debian");
+    foreach ( grep /gz$/, readdir(DEBIAN) ) {
+	my $exit = system("gzip -t $bot_base_dir/debian/$_");
+	next unless ($exit);
+
+	&status("debian: unlinking file => $_");
+	unlink "$bot_base_dir/debian/$_";
+    }
+    closedir DEBIAN;
 
     ### check modules if they've been modified. might be evil.
     &reloadAllModules();
 }
 
 sub shmFlush {
+    return if ($$ != $::bot_pid); # fork protection.
+
     if (@_) {
 	&ScheduleThis(5, "shmFlush");
-	&ScheduleChecked("shmFlush");
 	return if ($_[0] eq "2");
+    } else {
+	delete $sched{"shmFlush"}{RUNNING};
     }
 
+    my $time;
     my $shmmsg = &shmRead($shm);
     $shmmsg =~ s/\0//g;         # remove padded \0's.
-
-    return if ($$ != $::bot_pid); # fork protection.
+    if ($shmmsg =~ s/^(\d+): //) {
+	$time	= $1;
+    }
 
     foreach (split '\|\|', $shmmsg) {
 	&VERB("shm: Processing '$_'.",2);
@@ -626,7 +663,7 @@ sub shmFlush {
 	if (/^DCC SEND (\S+) (\S+)$/) {
 	    my ($nick,$file) = ($1,$2);
 	    if (exists $dcc{'SEND'}{$who}) {
-		&msg($nick,"DCC already active.");
+		&msg($nick, "DCC already active.");
 	    } else {
 		&DEBUG("shm: dcc sending $2 to $1.");
 		$conn->new_send($1,$2);
@@ -649,6 +686,13 @@ sub shmFlush {
 
 ### this is semi-scheduled
 sub getNickInUse {
+    if (@_) {
+	&ScheduleThis(30, "getNickInUse");
+	return if ($_[0] eq "2");	# defer.
+    } else {
+	delete $sched{"getNickInUse"}{RUNNING};
+    }
+
     if ($ident eq $param{'ircNick'}) {
 	&status("okay, got my nick back.");
 	return;
@@ -656,23 +700,27 @@ sub getNickInUse {
 
     &status("Trying to get my nick back.");
     &nick( $param{'ircNick'} );
-
-    &ScheduleThis(30, "getNickInUse") if (@_);
 }
 
 sub uptimeLoop {
     if (@_) {
 	&ScheduleThis(60, "uptimeLoop");
-	&ScheduleChecked("uptimeLoop");
+	return if ($_[0] eq "2");	# defer.
+    } else {
+	delete $sched{"uptimeLoop"}{RUNNING};
     }
 
     &uptimeWriteFile();
 }
 
 sub slashdotLoop {
-    &ScheduleThis(60, "slashdotLoop") if (@_);
-    &ScheduleChecked("slashdotLoop");
-    return if ($_[0] eq "2");
+
+    if (@_) {
+	&ScheduleThis(60, "slashdotLoop");
+	return if ($_[0] eq "2");
+    } else {
+	delete $sched{"slashdotLoop"}{RUNNING};
+    }
 
     my @chans = &ChanConfList("slashdotAnnounce");
     return unless (scalar @chans);
@@ -695,8 +743,9 @@ sub slashdotLoop {
 sub freshmeatLoop {
     if (@_) {
 	&ScheduleThis(60, "freshmeatLoop");
-	&ScheduleChecked("freshmeatLoop");
 	return if ($_[0] eq "2");
+    } else {
+	delete $sched{"freshmeatLoop"}{RUNNING};
     }
 
     my @chans = &ChanConfList("freshmeatAnnounce");
@@ -717,8 +766,9 @@ sub freshmeatLoop {
 sub kernelLoop {
     if (@_) {
 	&ScheduleThis(240, "kernelLoop");
-	&ScheduleChecked("kernelLoop");
 	return if ($_[0] eq "2");
+    } else {
+	delete $sched{"kernelLoop"}{RUNNING};
     }
 
     my @chans = &ChanConfList("kernelAnnounce");
@@ -774,6 +824,13 @@ sub wingateCheck {
 
 ### TODO.
 sub wingateWriteFile {
+    if (@_) {
+	&ScheduleThis(60, "wingateWriteFile");
+	return if ($_[0] eq "2");	# defer.
+    } else {
+	delete $sched{"wingateWriteFile"}{RUNNING};
+    }
+
     return unless (scalar @wingateCache);
 
     my $file = "$bot_base_dir/$param{'ircUser'}.wingate";
@@ -799,10 +856,16 @@ sub wingateWriteFile {
     }
     close OUT;
 
-    &ScheduleThis(60, "wingateWriteFile") if (@_);
 }
 
 sub factoidCheck {
+    if (@_) {
+	&ScheduleThis(1440, "factoidCheck");
+	return if ($_[0] eq "2");	# defer.
+    } else {
+	delete $sched{"factoidCheck"}{RUNNING};
+    }
+
     my @list = &searchTable("factoids", "factoid_key", "factoid_key", " #DEL#");
     my $stale = &getChanConfDefault("factoidDeleteDelay", 7)*60*60*24;
 
@@ -816,10 +879,16 @@ sub factoidCheck {
 	&delFactoid($_);
     }
 
-    &ScheduleThis(1440, "factoidCheck") if (@_);
 }
 
 sub dccStatus {
+    if (@_) {
+	&ScheduleThis(10, "dccStatus");
+	return if ($_[0] eq "2");	# defer.
+    } else {
+	delete $sched{"dccStatus"}{RUNNING};
+    }
+
     my $time = strftime("%H:%M", localtime(time()) );
 
     return unless (scalar keys %{ $DCC{CHAT} });
@@ -827,13 +896,6 @@ sub dccStatus {
     foreach (keys %channels) {
 	&DCCBroadcast("[$time] $_: $users members ($chops chops), $bans bans","+o");
     }
-
-    &ScheduleThis(10, "dccStatus") if (@_);
-}
-
-sub schedulerSTUB {
-
-    &ScheduleThis(TIME_IN_MINUTES, "FUNCTION") if (@_);
 }
 
 sub scheduleList {
@@ -870,7 +932,11 @@ sub getChanConfDefault {
     my($what, $default, $chan) = @_;
 
     if (exists $param{$what}) {
-	&DEBUG("backward-compat: found param{$what} instead.");
+	if (!exists $cache{config}{$what}) {
+	    &DEBUG("backward-compat: found param{$what} instead.");
+	    $cache{config}{$what} = 1;
+	}
+
 	return $param{$what};
     }
 

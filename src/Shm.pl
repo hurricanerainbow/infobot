@@ -60,7 +60,14 @@ sub shmWrite {
     if ($str !~ /^$/) {
 	my $read = &shmRead($key);
 	$read =~ s/\0+//g;
-	$str = $read ."||". $str if ($read ne "");
+
+	if ($str eq "") {
+	    $str = time().": ";		# time stamping, null.
+	} elsif ($read eq "") {
+	    $str = time().": ";		# timestamping.
+	} else {
+	    $str = $read ."||". $str;
+	}
     }
 
     if (!shmwrite($key,$str,$position,$size)) {
