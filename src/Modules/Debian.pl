@@ -710,6 +710,8 @@ sub infoPackages {
     }
     my %pkg = &getPackageInfo($package, $file);
 
+    $query = "info" if ($query eq "dinfo");
+
     # 'fm'-like output.
     if ($query eq "info") {
 	if (scalar keys %pkg <= 5) {
