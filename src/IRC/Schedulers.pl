@@ -249,6 +249,20 @@ sub netsplitCheck {
 	}
     }
 
+    # %netsplit hash checker.
+    foreach (keys %netsplit) {
+	if (&IsNickInAnyChan($_)) {
+	    &DEBUG("netsplitC: $_ is in some chan; removing from netsplit list.");
+	    delete $netsplit{$_};
+	}
+	next unless (time() - $netsplit{$_} > 60*60*2); # 2 hours.
+
+	if (!&IsNickInAnyChan($_)) {
+	    &DEBUG("netsplitC: $_ didn't come back from netsplit in 2 hours; removing from netsplit list.");
+	    delete $netsplit{$_};
+	}
+    }
+
     &ScheduleThis(30, "netsplitCheck") if (@_);
 }
 
