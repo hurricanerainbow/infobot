@@ -63,8 +63,10 @@ yard    3 feet
 yd      yard
 mile    5280 feet
 mi      mile
-nautical 1.151         # For `nautical mile'
+#nautical 1.151         # For `nautical mile'
+nautical       1.150779447892
 parsec  1.91615e13 mi
+#parsec 3.08568025e16 m	# better?
 # light year will be implied by `year' and `light' below
 fathom  6 ft
 cable   120 fathoms
