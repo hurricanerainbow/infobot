@@ -186,9 +186,9 @@ sub dbInsert {
 }
 
 #####
-# Usage: &dbReplace($table, $primkey, %hash);
+# Usage: &dbReplace($table, $primkey, $primval, %hash);
 sub dbReplace {
-    my ($table, $primkey, %hash) = @_;
+    my ($table, $primkey, $primval, %hash) = @_;
     my (@keys, @vals);
 
     foreach (keys %hash) {
@@ -198,7 +198,8 @@ sub dbReplace {
     }
 
     &dbRaw("Replace($table)", "REPLACE INTO $table (".join(',',@keys).
-		") VALUES (".join(',',@vals).")"
+		") VALUES (".join(',',@vals).") WHERE $primkey=".
+		&dbQuote($primval)
     );
 
     return 1;
@@ -242,7 +243,7 @@ sub dbRaw {
     &SQLDebug($query);
     if (!$sth->execute) {
 	&ERROR("Raw($prefix): => '$query'");
-	&ERROR("Raw($prefix): $DBI::errstr");
+#	&ERROR("Raw($prefix): $DBI::errstr");
 	$sth->finish;
 	return 0;
     }

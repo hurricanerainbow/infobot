@@ -33,7 +33,8 @@ use vars qw(%channels %chanstats %cmdstats);
 	Help => 'tell', Identifier => 'allowTelling',
 	Cmdstats => 'Tell') );
 &addCmdHook("main", 'news', ('CODEREF' => 'News::Parse', 
-	Module => 'news', Identifier => 'news') );
+	Module => 'news', ) );
+#	Module => 'news', Identifier => 'news') );
 
 &status("CMD: loaded ".scalar(keys %hooks_main)." MAIN command hooks.");
 
