@@ -433,7 +433,12 @@ sub on_join {
     if (exists $netsplit{lc $who}) {
 	delete $netsplit{lc $who};
 	$netsplit = 1;
-	&netsplitCheck() if (time() != $sched{netsplitCheck}{TIME});
+	if (!scalar keys %netsplit) {
+	    &DEBUG("on_join: netsplit hash is now empty!");
+	    undef %netsplitservers;
+	    &netsplitCheck();	# any point in running this?
+	    &chanlimitCheck();
+	}
     }
 
     if ($netsplit and !exists $cache{netsplit}) {
@@ -835,9 +840,17 @@ sub on_quit {
 	$reason = "NETSPLIT: $1 <=> $2";
 
 	# chanlimit code.
-	if (&ChanConfList("chanlimitcheck") and !scalar keys %netsplit) {
-	    &DEBUG("on_quit: netsplit detected on $chan; disabling chan limit.");
-	    &rawout("MODE $chan -l");
+	if (!scalar keys %netsplit) {
+	    my @l = &getNickInChans($nick);
+	    &DEBUG("on_quit: l => ".scalar(@l) );
+
+	    foreach ( &getNickInChans($nick) ) {
+		next unless ( &IsChanConf("chanlimitcheck") );
+		next unless ( exists $channels{$_}{'l'} );
+
+		&status("on_quit: netsplit detected on $_; disabling chan limit.");
+		&rawout("MODE $_ -l");
+	    }
 	}
 
 	$netsplit{lc $nick} = time();

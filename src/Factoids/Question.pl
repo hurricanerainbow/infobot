@@ -95,8 +95,14 @@ sub doQuestion {
 	    my @vals;
 	    my $arg = $_;
 
-	    eval {
-		next unless ($query[0] =~ /^$arg$/i);
+	    # todo: make eval work with $$i's :(
+#	    next unless (eval { $query[0] =~ /^$arg$/i });
+	    next unless ($query[0] =~ /^$arg$/i);
+
+	    if ($@) {	# it failed!!!
+		&WARN("factargs: regex failed! '$query[0]' =~ /^$_\$/");
+		next;
+	    }
 
 		for ($i=1; $i<=5; $i++) {
 		    $val = $$i;
@@ -104,12 +110,8 @@ sub doQuestion {
 
 		    push(@vals, $val);
 		}
-	    };
+#	    };
 
-	    if ($@) {	# it failed!!!
-		&WARN("factargs: regex failed! '$query[0]' =~ /^$_\$/");
-		next;
-	    }
 
 	    &status("Question: factoid Arguments for '$query[0]'");
 	    # todo: use getReply() - need to modify it :(

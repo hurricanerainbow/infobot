@@ -10,7 +10,7 @@ use strict;
 # dynamic scalar. MUST BE REDUCED IN SIZE!!!
 ### TODO: reorder.
 use vars qw(
-	$answer $correction_plausible $talkchannel
+	$answer $correction_plausible $talkchannel $bot_release
 	$statcount $memusage $user $memusageOld $bot_version $dbh
 	$shm $host $msg $bot_misc_dir $bot_pid $bot_base_dir $noreply
 	$bot_src_dir $conn $irc $learnok $nick $ident $no_syscall
@@ -67,7 +67,13 @@ $nottime	= 0;
 $notsize	= 0;
 $notcount	= $notsleep	= 0;
 ###
-$bot_version	= "blootbot cvs (20010214) -- $^O";
+if ( -d "CVS" ) {
+    use POSIX qw(strftime);
+    $bot_release	= strftime("cvs (%Y%m%d)", localtime( (stat("CVS"))[9] ) );
+} else {
+    $bot_release	= "1.0.10 (2001xxxx)";
+}
+$bot_version	= "blootbot $bot_release -- $^O";
 $noreply	= "NOREPLY";
 
 ##########

@@ -125,9 +125,11 @@ sub perlMath {
 	$locMsg = "";
     }
 
-    if (defined $logMsg and $locMsg ne $message) {
+    if (defined $locMsg and $locMsg ne $message) {
+	# success.
 	return $locMsg;
     } else {
+	# no match.
 	return '';
     }
 }
