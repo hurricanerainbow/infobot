@@ -51,6 +51,11 @@ if ($param{'DBType'} =~ /mysql/i) {
 	$db{$_} = 1;
     }
 
+    # create database.
+    &status("Creating database $param{'DBName'}...");
+    $query = "CREATE DATABASE $param{'DBName'}";
+    &dbRaw("create(db $param{'DBName'})", $query);
+
     # Step 4.
     print "Step 4: Creating the tables.\n";
 
@@ -192,18 +197,15 @@ if ($param{'DBType'} =~ /mysql/i) {
 
     # grant.
     &status("  Granting user access to table.");
-    $query = "GRANT SELECT,INSERT,UPDATE,DELETE ON $dbname TO $param{'SQLUser'}";
-    &dbRaw("??", $query);
+    foreach ("factoids","seen","freshmeat") {
+	$query = "GRANT SELECT,INSERT,UPDATE,DELETE ON $dbname.$_ TO $param{'SQLUser'}";
+	&dbRaw("GRANT", $query);
+    }
 
     # flush.
     &status("Flushing privileges...");
     $query = "FLUSH PRIVILEGES";		# DOES NOT WORK on slink?
     &dbRaw("mysql(flush)", $query);
-
-    # create database.
-    &status("Creating database $param{'DBName'}...");
-    $query = "CREATE DATABASE $param{'DBName'}";
-    &dbRaw("create(db $param{'DBName'})", $query);
 
 } elsif ($param{'DBType'} =~ /pgsql|postgres/i) {
     if ($param{'DBType'} =~ /pgsql|postgres/i) { use Pg; } # for runtime.
