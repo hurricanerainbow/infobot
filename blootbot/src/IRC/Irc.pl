@@ -582,8 +582,8 @@ sub unban {
 
 sub quit {
     my ($quitmsg) = @_;
-    &status("QUIT $param{'ircNick'} has quit IRC ($quitmsg)");
     if (defined $conn) {
+	&status("QUIT " . $conn->nick() . " has quit IRC ($quitmsg)");
 	$conn->quit($quitmsg);
     } else {
 	&WARN("quit: could not quit!");
@@ -604,8 +604,8 @@ sub nick {
     }
 
     my $bad     = 0;
-    $bad++ if (exists $nuh{ $param{'ircNick'} });
-    $bad++ if (&IsNickInAnyChan($param{'ircNick'}));
+    $bad++ if (exists $nuh{$conn->nick()});
+    $bad++ if (&IsNickInAnyChan($conn->nick()));
 
     if ($bad) {
 	&WARN("Nick: not going to try and get my nick back. [".

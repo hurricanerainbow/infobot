@@ -86,12 +86,13 @@ sub switchPerson {
 	s/(^|\W)you\'?re(\W|$)/$1you are$2/ig;
 
 	if ($addressed) {
+	    my $mynick = $conn->nick();
 	    # is it safe to remove $in from here, too?
-	    $in =~ s/yourself/$param{'ircNick'}/i;
-	    $in =~ s/(^|\W)are you(\W|$)/$1is $param{'ircNick'}$2/ig;
-	    $in =~ s/(^|\W)you are(\W|$)/$1$param{'ircNick'} is$2/ig;
-	    $in =~ s/(^|\W)you(\W|$)/$1$param{'ircNick'}$2/ig;
-	    $in =~ s/(^|\W)your(\W|$)/$1$param{'ircNick'}\'s$2/ig;
+	    $in =~ s/yourself/$mynick/i;
+	    $in =~ s/(^|\W)are you(\W|$)/$1is $mynick$2/ig;
+	    $in =~ s/(^|\W)you are(\W|$)/$1$mynick is$2/ig;
+	    $in =~ s/(^|\W)you(\W|$)/$1$mynick$2/ig;
+	    $in =~ s/(^|\W)your(\W|$)/$1$mynick\'s$2/ig;
 	}
     }
 

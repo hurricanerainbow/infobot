@@ -852,7 +852,7 @@ if (0) {
 	my ($force) = ($1) ? 1 : 0;
 	$force = 0 unless (&IsFlag("n"));
 
-	# cannot trust Net::IRC's nick()
+	# cannot trust Net::IRC's nick() (TimRiker asks why?)
 	if ($param{'ircNick'} eq $ident) {
 	    &msg($who, "I hope you're right. I'll try anyway.");
 	    &DEBUG("ircNick => $param{'ircNick'}");
