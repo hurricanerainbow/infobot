@@ -39,11 +39,6 @@ sub process {
 	}
     }
 
-    # ignore.
-    if ($ignore) {
-	return 'IGNORE';
-    }
-
     # join, must be done before outsider checking.
     if ($message =~ /^join(\s+(.*))?\s*$/i) {
 	return 'join: not addr' unless ($addressed);
@@ -220,7 +215,6 @@ sub process {
 	$force_public_reply++;
 	$msgType = 'public';
     }
-
 
     # karma. set...
     if ($message =~ /^(\S+)(--|\+\+)\s*$/ and $addressed) {

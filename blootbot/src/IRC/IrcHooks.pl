@@ -761,8 +761,9 @@ sub on_targettoofast {
     my $nick = $event->nick();
     my($me,$chan,$why) = $event->args();
 
+    ### TODO: incomplete.
 ###    .* wait (\d+) second/) {
-	&status("X1 $msg");
+	&status("on_ttf: X1 $msg") if (defined $msg);
 	my $sleep = 5;
 	&status("going to sleep for $sleep...");
 	sleep $sleep;
@@ -1094,14 +1095,13 @@ sub hookMsg {
     return if ($skipmessage);
     return unless (&IsParam("minVolunteerLength") or $addressed);
 
-    local $ignore	= 0;
-
     foreach (@ignore) {
 	s/\*/\\S*/g;
 
-	next unless ($nuh =~ /^\Q$_\E$/i);
-	$ignore++;
-	last;
+	next unless (eval { $nuh =~ /^$_$/i });
+
+	&status("IGNORE <$who> $message");
+	return;
     }
 
     if (defined $nuh) {
