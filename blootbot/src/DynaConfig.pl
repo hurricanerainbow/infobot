@@ -19,6 +19,7 @@ sub readUserFile {
 	exit 1;
     }
 
+    undef %users;		# clear on reload.
     my $ver = <IN>;
     if ($ver !~ /^#v1/) {
 	&ERROR("old or invalid user file found.");
@@ -27,6 +28,7 @@ sub readUserFile {
     }
 
     my $nick;
+    my $type;
     while (<IN>) {
 	chop;
 
@@ -36,11 +38,16 @@ sub readUserFile {
 	if (/^--(\S+)[\s\t]+(.*)$/) {		# user: middle entry.
 	    my ($what,$val) = ($1,$2);
 
+	    if (!defined $val or $val eq "") {
+		&WARN("$what: val == NULL.");
+		next;
+	    }
+
 	    # nice little hack.
 	    if ($what eq "HOSTS") {
-		$users{$nick}{$1}{$2} = 1;
+		$users{$nick}{$what}{$val} = 1;
 	    } else {
-		$users{$nick}{$1} = $2;
+		$users{$nick}{$what} = $val;
 	    }
 
 	} elsif (/^(\S+)$/) {			# user: start entry.
@@ -48,17 +55,24 @@ sub readUserFile {
 
 	} elsif (/^::(\S+) ignore$/) {		# ignore: start entry.
 	    $chan	= $1;
+	    $type	= "ignore";
 
-	} elsif (/^- (\S+):+(\d+):(\S+):(\d+):(.*)$/) {
+	} elsif (/^- (\S+):\+(\d+):\+(\d+):(\S+):(.*)$/ and $type eq "ignore") {
 	    ### ignore: middle entry.
-	    # $mask, $count?, $whoby, $atime, $comment.
+	    my $mask = $1;
+	    ### DEBUG purposes only!
+	    if ($mask !~ /^$mask{nuh}$/) {
+		&WARN("ignore: mask $mask is invalid.");
+		next;
+	    }
 	    my(@array) = ($2,$3,$4,$5);
-	    $ignore{$chan}{$1} = \@array;
+	    $ignore{$chan}{$mask} = \@array;
 
 	} elsif (/^::(\S+) bans$/) {		# bans: start entry.
 	    $chan	= $1;
+	    $type	= "bans";
 
-	} elsif (/^- (\S+):+(\d+):+(\d+):(\d+):(\S+):(.*)$/) {
+	} elsif (/^- (\S+):\+(\d+):\+(\d+):(\d+):(\S+):(.*)$/ and $type eq "bans") {
 	    ### bans: middle entry.
 	    # $btime, $atime, $count, $whoby, $reason.
 	    my(@array) = ($2,$3,$4,$5,$6);
@@ -72,8 +86,8 @@ sub readUserFile {
 
     &status( sprintf("USERFILE: Loaded: %d users, %d bans, %d ignore",
 		scalar(keys %users)-1,
-		scalar(keys %bans),
-		scalar(keys %ignore),
+		scalar(keys %bans),		# ??
+		scalar(keys %ignore),		# ??
 	)
     );
 }
@@ -130,12 +144,10 @@ sub writeUserFile {
 	}
 
 	print OUT "::$chan bans\n";
-	&DEBUG("::$chan bans");
 	foreach (keys %{ $bans{$chan} }) {
+# format: bans: mask expire time-added count who-added reason
 	    printf OUT "- %s:+%d:+%d:%d:%s:%s\n",
 	    $_, @{ $bans{$chan}{$_} };
-	    &DEBUG( sprintf("- %s:+%d:+%d:%d:%s:%s\n",
-	    $_, @{ $bans{$chan}{$_} } ));
 	}
     }
     print OUT "\n" if ($cbans);
@@ -152,13 +164,17 @@ sub writeUserFile {
 	    next;
 	}
 
+	### TODO: use hash instead of array for flexibility?
 	print OUT "::$chan ignore\n";
-	&DEBUG("::$chan ignore");
+	&DEBUG("ignore: chan => $chan");
 	foreach (keys %{ $ignore{$chan} }) {
-	    printf OUT "- %s:+%d:%s:%d:%s\n",
-	    $_, @{ $bans{$chan}{$_} };
-	    &DEBUG( sprintf("- %s:+%d:%s:%d:%s\n",
-		    $_, @{ $bans{$chan}{$_} } ));
+	    &DEBUG("   => $_");
+# format: ignore: mask expire time-added who-added reason
+	    printf OUT "- %s:+%d:+%d:%s:%s\n", $_,
+					@{ $ignore{$chan}{$_} };
+	    foreach ( @{ $ignore{$chan}{$_} } ) {
+		&DEBUG("      => $_");
+	    }
 	}
     }
 
@@ -181,7 +197,10 @@ sub readChanFile {
 	return;
     }
 
-    $_ = <IN>;	# version string.
+    undef %chanconf;	# reset.
+    undef %bans;	# reset.
+    undef %ingore;	# reset.
+    $_ = <IN>;		# version string.
 
     my $chan;
     while (<IN>) {
@@ -209,6 +228,17 @@ sub readChanFile {
 	}
     }
     close IN;
+
+    # verify configuration
+    ### TODO: check against valid params.
+    foreach $chan (keys %chanconf) {
+	foreach (keys %{ $chanconf{$chan} }) {
+	    next unless (/^[+-]/);
+	    &WARN("invalid param: chanconf{$chan}{$_}; removing.");
+	    delete $chanconf{$chan}{$_};
+	    undef $chanconf{$chan}{$_};
+	}
+    }
 
     &status("CHANFILE: Loaded: ".(scalar(keys %chanconf)-1)." chans");
 }
@@ -316,9 +346,7 @@ sub IsFlag {
     my $flags = shift;
     my ($ret, $f, $o) = "";
 
-    if (!defined $userHandle) {
-	&DEBUG("Dyna: line 320: add verifyUser");
-    }
+    &verifyUser($who, $nuh);
 
     foreach $f (split //, $users{$userHandle}{FLAGS}) {
 	foreach $o ( split //, $flags ) {
@@ -336,6 +364,11 @@ sub verifyUser {
     my ($nick, $lnuh) = @_;
     my ($user,$m);
 
+    if ($userHandle = $dcc{'CHATvrfy'}{$who}) {
+	&VERB("vUser: cached auth for $who.",2);
+	return $userHandle;
+    }
+
     $userHandle = "";
 
     foreach $user (keys %users) {
@@ -348,8 +381,9 @@ sub verifyUser {
 
 	    next unless ($lnuh =~ /^$m$/i);
 
-	    if ($user !~ /^\Q$nick\E$/i) {
+	    if ($user !~ /^\Q$nick\E$/i and !exists $cache{VUSERWARN}{$user}) {
 		&status("vU: host matched but diff nick ($nick != $user).");
+		$cache{VUSERWARN}{$user} = 1;
 	    }
 
 	    $userHandle = $user;
@@ -365,6 +399,7 @@ sub verifyUser {
     }
 
     $userHandle ||= "_default";
+    # what's talkchannel for?
     $talkWho{$talkchannel} = $who if (defined $talkchannel);
     $talkWho = $who;
 
@@ -418,7 +453,7 @@ sub ignoreAdd {
     my $exist	= 0;
     $exist++ if (exists $ignore{$chan}{$mask});
 
-    $ignore{$chan}{$mask} = [$expire, $count, $who, time(), $comment];
+    $ignore{$chan}{$mask} = [$expire, time(), $who, $comment];
 
     if ($exist) {
 	$utime_userfile = time();
@@ -465,7 +500,7 @@ sub userAdd {
     $ucount_userfile++;
 
     $users{$nick}{HOSTS}{$mask} = 1;
-    $users{$nick}{FLAGS}	= $users{_default}{FLAGS};
+    $users{$nick}{FLAGS}	||= $users{_default}{FLAGS};
 
     return 1;
 }
@@ -497,8 +532,8 @@ sub banAdd {
 
     my $exist	= 1;
     $exist++ if (exists $bans{$chan}{$mask} or
-		exists $bans{_default}{$mask});
-    $bans{$chan}{$mask} = [$expire, 0, $who, time(), $reason];
+		exists $bans{'*'}{$mask});
+    $bans{$chan}{$mask} = [$expire, time(), 0, $who, $reason];
 
     if ($exist == 1) {
 	$utime_userfile = time();
