@@ -200,7 +200,14 @@ sub getReply {
     if ($reply =~ /\$rand/) {
 	my $rand  = rand();
 	my $randp = int($rand*100);
-	$reply =~ s/\$randpercentage/$randp/g;
+	$reply =~ s/\$randpercentage/$randp/g;	# ???
+	# randnick.
+	if ($reply =~ /\$randnick/) {
+	    my @nicks = keys %{$channels{$chan}{''}};
+	    my $randnick = $nicks[$rand*$#nicks];
+	    s/\$randnick/$randnick/;
+	}
+
 	### TODO: number of digits. 'x.y'
 	if ($reply =~ /\$rand(\d+)/) {
 	    # will this work as it does in C?
