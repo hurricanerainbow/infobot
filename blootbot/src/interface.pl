@@ -23,7 +23,7 @@ sub cliloop {
     $who = "local";
     $orig{who} = "local";
     $ident = $param{'ircNick'};
-    $chan = $talkchannel = "#cli";
+    $chan = $talkchannel = "_local";
     $addressed = 1;
     $msgType = 'public';
 
