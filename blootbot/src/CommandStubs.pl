@@ -236,6 +236,9 @@ sub parseCmdHook {
 &addCmdHook("extra", 'zsi', ('CODEREF' => 'zsi::query',
 	'Identifier' => 'zsi', 'Cmdstats' => 'zsi',
 	'Forker' => 1) );
+&addCmdHook("extra", '(ex)?change', ('CODEREF' => 'Exchange::query',
+	'Identifier' => 'exchange', 'Cmdstats' => 'exchange',
+	'Forker' => 1) );
 
 ###
 ### END OF ADDING HOOKS.

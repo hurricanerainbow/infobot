@@ -28,6 +28,7 @@ if ($@) {
 	"dict"		=> "Dict.pl",
 	"dumpvars"	=> "DumpVars.pl",
 	"symdump"	=> "DumpVars2.pl",
+	"exchange"	=> "Exchange.pl",
 	"factoids"	=> "Factoids.pl",
 	"freshmeat"	=> "Freshmeat.pl",
 	"kernel"	=> "Kernel.pl",
