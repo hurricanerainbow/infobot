@@ -8,7 +8,7 @@ use strict;
 package HTTPDtype;
 
 sub HTTPDtype {
-    my ($HOST) = @_;
+    my($HOST) = @_;
     my($line) = '';
     my($code, $mess, %h);
 
@@ -28,7 +28,6 @@ sub HTTPDtype {
 	  "Couldn't fetch headers from $HOST";
 
     &::pSReply($line||"Unknown Error Condition");
-
 }
 
 1;
