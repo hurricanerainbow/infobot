@@ -429,7 +429,7 @@ sub userDCC {
 	}
 
 	&status("jumping servers... $server...");
-	&rawout("QUIT :jumping to $server");
+	$conn->quit("jumping to $server");
 
 	if (&irc($server,$port) == 0) {
 	    &ircloop();

@@ -386,7 +386,7 @@ sub chanlimitCheck {
 	if (scalar keys %netsplitservers) {
 	    if (defined $limit) {
 		&status("chanlimit: netsplit; removing it for $chan.");
-		&rawout("MODE $chan -l");
+		$conn->mode($chan, "-l");
 		$cache{chanlimitChange}{$chan} = time();
 		&status("chanlimit: netsplit; removed.");
 	    }
@@ -405,7 +405,7 @@ sub chanlimitCheck {
 	}
 
 	if (!exists $channels{$chan}{'o'}{$ident}) {
-	    &status("ChanLimit: dont have ops on $chan.") unless (exists $cache{warn}{chanlimit}{$chan});
+	    &status("chanlimit: dont have ops on $chan.") unless (exists $cache{warn}{chanlimit}{$chan});
 	    $cache{warn}{chanlimit}{$chan} = 1;
 	    &chanServCheck($chan);
 	    next;
@@ -413,18 +413,18 @@ sub chanlimitCheck {
 	delete $cache{warn}{chanlimit}{$chan};
 
 	if (!defined $limit) {
-	    &status("chanLimit: setting for first time or from netsplit, for $chan");
+	    &status("chanlimit: setting for first time or from netsplit, for $chan");
 	}
 
 	if (exists $cache{chanlimitChange}{$chan}) {
 	    my $delta = time() - $cache{chanlimitChange}{$chan};
 	    if ($delta < $interval*60) {
-		&DEBUG("chanLimit: not going to change chanlimit! ($delta<$interval*60)");
+		&DEBUG("chanlimit: not going to change chanlimit! ($delta<$interval*60)");
 		return;
 	    }
 	}
 
-	&rawout("MODE $chan +l $newlimit");
+	$conn->mode($chan, "+l", $newlimit);
 	$cache{chanlimitChange}{$chan} = time();
     }
 }

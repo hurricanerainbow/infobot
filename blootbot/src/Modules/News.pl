@@ -812,23 +812,29 @@ sub latest {
 	    &::notice($who, "|= Last time read $timestr ago");
 	}
 
+	my $i;
 	my @sorted;
 	foreach (@new) {
-	    my $i   = &newsS2N($_);
+	    $i   = &newsS2N($_);
 	    $sorted[$i] = $_;
 	}
-
-	for (my $i=0; $i<=scalar(@sorted); $i++) {
+	
+	for ($i=0; $i<=scalar(@sorted); $i++) {
 	    my $news = $sorted[$i];
 	    next unless (defined $news);
 
 	    my $age = time() - $::news{$chan}{$news}{Time};
-	    &::notice($who, sprintf("\002[\002%2d\002]\002 %s",
-		$i, $news) );
-#		$i, $_, &::Time2String($age) ) );
+	    $::conn->schedule(int((2+$i)/2), sub {
+		&::notice($who, sprintf("\002[\002%2d\002]\002 %s",
+			$i, $news) );
+#			$i, $_, &::Time2String($age) ) );
+	    } );
 	}
 
-	&::notice($who, "|= to read, do \002news $chan read <#>\002 or \002news $chan read <keyword>\002");
+	# todo: implement throttling via schedule into &notice() / &msg().
+	$::conn->schedule(int((2+$i)/2), sub {
+	    &::notice($who, "|= to read, do \002news $chan read <#>\002 or \002news $chan read <keyword>\002");
+	} );
 
 	# lame hack to prevent dupes if we just ignore it.
 	my $x = $::newsuser{$chan}{$who};

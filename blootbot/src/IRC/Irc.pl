@@ -277,16 +277,13 @@ sub action {
 	return;
     }
 
-    my $rawout = "PRIVMSG $target :\001ACTION $txt\001";
-    if (length $rawout > 510) {
+    if (length $txt > 480) {
 	&status("action: txt too long; truncating.");
-
-	chop($rawout) while (length($rawout) > 510);
-	$rawout .= "\001";
+	chop($txt) while (length $txt > 480);
     }
 
     &status("* $ident/$target $txt");
-    rawout($rawout);
+    $conn->me($target, $txt);
 }
 
 # Usage: &notice(nick || chan, txt);
@@ -428,23 +425,23 @@ sub dcc_close {
 }
 
 sub joinchan {
-    my ($chankey) = @_;
-    my $chan = lc $chankey;
+    my ($chan)	= @_;
+    my $key	= &getChanConf("chankey", $chan) || "";
 
-    if ($chankey =~ s/^($mask{chan}),\S+/ /) {
-	$chan = lc $1;
-    }
+    # forgot for about 2 years to implement channel keys when moving
+    # over to Net::IRC...
 
     # hopefully validChan is right.
     if (&validChan($chan)) {
 	&status("join: already on $chan");
     } else {
 	&status("joining $b_blue$chan$ob");
-	if (!$conn->join($chan)) {
-	    &DEBUG("joinchan: join failed. trying connect!");
-	    &clearIRCVars();
-	    $conn->connect();
-	}
+
+	return if ($conn->join($chan, $key));
+
+	&DEBUG("joinchan: join failed. trying connect!");
+	&clearIRCVars();
+	$conn->connect();
     }
 }
 
@@ -466,7 +463,7 @@ sub part {
 #	    next;
 	}
 
-	rawout("PART $chan");
+	$conn->part($chan);
 	# deletion of $channels{chan} is done in &entryEvt().
     }
 }
@@ -482,6 +479,7 @@ sub mode {
 
     &DEBUG("mode: MODE $chan $modes");
 
+    # should move to use Net::IRC's $conn->mode()... but too lazy.
     rawout("MODE $chan $modes");
 }
 
@@ -512,21 +510,17 @@ sub kick {
 
     foreach $chan (@chans) {
 	if (!&IsNickInChan($nick,$chan)) {
-	    &status("Kick: $nick is not on $chan.") if (scalar @chans == 1);
+	    &status("kick: $nick is not on $chan.") if (scalar @chans == 1);
 	    next;
 	}
 
 	if (!exists $channels{$chan}{o}{$ident}) {
-	    &status("Kick: do not have ops on $chan :(");
+	    &status("kick: do not have ops on $chan :(");
 	    next;
 	}
 
 	&status("Kicking $nick from $chan.");
-	if ($msg eq "") {
-	    &rawout("KICK $chan $nick");
-	} else {
-	    &rawout("KICK $chan $nick :$msg");
-	}
+	$conn->kick($chan, $nick, $msg);
     }
 }
 
@@ -542,7 +536,7 @@ sub ban {
 
     foreach $chan (@chans) {
 	if (!exists $channels{$chan}{o}{$ident}) {
-	    &status("Ban: do not have ops on $chan :(");
+	    &status("ban: do not have ops on $chan :(");
 	    next;
 	}
 
@@ -629,9 +623,10 @@ sub nick {
 
 sub invite {
     my($who, $chan) = @_;
-    rawout("INVITE $who $chan");
-}
+    # todo: check if $who or $chan are invalid.
 
+    $conn->invite($who, $chan);
+}
 
 ##########
 # Channel related functions...
@@ -894,7 +889,7 @@ sub getHostMask {
 	return &makeHostMask($nuh{$n});
     } else {
 	$cache{on_who_Hack} = 1;
-	&rawout("WHO $n");
+	$conn->who($n);
     }
 }
 

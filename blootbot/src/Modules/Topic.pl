@@ -110,7 +110,7 @@ sub topicNew {
   $topic{$chan}{'Last'} = $topic;
   $topic{$chan}{'Who'}  = $orig{who}."!".$uh;
   $topic{$chan}{'Time'} = time();
-  rawout("TOPIC $chan :$topic");
+  $conn->topic($chan, $topic);
   &topicAddHistory($chan,$topic);
   return 1;
 }
