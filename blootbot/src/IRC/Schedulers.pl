@@ -1035,8 +1035,18 @@ sub factoidCheck {
 
     foreach (@list) {
 	my $age = &getFactInfo($_, "modified_time");	
+
 	if (!defined $age or $age !~ /^\d+$/) {
-	    &WARN("age == NULL or not numeric.");
+	    if (scalar @list > 50) {
+		if (!$cache{warnDel}) {
+		    &WARN("list is over 50 (".scalar(@list)."... giving it a miss.");
+		    $cache{warnDel} = 1;
+		    last;
+		}
+	    }
+
+	    &WARN("old cruft (no time): $_");
+	    &delFactoid($_);
 	    next;
 	}
 
