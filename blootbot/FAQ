@@ -1,0 +1,11 @@
+FAQ for blootbot
+----------------
+
+1.Q	Running "./blootbot" fails to connect to an IRC server.  The output
+	I get is "!WARN! PERL: Can't connect to irc.debian.org:6667! at
+	/usr/share/perl5/Net/IRC.pm line 192".
+
+1.A	Have a look at /etc/hosts.  Make sure it is valid, especially
+	the localhost line.  My file looks like this:
+	# ip		hostname		alias
+	127.0.0.1	localhost		localhost
