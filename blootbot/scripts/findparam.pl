@@ -41,6 +41,14 @@ foreach (`find -name "*.pl"`) {
 	    $conf{$1}++;
 	    next;
 	}
+
+	# command hooks => hasParam => both.
+	# note: this does not support multiple lines.
+	if (/\'Identifier\'[\s\t]=>[\s\t]+\'(\S+?)\'/) {
+#	    print "File: $file: command hook: $1\n";
+	    $both{$1}++;
+	    next;
+	}
     }
     close IN;
 }

@@ -295,30 +295,27 @@ sub fixPlural {
 sub getRandomLineFromFile {
     my($file) = @_;
 
-    if (! -f $file) {
-	&WARN("gRLfF: file '$file' does not exist.");
+    if (!open(IN, $file)) {
+	&WARN("gRLfF: could not open ($file): $!");
 	return;
     }
 
-    if (open(IN,$file)) {
-	my @lines = <IN>;
+    my @lines = <IN>;
+    close IN;
 
-	if (!scalar @lines) {
-	    &ERROR("GRLF: nothing loaded?");
-	    return;
-	}
-
-	while (my $line = &getRandom(@lines)) {
-	    chop $line;
-
-	    next if ($line =~ /^\#/);
-	    next if ($line =~ /^\s*$/);
-
-	    return $line;
-	}
-    } else {
-	&WARN("gRLfF: Could not open file ($file): $!");
+    if (!scalar @lines) {
+	&ERROR("GRLF: nothing loaded?");
 	return;
+    }
+
+    # could we use the filehandler instead and put it through getRandom?
+    while (my $line = &getRandom(@lines)) {
+	chop $line;
+
+	next if ($line =~ /^\#/);
+	next if ($line =~ /^\s*$/);
+
+	return $line;
     }
 }
 
