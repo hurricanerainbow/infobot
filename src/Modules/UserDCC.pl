@@ -414,9 +414,9 @@ sub userDCC {
 	return unless (&hasFlag("n"));
 
 	&status("USER reload $who");
-	&msg($who,"reloading...");
+	&pSReply("reloading...");
 	&reloadAllModules();
-	&msg($who,"reloaded.");
+	&pSReply("reloaded.");
 
 	return;
     }
@@ -536,8 +536,12 @@ sub userDCC {
 	if ($cmd eq "chanset" and !defined $what) {
 	    &DEBUG("showing channel conf.");
 
-	    foreach (keys %{ $chanconf{$chan} }) {
-		&DEBUG("$chan: $_ => $chanconf{$chan}{$_}");
+	    foreach $chan ($chan, "_default") {
+		&pSReply("chan: $chan");
+		### TODO: merge 2 or 3 per line.
+		foreach (sort keys %{ $chanconf{$chan} }) {
+		    &pSReply("    $_ => $chanconf{$chan}{$_}");
+		}
 	    }
 
 	    return;
@@ -1084,7 +1088,6 @@ sub userDCC {
 	# chan.
 	if ($args =~ s/^($mask{chan}|\*)\s*//) {
 	    $chan = $1;
-	    &DEBUG("chan => $chan");
 	} else {
 	    $chan = "*";
 	}
@@ -1092,7 +1095,6 @@ sub userDCC {
 	# time.
 	if ($args =~ s/^(\d+)\s*//) {
 	    $time = $1*60;	# ??
-	    &DEBUG("time => $time");
 	} else {
 	    $time = 0;
 	}
@@ -1100,15 +1102,14 @@ sub userDCC {
 	# time.
 	if ($args) {
 	    $comment = $args;
-	    &DEBUG("comment => $comment");
 	} else {
 	    $comment = "added by $who";
 	}
 
 	if ( &ignoreAdd($mask, $chan, $time, $comment) > 1) {
-	    &pSReply("added $mask to ignore list.");
-	} else {
 	    &pSReply("warn: $mask already in ignore list; written over anyway. FIXME");
+	} else {
+	    &pSReply("added $mask to ignore list.");
 	}
 
 	return;
