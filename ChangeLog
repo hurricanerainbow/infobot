@@ -3,7 +3,8 @@ v1.0.0 (20000725): bug fixes mainly.
 	- Fixed warning in Modules/Uptime.pl for clean install.
 	- More fixes for scripts/*mysql*.pl from GmLB.
 	- Added command 'hex'.
-	- ...
+	- GmLB fixed mysql2txt.pl and txt2mysql.pl. You can now import and 
+	  export to inforbot 'factpacks'.-
 
 v1.0.0RC3 (20000720): bug fixes mainly.
 	- Debian.pl's infoPackages() now checks for incoming 
