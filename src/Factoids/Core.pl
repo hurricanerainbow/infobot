@@ -37,7 +37,6 @@ sub validFactoid {
 	/^learn / and last;		# teach. damn morons.
 	/^tell (\S+) about / and last;	# tell.
 	/\=\~/ and last;		# substituition.
-	/^\S+ to \S+ \S+/ and last;	# babelfish.
 
 	/^\=/ and last;			# botnick = heh is.
 	/wants you to know/ and last;

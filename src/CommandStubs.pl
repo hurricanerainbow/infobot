@@ -7,14 +7,13 @@
 # use strict;
 
 use vars qw($who $msgType $conn $chan $message $ident $talkchannel
-	$bot_version $babel_lang_regex $bot_data_dir);
+	$bot_version $bot_data_dir);
 use vars qw(@vernick @vernicktodo);
 use vars qw(%channels %cache %mask %userstats %myModules %cmdstats
 	%hooks_extra %lang %ver);
 # FIX THE FOLLOWING:
 use vars qw($total $x $type $i $good);
 
-$babel_lang_regex = "de|ge|gr|el|sp|es|en|fr|it|ja|jp|ko|kr|nl|po|pt|ru|zh|zt";
 $w3search_regex   = "google";
 
 ### COMMAND HOOK IMPLEMENTATION.
@@ -266,6 +265,9 @@ sub parseCmdHook {
 &addCmdHook("extra", 'page', ('CODEREF' => 'pager::page',
 	'Identifier' => 'pager', 'Cmdstats' => 'pager',
 	'Forker' => 1, 'Help' => 'page') );
+&addCmdHook("extra", '?:babel(?:fish)?|x|xlate|translate', ('CODEREF' => 'babelfish::babelfish',
+	'Identifier' => 'babelfish', 'Cmdstats' => 'babelfish',
+	'Forker' => 1, 'Help' => 'babelfish') );
 ###
 ### END OF ADDING HOOKS.
 ###
@@ -274,25 +276,6 @@ sub parseCmdHook {
 sub Modules {
     if (!defined $message) {
 	&WARN("Modules: message is undefined. should never happen.");
-	return;
-    }
-
-    # babelfish bot: Jonathan Feinberg++
-    if ($message =~ m{
-		^\s*
-		(?:babel(?:fish)?|x|xlate|translate)
-		\s+
-		($babel_lang_regex)\w*	# from language?
-		\s+
-		($babel_lang_regex)\w*	# to language?
-		\s*
-		(.+)			# The phrase to be translated
-    }xoi) {
-	return unless (&hasParam("babelfish"));
-
-	&Forker("babelfish", sub { &babelfish::babelfish(lc $1, lc $2, $3); } );
-
-	$cmdstats{'BabelFish'}++;
 	return;
     }
 

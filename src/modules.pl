@@ -29,7 +29,7 @@ if ($@) {
 	"debian"	=> "Debian.pl",
 	"debianExtra"	=> "DebianExtra.pl",
 	"Dict"		=> "Dict.pl",
-	"dumpvars"	=> "DumpVars.pl",
+	"DumpVars"	=> "DumpVars.pl",
 	"exchange"	=> "Exchange.pl",
 	"factoids"	=> "Factoids.pl",
 	"HTTPDtype"	=> "HTTPDtype.pl",

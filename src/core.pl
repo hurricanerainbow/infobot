@@ -130,7 +130,11 @@ sub doExit {
 	&uptimeWriteFile()	if (&IsChanConf("uptime"));
 	&sqlCloseDB();
 	&closeSHM($shm);
-	&dumpallvars()		if (&IsParam("dumpvarsAtExit"));
+
+	if (&IsParam("dumpvarsAtExit")) {
+	    &loadMyModule('DumpVars');
+	    &dumpallvars();
+	}
 	&symdumpAll()		if (&IsParam("symdumpAtExit"));
 	&closeLog();
 	&closeSQLDebug()	if (&IsParam("SQLDebug"));
