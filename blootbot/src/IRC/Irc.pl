@@ -601,46 +601,36 @@ sub quit {
 }
 
 sub nick {
-    my ($nick) = @_;
+    my ($newnick) = @_;
+    my $mynick = $conn->nick();
 
-    if (!defined $nick) {
+    if (!defined $newnick) {
 	&ERROR("nick: nick == NULL.");
 	return;
     }
 
-    if (defined $ident and $nick eq $ident) {
-	&WARN("nick: nick == ident == '$ident'.");
+    if (!defined $mynick) {
+	&WARN("nick: mynick == NULL.");
 	return;
     }
 
-    my $bad     = 0;
-    $bad++ if (exists $nuh{$conn->nick()});
-    $bad++ if (&IsNickInAnyChan($conn->nick()));
+    my $bad = 0;
+    $bad++ if (exists $nuh{$newnick});
+    $bad++ if (&IsNickInAnyChan($newnick));
 
     if ($bad) {
-	&WARN("Nick: not going to try and get my nick back. [".
-		scalar(gmtime). "]");
-# hrm... over time we lose track of our own nick.
-#	return;
+	&WARN("Nick: not going to try to change from $mynick to $newnick. [". scalar(gmtime). "]");
+	# hrm... over time we lose track of our own nick.
+	#return;
     }
 
-# FIXME broken for multiple nicks
-#    if ($nick =~ /^$mask{nick}$/) {
-#	&rawout("NICK ".$nick);
-#
-#	if (defined $ident) {
-#	    &status("nick: Changing nick to $nick (from $ident)");
-#	    # following shouldn't be here :(
-#	    $ident	= $nick;
-#	} else {
-#	    &DEBUG("first time nick change.");
-#	    $ident	= $nick;
-#	}
-#
-#	return 1;
-#    }
-    &DEBUG("nick: failed... why oh why (nick => $nick)");
-
+    if ($newnick =~ /^$mask{nick}$/) {
+	&status("nick: Changing nick from $mynick to $newnick");
+	# ->nick() will NOT change cause we are using rawout?
+	&rawout("NICK $newnick");
+	return 1;
+    }
+    &DEBUG("nick: failed... why oh why (mynick=$mynick, newnick=$newnick)");
     return 0;
 }
 

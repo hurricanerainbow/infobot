@@ -850,45 +850,43 @@ if (0) {
     }
 
     # wantNick. xk++
-#    if ($message =~ /^wantNick(\+)?$/i) {
-#	my ($force) = ($1) ? 1 : 0;
-#	$force = 0 unless (&IsFlag("n"));
-#
-#	# cannot trust Net::IRC's nick() (TimRiker asks why?)
-#	if ($param{'ircNick'} eq $ident) {
-#	    &msg($who, "I hope you're right. I'll try anyway.");
-#	    &DEBUG("ircNick => $param{'ircNick'}");
-#	    &DEBUG("ident => $ident");
-#	}
-#
-#	# fallback check, I guess.  needed?
-#	if (! &IsNickInAnyChan( $param{'ircNick'} ) ) {
-#	    my $str = "attempting to change nick to $param{'ircNick'}";
-#	    &status($str);
-#	    &msg($who, $str);
-#	    &nick($param{ 'ircNick' });
-#	    return;
-#	}
-#
-#	# idea from dondelecarlo :)
-#	# TODO: use cache{nickserv}
-#	if ($param{'nickServ_pass'}) {
-#	    return if ($param{'ircNick'} eq $ident or $force == 0);
-#
-#	    &status("someone is using our nick; GHOSTing");
-#	    &msg($who, "using GHOST on $param{'ircNick'}.");
-#	    &msg("NickServ", "GHOST $param{'ircNick'} $param{'nickServ_pass'}");
-#
-#	    $conn->schedule(5, sub {
-#		&status("going to change nick after GHOST.");
-#		&nick( $param{'ircNick'} );
-#	    } );
-#
-#	    return;
-#	}
-#
-#	return;
-#   }
+    # FIXME does not try to get nick "back", just switches nicks
+    if ($message =~ /^wantNick\s(.*)?$/i) {
+	return unless (&hasFlag("o"));
+	my $wantnick = lc $1;
+	my $mynick = $conn->nick();
+
+	if ($mynick eq $wantnick) {
+	    &msg($who, "I hope you're right. I'll try anyway (mynick=$mynick, wantnick=$wantnick).");
+	}
+
+	# fallback check, I guess.  needed?
+	if (! &IsNickInAnyChan( $wantnick ) ) {
+	    my $str = "attempting to change nick from $mynick to $wantnick";
+	    &status($str);
+	    &msg($who, $str);
+	    &nick($wantnick);
+	    return;
+	}
+
+	# idea from dondelecarlo :)
+	# TODO: use cache{nickserv}
+	if ($param{'nickServ_pass'}) {
+	    my $str = "someone is using nick $wantnick; GHOSTing";
+	    &status($str);
+	    &msg($who, $str);
+	    &msg("NickServ", "GHOST $wantnick $param{'nickServ_pass'}");
+
+	    $conn->schedule(5, sub {
+		&status("going to change nick from $mynick to $wantnick after GHOST.");
+		&nick($wantnick);
+	    } );
+
+	    return;
+	}
+
+	return;
+    }
 
     return "CONTINUE";
 }
