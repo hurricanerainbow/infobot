@@ -306,9 +306,7 @@ sub loadMyModule {
     eval "require \"$modulefile\"";
     if ($@) {
 	&ERROR("cannot load my module: $modulebase");
-	if ($bot_pid == $$) {	# parent.
-	    &shutdown() if (defined $shm and defined $dbh);
-	} else {			# child.
+	if ($bot_pid != $$) {	# child.
 	    &DEBUG("b4 delfork 2");
 	    &delForked($modulebase);
 	    exit 1;
