@@ -658,7 +658,7 @@ sub ircCheck {
     foreach ( &ChanConfList("chanServ_ops") ) {
 	next if (exists $channels{$chan}{'o'}{$ident});
 
-	&status("ChanServ ==> Requesting ops for $chan.");
+	&status("ChanServ ==> Requesting ops for $chan. (3)");
 	&rawout("PRIVMSG ChanServ :OP $chan $ident");
     }
 
@@ -693,15 +693,14 @@ sub ircCheck {
 	# else check for chanserv.
 
     if (grep /^\s*$/, keys %channels) {
-	&WARN("we have a NULL chan in hash channels? removing!");
-	delete $channels{''};
-
-	&DEBUG("channels now:");
-	foreach (keys %channels) {
-	    &status("  $_");
+	&WARN("ircCheck: we have a NULL chan in hash channels? removing!");
+	if (exists $channels{''}) {
+	    &DEBUG("ircCheck: ok it existed!");
+	} else {
+	    &DEBUG("ircCheck: this hsould never happen!");
 	}
 
-	&DEBUG("channels END");
+	delete $channels{''};
     }
 
     &DEBUG("ircstats...");
@@ -762,9 +761,9 @@ sub miscCheck {
     }
 
     # make backup of important files.
-    &mkBackup( $bot_misc_dir."/blootbot.chan", 60*60*24*7);
-    &mkBackup( $bot_misc_dir."/blootbot.users", 60*60*24*7);
-    &mkBackup( $bot_base_dir."/blootbot-news.txt", 60*60*24*7);
+    &mkBackup( $bot_misc_dir."/blootbot.chan", 60*60*24*3);
+    &mkBackup( $bot_misc_dir."/blootbot.users", 60*60*24*3);
+    &mkBackup( $bot_base_dir."/blootbot-news.txt", 60*60*24*1);
 
     # flush cache{lobotomy}
     foreach (keys %{ $cache{lobotomy} }) {

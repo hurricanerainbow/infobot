@@ -27,7 +27,7 @@ loop:;
     while (my $host = shift @ircServers) {
 	# JUST IN CASE. irq was complaining about this.
 	if ($lastrun == time()) {
-	    &DEBUG("hrm... lastrun == time()");
+	    &DEBUG("ircloop: hrm... lastrun == time()");
 	    $error++;
 	    sleep 10;
 	    next;
@@ -173,7 +173,7 @@ sub say {
     my ($msg) = @_;
     if (!defined $msg) {
 	$msg ||= "NULL";
-	&DEBUG("say: msg == $msg.");
+	&WARN("say: msg == $msg.");
 	return;
     }
 
@@ -186,7 +186,7 @@ sub say {
 	    $pubcount++;
 	    $pubsize += length $msg;
 
-	    if ($pubcount % 4 and $pubcount) {
+	    if ( ($pubcount % 4) == 0 and $pubcount) {
 		sleep 1;
 	    } elsif ($pubsize > 1500) {
 		sleep 1;
@@ -212,7 +212,7 @@ sub msg {
 
     if (!defined $msg) {
 	$msg ||= "NULL";
-	&DEBUG("msg: msg == $msg.");
+	&WARN("msg: msg == $msg.");
 	return;
     }
 
@@ -225,7 +225,7 @@ sub msg {
 	    $msgcount++;
 	    $msgsize += length $msg;
 
-	    if ($msgcount % 4 and $msgcount) {
+	    if ( ($msgcount % 4) == 0 and $msgcount) {
 		sleep 1;
 	    } elsif ($msgsize > 1000) {
 		sleep 1;
@@ -246,7 +246,7 @@ sub msg {
 sub action {
     my ($target, $txt) = @_;
     if (!defined $txt) {
-	&DEBUG("action: txt == NULL.");
+	&WARN("action: txt == NULL.");
 	return;
     }
 
@@ -266,7 +266,7 @@ sub action {
 sub notice {
     my ($target, $txt) = @_;
     if (!defined $txt) {
-	&DEBUG("action: txt == NULL.");
+	&WARN("notice: txt == NULL.");
 	return;
     }
 
@@ -278,7 +278,7 @@ sub notice {
 	$notcount++;
 	$notsize += length $txt;
 
-	if ($notcount % 4 and $notcount) {
+	if ( ($notcount % 4) == 0 and $notcount) {
 	    sleep 1;
 	} elsif ($notsize > 1500) {
 	    sleep 1;
@@ -405,7 +405,7 @@ sub joinchan {
 	&status("join: already on $chan");
     } else {
 	if (!$conn->join($chan)) {
-	    &DEBUG("join failed. trying connect!");
+	    &DEBUG("joinchan: join failed. trying connect!");
 	    $conn->connect();
 	}
     }
@@ -438,7 +438,7 @@ sub mode {
 	return;
     }
 
-    &DEBUG("MODE $chan $modes");
+    &DEBUG("mode: MODE $chan $modes");
 
     rawout("MODE $chan $modes");
 }
@@ -543,11 +543,11 @@ sub nick {
     my ($nick) = @_;
 
     if ($nick =~ /^$mask{nick}$/) {
-	&DEBUG("Changing nick to $nick (from $ident)");
+	&DEBUG("nick: Changing nick to $nick (from $ident)");
 	rawout("NICK ".$nick);
 	return 1;
     }
-    &DEBUG("nick failed... why oh why (nick => $nick)");
+    &DEBUG("nick: failed... why oh why (nick => $nick)");
 
     return 0;
 }
@@ -584,7 +584,7 @@ sub joinNextChan {
 	next unless ($chan{$chan} > 0);
 	    
 	if (!exists $channels{$chan}{'o'}{$ident}) {
-	    &status("ChanServ ==> Requesting ops for $chan.");
+	    &status("ChanServ ==> Requesting ops for $chan. (1)");
 	    &rawout("PRIVMSG ChanServ :OP $chan $ident");
 	}
     }
@@ -626,7 +626,7 @@ sub IsNickInChan {
     } else {
 	foreach (keys %channels) {
 	    next unless (/[A-Z]/);
-	    &DEBUG("hash channels contains mixed cased chan!!!");
+	    &DEBUG("iNIC: hash channels contains mixed cased chan!!!");
 	}
 	return 0;
     }
@@ -681,7 +681,7 @@ sub clearChanVars {
 }
 
 sub clearIRCVars {
-    &DEBUG("clearIRCVars() called!");
+###    &DEBUG("clearIRCVars() called!");
     undef %channels;
     undef %floodjoin;
 
@@ -722,7 +722,7 @@ sub getJoinChans {
 }
 
 sub closeDCC {
-    &DEBUG("closeDCC called.");
+###    &DEBUG("closeDCC called.");
 
     foreach $type (keys %dcc) {
 	next if ($type ne uc($type));
@@ -761,16 +761,16 @@ sub joinfloodCheck {
 	my $c = $_;
 	my $count = scalar keys %{ $floodjoin{$c} };
 	next unless ($count > 5);
-	&DEBUG("count => $count");
+	&DEBUG("joinflood: count => $count");
 
 	my $time;
 	foreach (keys %{ $floodjoin{$c} }) {
 	    $time += $floodjoin{$c}{$_}{Time};
 	}
-	&DEBUG("time => $time");
+	&DEBUG("joinflood: time => $time");
 	$time /= $count;
 
-	&DEBUG("new time => $time");
+	&DEBUG("joinflood: new time => $time");
     }
 
     ### Clean it up.

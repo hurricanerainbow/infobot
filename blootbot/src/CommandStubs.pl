@@ -462,7 +462,7 @@ sub uptime {
 sub seen {
     my($person) = @_;
 
-    if (!defined $person) {
+    if (!defined $person or $person =~ /^$/) {
 	&help("seen");
 
 	my $i = &countKeys("seen");
