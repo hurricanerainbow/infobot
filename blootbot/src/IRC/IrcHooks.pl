@@ -348,6 +348,16 @@ sub on_join {
 	$netsplit = 1;
     }
 
+    if ($netsplit and !$netsplittime) {
+	&status("ok.... re-running chanlimitCheck in 60.");
+	$conn->schedule(60, sub {
+		&chanlimitCheck();
+		$netsplittime = undef;
+	} );
+
+	$netsplittime = time();
+    }
+
     # how to tell if there's a netjoin???
 
     my $netsplitstr = "";
