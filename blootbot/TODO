@@ -1,5 +1,6 @@
 TODO:
 	- let's get a release out!
+	- rename ^[+-] commands
 	- remind - like this and others: http://jibble.org/reminderbot/
 	- kill SHM and and move to a pipe
 	- add CIA like support - http://cia.navi.cx/
