@@ -280,7 +280,7 @@ sub parseCmdHook {
 &addCmdHook("extra", '[ia]?spell', ('CODEREF' => 'spell::query',
 	'Identifier' => 'spell', 'Cmdstats' => 'spell',
 	'Forker' => 1, 'Help' => 'spell') );
-&addCmdHook("extra", 'dns|d?nslookup|host', ('CODEREF' => 'dns::query',
+&addCmdHook("extra", 'dns|d?nslookup', ('CODEREF' => 'dns::query',
 	'Identifier' => 'dns', 'Cmdstats' => 'dns',
 	'Forker' => 1, 'Help' => 'dns') );
 &addCmdHook("extra", 'piglatin', ('CODEREF' => 'piglatin::piglatin',
