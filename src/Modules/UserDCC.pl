@@ -1,7 +1,7 @@
 #
 #  UserDCC.pl: User Commands, DCC CHAT.
 #      Author: dms
-#     Version: v0.1 (20000707)
+#     Version: v0.2 (20010119)
 #     Created: 20000707 (from UserExtra.pl)
 #
 
@@ -16,45 +16,42 @@ sub userDCC {
     if ($message =~ /^(exit|quit)$/i) {
 	# do ircII clients support remote close? if so, cool!
 	&status("userDCC: quit called. FIXME");
-###	$irc->removeconn($dcc{'CHAT'}{lc $who});
+	&dcc_close($who);
+	&status("hrmm....");
 
-	return $noreply;
+	return;
     }
 
     # who.
-    if ($message =~ s/^who//i) {
+    if ($message =~ /^who$/) {
 	my $count = scalar(keys %{$dcc{'CHAT'}});
 	my $dccCHAT = $message;
 
-	&performStrictReply("Start of who ($count users).");
+	&pSReply("Start of who ($count users).");
 	foreach (keys %{$dcc{'CHAT'}}) {
-	    &performStrictReply("=> $_");
+	    &pSReply("=> $_");
 	}
-	&performStrictReply("End of who.");
+	&pSReply("End of who.");
 
-	if ($message) { foreach (`$dccCHAT`) {
-	    &performStrictReply("OUT: $_"); }
-	}
-
-	return $noreply;
+	return;
     }
 
     ### for those users with enough flags.
 
     # 4op.
     if ($message =~ /^4op(\s+($mask{chan}))?$/i) {
-	return $noreply unless (&hasFlag("o"));
+	return unless (&hasFlag("o"));
 
 	my $chan = $2;
 
 	if ($chan eq "") {
 	    &help("4op");
-	    return $noreply;
+	    return;
 	}
 
 	if (!$channels{$chan}{'o'}{$ident}) {
 	    &msg($who, "i don't have ops on $chan to do that.");
-	    return $noreply;
+	    return;
 	}
 
 	# on non-4mode(<4) servers, this may be exploited.
@@ -64,25 +61,25 @@ sub userDCC {
 	    rawout("MODE $chan +o-o+o-o". (" $who" x 4));
 	}
 
-	return $noreply;
+	return;
     }
 
     # backlog.
     if ($message =~ /^backlog(\s+(.*))?$/i) {
-	return $noreply unless (&hasFlag("o"));
-	return $noreply unless (&hasParam("backlog"));
+	return unless (&hasFlag("o"));
+	return unless (&hasParam("backlog"));
 	my $num = $2;
 	my $max = $param{'backlog'};
 
 	if (!defined $num) {
 	    &help("backlog");
-	    return $noreply;
+	    return;
 	} elsif ($num !~ /^\d+/) {
 	    &msg($who, "error: argument is not positive integer.");
-	    return $noreply;
+	    return;
 	} elsif ($num > $max or $num < 0) {
 	    &msg($who, "error: argument is out of range (max $max).");
-	    return $noreply;
+	    return;
 	}
 
 	&msg($who, "Start of backlog...");
@@ -92,142 +89,94 @@ sub userDCC {
 	}
 	&msg($who, "End of backlog.");
 
-	return $noreply;
+	return;
     }
 
     # dump variables.
     if ($message =~ /^dumpvars$/i) {
-	return $noreply unless (&hasFlag("o"));
+	return unless (&hasFlag("o"));
 	return '' unless (&IsParam("dumpvars"));
 
 	&status("Dumping all variables...");
 	&dumpallvars();
 
-	return $noreply;
+	return;
     }
 
     # kick.
     if ($message =~ /^kick(\s+(\S+)(\s+(\S+))?)?/) {
-	return $noreply unless (&hasFlag("o"));
+	return unless (&hasFlag("o"));
 	my ($nick,$chan) = (lc $2,lc $4);
 
 	if ($nick eq "") {
 	    &help("kick");
-	    return $noreply;
+	    return;
 	}
 
 	if (&validChan($chan) == 0) {
 	    &msg($who,"error: invalid channel \002$chan\002");
-	    return $noreply;
+	    return;
 	}
 
 	if (&IsNickInChan($nick,$chan) == 0) {
 	    &msg($who,"$nick is not in $chan.");
-	    return $noreply;
+	    return;
 	}
 
 	&kick($nick,$chan);
 
-	return $noreply;
+	return;
     }
 
     # kick.
     if ($message =~ /^mode(\s+(.*))?$/) {
-	return $noreply unless (&hasFlag("m"));
+	return unless (&hasFlag("m"));
 	my ($chan,$mode) = split /\s+/,$2,2;
 
 	if ($chan eq "") {
 	    &help("mode");
-	    return $noreply;
+	    return;
 	}
 
 	if (&validChan($chan) == 0) {
 	    &msg($who,"error: invalid channel \002$chan\002");
-	    return $noreply;
+	    return;
 	}
 
 	if (!$channels{$chan}{o}{$ident}) {
 	    &msg($who,"error: don't have ops on \002$chan\002");
-	    return $noreply;
+	    return;
 	}
 
 	&mode($chan, $mode);
 
-	return $noreply;
+	return;
     }
 
     # part.
     if ($message =~ /^part(\s+(\S+))?$/i) {
-	return $noreply unless (&hasFlag("o"));
+	return unless (&hasFlag("o"));
 	my $jchan = $2;
 
 	if ($jchan !~ /^$mask{chan}$/) {
 	    &msg($who, "error, invalid chan.");
 	    &help("part");
-	    return $noreply;
+	    return;
 	}
 
 	if (!&validChan($jchan)) {
 	    &msg($who, "error, I'm not on that chan.");
-	    return $noreply;
+	    return;
 	}
 
 	&msg($jchan, "Leaving. (courtesy of $who).");
 	&part($jchan);
-	return $noreply;
-    }
-
-    # ignore.
-    if ($message =~ /^ignore(\s+(\S+))?$/i) {
-	return $noreply unless (&hasFlag("o"));
-	my $what = lc $2;
-
-	if ($what eq "") {
-	    &help("ignore");
-	    return $noreply;
-	}
-
-	my $expire = $param{'ignoreTempExpire'} || 60;
-	$ignoreList{$what} = time() + ($expire * 60);
-	&status("ignoring $what at $who's request");
-	&msg($who, "added $what to the ignore list");
-
-	return $noreply;
-    }
-
-    # unignore.
-    if ($message =~ /^unignore(\s+(\S+))?$/i) {
-	return $noreply unless (&hasFlag("o"));
-	my $what = $2;
-
-	if ($what eq "") {
-	    &help("unignore");
-	    return $noreply;
-	}
-
-	if ($ignoreList{$what}) {
-	    &status("unignoring $what at $userHandle's request");
-	    delete $ignoreList{$what};
-	    &msg($who, "removed $what from the ignore list");
-	} else {
-	    &status("unignore FAILED for $1 at $who's request");
-	    &msg($who, "no entry for $1 on the ignore list");
-	}
-	return $noreply;
-    }
-
-    # clear unignore list.
-    if ($message =~ /^clear ignorelist$/i) {
-	return $noreply unless (&hasFlag("o"));
-	undef %ignoreList;
-	&status("unignoring all ($who said the word)");
-
-	return $noreply;
+	return;
     }
 
     # lobotomy. sometimes we want the bot to be _QUIET_.
     if ($message =~ /^(lobotomy|bequiet)$/i) {
-	return $noreply unless (&hasFlag("o"));
+	return unless (&hasFlag("o"));
 
 	if ($lobotomized) {
 	    &performReply("i'm already lobotomized");
@@ -236,24 +185,24 @@ sub userDCC {
 	    $lobotomized = 1;
 	}
 
-	return $noreply;
+	return;
     }
 
     # unlobotomy.
     if ($message =~ /^(unlobotomy|benoisy)$/i) {
-	return $noreply unless (&hasFlag("o"));
+	return unless (&hasFlag("o"));
 	if ($lobotomized) {
 	    &performReply("i have been unlobotomized, woohoo");
 	    $lobotomized = 0;
 	} else {
 	    &performReply("i'm not lobotomized");
 	}
-	return $noreply;
+	return;
     }
 
     # op.
     if ($message =~ /^op(\s+(.*))?$/i) {
-	return $noreply unless (&hasFlag("o"));
+	return unless (&hasFlag("o"));
 	my ($opee) = lc $2;
 	my @chans;
 
@@ -263,11 +212,11 @@ sub userDCC {
 		@chans = ($2);
 		if (!&validChan($2)) {
 		    &msg($who,"error: invalid chan ($2).");
-		    return $noreply;
+		    return;
 		}
 	    } else {
 		&msg($who,"error: invalid params.");
-		return $noreply;
+		return;
 	    }
 	} else {
 	    @chans = keys %channels;
@@ -285,7 +234,7 @@ sub userDCC {
 	    $op++;
 
 	    &status("opping $opee on $_ at ${who}'s request");
-	    &performStrictReply("opping $opee on $_");
+	    &pSReply("opping $opee on $_");
 	    &op($_, $opee);
 	}
 
@@ -296,12 +245,12 @@ sub userDCC {
 	    &DEBUG("op => '$op'.");
 	}
 
-	return $noreply;
+	return;
     }
 
     # deop.
     if ($message =~ /^deop(\s+(.*))?$/i) {
-	return $noreply unless (&hasFlag("o"));
+	return unless (&hasFlag("o"));
 	my ($opee) = lc $2;
 	my @chans;
 
@@ -311,11 +260,11 @@ sub userDCC {
 		@chans = ($2);
 		if (!&validChan($2)) {
 		    &msg($who,"error: invalid chan ($2).");
-		    return $noreply;
+		    return;
 		}
 	    } else {
 		&msg($who,"error: invalid params.");
-		return $noreply;
+		return;
 	    }
 	} else {
 	    @chans = keys %channels;
@@ -343,12 +292,12 @@ sub userDCC {
 	    &DEBUG("deop: op => '$op'.");
 	}
 
-	return $noreply;
+	return;
     }
 
     # say.
     if ($message =~ s/^say\s+(\S+)\s+(.*)//) {
-	return $noreply unless (&hasFlag("o"));
+	return unless (&hasFlag("o"));
 	my ($chan,$msg) = (lc $1, $2);
 	&DEBUG("chan => '$1', msg => '$msg'.");
 
@@ -357,12 +306,12 @@ sub userDCC {
 	} else {
 	    &msg($who,"i'm not on \002$1\002, sorry.");
 	}
-	return $noreply;
+	return;
     }
 
     # die.
     if ($message =~ /^die$/) {
-	return $noreply unless (&hasFlag("n"));
+	return unless (&hasFlag("n"));
 
 	&doExit();
 
@@ -373,13 +322,13 @@ sub userDCC {
     # global factoid substitution.
     if ($message =~ m|^s([/,#])(.+?)\1(.*?)\1;?\s*$|) {
 	my ($delim,$op,$np) = ($1, $2, $3);
-	return $noreply unless (&hasFlag("n"));
+	return unless (&hasFlag("n"));
 	### TODO: support flags to do full-on global.
 
 	# incorrect format.
 	if ($np =~ /$delim/) {
 	    &performReply("looks like you used the delimiter too many times. You may want to use a different delimiter, like ':' or '#'.");
-	    return $noreply;
+	    return;
 	}
 
 	### TODO: fix up $op to support mysql/pgsql/dbm(perl)
@@ -389,12 +338,12 @@ sub userDCC {
 
 	if (!scalar @list) {
 	    &performReply("Expression didn't match anything.");
-	    return $noreply;
+	    return;
 	}
 
 	if (scalar @list > 100) {
 	    &performReply("regex found more than 100 matches... not doing.");
-	    return $noreply;
+	    return;
 	}
 
 	&status("gsubst: going to alter ".scalar(@list)." factoids.");
@@ -414,7 +363,7 @@ sub userDCC {
 	    if ($result =~ s/\Q$op/$np/gi) {
 		if (length $result > $param{'maxDataSize'}) {
 		    &performReply("that's too long (or was long)");
-		    return $noreply;
+		    return;
 		}
 		&setFactInfo($faqtoid, "factoid_value", $result);
 		&status("update: '$faqtoid' =is=> '$result'; was '$was'");
@@ -431,16 +380,16 @@ sub userDCC {
 	&performReply("Ok... did s/$op/$np/ for ".
 				(scalar(@list) - $error)." factoids");
 
-	return $noreply;
+	return;
     }
 
     # jump.
     if ($message =~ /^jump(\s+(\S+))?$/i) {
-	return $noreply unless (&hasFlag("n"));
+	return unless (&hasFlag("n"));
 
 	if ($2 eq "") {
 	    &help("jump");
-	    return $noreply;
+	    return;
 	}
 
 	my ($server,$port);
@@ -449,7 +398,7 @@ sub userDCC {
 	    $port   = $3 || 6667;
 	} else {
 	    &msg($who,"invalid format.");
-	    return $noreply;
+	    return;
 	}
 
 	&status("jumping servers... $server...");
@@ -462,90 +411,806 @@ sub userDCC {
 
     # reload.
     if ($message =~ /^reload$/i) {
-	return $noreply unless (&hasFlag("n"));
+	return unless (&hasFlag("n"));
 
 	&status("USER reload $who");
 	&msg($who,"reloading...");
 	&reloadAllModules();
 	&msg($who,"reloaded.");
 
-	return $noreply;
+	return;
     }
 
     # rehash.
     if ($message =~ /^rehash$/) {
-	return $noreply unless (&hasFlag("n"));
+	return unless (&hasFlag("n"));
 
 	&msg($who,"rehashing...");
 	&restart("REHASH");
 	&status("USER rehash $who");
 	&msg($who,"rehashed");
 
-	return $noreply;
+	return;
     }
 
-    # set.
-    if ($message =~ /^set(\s+(\S+)?(\s+(.*))?)?$/i) {
-	return $noreply unless (&hasFlag("n"));
-	my ($param,$what) = ($2,$4);
+    #####
+    ##### USER//CHAN SPECIFIC CONFIGURATION COMMANDS
+    #####
 
-	if ($param eq "" and $what eq "") {
-	    &msg($who,"\002Usage\002: set <param> [what]");
-	    return $noreply;
+    if ($message =~ /^chaninfo(\s+(.*))?$/) {
+	my @args = split /[\s\t]+/, $2;	# hrm.
+
+	if (scalar @args != 1) {
+	    &help("chaninfo");
+	    return;
 	}
 
-	if (!exists $param{$param}) {
-	    &msg($who,"error: param{$param} cannot be set");
-	    return $noreply;
+	if (!exists $chanconf{$args[0]}) {
+	    &pSReply("no such channel $args[0]");
+	    return;
 	}
 
-	if ($what eq "") {
-	    if ($param{$param} eq "") {
-		&msg($who,"param{$param} has \002no value\002.");
-	    } else {
-		&msg($who,"param{$param} has value of '\002$param{$param}\002'.");
+	&pSReply("showing channel conf.");
+	foreach (sort keys %{ $chanconf{$args[0]} }) {
+	    &pSReply("$chan: $_ => $chanconf{$args[0]}{$_}");
+	}
+	&pSReply("End of chaninfo.");
+
+	return;
+    }
+
+    # +chan.
+    if ($message =~ /^(chanset|\+chan)(\s+(.*?))?$/) {
+	my $cmd  = $1;
+	my $args = $3;
+
+	if (!defined $args) {
+	    &help($cmd);
+	    return;
+	}
+
+	my ($chan);
+	if ($args =~ s/^($mask{chan})\s*//) {
+	    $chan	= $1;
+	    &DEBUG("chan => $chan.");
+	} else {
+	    &DEBUG("no chan arg; setting to default.");
+	    $chan	= "_default";
+	}
+
+	my($what,$val) = split /[\s\t]+/, $args, 2;
+
+	### TODO: "cannot set values without +m".
+	return unless (&hasFlag("m"));
+
+	if ($cmd eq "+chan") {
+	    &DEBUG("setting _time_added...");
+	    $chanconf{$chan}{_time_added}	= time();
+
+	    &pSReply("Joining $chan...");
+	    &joinchan($chan);
+
+	    return;
+	}
+
+	if (!exists $chanconf{$chan}) {
+	    &pSReply("no such channel $chan");
+	    return;
+	}
+
+	my $update	= 0;
+	if ($what =~ /^\+(\S+)/) {
+	    my $was	= $chanconf{$chan}{$1};
+	    $was	= ($was) ? "; was '$was'" : "";
+	    &pSReply("Setting $1 for $chan to '1'$was.");
+
+	    $chanconf{$chan}{$1} = 1;
+
+	    $update++;
+	} elsif ($what =~ /^\-(\S+)/) {
+	    my $was	= $chanconf{$chan}{$1};
+	    $was	= ($was) ? "; was '$was'" : "";
+	    &pSReply("Setting $1 for $chan to '0'$was.");
+
+	    $chanconf{$chan}{$1} = 0;
+
+	    $update++;
+	} elsif (defined $val) {
+	    my $was	= $chanconf{$chan}{$what};
+	    $was	= ($was) ? "; was '$was'" : "";
+	    &pSReply("Setting $what for $chan to '$val'$was.");
+
+	    $chanconf{$chan}{$what} = $val;
+
+	    $update++;
+	} elsif (defined $what) {
+	    &pSReply("$what for $chan is '$chanconf{$chan}{$what}'");
+	}
+
+	if ($update) {
+	    $utime_chanfile = time();
+	    $ucount_chanfile++;
+	    return;
+	}
+
+	if ($cmd eq "chanset" and !defined $what) {
+	    &DEBUG("showing channel conf.");
+
+	    foreach (keys %{ $chanconf{$chan} }) {
+		&DEBUG("$chan: $_ => $chanconf{$chan}{$_}");
 	    }
-	    return $noreply;
+
+	    return;
 	}
 
-	if ($param{$param} eq $what) {
-	    &msg($who,"param{$param} already has value of '\002$what\002'.");
-	    return $noreply;
-	}
-
-	$param{$param} = $what;
-	&msg($who,"setting param{$param} to '\002$what\002'.");
-
-	return $noreply;
+	return;
     }
 
-    # unset.
-    if ($message =~ /^unset(\s+(\S+))?$/i) {
-	return $noreply unless (&hasFlag("n"));
-	my ($param) = $2;
+    if ($message =~ /^(chanunset|\-chan)(\s+(.*))?$/) {
+	return unless (&hasFlag("m"));
+	my $args	= $3;
 
-	if ($param eq "") {
-	    &msg($who,"\002Usage\002: unset <param>");
-	    return $noreply;
+	if (!defined $args) {
+	    &help("chanunset");
+	    return;
 	}
 
-	if (!exists $param{$param}) {
-	    &msg($who,"error: \002$param\002 cannot be unset");
-	    return $noreply;
+	my ($chan);
+	my $delete	= 0;
+	if ($args =~ s/^(\-)?($mask{chan})\s*//) {
+	    $chan	= $2;
+	    $delete	= ($1) ? 1 : 0;
+	    &DEBUG("chan => $chan.");
+	} else {
+	    &DEBUG("no chan arg; setting to default.");
+	    $chan	= "_default";
 	}
 
-	if ($param{$param} == 0) {
-	    &msg($who,"\002param{$param}\002 has already been unset.");
-	    return $noreply;
+	if (!exists $chanconf{$chan}) {
+	    &pSReply("no such channel $chan");
+	    return;
 	}
 
-	$param{$param} = 0;
-	&msg($who,"unsetting \002param{$param}\002.");
+	if ($args ne "") {
+	    if (&getChanConf($args,$chan)) {
+		&pSReply("Unsetting channel ($chan) option $args. (was $chanconf{$chan}{$args})");
+		undef $chanconf{$chan}{$args};
 
-	return $noreply;
+	    } else {
+		&pSReply("$args does not exist for $chan");
+	    }
+
+	    return;
+	}
+
+	if ($delete) {
+	    &pSReply("Deleting channel $chan for sure!");
+	    $utime_chanfile = time();
+	    $ucount_chanfile++;
+
+	    &part($chan);
+	    &pSReply("Leaving $chan...");
+
+	    delete $chanconf{$chan};
+	} else {
+	    &pSReply("Prefix channel with '-' to delete for sure.");
+	}
+
+	return;
     }
 
-    # more...
+
+    if ($message =~ /^chpass(\s+(.*))?$/) {
+	my(@args) = split /[\s\t]+/, $2 || '';
+
+	if (!scalar @args) {
+	    &help("chpass");
+	    return;
+	}
+
+	if (!&IsUser($args[0])) {
+	    &pSReply("user $args[0] is not valid.");
+	    return;
+	}
+
+	my $u = &getUser($who);
+
+	if (scalar @args == 1) {	# del pass.
+	    if (!&IsFlag("m") and $who !~ /^\Q$verifyUser\E$/i) {
+		&pSReply("cannto remove passwd of others.");
+		return;
+	    }
+
+	    if (!exists $users{$u}{PASS}) {
+		&pSReply("$u does not have pass set anyway.");
+		return;
+	    }
+
+	    &pSReply("Deleted pass from $u.");
+
+	    $utime_userfile = time();
+	    $ucount_userfile++;
+
+	    delete $users{$u}{PASS};
+
+	    return;
+	}
+
+	my $salt = join '',('.','/',0..9,'A'..'Z','a'..'z')[rand 64, rand 64];
+	my $crypt = crypt($args[1], $salt);
+	&pSReply("Set $u's passwd to '$crypt'");
+	$users{$u}{PASS} = $crypt;
+
+	$utime_userfile = time();
+	$ucount_userfile++;
+
+	return;
+    }
+
+    if ($message =~ /^chattr(\s+(.*))?$/) {
+	my(@args) = split /[\s\t]+/, $2 || '';
+
+	if (!scalar @args) {
+	    &help("chattr");
+	    return;
+	}
+
+	my $user;
+	if ($args[0] =~ /^$mask{nick}$/i) {	# <nick>
+	    $user	= &getUser($args[0]);
+	    $chflag	= $args[1];
+	} else {				# <flags>
+	    $user	= &getUser($who);
+	    &DEBUG("user $who... nope.") unless (defined $user);
+	    $user	= &getUser($verifyUser);
+	    $chflag	= $args[0];
+	}
+
+	if (!defined $user) {
+	    &pSReply("user $user does not exist.");
+	    return;
+	}
+
+	my $flags = $users{$user}{FLAGS};
+	if (!defined $chflag) {
+	    &pSReply("Flags for $user: $flags");
+	    return;
+	}
+
+	&DEBUG("who => $who");
+	&DEBUG("verifyUser => $verifyUser");
+	if (!&IsFlag("m") and $who !~ /^\Q$verifyUser\E$/i) {
+	    &pSReply("cannto change attributes of others.");
+	    return "REPLY";
+	}
+
+	my $state;
+	my $change	= 0;
+	foreach (split //, $chflag) {
+	    if ($_ eq "+") { $state = 1; next; }
+	    if ($_ eq "-") { $state = 0; next; }
+
+	    if (!defined $state) {
+		&pSReply("no initial + or - was found in attr.");
+		return;
+	    }
+
+	    if ($state) {
+		next if ($flags =~ /\Q$_\E/);
+		$flags .= $_;
+	    } else {
+		if (&IsParam("owner")
+			and $param{owner} =~ /^\Q$user\E$/i
+			and $flags =~ /[nmo]/
+		) {
+		    &pSReply("not removing flag $_ for $user.");
+		    next;
+		}
+		next unless ($flags =~ s/\Q$_\E//);
+	    }
+
+	    $change++;
+	}
+
+	if ($change) {
+	    $utime_userfile = time();
+	    $ucount_userfile++;
+	    &pSReply("Current flags: $flags");
+	    $users{$user}{FLAGS} = $flags;
+	} else {
+	    &pSReply("No flags changed: $flags");
+	}
+
+	return;
+    }
+
+    if ($message =~ /^chnick(\s+(.*))?$/) {
+	my(@args) = split /[\s\t]+/, $2 || '';
+
+	if ($who eq "_default") {
+	    &WARN("$who or verifyuser tried to run chnick.");
+	    return "REPLY";
+	}
+
+	if (!scalar @args or scalar @args > 2) {
+	    &help("chnick");
+	    return;
+	}
+
+	if (scalar @args == 1) {	# 1
+	    $user	= &getUser($who);
+	    &DEBUG("nope, not $who.") unless (defined $user);
+	    $user	||= &getUser($verifyUser);
+	    $chnick	= $args[0];
+	} else {			# 2
+	    $user	= &getUser($args[0]);
+	    $chnick	= $args[1];
+	}
+
+	if (!defined $user) {
+	    &pSReply("user $who or $args[0] does not exist.");
+	    return;
+	}
+
+	if ($user =~ /^\Q$chnick\E$/i) {
+	    &pSReply("user == chnick. why should I do that?");
+	    return;
+	}
+
+	if (&getUser($chnick)) {
+	    &pSReply("user $chnick is already used!");
+	    return;
+	}
+
+	if (!&IsFlag("m") and $who !~ /^\Q$verifyUser\E$/i) {
+	    &pSReply("cannto change nick of others.");
+	    return "REPLY" if ($who eq "_default");
+	    return;
+	}
+
+	foreach (keys %{ $users{$user} }) {
+	    $users{$chnick}{$_} = $users{$user}{$_};
+	    delete $users{$user}{$_};
+	}
+	undef $users{$user};	# ???
+
+	$utime_userfile = time();
+	$ucount_userfile++;
+
+	&pSReply("Changed '$user' to '$chnick' successfully.");
+
+	return;
+    }
+
+    if ($message =~ /^([-+])host(\s+(.*))?$/) {
+	my $cmd		= $1."host";
+	my(@args)	= split /[\s\t]+/, $3 || '';
+	my $state	= ($1 eq "+") ? 1 : 0;
+
+	if (!scalar @args) {
+	    &help($cmd);
+	    return;
+	}
+
+	if ($who eq "_default") {
+	    &WARN("$who or verifyuser tried to run $cmd.");
+	    return "REPLY";
+	}
+
+	my ($user,$mask);
+	if ($args[0] =~ /^$mask{nick}$/i) {	# <nick>
+	    return unless (&hasFlag("m"));
+	    $user	= &getUser($args[0]);
+	    $mask	= $args[1];
+	} else {				# <mask>
+	    # who or verifyUser. FIXME!!!
+	    $user	= &getUser($who);
+	    $mask	= $args[0];
+	}
+
+	if (!defined $user) {
+	    &pSReply("user $user does not exist.");
+	    return;
+	}
+
+	if (!defined $mask) {
+	    ### FIXME.
+	    &pSReply("Hostmasks for $user: $users{$user}{HOSTS}");
+
+	    return;
+	}
+
+	if (!&IsFlag("m") and $who !~ /^\Q$verifyUser\E$/i) {
+	    &pSReply("cannto change masks of others.");
+	    return;
+	}
+
+	if ($mask !~ /^$mask{nuh}$/) {
+	    &pSReply("error: mask ($mask) is not a real hostmask.");
+	    return;
+	}
+
+	my $count = scalar keys %{ $users{$user}{HOSTS} };
+
+	if ($state) {				# add.
+	    if (exists $users{$user}{HOSTS}{$mask}) {
+		&pSReply("mask $mask already exists.");
+		return;
+	    }
+
+	    ### TODO: override support.
+	    $users{$user}{HOSTS}{$mask} = 1;
+
+	    &pSReply("Added $mask to list of masks.");
+
+	} else {				# delete.
+
+	    if (!exists $users{$user}{HOSTS}{$mask}) {
+		&pSReply("mask $mask does not exist.");
+		return;
+	    }
+
+	    ### TODO: wildcard support. ?
+	    delete $users{$user}{HOSTS}{$mask};
+
+	    if (scalar keys %{ $users{$user}{HOSTS} } != $count) {
+		&pSReply("Removed $mask from list of masks.");
+	    } else {
+		&pSReply("error: could not find $mask in list of masks.");
+		return;
+	    }
+	}
+
+	$utime_userfile	= time();
+	$ucount_userfile++;
+
+	return;
+    }
+
+    if ($message =~ /^([-+])ban(\s+(.*))?$/) {
+	my $cmd		= $1."ban";
+	my $flatarg	= $3;
+	my(@args)	= split /[\s\t]+/, $3 || '';
+	my $state	= ($1 eq "+") ? 1 : 0;
+
+	if (!scalar @args) {
+	    &help($cmd);
+	    return;
+	}
+
+	my($mask,$chan,$time,$reason);
+
+	if ($flatarg =~ s/^($mask{nuh})\s*//) {
+	    $mask = $1;
+	} else {
+	    &DEBUG("arg does not contain nuh mask?");
+	}
+
+	if ($flatarg =~ s/^($mask{chan})\s*//) {
+	    $chan = $1;
+	} else {
+	    $chan = "*";	# _default instead?
+	}
+
+	if ($state == 0) {		# delete.
+	    my $c = join(' ', &banDel($mask) );
+
+	    if ($c) {
+		&pSReply("Removed $mask from chans: $c");
+	    } else {
+		&pSReply("$mask was not found in ban list.");
+	    }
+
+	    return;
+	}
+
+	###
+	# add ban.
+	###
+
+	# time.
+	if ($flatarg =~ s/^(\d+)\s*//) {
+	    $time = $1;
+	    &DEBUG("time = $time.");
+	    if ($time < 0) {
+		&pSReply("error: time cannot be negatime?");
+		return;
+	    }
+	} else {
+	    $time = 0;
+	}
+
+	if ($flatarg =~ s/^(.*)$//) {	# need length?
+	    $reason	= $1;
+	}
+
+	if (!&IsFlag("m") and $who !~ /^\Q$verifyUser\E$/i) {
+	    &pSReply("cannto change masks of others.");
+	    return;
+	}
+
+	if ($mask !~ /^$mask{nuh}$/) {
+	    &pSReply("error: mask ($mask) is not a real hostmask.");
+	    return;
+	}
+
+	if ( &banAdd($mask,$chan,$time,$reason) == 2) {
+	    &pSReply("ban already exists; overwriting.");
+	}
+	&pSReply("Added $mask for $chan (time => $time, reason => $reason)");
+
+	return;
+    }
+
+    if ($message =~ /^whois(\s+(.*))?$/) {
+	my $arg = $2;
+
+	if (!defined $arg) {
+	    &help("whois");
+	    return;
+	}
+
+	my $user = &getUser($arg);
+	if (!defined $user) {
+	    &pSReply("whois: user $user does not exist.");
+	    return;
+	}
+
+	### TODO: better (eggdrop-like) output.
+	&pSReply("user: $user");
+	foreach (keys %{ $users{$user} }) {
+	    my $ref = ref $users{$user}{$_};
+
+	    if ($ref eq "HASH") {
+		my $type = $_;
+		### DOES NOT WORK???
+		foreach (keys %{ $users{$user}{$type} }) {
+		    &pSReply("    $type => $_");
+		}
+		next;
+	    }
+
+	    &pSReply("    $_ => $users{$user}{$_}");
+	}
+	&pSReply("End of USER whois.");
+
+	return;
+    }
+
+    if ($message =~ /^bans(\s+(.*))?$/) {
+	my $arg	= $2;
+
+	if (defined $arg) {
+	    if ($arg ne "_default" and !&validChan($arg) ) {
+		&pSReply("error: chan $chan is invalid.");
+		return;
+	    }
+	}
+
+	if (!scalar keys %bans) {
+	    &pSReply("Ban list is empty.");
+	    return;
+	}
+
+	my $c;
+	&pSReply("      expire, count, who-by, time-added, reason");
+	foreach $c (keys %bans) {
+	    next unless (!defined $arg or $arg =~ /^\Q$c\E$/i);
+	    &pSReply("  $c:");
+
+	    foreach (keys %{ $bans{$c} }) {
+		my $val = $bans{$c}{$_};
+
+		if (ref $val eq "ARRAY") {
+		    my @array = @{ $val };
+		    &pSReply("      @array");
+		} else {
+		    &DEBUG("unknown ban: $val");
+		}
+	    }
+	}
+	&pSReply("END of bans.");
+
+	return;
+    }
+
+    if ($message =~ /^banlist(\s+(.*))?$/) {
+	my $arg	= $2;
+
+	if (defined $arg and $arg !~ /^$mask_chan$/) {
+	    &pSReply("error: chan $chan is invalid.");
+	    return;
+	}
+
+	&DEBUG("bans for global or arg => $arg.");
+	foreach (keys %bans) {			#CHANGE!!!
+	    &DEBUG("  $_ => $bans{$_}.");
+	}
+
+	&DEBUG("End of bans.");
+	&pSReply("END of bans.");
+
+	return;
+    }
+
+    if ($message =~ /^save$/) {
+	return unless (&hasFlag("o"));
+
+	&writeUserFile();
+	&writeChanFile();
+
+	return;
+    }
+
+    ### ALIASES.
+    $message =~ s/^addignore/+ignore/;
+    $message =~ s/^(del|un)ignore/-ignore/;
+
+    # ignore.
+    if ($message =~ /^(\+|\-)ignore(\s+(.*))?$/i) {
+	return unless (&hasFlag("o"));
+	my $state	= ($1 eq "+") ? 1 : 0;
+	my $str		= $1."ignore";
+	my $args	= $3;
+
+	if (!$args) {
+	    &help($str);
+	    return;
+	}
+
+	my($mask,$chan,$time,$comment);
+
+	# mask.
+	if ($args =~ s/^($mask{nuh})\s*//) {
+	    $mask = $1;
+	} else {
+	    &ERROR("no NUH mask?");
+	    return;
+	}
+
+	if (!$state) {			# delignore.
+	    if ( &ignoreDel($mask) ) {
+		&pSReply("ok, deleted X ignores.");
+	    } else {
+		&pSReply("could not find $mask in ignore list.");
+	    }
+	    return;
+	}
+
+	###
+	# addignore.
+	###
+
+	# chan.
+	if ($args =~ s/^($mask{chan}|\*)\s*//) {
+	    $chan = $1;
+	    &DEBUG("chan => $chan");
+	} else {
+	    $chan = "*";
+	}
+
+	# time.
+	if ($args =~ s/^(\d+)\s*//) {
+	    $time = $1*60;	# ??
+	    &DEBUG("time => $time");
+	} else {
+	    $time = 0;
+	}
+
+	# time.
+	if ($args) {
+	    $comment = $args;
+	    &DEBUG("comment => $comment");
+	} else {
+	    $comment = "added by $who";
+	}
+
+	if ( &ignoreAdd($mask, $chan, $time, $comment) ) {
+	    &pSReply("added $mask to ignore list.");
+	} else {
+	    &pSReply("warn: $mask already in ignore list; written over anyway. FIXME");
+	}
+
+	return;
+    }
+
+    if ($message =~ /^ignore(\s+(.*))?$/) {
+	my $arg	= $2;
+
+	if (defined $arg) {
+	    if ($arg !~ /^$mask{chan}$/) {
+		&pSReply("error: chan $chan is invalid.");
+		return;
+	    }
+
+	    if (!&validChan($arg)) {
+		&pSReply("error: chan $arg is invalid.");
+		return;
+	    }
+
+	    &pSReply("Showing bans for $arg only.");
+	}
+
+	if (!scalar keys %ignore) {
+	    &pSReply("Ignore list is empty.");
+	    return;
+	}
+
+	### TODO: proper (eggdrop-like) formatting.
+	my $c;
+	&pSReply("    expire, count, who, added, comment");
+	foreach $c (keys %ignore) {
+	    next unless (!defined $arg or $arg =~ /^\Q$c\E$/i);
+	    &pSReply("  $c:");
+
+	    foreach (keys %{ $ignore{$c} }) {
+		my $ref = ref $ignore{$c}{$_};
+		if ($ref eq "ARRAY") {
+		    my @array = @{ $ignore{$c}{$_} };
+		    &pSReply("      $_: @array");
+		} else {
+		    &DEBUG("unknown ignore line?");
+		}
+	    }
+	}
+	&pSReply("END of ignore.");
+
+	return;
+    }
+
+    # adduser/deluser.
+    if ($message =~ /^(\+|\-|add|del)user(\s+(.*))?$/i) {
+	my $str		= $1;
+	my $strstr	= $1."user";
+	my @args	= split /\s+/, $3 || '';
+	my $args	= $3;
+	my $state	= ($str =~ /^(\+|add)$/) ? 1 : 0;
+
+	if (!scalar @args) {
+	    &help($strstr);
+	    return;
+	}
+
+	if ($str eq "+") {
+	    if (scalar @args != 2) {
+		&pSReply(".+host requires hostmask argument.");
+		return;
+	    }
+	} elsif (scalar @args != 1) {
+	    &pSReply("too many arguments.");
+	    return;
+	}
+
+	if ($state) {			# adduser.
+	    if (scalar @args == 1) {
+		$args[1]	= &getHostMask($args[0]);
+		if (!defined $args[1]) {
+		    &ERROR("could not get hostmask?");
+		    return;
+		}
+	    }
+
+	    if ( &userAdd(@args) ) {	# success.
+		&pSReply("Added $args[0]...");
+
+	    } else {			# failure.
+		&pSReply("User $args[0] already exists");
+	    }
+
+	} else {			# deluser.
+
+	    if ( &userDel($args[0]) ) {	# success.
+		&pSReply("Deleted $args[0] successfully.");
+
+	    } else {			# failure.
+		&pSReply("User $args[0] does not exist.");
+	    }
+
+	}
+	return;
+    }
+
+    return "REPLY";
 }
 
 1;
