@@ -162,6 +162,8 @@ sub ERROR {
 sub WARN {
     return unless (&IsParam("WARN"));
 
+    return if ($_[0] =~ /^PERL: Subroutine \S+ redefined at/);
+
     &status("${b_yellow}!WARN!$ob $_[0]");
 }
 
@@ -310,6 +312,23 @@ sub status {
     }
 
     print LOG sprintf("%s %s\n", $date, $input);
+}
+
+sub openSQLDebug {
+    if (!open(SQLDEBUG, $param{'SQLDebug'})) {
+	&ERROR("cannot open $param{'SQLDebug'}...");
+	delete $param{'SQLDebug'};
+	return 0;
+    }
+
+    &status("Opened SQL Debug file: $param{'SQLDebug'}");
+    return 1;
+}
+
+sub closeSQLDebug {
+    close SQLDEBUG;
+
+    &status("Closed SQL Debug file: $param{'SQLDebug'}");
 }
 
 1;
