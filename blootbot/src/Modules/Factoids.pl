@@ -64,8 +64,8 @@ sub CmdFactInfo {
 	push(@array,$string);
     }
 
-    # modified:
-    if (0 && $factinfo{'modified_by'}) {
+    # modified: (TimRiker asks "why do you keep turning this off?)
+    if ($factinfo{'modified_by'}) {
 	$string	= "last modified";
 
 	my $time = $factinfo{'modified_time'};
