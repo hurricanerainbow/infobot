@@ -6,3 +6,7 @@ INSTALL.patches
 	  patch -p0 < Net::IRC.patch
 	- cd /usr/lib/perl5/WWW/Search
 	  patch -p0 < WWW::Search::Google.patch
+
+- alternatively, move the files from patches/
+	- mv patches/Google.pm /usr/lib/perl5/WWW/Search/
+	- mv patches/Connections.pm /usr/lib/perl5/Net/IRC/

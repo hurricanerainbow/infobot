@@ -1,6 +1,6 @@
 #
 # Countdown.pl: Count down to a particular date.
-#       Author: xk <xk@leguin.openprojects.net>
+#       Author: dms
 #      Version: v0.1 (20000104)
 #      Created: 20000104
 #

@@ -1,6 +1,6 @@
 #
 # UserInfo.pl: User Information Services
-#      Author: xk <xk@leguin.openprojects.net>
+#      Author: dms
 #     Version: v0.1 (20000509).
 #     Created: 20000509
 #	 NOTE: Idea from Flugh. Originally written in tcl for eggdrop by

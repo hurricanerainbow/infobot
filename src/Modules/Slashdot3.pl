@@ -1,7 +1,7 @@
 #
 # Slashdot.pl: Slashdot headline retrival
 #      Author: Chris Tessone <tessone@imsa.edu>
-#    Modified: xk <xk@leguin.openprojects.net>
+#    Modified: dms
 #   Licensing: Artistic License (as perl itself)
 #     Version: v0.4 (19991125)
 #

@@ -1,6 +1,6 @@
 #
 #  UserDCC.pl: User Commands, DCC CHAT.
-#      Author: xk <xk@leguin.openprojects.net>
+#      Author: dms
 #     Version: v0.1 (20000707)
 #     Created: 20000707 (from UserExtra.pl)
 #

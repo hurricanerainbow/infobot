@@ -1,6 +1,6 @@
 #
 #   Debian.pl: Frontend to debian contents and packages files
-#      Author: xk <xk@leguin.openprojects.net>
+#      Author: dms
 #     Version: v0.7b (20000527)
 #     Created: 20000106
 #

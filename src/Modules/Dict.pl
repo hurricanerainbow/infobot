@@ -1,6 +1,6 @@
 #
 #  Dict.pl: Frontend to dict.org.
-#   Author: xk <xk@leguin.openprojects.net>
+#   Author: dms
 #  Version: v0.6b (19991224).
 #  Created: 19990914.
 #

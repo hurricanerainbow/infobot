@@ -1,4 +1,4 @@
-blootbot v1.0.0RC3 (20000709)
+blootbot v1.0.0 (20000729)
 -------------------------
 
 INTRODUCTION
@@ -8,45 +8,6 @@ features have been added. Along the way, a couple of typos were spotted
 in the original infobot source and fixed in this version. Without infobot,
 there would be no blootbot so all thanks to kevin for bringing infobot in
 the first place.
-
-	as of 0.99pre1, blootbot supports mysql database in the hope to
-increase performance and to avoid borked over dbm's which occurred when
-the bot crashed (??). The mysql code is far larger (or perhaps twice
-as many functions) than expected even though a few functions were needed
-for DBM due to lack of table deficiencies.
-
-	as of 1.0.0pre1, blootbot takes advantage of Net::IRC. The change
-over was fairly comfortable (95% clean). Just minor problems here and
-there, mostly debugging and getting it right.
-
-UPDATE:
-	as of 1.0.0RC2, the old style DBM (Berkeley) has been ported back.
-It should work in all but 3 specific (countdown, factstats unreq) cases.
-preliminary pgsql support has been added but someone with pgperl knowledge
-needs to fix it up or at least unify the module with mysql.
-
-	Please apply the patches from patches/*.patch. Method:
-		cd /usr/lib/perl5
-		cat *.patch | patch -p0
-		### FIXME: what's the best way to apply patches?
-		### for the time being, patch manually.
-
-	Be warned that this bot consumes quite a lot of memory upon start
-up and during usage. Right now, 7.4megs is used for old'ish perl, 8.3megs
-with perl 5.005. fork() is used but don't be alarmed at the memory usage
-as fork(), as I was told, uses COW (copy on write).
-
-	WARNING: enabling wingate support may involve complaints of some
-sort, probably because the telnet connection isn't closed properly.
-However, these people do not realize the potential of open wingates.
-
-	Please beta test it and report bugs as I have not had the time to
-test all modifications properly (and extensively).  Suggestions are
-welcomed.
-
-	a few guys from #debian@OPN are attempting to rewrite the bot in C
-to support dbm185or2//mysql//postgresql. It's available at
-ftp://leguin.org.uk/pub/bloatbot/
 
 FEATURES
 	* Additional information stored with factoids. (factinfo)
@@ -71,6 +32,47 @@ Improvements include:
 		=> unblocked logging is used.
 	* seen data is not flushed for each public message on IRC
 		=> caching and flushing over an interval is used.
+
+HISTORY
+	As of 0.99pre1, blootbot supports mysql database in the hope to
+increase performance and to avoid borked over dbm's which occurred when
+the bot crashed (??). The mysql code is far larger (or perhaps twice
+as many functions) than expected even though a few functions were needed
+for DBM due to lack of table deficiencies.
+
+	As of 1.0.0pre1, blootbot takes advantage of Net::IRC. The
+change over was fairly comfortable (95% clean). Just minor problems here
+and there, mostly debugging and getting it right.
+
+	As of 1.0.0RC2, the old style DBM (Berkeley) has been ported
+back. It should work in all but 3 specific (countdown, factstats unreq)
+cases. preliminary pgsql support has been added but someone with pgperl
+knowledge needs to fix it up or at least unify the module with mysql.
+
+INSTALLATION
+  - Read INSTALL and INSTALL.patches
+  - Copy files/sample.config to files/infobot.config
+  - Edit files/infobot.config
+  - ./blootbot
+
+
+NOTICE
+	Be warned that this bot consumes quite a lot of memory upon start
+up and during usage. Right now, 7.4megs is used for old'ish perl, 8.3megs
+with perl 5.005. fork() is used but don't be alarmed at the memory usage
+as fork(), as I was told, uses COW (copy on write).
+
+	WARNING: enabling wingate support may involve complaints of some
+sort, probably because the telnet connection isn't closed properly.
+However, these people do not realize the potential of open wingates.
+
+	Please beta test it and report bugs as I have not had the time to
+test all modifications properly (and extensively).  Suggestions are
+welcomed.
+
+	a few guys from #debian@OPN are attempting to rewrite the bot in C
+to support dbm185or2//mysql//postgresql. It's available at
+ftp://leguin.org.uk/pub/bloatbot/
 
 MODIFICATIONS
 	All modifications are that of the blootbot author unless otherwise
@@ -109,10 +111,6 @@ variables.  If you're hardcore, check out 'CommandStubs.pl' and
 	unset <param>		-- ...
 
 
-INSTALLATION
-	edit files/infobot.config and modify according to needs.
-
-
 NOTES
 	To administrate/control the bot remotely, this can only be done
 through DCC CHAT. /chat <BOT NICK>.  All commands must be prepended by
@@ -124,7 +122,6 @@ through DCC CHAT. /chat <BOT NICK>.  All commands must be prepended by
 	- new wingate caching/file-read code.
 	- disabling IRC/factoid support code.
 	- PG/DBM supports need to be worked and thoroughly tested.
-
 
 
 CONTRIBUTIONS
@@ -145,4 +142,4 @@ hope to get that same guy to re-send me the patch...
 
 CONTACT
 	Contributions of a patch or a job offer can be sent to
-<xk@leguin.openprojects.net>
+<dms@users.sourceforge.net> [DOES IT WORK??]

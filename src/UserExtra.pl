@@ -1,6 +1,6 @@
 #
 # UserExtra.pl: User Commands, Public.
-#       Author: xk <xk@leguin.openprojects.net>
+#       Author: dms
 #      Version: v0.2b (20000707)
 #      Created: 20000107
 #

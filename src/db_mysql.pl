@@ -1,6 +1,6 @@
 #
 # db_mysql.pl: MySQL database frontend.
-#      Author: xk <xk@leguin.openprojects.net>
+#      Author: dms
 #     Version: v0.2c (19991224)
 #     Created: 19991203
 #

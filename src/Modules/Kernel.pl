@@ -1,6 +1,6 @@
 #
 # Kernel.pl: Frontend to linux.kernel.org.
-#    Author: xk <xk@leguin.openprojects.net>
+#    Author: dms
 #   Version: v0.3 (19990919).
 #   Created: 19990729
 #

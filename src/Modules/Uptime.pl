@@ -1,6 +1,6 @@
 #
 # Uptime.pl: Uptime daemon for infobot.
-#    Author: xk <xk@lenguin.openprojects.net>
+#    Author: dms
 #   Version: v0.3 (19991008)
 #   Created: 19990925.
 #

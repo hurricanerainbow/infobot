@@ -1,6 +1,6 @@
 #
 # ProcessExtra.pl: Extensions to Process.pl
-#          Author: xk <xk@leguin.openprojects.net>
+#          Author: dms
 #         Version: v0.3 (20000707)
 #         Created: 20000117
 #

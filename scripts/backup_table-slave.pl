@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 #
 # backup_table-slave.pl: Backup mysql tables
-#     Author: xk <xk@leguin.openprojects.net>
+#     Author: dms
 #    Version: v0.1b (20000223)
 #    Created: 20000210
 #

@@ -1,6 +1,6 @@
 #
 #   core.pl: Important functions stuff...
-#    Author: xk <xk@leguin.openprojects.net>
+#    Author: dms
 #   Version: v0.4 (20000718)
 #   Created: 20000322
 #

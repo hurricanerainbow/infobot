@@ -1,6 +1,6 @@
 #
 #  DBStubs.pl: DB independent (I hope, heh) factoid support
-#      Author: xk <xk@leguin.openprojects.net>
+#      Author: dms
 #     Version: v0.6d (20000223)
 #     Created: 19991020
 #
