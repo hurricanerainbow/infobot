@@ -135,6 +135,8 @@ sub delForked {
 	return 0;
     }
 
+    &showProc();	# just for informational purposes.
+
     if (exists $forked{$name}) {
 	my $timestr = &Time2String(time() - $forked{$name}{Time});
 	&status("fork: took $timestr for $name.");
