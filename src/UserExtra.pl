@@ -26,9 +26,6 @@ use vars qw(%channels %chanstats %cmdstats %count %ircstats %param
 &addCmdHook("main", 'help', ('CODEREF' => 'help',
 	'Cmdstats' => 'Help', ) );
 &addCmdHook("main", 'karma', ('CODEREF' => 'karma', ) );
-&addCmdHook("main", 'd?nslookup', ('CODEREF' => 'DNS',
-	Help => 'nslookup', Identifier => 'allowDNS',
-	Forker => "NULL", ) );
 &addCmdHook("main", 'tell|explain', ('CODEREF' => 'tell',
 	Help => 'tell', Identifier => 'allowTelling',
 	Cmdstats => 'Tell') );
@@ -234,12 +231,6 @@ sub karma {
     }
 }
 
-sub nslookup {
-    my $query = shift;
-    &status("DNS Lookup: $query");
-    &DNS($query);
-}
-
 sub tell {
     my $args = shift;
     my ($target, $tell_obj) = ('','');
@@ -348,45 +339,6 @@ sub tell {
     }
 
     &msg($target, $reply);
-}
-
-sub DNS {
-    my $dns = shift;
-    my($match, $x, $y, $result);
-    my $pid;
-    $dns =~ s/^\s+|\s+$//g;
-
-    if (!defined $dns or $dns =~ /^\s*$/ or $dns =~ / /) {
-	&help("dns");
-	return;
-    }
-
-    if ($dns =~ /(\d+\.\d+\.\d+\.\d+)/) {
-	$match = $1;
-	&status("DNS query by IP address: $match");
-
-	$y = pack('C4', split(/\./, $match));
-	$x = (gethostbyaddr($y, &AF_INET));
-
-	if ($x !~ /^\s*$/) {
-	    $result = $match." is ".$x unless ($x =~ /^\s*$/);
-	} else {
-	    $result = "I can't seem to find that address in DNS";
-	}
-
-    } else {
-
-	&status("DNS query by name: $dns");
-	$x = join('.',unpack('C4',(gethostbyname($dns))[4]));
-
-	if ($x !~ /^\s*$/) {
-	    $result = $dns." is ".$x;
-	} else {
-	    $result = "I can\'t find that machine name";
-	}
-    }
-
-    &performReply($result);
 }
 
 sub countryStats {

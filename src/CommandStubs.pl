@@ -280,6 +280,9 @@ sub parseCmdHook {
 &addCmdHook("extra", '[ia]?spell', ('CODEREF' => 'spell::query',
 	'Identifier' => 'spell', 'Cmdstats' => 'spell',
 	'Forker' => 1, 'Help' => 'spell') );
+&addCmdHook("extra", 'dns|d?nslookup|host', ('CODEREF' => 'dns::query',
+	'Identifier' => 'dns', 'Cmdstats' => 'dns',
+	'Forker' => 1, 'Help' => 'dns') );
 ###
 ### END OF ADDING HOOKS.
 ###

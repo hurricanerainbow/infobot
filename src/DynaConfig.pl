@@ -828,16 +828,6 @@ sub rehashConfVars {
     delete $cache{confvars};
 }
 
-# registered flags... not used yet.
-my @regFlagsChan = (
-	"autojoin",
-	"limitcheckInterval",
-	"limitcheckPlus",
-	"allowConv",
-	"allowDNS",
-### TODO: finish off this list.
-);
-
 my @regFlagsUser = (
 	# possible chars to include in FLAG
 	"A",	# bot administration over /msg
