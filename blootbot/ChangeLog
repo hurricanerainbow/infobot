@@ -1,14 +1,23 @@
+
+	* src/: "s/hasParam/IsChanConfOrWarn/"
+	* src/: add handling for channel specific factoids:
+	  "#botpark logs" -> http://ibot.rikers.org/botpark
+	  factoidSearch is a space delimited list of prefixes to try
+	* src/: kill %myModules - loadMyModule expects the CORRECT CASE basename
+	* .: a ton of other crap that TimRiker never documented here
+
 2001-04-28 22:04  dms
 
-	* src/IRC/: IrcHelpers.pl, IrcHooks.pl, Schedulers.pl: hookMode: change chan to nick.  if deopped by chanserv, check it
-	dont change channel limits during netsplit.
+	* src/IRC/: IrcHelpers.pl, IrcHooks.pl, Schedulers.pl: hookMode:
+	change chan to nick.  if deopped by chanserv, check it dont change
+	channel limits during netsplit.
 
 2001-04-26 22:37  dms
 
 	* src/: DynaConfig.pl, Process.pl, UserExtra.pl, core.pl,
 	Factoids/Statement.pl, IRC/Irc.pl, IRC/IrcHelpers.pl,
-	IRC/IrcHooks.pl, IRC/Schedulers.pl, Modules/News.pl: "~forget blah" now works. thanks to ElectricElf
-	documented user flags
+	IRC/IrcHooks.pl, IRC/Schedulers.pl, Modules/News.pl: "~forget blah"
+	now works. thanks to ElectricElf documented user flags
 	public/private/notice send limit now configurable. thanks to EE
 	added "countrystats" command.
 	"blootbot: are you fixed now? :)" -- fixed. found by greycat
@@ -2248,3 +2257,1018 @@
 	src/Modules/babel.pl, src/Modules/insult.pl,
 	src/Modules/nickometer.pl: Initial revision
 
+v1.0.0 (20000725): bug fixes mainly.
+	- GmLB found that scripts/setup_*.pl didn't work. Fixed.
+	- Fixed warning in Modules/Uptime.pl for clean install.
+	- More fixes for scripts/*mysql*.pl from GmLB.
+	- Added command 'hex'.
+	- GmLB fixed mysql2txt.pl and txt2mysql.pl. You can now import and
+	  export to inforbot 'factpacks'.-
+
+v1.0.0RC3 (20000720): bug fixes mainly.
+	- Debian.pl's infoPackages() now checks for incoming
+	  automatically and shows the new file.
+	- irq/dan found the bot wouldn't run if a stale (invalid) pid
+	  file exists. Fixed.
+	- Created &closeDCC(), &closePID()
+	- Added factoid SAR of (3-123) => 53
+
+v1.0.0RC2 (20000707):
+	- Ported back Berkerley DBM support. 95% of it works :)
+	- Also added pgSQL support.  Will not work out-of-the-box.
+	- Updated README.
+	- Fixed up 'modules.pl' a bit so if anything fails, it exits
+	  gracefully.  Module reloading should work better now.
+	- DCC CHAT commands now must have '.' prepended otherwise all text
+	  will me broadcasted to the dcc chat arena.
+	- Removed command 'part'.  Use 'kick' instead :)
+	- 'random|cookie' now takes argument to narrow down randomness.
+	- Merged 90% of MbM's@OPN modifications. Thanks.
+		=> bug fixes here and there
+		=> 'tell' fixed.
+		=> checks for owner of factoids for delete/modify factoids
+	- Moved Factoids/db* to .
+	- Misc stuff here and there.
+
+v1.0.0RC1 (20000701):
+	- Added several hacks (run away fork) due to bot misbehaving.
+	- Added deop.
+	- Added ability to disable factoid support.
+	- Reorganized source tree to be more modular.
+		- Created dirs: IRC, Factoids.
+		- moved partial core.pl and PerlMod.pl to modules.pl
+		- renamed Modules.pl to CommandStubs.pl
+	- Added command 'cycle'.
+	- hardguy/max noted that insult was borked.  It wasn't converted
+	  to the new fork format. Fixed but untested.
+	- Added 'ircstats' command. forgot about DisconnectReason
+	- Added to-expire-time on 'ignorelist'
+	- Forgot to clear %ignoreList on loading the list.
+	- moved 'ignorelist' from DCC-only to public/private msg.
+
+v1.0.0pre11 (20000601):
+	- we call &ircloop() if we want to reconnect. Any harm to perl?
+	- Wingate fixed yet again. maximum time for response is 6secs in
+	  order to cache maximum number of hosts.
+	- Added ban() for Wingate.
+	- Forgot about virtual host support when changed over to Net::IRC
+	- process() still calls shmCycle() just in case.
+	- Added limit to how many random things we can have in a factoid
+	  to prevent endless loops from occurring.
+	- All debian stuff now fully forks -- good.
+	- Failure on &loadMyModule() now deletes $forked{$label}.
+	- if instructed to join a channel "manually", tell who did it on
+	  join.
+	- Debian module now searches woody's non-US properly. Misc fixes
+	  here and there.
+	- Removed non-working mysql table locking code.
+	- Freshmeat.pl now uses LWP::Simple's getstore. How to load the
+	  file on-the-fly?
+	- Looked at Modules-Reload and implemented idea in the bot.
+	- Forgot about flushing uptime in scheduler.
+	- Added unit conversion feature to bot, based on Units-Convert
+	  package (at CPAN).
+	- Converted several scalars to hashes.
+	- Added slashdot,freshmeat and kernel announcements of new stuff.
+	- merged chanstats into one line, added top msg stats.
+	- Wingate now does intelligent on-the-fly caching and flushing to
+	  a wingate file to prevent dupes. UNTESTED
+	- "find pident potato" now works after few mods/hacks :)
+	- ...
+
+v1.0.0pre10 (20000523):
+	- Fixed minor problems in Debian.pl, I hope.
+	  => DebianDownload now calls generateIndex() if a download is
+		successful.
+	  => More clean ups.
+	  => generateIncoming() forgot about checking stale of idxfile.
+	- Modules in Modules/* now dynamically loaded. Using about ~200k
+	  less ram now.
+	- Added support of user modes with param{ircUMODE}. Requested by
+	  Flugh.
+	- hookMsg modified, we don't check ignore list if we're not
+	  addressed or minvollength is defined. flooding is now
+	  configurable by repeated message and total message, expire time
+	  and count, like eggdrop.
+	- nickometer didn't reset the score. noticed by greycat+others.
+	- &setupScheduler() scheduler is only called once.
+	- UIS now supports proper locking and lock check.
+	- verifyUser didn't set userHandle to 'default' if not found.
+	- Added factoid reply support of '(blah1|blah2)?'
+	- Added 'FAQ'.
+	- Added DebianExtra.pl module to list bugs. a hack and ugly!
+	- Finally fixed list of old topics in Topic.pl, courtesy of mux
+	  and nicholas_.
+	- Removed usage of quotemeta, replaced with \Q\E pair for regex.
+	- Included patches to modify stock-brokeness of perl modules.
+	  'cd /usr/lib/perl5; cat *.patch| patch -p0'
+	- Setup option whether to cache user online stats. Disabling will,
+	  for sure, won't bloat the bot by 2-4megs (but why that much?).
+
+v1.0.0pre9 (20000512):
+	- Typo for outsider checking. Noticed when #debian flooder came
+	  back yet again :)
+	- seenCycle was in minutes instead of days. fixed.
+	- Added User Information Services module. requested by Flugh.
+		=> 'uinfo <nick>'
+		=> 'uinfo set <type> <what>'
+		=> 'uinfo unset <type>'
+	- Added &IsNickInAnyChan($nick);
+	- Added &DCCBroadcast($txt) to broadcast messages to all members
+	  of DCC CHAT.
+	- &say() now changes '0' to 'zero' due to Net::IRC bug.
+	- Added &GetNickInChans($nick);
+	- Merged fooz's wingate scanner.
+	- Added 'ignoreAutoExpire' to differentiate time for ignore due to
+	  flooding instead of 'ignore' through DCC CHAT.
+	  => remove time for 'ignore' through DCC CHAT?
+	- Added &debianCheck() to check state of gzip'd files.
+	- ...
+
+v1.0.0pre8 (20000505):
+	- usual backlash from upgrade.
+	- added 'useStrict' option to infobot.config.
+	- added 'reload', to reload Core and Extras Modules. Does it
+	  reload only if the file has changed?
+	- added preliminary (debug) code for ftpGet() for truncated
+	  downloads. regetting will be added soon afterwards.
+	- minor fix for Debian.pl where a package exists but an
+	  incomplete Packages file may not have info on that package.
+	- Modified on-the-fly ignore to be temporary. temporary ignore
+	  requested by jCommons.
+	- added 'factstats requester'.
+	- preliminary use of scheduler for &checkPing() in &on_init().
+		no event hook on 'pong' :(((
+	- Timers now use Net::IRC's scheduler, woohoo. Nice change over.
+	  Moved ProcessExtras.pl to Schedulers.pl.
+	- Added 'factstats deadredir'.
+	- Don't prevent auto-reconnecting due to disconnection.
+	- Forgot initialization before any new IRC connection.
+	- Added scheduler for checking IRC connection.
+	- Fixed problem in Freshmeat module, if forked to download, would
+	  not continue with query. => now it does, nice hack.
+	- Debian module should generate incoming index if does not exist.
+	- Chatting can be done through DCC CHAT.
+	- ...
+
+v1.0.0pre7 (20000426):
+	- INSTALL and README updated.
+	- auto-request for ops after joining all channels instead of after
+	  each channel join.
+	- If factoid is requested by someone, show literally (no
+	  evaluation) if owner of factoid matches aswell as if requested
+	  privately(good idea?)
+	- on_notice fixed and debugging info removed.
+	- Added reconnect on HUP if we're not connected. I hope that it is
+	  set to 0 otherwise this solution is dead.
+	- ';' added as address char.
+	- maths bug found by NoNix4.
+		eg: 6000.0/9.000 - 6.000/9.000 - 666.00001
+	- nickometer bug (pi not defined) found by ddent. 'strict' cleanup.
+	- Preliminary CLI code included. Good for local use.
+	- typo in Topic.pl, found by jCommons. Fix for NULL topic.
+	- minor Debian.pl update to deal with 'missing files' on download.
+	- multi-shmwrite support added. looks like it doesn't "refresh"
+	  the value properly if written many times.
+	- &verifyUser() only used if addressed.
+	- Applied 'use strict' to all code. Also used 'use vars qw()'.
+	- Added 'backlog #' to DCC CHAT. requested by jCommons.
+	- ctcp version reply wrong; FIXED. found by fooz.
+
+v1.0.0pre6 (20000407):
+	- README updated.
+	- Added retry on failure to reconnect through on_disconnect();
+	  REMOVED -- this spun an endless loop.
+	- Found why Googling didn't work. See README for fix.
+	- Forgot about channel casing bugs (on_{join|part}) after
+	  changeover to Net::IRC.
+	- Changed addForked() to cycle through fork list and delete stale
+	  forks in case a forked child dies unexpectedly.
+	- Renamed allowOutsiders to disallowOutsiders just in case if the
+	  option is removed from the configuration.
+
+v1.0.0pre5 (20000331):
+	- setup_users.pl. DBI*() => sql*().
+	- 'topic add BLAH' on empty topic would bork. Why didn't I pick
+	  this up before?
+	- Somehow I removed (or it wasn't there) 'my @results' from
+	  searchTable();
+	- nickometer now uses loadPerlModule()... another 500 kB saved :)
+	- repeat flood detection prevention added.
+	- Added el-cheapo hash key counter... possible leak detector.
+	- Added 'factstats lame' for short and most probably stupid
+	  factoids.
+	- Weather module removed
+	- Renamed 'join' to 'joinchan' to due warning//conflict raised
+	  with perl 5.005 (on potato not slink).
+	- Disabled syscall (removes 300 kB on slink, 3megs on potato)
+
+v1.0.0pre4 (20000323): pseudo AutoLoader support.
+	- 'infobot' now first loads core.pl and logger.pl.
+	- timerExpire() fixed.
+	- Added unique maintainer count to 'dstats'.
+	- Added demand-on-load of external perl modules. Now we need
+	  dynamic(on demand) loading of 'Modules/*.pl' modules ;)
+
+v1.0.0pre3 (20000319):
+	- Fixed Freshmeat.pl not to show duplicate packages found by
+	  'name' and 'oneliner' search. Made showPackage() function.
+	- Debian modules now does multi distro. (woody's non-us appears to
+	  be different structure so does not work :(, very crude hack...
+	  may not even work).
+	- Added subfactoid randomising. eg: '(one|two|three)'.
+	- 'dauthor' now works!
+	- karma fixed... used the wrong var name.
+	- Fixed doubling of text when message from 'nick' is ignored.
+	- Added 'redir' to designate one factoid as master and duplicates
+	  as redirectors//slaves.
+	- Added addressing recognition character(s) support. eg "!status".
+	- Seen info now cached and flushed at intervals or upon exiting.
+	- Added 'EXAMPLES' file to doc/.
+	- Removed ancient '&channel()'.
+	- Bug fixes after offshore installation of bot.
+	- Debian output of 'info' fixed. looks like 'fm', heh.
+	- Debian distro stats added. I'm competing with larne and his mods
+	  to dpkg@OPN#debian :) so far so good.
+	- Forgot to close shm upon exit, heh :) However this does not
+	  prevent leakage when the bot crashes.
+	- Parameter 'forking' now works, courtesy of generic &Forker()
+	  function, woohoo! Now we use &Forker() for _everything_.
+	  I had this in the todo list, removed it and decided to implement
+	  it once and for all.
+	- More bug fixes when moved changes to 'apt'. Several "bug
+	  reports" sent from #debian, thanks!
+	- Moved infobot communications _after_ ignore checking code.
+	- babelfish changed format? disabled for the time being.
+	- ...
+
+v1.0.0pre2 (20000310): BETA TEST RELEASE
+	- Hacked multiple mysql connection support in.
+	- Renamed DBI to SQL, including functions.
+	- Added $ishost.
+	- Added backup scripts to create and mirror tables.
+	- listauth fixed.
+	- Added parse_warn.pl to decipher warn messages from logs.
+	- shm* now works. no more fork floods ;)
+	- Applied fork protection on all forking modules.
+	- Dict feature now supports specific retrival of definition,
+	  however, default is still random.
+	- Debian feature now supports multiple sub distributions. This can
+	  be further extended to architecture (perhaps easily).
+	- Added (but commented) larne's regex for debian search.
+	- Added &hasParam() to include notification that a feature
+	  (command) requested is disabled in configuration.
+	- Added dumping of memory stats.
+	- Fixed broken timerExpire().
+	- Added auto shutdown of bot if too much ram is used.
+	- Modified seen feature, set to off by default.
+		- UPDATE: fixed, about time.
+	- Improved parse_warn.pl to be like "diff".
+	- Dollar variable addition?? suggestions by ddent.
+	- 'factstats dupe' now ignores '<REPLY> see'.
+		- UPDATE: fixed.
+	- Added random factoid timer.
+	- Don't redownload file via getFTP() if local and remote sizes are
+	  the same.
+	- Added $count{'Dunno'} for unanswered questions.
+	- Fixed 'blah is also or' since we didn't allow 'or'.
+	- Added 'factstats redir' to display factoid redirections.
+	- Grep nick from list of nicks in IsNickInChan(). Bug found by
+	  Mercury.
+	- Time taken and final xfer rate displayed in FTP.
+	- Fixed bug where 'or' is eval'd in Math.pl. Return '' if eval()
+	  is not done. Bug found by dent.
+	- Added 'factstats redir' to list working and non-working
+	  redirected (symlink) factoids.
+	- cmdstats now sorted by highest->lowest usage.
+	- ...
+
+v1.0.0pre1 (20000130):
+	- Mostly converted to Net::IRC, quite nice, like the dbm to mysql
+	  change over :)
+	- Removed IrcHooks.pl and CTCP.pl.
+	- Moved hooks stuff to IrcHooks.pl.
+	- Moved IrcExtras.pl to Irc.pl.
+	- Removed ansi_control option. colors can be stripped within
+	  &status() anyway, like for logging.
+	- Added DCC CHAT and DCC SEND support base.
+		- DCC SEND: null file. due to fork()? Fixed anyway.
+		- DCC CHAT: person's responsibility to close DCC CHAT.
+
+v0.99pre12 (20000125):
+	- Added intelligent flood protection and removed factoid
+	  repetition prevention.
+	- Modified Math.pl...
+	- Unified tell code in Process.pl.
+	- Moved variable fix and addresing code to IrcHooks.pl
+	- Moved tell code from Question.pl to UserExtra.pl.
+	- Found that % and \ were double backslashed; added it to invalid
+	  factoids. May have been caused by whoever unbacked up 'apt',
+	  cerb? :) May want to add a function to automatically fix badly
+	  formed factoids.
+	- Added 'factstats profanity', with &hasProfanity($str).
+	- Added functions for shared memory usage.
+	  Uses: prevent exploitation of forked processes.
+	- Added 'factstats unrequested'.
+	- stale variables (vhost_name) forgotten in changeover.
+	- UPDATE:
+	- Fixed major leak with cycling of flood messages, typo :)
+
+v0.99pre11 (20000123):
+	- Fixes here and there...
+	- Debian find now searches Package names. Fallback automatically
+	  to contents file search.
+	- Fixed typo related to log cycling.
+	- Added netsplit detection code.
+	- Started DCC support... very early stages.
+	- Replaced several 'foreach' statements with 'if' for efficiency.
+	  About 5 instances of code...
+	- Debian contents search ignores man pages (unless search string
+	  obvious for man page). Suggested by sgore.
+	- 'factstats locked' returns list instead of only count.
+	- &DoModes() bug found by larne.
+	- Used '$nick' instead of 'lc $nick' for $channels.
+	  Found by larne.
+
+v0.99pre10 (20000119):
+	- Fixed bugs found when moved code to 'apt':
+		- added '^' and '|' to $isnick.
+		- removed 'local' and 'my' for some global vars.
+		- Typos of some variable names.
+		- More typos.
+	- Debian.pl contents search is better now.
+		- UPDATE: made changes suggested by greycat.
+		- Added Packages query now...
+	- Added &getRandomLineFromFile()
+	- Added LART, random text, Channel limit adjuster.
+		TODO => Wingate checker (NOT COMPLETED)...
+	- Added &iseq() and &isne().
+	- Help info is not cached any more => loaded each time help() is
+	  called.
+	- Added %timer hash, timestamp when something was last done. The
+	  hash name is incorrectly named, eh?
+	- Moved parts of Process.pl to ProcessExtra.pl.
+	- Moved parts of User.pl to UserExtra.pl.
+	- Moved myRoutines.pl to UserExtra.pl.
+	- Moved Extras.pl to Modules.pl.
+	- Removed fortran math due to poor code style.
+	- Moved parts of Question.pl to UserExtra.pl.
+
+v0.99pre9 (20000115):
+	- Added messagecount column for 'seen'. Not used as yet. It
+	  appears to be pointless, yes?
+	- Cleaned up DBI.pl: made use of $dbh->quote(); added
+	  &DBIRawReturn(), &DBIInsert(), &DBIUpdate().
+	- Forgot to clear $tell_obj after successful 'tell'. Founded by
+	  solomon.
+	- Extra modules loaded only if enabled in config, may save some
+	  ram.
+	- Math.pl cleaned up.
+	- Added DumpVars.pl, now we know where things are being leaked.
+		- Removed duplicate 'use IO::Socket'.
+	- Typo in "disabled" locking code which didn't work :) Founded by
+	  washort.
+
+v0.99pre8 (20000110):
+	- Bailout if critical configuration variables are not found.
+	- Dict.pl works well now.
+	- Topic.pl now uses %topic or @topic. Added 'topic info' which
+	  contains who and time info. How does @{$hash{$key}} work?
+	- Used 'use diagnostics;'. Fixed most warnings.
+	- Added &WARN().
+	- Minor typo in &IsInvalid() on last statement, heh.
+	- Fixed (DAILY) logging, finally. Was broken too many times.
+	- Added &getLineFromFile() for debugging purposes. BROKEN
+	- Added Debian search-engine frontend => Debian.pl.
+	  UPDATE: forget mysql, takes too long.
+	- Added Countdown => Countdown.pl.
+	- Made use of 'unless' instead of 'if !'.
+	- Added &DBIRaw().
+	- Addressing required on all commands.
+	- Added &fixFileList() to simplify files with common directories.
+		- RevHippie stumped me with the best method to write this,
+		  heh. Why do I always try to do things in 1 loop instead
+		  of 2 loops?
+
+v0.99pre7 (19991230):
+	- Renamed some setup/DBI calls.
+	- Simplified nickserv/chanserv code. chanserv opping may break
+	  though. Experimentation?
+	- Fixed broken stuff scripts/* due to src/* modification.
+	- Added table locking support. BROKEN.
+	- param{'ident'} deprecated.
+	- Removed param{'dbname'}, please rename the main table (with
+	  factoids) to factoids.*
+	- Added ircII.servers support.
+	- Fixed infobot, Setup.pl and Files.pl.
+	- Freshmeat.pl fixed. Set the update time _before_ we update.
+	- Added factoid renaming. "rename 'from' 'to'".
+	- Added DBISetRow() for first time inserts, for Freshmeat.
+	  Removed (rather used raw) use of fixmysqlbug for DBISetRow()
+	- Added 'seen random'; fixed randKey to work with 'seen'.
+	- Added preliminary code for whatis frontend.
+	- Added SIGHUP code for $SIG{HUP}.
+	- Added more error protection in DBI.pl.
+	- Moved logDate logging support to &status@Misc.pl.
+	- Confirmed logging does not duplicate from child any more.
+	- Added 'partialdupe' (not recommended) and '2long' to
+	  &FactStats();
+	- ...
+
+v0.99pre6 (19991223):
+	- Dict now fixed, courtesy of RevHippie and myself.
+	- Applied patch from RevHippie.
+		- Removed auto continuation code.
+		- Fixed learn =~ /HUNGRY/;
+		- Added $talkok and $learnok.
+	- Removed $param{'nick'} in favour of $ident. Added $safeIdent for
+	  regex and made use of it.
+	- Moved Help.pl, Ignore.pl, Params.pl and part of User.pl to
+	  Files.pl.
+	- Removed Internic.pl and Traceroute.pl.
+	- Fixed $isnick, renamed and fixed &purifyNick(). Added nick
+	  compliancy checks when connecting to IRC server.
+	- Rewritten 'spell' code.
+
+v0.99pre5 (19991220): bug fix release.
+	- setupmysql.pl, slightly different for potato.
+	- dbm2mysql.pl
+	- performReply(), removed $trailing. FIX LATER.
+	- Freshmeat.pl, forgot about &main::, again.
+	- logType, broken date value.
+	- Fixed broken 'tell blah about what', readded $answer var.
+	- minLengthBeforePrivate superseeds preferReply.
+	- Forgot to use 'my' on three instances of $sth.
+
+v0.99pre4 (19991219):
+	- Added 'dupe' for factstats.
+	- Added illegal character detection in Statement.pl.
+	- Unified output (and duplication) of factstats (and other) code
+	  to use one function, &formListReply(). Reduced code by at least
+	  2k :)))
+	- Minor modifications to &DBIGetCol();
+	- Move +s flag to 'set search' in infobot.config.
+	- Altered talkMethod to allow 'private' or 'default'. Made no
+	  sense to have it on public-only, heh.
+	- friendlyBots will be kept to be compatible with other stock
+	  infobots but soon enough multiple mysql database support will be
+	  added. Will be quite nice once done.
+	- Added maxListReplyCount and maxListReplyLen. Read infobot.config
+	  for details.
+	- Replaced $refresh with freshmeatRefreshInterval to config.
+	- Changed learn setting from ALWAYS to HUNGRY.
+	- Reorganised Extras.pl, we shouldn't bail out if the command
+	  can be disabled as the person who runs the bot should have
+	  brains.
+	- Moved some Process.pl stuff to myRoutines.pl.
+	- ---
+	- &searchBy*() allows ^ and $, like in regex (basically sar'd).
+	  removed $notexact variable.
+	- Fixed 'no,blah is blah' bug.
+	- Changed 'is also' char to ';;'.
+	- Added &IsInvalid(); to unify Statement (when creating) and
+	  factstats/broken (when checking/verifying). Works like a charm
+	  :)))
+	- Removed sane stuff; added infobot.ignore. I hope lenzo's
+	  ignoreList code works.
+	- Fixed setupmysql.pl
+	- Moved repeatIgnoreInterval to minRepeat*Reply where * is Private
+	  or Public.
+	- Now preferReply works. Wasn't hard as it first looked.
+	- Added global '+' flag support.
+	- Fixed logging: added logType param; if logType =~ /DAILY/, new
+	  log is created daily. Date is time-of-day, aswell.
+	- added &fixMySQLBug() => adds backslash to special chars.
+
+v0.99pre3 (19991216):
+	- Fix connection bug where if host does not resolve, it appears
+	  that it's connection refused. Now non-resolving hosts are
+	  detected earlier. Found by some *.it (or .es??) guy.
+	- Added 'sync in #s' when the bot has joined a channel... just
+	  like in BitchX.
+	- Added txt2mysql.pl.
+	- Removed instances of '^\s*' to '^' since $message can be
+	  manipulated in Process.pl.
+	- Fixed Statement.pl so that it doesn't catch queries... it's a
+	  stupid idea any way.
+	- Removed 'confused' in favour of 'dunno'.
+	- Funny hack in performReply(). Stupid but it works.
+	- Added 'host' column in seen table.
+	- Made use of &gettimeofday() for freshmeat and search function.
+
+v0.99pre2 (19991213):
+	- Made use of new database (directory) not to interfere with other
+	  crucial dbs.
+	- Re-added &getKeys(), mysql's RLIKE wouldn't like "'" in the
+	  statement. If several of similar queries are required, better
+	  off using &getKeys().
+	- Added two more conversion scripts.
+
+v0.99pre1 (19991211): personal release. MAJOR CHANGES.
+	- create a script to add the blootbot user to the mysql server and
+	  prepare tables for use with the bot.
+	- butchered Question.pl, Reply.pl, Statement.pl and Reply.pl.
+	- main factoid db ported over; barely tested.
+	- seen ported over; appears to work.
+	- karma ported over; not tested at all.
+	- freshmeat ported over; fix brokeness.
+	- search (listvals and listkeys) ported over.
+	- rootwarn ported over.
+
+	- Use quotemeta in DBI.pl on special chars, especially ' :)
+	- Added factstats 'broken' function.
+	- Made use of multiple connections to avoid clashing... does
+	  clashing only occur when there's an INSERT/UPDATE or SELECT or
+	  both?
+	- Changed $factoid to $faqtoid... good idea? how about $lhs?
+	- Changed getKeys to countKeys to take advantage of mysql.
+	- Added randKey to get random primkey,key from table.
+	- Removed process() when msgType == 'public action'. Why would we
+	  want to care about actions anyway?
+	- Fix public action; Added private action to &status().
+	- Added &ERROR();
+	- Made message and who flooding independent in IrcHooks.pl. Now we
+	  use %flood... should be expanded to use %ignoreList;
+
+	NOTES...
+	- DBI.pl has more functions than what DBMExtra.pl had in order to
+	  implement a table-like hash list.
+	- &DBISet() always verifies if an entry already exists and does an
+	  UPDATE instead of an INSERT... flaw in mysql or my code???
+	- &DBISet() can only set one (in UPDATE, two in INSERT), variable
+	  at a time. Does this impose a performance hit? like on seen.
+	- ...
+
+	TODO...
+	- infobot.cgi not ported over.
+	- weather not ported over.
+	- add alarm call between while in Dict.pl.
+
+*************************************************
+************* CHANGE OVER TO MySQL **************
+*************************************************
+
+v0.18.2 (199912??): dropped.
+	- Fix for Weather.pl.
+	- Fix for Dict.pl.
+	- ...
+
+v0.18.1 (19991130): last public release before database change over.
+	- Modified &IsNickInChan() so that a foreach is done case
+	  insensitively against nick to prevent misses.
+	- Added server "jump" support, requested by larne.
+	- Added seenMaxDays, maximum number of days to keep seen info on
+	  someone, otherwise delete it.
+	- Forgot to use $main:: in Freshmeat.pl and Weather.pl; fixed.
+	- Changed userList format to $userList{$user}{$flag}{$what} = 1;
+	  Converted all code to use this userList format.
+	- Changed version string to include OSname.
+	- Replaced $locWho with $who or $origWho.
+	- Removed hidden whitespaces and tabs at and of statments.
+
+v0.18.0 (19991128):
+	- Post release typo fixes here and there.
+	- Changed lc() to tr/A-Z/a-z/ where suitable.
+	- Redid join command in Process.pl.
+	- Cleaned up regex (mainly .* => \S+).
+	- Found $ischan to be broken; fixed.
+	- Changed Slashdot3.pl to have "joining" code like in DBMExtra.pl.
+	- Made use of &nick() and &IsChan();
+	- Added &kick() to Misc.pl; kick command to User.pl.
+	- Added &IsNickInChan();
+	- Fixed loading Param file before pidfile and other file related
+	  stuff.
+	- User.pl
+		- Revamped; removed unused functions.
+		- Moved Set.pl to here.
+		- Moved 4op code here.
+		- Moved some functions from Process.pl to here.
+		- Rewrote rehash command.
+	- More casing fixes; debugging info _should_ help to find more.
+	- Changed infobot.users.
+
+v0.17.0 (19991126):
+	- Netsplit code prevented stats of signoffs; fixed.
+	- Messed around with logging code to prevent control chars.
+	- Removed exchange and excuse module because of brokeness.
+	- Applied patch from RevHippie. Thanks!
+		- Added delimiter support in addressing of hello msg.
+		- Removed 'score' in karma.
+		- Added 'learn' (ALWAYS or ADDRESSED) support. Normal
+		  operation == ADDRESSED. Bot won't respond voluntarily to
+		  factoids but will respond to learning.
+		- Ability to turn off minVolunteerLength.
+		- More changes to prevent chatter in unaddressed manner.
+	- We remove any ansi or control chars when piping to the log file.
+	  RevHippie++.
+	- Added 'thanks' language.
+	- Typo in Freshmeat.pl; Fixed.
+	- Added $rootwarnmode = passive || aggressive to satisfy lilo@OPN.
+	  default is passive.
+	- Fixed mix up of fix in 'tell' code. I had the if statements the
+	  wrong way around.
+	- Removed more debug code.
+	- FactStats/author fixed; now multiple authors with the same stats
+	  are printed together.
+	- Added logfile cycling w/ approx maximum size.
+	- Changed infobot.config yet again. now it's much better than
+	  before. Some variables removed.
+	- Added Unset support to Set.pl; Changed so anything can be set
+	  or unset.
+	- Made use of &purifyNick() so regex doesn't break. $safeWho
+	  now defined earlier.
+
+v0.16.0 (19991122):
+	- Applied bug fixes from infobot 0.44.3, added md5 password
+	  support (*BSD?).
+	- Added &IsParam() to check existance of params the proper
+	  (strict) way.
+	- Moved rootWarn stuff from Extras.pl to RootWarn.pl.
+	- filenames (rootwarn and uptime) now not statically set.
+	- Cleaned up config file and Setup.pl.
+	- Fixed up &parsectcp() in CTCP.pl.
+	- Changed ($ischan) to (\S+) in Irc.pl under PRIVMSG.
+	- Major reorganisation of Misc.pl -- removed unused functions.
+	- Moved some variables to 'infobot'.
+	- Fixed ANSI typo by some loser; Changed format of &status()'s in
+	  Irc.pl, seems to look nice thus far.
+	- Added "author" command under &FactStats() in DBMExtra.pl.
+	- Added case insensitivity to &IsHostMatch() and search strings in
+	  DBMExtra.pl. Any more of these?
+	- Removed disabled netsplit code.
+	- Changed 'defined' to 'exists' on all hash lists, 'cept hashes
+	  created by opening db's.
+	- Modified repeat code on modified_time. If this time is small,
+	  msgType is changed to 'private' for flooding reasons and
+	  max_time is reduced by half. latter appears not to work???
+
+v0.15.0 (19991112):
+	- Quite funny that once the repeat code was moved to Question.pl
+	  factoid extension leakage was found. maths leakage was also
+	  happening but somehow is fixed when the repeat code was moved
+	  back.
+	- Clean up of variable names in Reply.pl and Question.pl
+	- Changed 'length' to 'eq ""' or 'ne ""' where possible.
+	  This should produce faster code but benchmarks prove this change
+	  is neglible. Guess perl is slow :)
+	- Cleaned up and fixed 'tell <who> about <what>' code.
+	- Set.pl fixed; Added DEBUG to allowable set list.
+	- Volunteer code moved to top of Question.pl.
+
+v0.14.0 (19991110):
+	- Message overflow fix in &FactStats().
+	- Added 'factstats new' command to display new factoids in the
+	  last 24 hours.
+	- Fixed up ping reply, requested by a few from #debian@OPN.
+	- Re-added debugging of DBMExtra due to leakage of orthaned
+	  factoid extensions. Need to investigate and confirm the
+	  lowercase fix of factoids.
+	- Two functions which used &mkRandom() now fixed due to poor
+	  effort in implementation. Added missing srand(). now the maximum
+	  length of 475 should not be exceeded, hopefully. it can be
+	  beefed up to 490 if needed.
+
+v0.13.0 (19991108):
+	- Made use of &help() which uses infobot.help. This paves the way
+	  for NLS as suggested by njs.
+	- Fixed up code on netjoin/netsplit in an effort to find
+	  statistics leakage. Added debugging info to netjoin/netsplit.
+	- Fixed typo (three instances) in factinfo where time() was used
+	  instead of the data in the factoid extension. Found by larne.
+	- Allow main thread to do a clean exit while the child does
+	  nothing. Possible fix for weird uptime info.
+	- Removed sar of 'your|i|you|me' to prevent automated reverse
+	  persona which is better done by the user. Suggested by njs.
+	- Cleaned up behaviour of &FixPlural(). Fixes a bug.
+	- Repeat prevention code now replaced (moved aswell) to use
+	  factoid extensions
+	- Fixed 'factstats requested' error.
+
+v0.12.6 (19991103): bugfix on bugfix release ;)
+	- Fixed bug where you can't lock a factoid because the hostmatch
+	  ($thisnuh = "") failed. Found by wolfie.
+	- Fixed up 512byte overflow in factstats[requested].
+	- hm... wonder how I broke Weather.pl.
+
+v0.12.5 (19991101): Bugfix release
+	- Fixed "bad" array in Freshmeat.pl. All appologies to scoop.
+	  [update: use array[5] if it exists, otherwise do as before.]
+	- Removed some debugging info from DBMExtra.pl.
+	- Fixed inconsistent chanstats behaviour in SignOff.
+	  [Update: forgot to delete the user info _after_ we do the stats]
+	- Moved factoid stats count and repeat checking code to
+	  Question.pl. Now it works as planned :) :) :)
+
+v0.12.4 (19991028):
+	- Added factstat and listauth commands.
+	- 'topic add' now prepends subtopic not append.
+	- Fixed up minor problem with 'topic restore last'.
+	- Changed default of locking access to people who own their
+	  factoid or to registered ops. This should please #debian.
+	- Reduced usage of @{$var} which cannot be really deleted cleanly.
+	- Moved DBMExtra-related stuff from myRoutines.pl to DBMExtra.pl.
+	- Added new functions &mkRandom() and &getRandom().
+	- Changed all code (Search.pl) which used random to the one
+	  developed in DBMExtra.pl. => made code slightly smaller.
+	- Cleaned up Search.pl to look nice.
+	- Found yet another casing bug under TOPIC in Irc.pl.
+	- Fixed bug where dbmextra queries where made on non-factoids like
+	  maths and probably karma.
+
+v0.12.3 (19991025):
+	- Added while loop around connect which should prevent the bot
+	  from falling down (dying).
+	- Forgot 'main::' for &getURL in Freshmeat.pl. Changed
+	  opening/closing code yet again. Removed checking on open
+	  read-only.
+	- Changed Dict.pl to reply private only by default. '+' will allow
+	  public responses without suggestions/synonyms.
+	- Added checking against pidfile. running two bots from the same
+	  dir at the same time using the same db == disaster. Ask #debian
+	  about it :)
+	- Implemented Weather.pl.
+
+v0.12.1 (19991022):
+	- Made distribution out of infobot -> blootbot.
+	- Irc.pl was prone to be fucking up -- swapped (.*) to (\S+) where
+	  necessary. stab lenzo for this :) found more instances of this.
+		[update: appears to trap too many of something, check
+		  'chaninfo #chan' for info.]
+	- Minor fix for Freshmeat.pl when opening/closing db.
+	- Factoid extension code is ready for testing. possible in the
+	  future to add "factstats" for like: top 3 requested factoids.
+	  [update] added lock checking on sar and on updates ("no, "...)
+
+v0.12.0 (19991020): (v0.11.6 + bugfixes + trial)
+	- Major shake-up of how addressing is handled -- damn it took me a
+	  long time to get this to work.
+	- Changed command names in Topic.pl to &topicBlah().
+	- Found and fixed (hopefully) all 7 channel casing bugs.
+	- Moved freshmeat to use berkeley db instead of raw appindex.txt
+	  file. finally got it to work, seems 30% faster. Creating the db
+	  takes a long time though.
+	- Added "set" command => Set.pl.
+	- Added support of talkMethod which behaves much like lobotomy.
+	  In the future, talkMethod =~ /(lobotomy|none)/ may be used.
+	- Purged: METAR2.pl, NOAA.pl, UAFlight.pl.
+	- RootWarn only works if the bot is opped in the channel.
+	- Created performStrictReply() from performReply().
+	- Quote.pl and Internic.pl now work.
+	- Fixed a few typos in myRoutines.pl
+	- Removed bold on dictionary.
+
+v0.11.5 (19991012):
+	- Fixed $chan to lowercase where appropriate.
+	- Fixed volunteer reply code... I guess it worked before but now
+	  it is somewhat cleaner and easy to understand.
+	- Added factoid owner database, requested by njs.
+	- If public message is addressed to someone else, we ignore it.
+	- Now support referer factoids ('blah is <REPLY> see erp'). if
+	  'blah' is asked, the reply from 'erp' is given.
+	- OPN allows part messages -- fixed in /PART/ for $chan.
+
+v0.11.3 (19991008):
+	- Uptime.pl appears to be fixed after rewrite of getUptimeInfo.
+	- Fixed up Freshmeat.pl for updating the index. Proxy is now
+	  optional.
+	- Moved rootWarn to RootWarn.pl. Added hall-of-fame of losers.
+	- Cleaned up bugs/typo here and there which may have caused the
+	  bot to behave in a weird manner.
+
+v0.11.2 (19991006):
+	- ChanInfo now displays "statistics" just like our little friend
+	  BitchX.
+	- Minor change in determining args on commands [myRoutines].
+	- Added "cmdstats".
+	- Added rootWarn checking on checks. Repeat offenders will be
+	  punished. Requested by larne. [update: we aren't so harsh now]
+	- Added lc $chan where appropriate. damn uppercase channames.
+
+v0.11.1 (19991005):
+	- all instances of undef on hash lists changed to delete which
+	  _now_ works. found minor bugs/typos related to DUI.
+	- Now skip internic whois intro (13 lines) to fix bad output.
+	- Forgot to subtract $i from $counter in chaninfo when full.
+		[update: whole function changed, see above]
+	- Now backup (and gzip) freshmeat index file.
+
+v0.11 (19991004): looks like a bug fix release :)
+	- Fixed typo in reply of Topic.pl/&NewTopic().
+	- Decreased max topic length allowed; now print it, too, for
+	  debugging.
+	- Altered repeat code to only work on public. Flooders should be
+	  taken care of by the (allowOutsiders == 0) code. if not, there's
+	  'lobotomy' :)
+	- Added excess flood protection around &rawout();
+	- Don't bother about outsiders if we haven't joined any channels.
+	- Changed email address to one throughout modifications.
+	  New files have neato headers.
+	- Uptime.pl fixed, didn't need to check against ($pid == $$)
+	- Repeat-prevention code kind-of looks what it was before but this
+	  one, at least, works :). any problems, just bitch at me.
+	- Added debugging code for chaninfo to diagnose "problem".
+
+v0.10 (19991001):
+	- Added Uptime module.
+	- Added Freshmeat module.
+	- Dict now returns definition without suggestions (syn's) by
+	  default. Also cleaned up.
+	- NickServ/ChanServ major clean up.
+	- Join upon reconnect fix: set $joinchans = 0.
+	- Fixed up Help.pl, added more help entries.
+
+v0.9b (19990925):
+	- Did repeat-prevention code from scratch -- now works.
+	  [19991001 update]: multiplier is now 2 instead of 10.
+	- Made reaction to "hello" more strict. the same should be done to
+	  "thanks", don't you think?
+	- Converted remaining modules to use forking. should be no more
+	  bot lockups...
+	- Changed maxhits to 20 for Search.
+
+v0.9 (19990924): +16K added to patch size.
+	- More, more and more major changes.
+	- Fixed up inappropriate usage of performReply.
+	- Added lobotomy command to (un)silence the bot.
+	- Added allowOutsiders toggle to prevent usage of the bot
+	  _outside_ the channels the bot is in.
+	- Added $fullyaddressed, enabled if $addressed == 1 and
+	  $param{addressing} == REQUIRE.
+	- Readded auto-continuity code. it is disable if not fully
+	  addressed. otherwise works as per normal.
+	- Moved join-on-start-of-motd code to end-of-motd. If nickserv &&
+	  chanserv is enabled, IDENTIFY is done first. If okay, then we
+	  proceed to join channels.
+	- When bot joins channel, summary of nicks (ops|voice|total) is
+	  given instead of NAMES list.
+	- Chanserv support moved to "end of names".
+	- Detection of nickserv (no such nick).
+	- join channel if channel is on our joins list and if we're not on
+	  it (hrm, providing their client prevents it).
+	- ...
+
+v0.8 (19990919): +50K patch from last version.
+	- Major changes, particularly cleanups and fixed a few bugs:
+		- Found 2 or so instances of $params{}. Either deleted or
+		  renamed to $param where appropriate.
+		- Shortened foreach statements where possible.
+	- Replaced duplicate code involving &say and &msg with
+	  &performReply($text,[0=rand,1=strict]). -- major shortcut and
+	  cleanup.
+	- Added tracking of all users on channel(s). Users are
+	  deleted if they disappear for whatever reason with
+	  &DeleteUserInfo.
+	- Tracking of channels now works; they are deleted if we disappear
+	  from any channel for whatever reason (hopefully).
+	- 'forget' command _SHOULD_ be wrapped with $addressed.
+	- Moved 'modes' from User.pl to myRoutines.pl as 'chaninfo'.
+	- Added stock quote support by using mu's script. Thanks.
+	- Added param{*} around stuff in myRoutines.pl for flexibility.
+	- Added auto-join on invite if not on specific "join_channels"
+	- Renamed &Timetostring to &Time2String and made use of it not
+	  only for status but for seen.
+	- If $param{*} == false, it is now not defined.
+	- Removed Auto-continuity code -- very evil for any bot commands
+	  other than non-intentionally requesting a factoid.
+	- crypt command required "(" before passwd???
+	- Removed stupid commands which just generate URLs for you to cut
+	  and paste.
+	- repeatIgnoreInterval code _NOW_ works unlike before.
+	- Added support for Topic.pl not to update topics if commands are
+	  prepended by '-'. Topics can be "rehashed" when either a) the
+	  next command is used without '-' or b) "rehash" is the next
+	  command.
+	- &NewTopic takes two more args to prevent repetition and now does
+	  topic checking. Check code for details.
+
+v0.7 (19990914):
+	- Major clean up: Search.pl now only uses the "is" dbm; final
+	  pair of parens in commands removed for legibility; Removed
+	  debugging for NickServ, ChanServ to go.
+	- Added multiple subtopic delete ability. requested by Mercury.
+	- Moved responses/replies to [files/infobot.lang]. Modified
+	  related functions to conform, including mine.
+	- Fixed up Kernel.pl to use different type of sockets. Previous
+	  code somehow broke itself.
+	- Added, but disabled, semi-working timer support. Need to ask
+	  lenzo some questions on how to implement it the best way.
+	- Added channel (and offender's) notification if someone joins the
+	  channel with root. requested by #debian.
+	- Added dict.org support. For now, it uses wordnet and returns a
+	  random definition. Could change in the future.
+
+v0.6 (19990903):
+	- Added support for nickserv and chanserv, requested by is.
+	- Updated README to describe new features and modifications. Do we
+	  need to elaborate on the modifications to the depth where it
+	  would exceed the size of the patch?
+	- Minor clean up.
+	- Removed assumed-continuity of messages -- should be used if
+	  addressing is in optional mode but would be bad in any situation
+	  if more than one infobot existed in the channel.
+	- Added parsing of g flag to factoid sar.
+
+v0.5 (19990827):
+	- Better way to confirm if bot is on channel now for topic
+	  management. Also added check for +o+t or -t. &DoModes() on
+	  server stuff, too?
+	- Patch updated to work for infobot-0.44.2 only.
+	- Found a bug in Irc.pl under "NAMES" where $u was used initially
+	  but trashed afterwards. => replaced $u w/ $_.
+	- Lost track of a bug found by Mercury. Seems to be fixed now,
+	  somehow, heh.
+
+v0.4c (19990822):
+	- Worked on random-cookie -- random responses can now be added
+	  (internally) with ease.
+	- Noticed joeyh changing his nick to/from '||' which reminded me
+	  of something bad ;) hint: topic management.
+	- One line patch to allow '|' in factoids; delimiter is now '||'.
+
+v0.4b (19990818):
+	- Implemented patch from mu. Now it is possible to use the topic
+	  command through private messages to the bot instead of the
+	  channel.
+	- Replaced SAR of \| with \|\| so we can still use the single
+	  pipes. Double pipes will be either removed or promote an error
+	  message. Found by Robot101. Added el-cheapo work-around if the
+	  last char of subtopic is |, kill it.
+
+v0.4a (19990816):
+	- Added cheap fix (sleep 1, heh) to excess floods of 'topic
+	  history'. Is sleep 1 enough?
+	- Added 'random' for random value{key} from database.
+	  Requested by jCommons.
+
+v0.4 (19990815):
+	- Fixed topic history by replacing push with unshift. Now the
+	  history list is reversed and cycled properly.
+	- Reversed Changes list. request by mu.
+	- Totally fixed up topic history since it would break if
+	  'topic add' was induced quickly. Now we only record topics set
+	  by us (for reasons) and onjoin topics (set by anyone).
+	- Removed 'topic last/reset' because how do you know which topic
+	  is last? Better control with 'topic restore'.
+
+v0.3c (19990813):
+	- Fixed 'topic mv 2 before 1' bug. Forgot to store 'move' topic
+	  before doing the foreach loop.
+	- Touched up Kernel.pl in preparation for auto-notify feature.
+
+v0.3b (19990812):
+	- Added version string to new files so we know which version
+	  of patch we're using (or used). There you go, Mercury ;)
+	- Fixed up DecipherTopic to reject null subtopics. This would, if
+	  unchanged, (theoretically but not tried, luckily) produce a
+	  domino-effect of problems if the topic was to be changed.
+		Update: check if the supposed null topic contains spaces
+			within the nick component. If so, then it's not
+			nick, therefore treat like ownerless subtopic.
+	- Worked on README.
+
+v0.3a (19990810):
+	- Changed back to use topic{chan} (now topicnow{chan}) since
+	  @topiclist{chan} (now @topichist{chan}) does not deal with dupes
+	  or blanks.
+	- Renamed 'topic last' in preference to 'topic reset'. Original
+	  command can be used but is vague in meaning.
+	- Fixed several typos made in Irc.pl.
+	- Replaced 'defined' with 'length' in if statements.
+
+v0.3 (19990809):
+	- Applied patch from mu for Irc.pl | Topic.pl.
+	- Replaced %topic hash and $topiclast with @{$topiclist{chan}}.
+	  Much cleaner implementation. Thanks to mu for this. Fully
+	  implemented by xk.
+	- Reworked on topicbyme (was topiclast), should work now.
+
+v0.2 (19990808):
+	- Changed name of patch to funkystuph.
+	- Added history/last/restore to Topic.pl by request of mu and is.
+	- Reorganised help and order of commands in Topic.pl
+	- Bot must be addressed to use commands.
+	  	- Fixed bug if multiple infobots were in the channel.
+	- One occurrence where Cipher was called instead of CipherTopic.
+	- Fixed up Slashdot.pl. Problems: a) borked completely b) missed
+	  first headline. el-cheapo fix but it works.
+
+v0.1c (19990729):
+	- Fixed long list{keys|values} bug, hopefully.
+	- Now randomize key results from search.
+	- If keys contain ',', underline to differentiate it.
+	- Fixed possible DoS against Kernel.pl.
+	- Bug fixed with Kernel.pl repeating itself.
+		- Typo of @results [one occurrance of @result]
+
+v0.1b (19990723):
+	- Fixed bug with &CipherTopic where, if no owner was found, it
+	  would just use NULL. [like "Topic ()"]
+	- Added kernel feature.
+	- Moved error messages to public/private, depending on behaviour.
+	  Help-related stuff is private(msg) only for convenience.
+
+v0.1a (19990721):
+	- Misc cleanup, removed repeated code.
+
+v0.1  (19990720):
+	- Initial release.
