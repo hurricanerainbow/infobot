@@ -19,8 +19,8 @@ foreach (`find -name "*.pl"`) {
 	    next;
 	}
 
-	if (/hasParam\(['"](\S+?)['"]\)/) {
-	    print "File: $file: hasParam: $1\n" if $debug;
+	if (/IsChanConfOrWarn\(['"](\S+?)['"]\)/) {
+	    print "File: $file: IsChanConfOrWarn: $1\n" if $debug;
 	    $param{$1}++;
 	    next;
 	}
@@ -43,7 +43,7 @@ foreach (`find -name "*.pl"`) {
 	    next;
 	}
 
-	# command hooks => hasParam => both.
+	# command hooks => IsChanConfOrWarn => both.
 	# note: this does not support multiple lines.
 	if (/\'Identifier\'[\s\t]=>[\s\t]+\'(\S+?)\'/) {
 	    print "File: $file: command hook: $1\n" if $debug;

@@ -410,7 +410,7 @@ sub userCommands {
     # conversion: ascii.
     if ($message =~ /^(asci*|chr) (\d+)$/) {
 	&DEBUG("ascii/chr called ...");
-	return unless (&hasParam("allowConv"));
+	return unless (&IsChanConfOrWarn("allowConv"));
 
 	&DEBUG("ascii/chr called");
 
@@ -425,7 +425,7 @@ sub userCommands {
 
     # conversion: ord.
     if ($message =~ /^ord(\s+(.*))$/) {
-	return unless (&hasParam("allowConv"));
+	return unless (&IsChanConfOrWarn("allowConv"));
 
 	$arg = $2;
 
@@ -449,7 +449,7 @@ sub userCommands {
 
     # hex.
     if ($message =~ /^hex(\s+(.*))?$/i) {
-	return unless (&hasParam("allowConv"));
+	return unless (&IsChanConfOrWarn("allowConv"));
 	my $arg = $2;
 
 	if (!defined $arg) {

@@ -585,10 +585,10 @@ sub hasProfanity {
     return $profanity;
 }
 
-sub hasParam {
+sub IsChanConfOrWarn {
     my ($param) = @_;
 
-    if (&IsChanConf($param) or &IsParam($param)) {
+    if (&IsChanConf($param)) {
 	return 1;
     } else {
 	### TODO: specific reason why it failed.
