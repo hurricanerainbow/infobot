@@ -19,10 +19,10 @@ use vars qw(%channels %chanstats %cmdstats %count %ircstats %param
 &addCmdHook("main", 'cmd(stats|info)', ('CODEREF' => 'cmdstats', ) );
 &addCmdHook("main", 'sched(stats|info)', ('CODEREF' => 'scheduleList', ) );
 &addCmdHook("main", 'factinfo', ('CODEREF' => 'factinfo',
-	'Cmdstats' => 'Factoid Info', Module => 'factoids', ) );
+	'Cmdstats' => 'Factoid Info', Module => 'Factoids', ) );
 &addCmdHook("main", 'factstats?', ('CODEREF' => 'factstats',
 	'Cmdstats' => 'Factoid Stats', Help => "factstats",
-	Forker => 1, 'Identifier' => 'factoids', ) );
+	Forker => 1, 'Identifier' => 'Factoids', ) );
 &addCmdHook("main", 'help', ('CODEREF' => 'help',
 	'Cmdstats' => 'Help', ) );
 &addCmdHook("main", 'karma', ('CODEREF' => 'karma', ) );

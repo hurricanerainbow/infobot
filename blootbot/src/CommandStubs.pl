@@ -189,7 +189,7 @@ sub parseCmdHook {
 	'Forker' => 1, 'Identifier' => 'kernel',
 	'Cmdstats' => 'Kernel', 'NoArgs' => 1) );
 &addCmdHook("extra", 'listauth', ('CODEREF' => 'CmdListAuth',
-	'Identifier' => 'search', Module => 'factoids',
+	'Identifier' => 'search', Module => 'Factoids',
 	'Help' => 'listauth') );
 &addCmdHook("extra", 'quote', ('CODEREF' => 'Quote::Quote',
 	'Forker' => 1, 'Identifier' => 'quote',
@@ -203,7 +203,7 @@ sub parseCmdHook {
 	'Forker' => 1, 'Identifier' => 'units',
 	'Help' => 'convert') );
 &addCmdHook("extra", '(cookie|random)', ('CODEREF' => 'cookie',
-	'Forker' => 1, 'Identifier' => 'factoids') );
+	'Forker' => 1, 'Identifier' => 'Factoids') );
 &addCmdHook("extra", 'u(ser)?info', ('CODEREF' => 'userinfo',
 	'Identifier' => 'userinfo', 'Help' => 'userinfo',
 	'Module' => 'userinfo') );

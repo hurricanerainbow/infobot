@@ -31,7 +31,7 @@ if ($@) {
 	"Dict"		=> "Dict.pl",
 	"DumpVars"	=> "DumpVars.pl",
 	"Exchange"	=> "Exchange.pl",
-	"factoids"	=> "Factoids.pl",
+	"Factoids"	=> "Factoids.pl",
 	"HTTPDtype"	=> "HTTPDtype.pl",
 	"insult"	=> "insult.pl",
 	"UserDCC"	=> "UserDCC.pl",
