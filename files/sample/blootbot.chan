@@ -1,13 +1,16 @@
-#v1: blootbot -- infobot -- written Thu Feb 17 03:57:07 2005
+#v1: blootbot -- infobot -- written Fri Feb 18 08:09:11 2005
 
 #botpark
     +RootWarn
+    _time_added 1108710504
     +autojoin
-    rootWarnMode aggressive
 
 #debian-bots
     +News
     +RootWarn
+    +chanlimitcheck
+    chanlimitcheckInterval 10
+    chanlimitcheckPlus 10
     factoidDeleteDelay 7
     ircTextCounters heh hah :) ? hi lol
     +joinfloodCheck
@@ -42,9 +45,6 @@ _default
     +allowTelling
     +babelfish
     +botmail
-    +chanlimitcheck
-    chanlimitcheckInterval 10
-    chanlimitcheckPlus 10
     +cookie
     +countdown
     debianRefreshInterval 7
@@ -62,6 +62,7 @@ _default
     maxListReplyCount 15
     maxListReplyLength 400
     +md5
+    minVolunteerLength 50
     +nickometer
     +page
     randomFactoidInterval 60
