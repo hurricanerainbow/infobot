@@ -375,7 +375,7 @@ sub getRandomInt {
 	my $i = $1;
 	my $fuzzy = int(rand 5);
 	if ($i < 10) {
-	    return $i*60;
+	    return $i;
 	}
 	if (rand > 0.5) {
 	    return ($i - $fuzzy)*60;

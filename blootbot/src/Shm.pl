@@ -229,7 +229,7 @@ sub shmFlush {
     return if ($$ != $::bot_pid); # fork protection.
 
     if (@_) {
-	&ScheduleThis(5, "shmFlush");
+	&ScheduleThis(15, "shmFlush");
 	return if ($_[0] eq "2");
     }
 

@@ -209,7 +209,7 @@ sub on_endofmotd {
     }
 
     &status("End of motd. Now lets join some channels...");
-    &joinNextChan();
+    #&joinNextChan();
 }
 
 sub on_endofwho {
