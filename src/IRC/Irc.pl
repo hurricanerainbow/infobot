@@ -797,21 +797,27 @@ sub getJoinChans {
     foreach (keys %chanconf) {
 	next if ($_ eq "_default");
 
-	my $val = $chanconf{$_}{autojoin};
 	my $skip = 0;
+	my $val = $chanconf{$_}{autojoin};
 
 	if (defined $val) {
 	    $skip++ if ($val eq "0");
+	    if (($conn) and ($val eq "1")) {
+		# convert old +autojoin to autojoin <nick>
+		$val = $conn->nick();
+		$chanconf{$_}{autojoin} = $val;
+	    }
 	} else {
 	    $skip++;
 	}
 
 	if ($skip) {
 	    push(@skip, $_);
-	    next;
+	} elsif (($conn) and ($conn->nick() eq $val)) {
+	    push(@chans, $_);
+	} else {
+	    push(@skip, $_);
 	}
-
-	push(@chans, $_);
     }
 
     my $str;
@@ -823,7 +829,7 @@ sub getJoinChans {
 
     &status("Chans: ".$str) if ($show);
 
-    return @chans;
+    return sort @chans;
 }
 
 sub closeDCC {

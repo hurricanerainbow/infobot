@@ -700,7 +700,7 @@ sub chanSet {
 	    return;
 	}
 	$chanconf{$chan}{_time_added}	= time();
-	$chanconf{$chan}{autojoin}	= 1;
+	$chanconf{$chan}{autojoin}	= $conn->nick();
 
 	&pSReply("Joining $chan...");
 	&joinchan($chan);
