@@ -31,6 +31,7 @@ sub setupSchedulers {
     &freshmeatCycle(1)	if (&IsParam("freshmeat") and &IsParam("freshmeatAnnounce"));
     &kernelCycle(1)	if (&IsParam("kernel") and &IsParam("kernelAnnounce"));
     &wingateWriteFile(1) if (&IsParam("wingate"));
+    &factoidCheck(1)	if (&IsParam("factoidDeleteDelay"));
 }
 
 sub ScheduleThis {
@@ -596,6 +597,28 @@ sub wingateWriteFile {
     close OUT;
 
     &ScheduleThis(60, "wingateWriteFile") if (@_);
+}
+
+sub factoidCheck {
+    my @list = &searchTable("factoids", "factoid_key", "factoid_key", " #DEL#");
+    my $stale = $param{'factoidDeleteDelay'}*60*60*24;
+
+    foreach (@list) {
+	my $age = &getFactInfo($_, "modified_time");	
+	next unless (time() - $age > $stale);
+
+	my $fix = $_;
+	$fix =~ s/ #DEL#$//g;
+	&VERB("safedel: Removing $fix for good.",2);
+	&delFactoid($_);
+    }
+
+    &ScheduleThis(1440, "factoidCheck") if (@_);
+}
+
+sub schedulerSTUB {
+
+    &ScheduleThis(TIME_IN_MINUTES, "FUNCTION") if (@_);
 }
 
 1;
