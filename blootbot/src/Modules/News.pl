@@ -45,7 +45,7 @@ sub Parse {
     }
 
     if (!defined $chan) {
-	my @chans = &::GetNickInChans($::who);
+	my @chans = &::getNickInChans($::who);
 
 	if (scalar @chans > 1) {
 	    &::notice($::who, "error: I dunno which channel you are referring to since you're on more than one. Try 'news #chan ...' instead");
@@ -139,7 +139,7 @@ sub Parse {
 
 sub readNews {
     my $file = "$::bot_base_dir/blootbot-news.txt";
-    if (! -f $file) {
+    if (! -f $file or -z $file) {
 	return;
     }
 
@@ -182,13 +182,14 @@ sub readNews {
     }
     close NEWS;
 
-    &::status("News: Read $ci items for ".scalar(keys %::news)
-		." chans, $cu users cache");
+    my $cn = scalar(keys %::news);
+    &::status("News: Read $ci items for $cn chans, $cu users cache")
+		if ($ci or $cn or $cu);
 }
 
 sub writeNews {
     if (!scalar keys %::news and !scalar keys %::newsuser) {
-	&::DEBUG("wN: nothing to write.");
+	&::VERB("wN: nothing to write.",2);
 	return;
     }
 
@@ -656,7 +657,7 @@ sub latest {
 
     # todo: if chan = undefined, guess.
     if (!exists $::news{$chan}) {
-	&::notice($::who, "invalid chan $chan");
+	&::notice($::who, "invalid chan $chan") if ($flag);
 	return;
     }
 

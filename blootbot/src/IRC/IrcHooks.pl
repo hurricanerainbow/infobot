@@ -540,7 +540,7 @@ sub on_kick {
 	&status("SELF attempting to rejoin lost channel $chan");
 	&joinchan($chan);
     } else {
-	&DeleteUserInfo($kickee,$chan);
+	&delUserInfo($kickee,$chan);
     }
 }
 
@@ -626,7 +626,7 @@ sub on_nick {
     }
     # todo: do %flood* aswell.
 
-    &DeleteUserInfo($nick, keys %channels);
+    &delUserInfo($nick, keys %channels);
     $nuh{lc $newnick} = $nuh{lc $nick};
     delete $nuh{lc $nick};
 
@@ -727,7 +727,7 @@ sub on_part {
     }
 
     $chanstats{$chan}{'Part'}++;
-    &DeleteUserInfo($nick,$chan);
+    &delUserInfo($nick,$chan);
     &clearChanVars($chan) if ($nick eq $ident);
     if (!&IsNickInAnyChan($nick) and &IsChanConf("seenStats")) {
 	delete $userstats{lc $nick};
@@ -813,7 +813,7 @@ sub on_quit {
 	&DEBUG("on_quit: nick $nick was not found in any chan.");
     }
 
-    &DeleteUserInfo($nick, keys %channels);
+    &delUserInfo($nick, keys %channels);
 
     if (exists $nuh{lc $nick}) {
 	delete $nuh{lc $nick};
@@ -840,9 +840,10 @@ sub on_quit {
 	}
     }
 
-    &status(">>> $b_cyan$nick$ob has signed off IRC $b_red($ob$reason$b_red)$ob");
+    my $chans = join(' ', &getNickInChans($nick) );
+    &status(">>> $b_cyan$nick$ob has signed off IRC $b_red($ob$reason$b_red)$ob [$chans]");
     if ($nick =~ /^\Q$ident\E$/) {
-	&DEBUG("^^^ THIS SHOULD NEVER HAPPEN.");
+	&ERROR("^^^ THIS SHOULD NEVER HAPPEN (10).");
     }
 
     if ($nick !~ /^\Q$ident\E$/ and $nick =~ /^\Q$param{'ircNick'}\E$/i) {

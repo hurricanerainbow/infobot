@@ -170,15 +170,21 @@ sub dbUpdate {
 #####
 # Usage: &dbInsert($table, $primkey, %hash);
 sub dbInsert {
-    my ($table, $primkey, %hash) = @_;
+    my ($table, $primkey, %hash, $delay) = @_;
     my (@keys, @vals);
+    my $p	= "";
+
+    if ($delay) {
+	&DEBUG("dbI: delay => $delay");
+	$p	= " DELAYED";
+    }
 
     foreach (keys %hash) {
 	push(@keys, $_);
 	push(@vals, &dbQuote($hash{$_}));
     }
 
-    &dbRaw("Insert($table)", "INSERT INTO $table (".join(',',@keys).
+    &dbRaw("Insert($table)", "INSERT $p INTO $table (".join(',',@keys).
 		") VALUES (".join(',',@vals).")"
     );
 
@@ -192,14 +198,12 @@ sub dbReplace {
     my (@keys, @vals);
 
     foreach (keys %hash) {
-	&DEBUG("hash{$_} => $hash{$_}");
 	push(@keys, $_);
 	push(@vals, &dbQuote($hash{$_}));
     }
 
     &dbRaw("Replace($table)", "REPLACE INTO $table (".join(',',@keys).
-		") VALUES (".join(',',@vals).") WHERE $primkey=".
-		&dbQuote($primval)
+		") VALUES (". join(',',@vals). ")"
     );
 
     return 1;
@@ -207,14 +211,15 @@ sub dbReplace {
 
 #####
 # Usage: &dbSetRow($table, @values);
-sub dbSetRow {
-    my ($table, @values) = @_;
+sub dbSetRow ($@$) {
+    my ($table, @values, $delay) = @_;
+    my $p	= ($delay) ? " DELAYED " : "";
 
     foreach (@values) {
 	$_ = &dbQuote($_);
     }
 
-    return &dbRaw("SetRow", "INSERT INTO $table VALUES (".
+    return &dbRaw("SetRow", "INSERT $p INTO $table VALUES (".
 	join(",", @values) .")" );
 }
 

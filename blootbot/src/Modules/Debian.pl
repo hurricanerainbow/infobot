@@ -302,12 +302,16 @@ sub searchContents {
 	$pkg =~ s/\,/\037\,\037/g;	# underline ','.
 	push(@list, "(". join(', ',@sublist) .") in $pkg");
     }
+    &::DEBUG("debian: 0");
     # sort the total list from shortest to longest...
     @list = sort { length $a <=> length $b } @list;
 
     # show how long it took.
+    &::DEBUG("debian: 1");
     my $delta_time = &::timedelta($start_time);
+    &::DEBUG("debian: 2");
     &::status(sprintf("Debian: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
+    &::DEBUG("debian: 3");
 
     my $prefix = "Debian Search of '$query' ";
     if (scalar @list) {	# @list.
