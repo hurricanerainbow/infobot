@@ -579,10 +579,6 @@ sub joinNextChan {
 	    &status("joinNextChan: $i chans to join.");
 	}
 
-	# chanserv check: channel specific.
-	### what the hell is this for...
-	&chanServCheck($chan);
-
     } else {
 	# chanserv check: global channels, in case we missed one.
 

@@ -646,11 +646,13 @@ sub ircCheck {
 	delete $sched{"ircCheck"}{RUNNING};
     }
 
-    my @array = grep !/^_default$/, keys %chanconf;
-    my $iconf = scalar(@array);
-    my $inow  = scalar(keys %channels);
+    my @x	= &getJoinChans();
+    my $iconf = scalar( @x );
+    my $inow  = scalar( keys %channels );
     if ($iconf > 2 and $inow * 2 <= $iconf) {
 	&FIXME("ircCheck: current channels * 2 <= config channels. FIXME.");
+	@joinchan	= @x;
+	&joinNextChan();
     }
 
     if (!$conn->connected or time() - $msgtime > 3600) {

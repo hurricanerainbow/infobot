@@ -367,11 +367,13 @@ sub on_endofnames {
     my $chanstats = join(' || ', @array);
     &status("$b_blue$chan$ob: [$chanstats]");
 
-    &joinNextChan();
+    &chanServCheck($chan);
+
     if (scalar @joinchan) {	# remaining channels to join.
 	# lets do two at once!
 	&joinNextChan();
     }
+    &joinNextChan();
 }
 
 sub on_init {
