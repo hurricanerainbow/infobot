@@ -41,13 +41,12 @@ sub scramble
       {
 	# non-random shuffle, but good enough
 	($new_middle = $middle) =~ s/(.)(.)/$2$1/g;
-	last;
       }
 
       # shuffle the middle letters
       $new_middle = join "", List::Util::shuffle(split //, $middle);
     }
-    while ($middle eq $new_middle);
+    while (($cnt < 10) && ($middle eq $new_middle));
 
     # add the word to the list...
     $scrambled .= "$first$new_middle$last ";
