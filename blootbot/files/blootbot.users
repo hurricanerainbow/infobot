@@ -1,31 +1,19 @@
-#
-# User File (c) 1998 Infobot & Associates
-#
-# FLAGS
-# ---------------------- Factoids.
-# f   multiple line factoid (MLF) Usage Allowed [UNTESTED,OLD?]
-# m   Modifying (mod) Allowed
-# r   Removing  (del) Allowed
-# t   Teaching  (add) Allowed
-# ----------------------
-# i   Ignore Flag	level 0
-# o   Op Flag		level 1
-# n   Owner Flag	level 2
-# e   Extra Privs	level 3
-# ----------------------
+#v1: blootbot -- blootbot -- written Sun Jan 28 20:36:30 2001
 
-###
-# default is to allow modification, removal and addition of factoids,
-# if factoid support is enabled.
-UserEntry default {
-	flags +mrt;
-}
+_default
+--FLAGS		+mrt
+--HOSTS		*!*@*
 
-###
-# Sample user entry with all the flags.
-UserEntry GmLB {
-	name  "Danny";
-	title "Grand Master";
-	flags +mrsteon;
-	pass  ECovKDtJnED36;
-}
+stuph
+--FLAGS		+mrt
+--HOSTS		
+
+xk
+--FLAGS		+mrsteon
+--HOSTS		*!root@*.home.org
+--HOSTS		*!xk@*.home.org
+--PASS		AAH2sny6Y3Y7Y
+
+::* bans
+- *!*@*.il:+0:+0:0:980679318:you jews suck
+
