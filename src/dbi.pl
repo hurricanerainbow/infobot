@@ -211,6 +211,40 @@ sub dbGetColInfo {
     return @cols;
 }
 
+##### NOTE: not used yet.
+# Usage: &dbSelectHashref($select, $from, $where, $other)
+sub dbSelectHashref {
+    my $c = dbSelectManyHash(@_);
+    my $H = $c->fetchrow_hashref;
+    $c->finish;
+    return $H;
+}
+
+##### NOTE: not used yet.
+# Usage: &dbSelectHashref($select, $from, $where, $other)
+sub dbSelectManyHash {
+    my($select, $from, $where, $other) = @_;
+    my $sql;   
+
+    $sql = "SELECT $select ";
+    $sql .= "FROM $from "       if $from;
+    $sql .= "WHERE $where "     if $where;
+    $sql .= "$other"            if $other;
+    $debug_sql  = $sql;
+
+    sqlConnect();
+    my $c = $I{dbh}->prepare($sql);
+    # $c->execute or print "\n<P><B>SQL Hashref Error</B><BR>\n";
+
+    unless ($c->execute) {
+        apacheLog($sql);
+        #kill 9,$$;
+    }
+
+    return $c;
+}
+
+
 #####
 # Usage: &dbSet($table, $primhash_ref, $hash_ref);
 #  Note: dbSet does dbQuote.
