@@ -32,8 +32,8 @@ Usage:
 Where options is:
 
     --cvsroot=<path>
-    	Use <path> as the environment variable CVSROOT.  Otherwise this
-    	variable must exist in the environment.
+	Use <path> as the environment variable CVSROOT.  Otherwise this
+	variable must exist in the environment.
 
     --help
     -h
