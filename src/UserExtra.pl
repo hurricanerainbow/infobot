@@ -17,25 +17,25 @@ use vars qw(%channels %chanstats %cmdstats %count %ircstats %param
 
 &addCmdHook("main", 'chan(stats|info)', ('CODEREF' => 'chaninfo', ) );
 &addCmdHook("main", 'cmd(stats|info)', ('CODEREF' => 'cmdstats', ) );
-&addCmdHook("main", 'factinfo', ('CODEREF' => 'factinfo', 
+&addCmdHook("main", 'factinfo', ('CODEREF' => 'factinfo',
 	'Cmdstats' => 'Factoid Info', Module => 'factoids', ) );
-&addCmdHook("main", 'factstats?', ('CODEREF' => 'factstats', 
-	'Cmdstats' => 'Factoid Stats', Help => "factstats", 
+&addCmdHook("main", 'factstats?', ('CODEREF' => 'factstats',
+	'Cmdstats' => 'Factoid Stats', Help => "factstats",
 	Forker => 1, 'Identifier' => 'factoids', ) );
-&addCmdHook("main", 'help', ('CODEREF' => 'help', 
+&addCmdHook("main", 'help', ('CODEREF' => 'help',
 	'Cmdstats' => 'Help', ) );
 &addCmdHook("main", 'karma', ('CODEREF' => 'karma', ) );
-&addCmdHook("main", 'i?spell', ('CODEREF' => 'ispell', 
+&addCmdHook("main", 'i?spell', ('CODEREF' => 'ispell',
 	Help => 'spell', Identifier => 'spell', ) );
-&addCmdHook("main", 'd?nslookup', ('CODEREF' => 'DNS', 
+&addCmdHook("main", 'd?nslookup', ('CODEREF' => 'DNS',
 	Help => 'nslookup', Identifier => 'allowDNS',
 	Forker => "NULL", ) );
-&addCmdHook("main", 'tell|explain', ('CODEREF' => 'tell', 
+&addCmdHook("main", 'tell|explain', ('CODEREF' => 'tell',
 	Help => 'tell', Identifier => 'allowTelling',
 	Cmdstats => 'Tell') );
-&addCmdHook("main", 'news', ('CODEREF' => 'News::Parse', 
+&addCmdHook("main", 'news', ('CODEREF' => 'News::Parse',
 	Module => 'news', 'Cmdstats' => 'News' ) );
-&addCmdHook("main", 'countrystats', ('CODEREF' => 'countryStats', 
+&addCmdHook("main", 'countrystats', ('CODEREF' => 'countryStats',
 #	Forker => "NULL",
  ) );
 
