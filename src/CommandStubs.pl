@@ -35,9 +35,9 @@ sub addCmdHook {
 sub parseCmdHook {
     my ($hashname, $line) = @_;
     $line =~ /^(\S+)( (.*))?$/;
-    my @args	= split(' ', $3 || '');
-    my $flatarg	= $3;
     my $cmd	= $1;	# command name is whitespaceless.
+    my $flatarg	= $3;
+    my @args	= split(/\s+/, $flatarg || '');
     my $done	= 0;
 
     &shmFlush();
@@ -95,9 +95,12 @@ sub parseCmdHook {
 	if (exists $hash{'Forker'}) {
 	    $hash{'Identifier'} .= "-" if ($hash{'Forker'} eq "NULL");
 
-	    ### FLAT_ARG / ARRAY option.
+	    if (exists $hash{'FlatArg'} and $hash{'FlatArg'} == 0) {
+		&Forker($hash{'Identifier'}, sub { \&{$hash{'CODEREF'}}(@args) } );
+	    } else {
+		&Forker($hash{'Identifier'}, sub { \&{$hash{'CODEREF'}}($flatarg) } );
+	    }
 
-	    &Forker($hash{'Identifier'}, sub { \&{$hash{'CODEREF'}}(@args) } );
 	} else {
 	    if (exists $hash{'Module'}) {
 		&loadMyModule($myModules{ $hash{'Module'} });
