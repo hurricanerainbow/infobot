@@ -192,10 +192,11 @@ sub IsChanConf {
 	return $chan{_default} || 0;
     }
 
-    &DEBUG("param => $param, msgType => $msgType.");
-    foreach (keys %chan) {
-	&DEBUG("   $_ => $chan{$_}");
-    }
+### debug purposes only.
+#    &DEBUG("param => $param, msgType => $msgType.");
+#    foreach (keys %chan) {
+#	&DEBUG("   $_ => $chan{$_}");
+#    }
 
     return 0;
 }
