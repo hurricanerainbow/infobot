@@ -1,45 +1,50 @@
-#v1: blootbot -- blootbot -- written Sat Jan 20 15:19:59 2001
+#v1: blootbot -- blootbot -- written Wed Oct 30 03:12:44 2002
 
 #debian-bots
+    +allowTelling
     +autojoin
-    +freshmeatNewAnnounce
+    +babelfish
+    factoidDeleteDelay 7
+    ircTextCounters heh hah :) ? hi lol
     +joinfloodCheck
-    +kernelNewAnnounce
     limitcheckInterval 10
     limitcheckPlus 10
-    randomFactoidInterval 60
-    randomQuoteInterval 60
-    +slashdotNewAnnounce
+    +news
+    newsDefaultExpire 7
+    +newsKeepRead
+    +newsNotifyAll
+    +rootWarn
+    rootWarnMode aggressive
+
+#nophear
+    +autojoin
 
 _default
     +allowConv
     +allowDNS
-    -babelfish
+    +chanlimitcheck
+    chanlimitcheckInterval 10
+    chanlimitcheckPlus 10
     +cookie
     +countdown
     +debian
     +debianExtra
     debianRefreshInterval 7
     +dict
+    +factoidArguments
     floodMessages 10:30
     floodRepeat 2:10
     +freshmeat
-    -freshmeatForFactoid
     freshmeatRefreshInterval 24
-    freshmeatRandomInternal	60
-    +freshmeatRandom
-    -insult
+    +insult
     +karma
     +kernel
     +lart
     +limitcheck
+    +log
     +nickometer
     +perlMath
     +quote
-    +randomFactoid
-    +randomQuote
-    +rootWarn
-    rootWarnMode passive
     +search
     +seen
     seenFlushInterval 60
@@ -47,13 +52,9 @@ _default
     +seenStats
     +slashdot
     +spell
+    +tell
     +topic
     +units
-    +uptime
     +userinfo
-    +wingate
-    +wingateBan
-    wingateInterval 60
-    wingateKick DIE DIE DIE
     +wwwsearch
 

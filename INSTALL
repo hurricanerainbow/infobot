@@ -1,7 +1,10 @@
 Method of installation.
 -----------------------
 
-- Move files/sample/sample.config to files/blootbot.config
+- Copy files/sample/sample.config to files/blootbot.config
+- Copy files/sample/sample.chan to files/blootbot.chan
+- Copy files/sample/sample.servers to files/blootbot.servers
+- Copy files/sample/sample.users to files/blootbot.users
 - Edit files/blootbot.config, modify to taste.
 - Edit files/blootbot.chan to set which channels to join.
 - Edit files/blootbot.servers to modify list of IRC servers to connect.
@@ -19,7 +22,7 @@ Method of installation.
 - Choose your database:
 	- MySQL, read INSTALL.mysql (supported)
 	- PgSQL, read INSTALL.pgsql (unsupported, may work)
-	- Berkeley DBM, read INSTALL.dbm (broken, unsupported)
+	- Berkeley DBM, read INSTALL.dbm (unsupported, may work)
 
 - There are "bugs" in the perl modules.  Read INSTALL.patches on how to fix.
 
