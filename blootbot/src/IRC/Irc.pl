@@ -23,7 +23,8 @@ sub ircloop {
     my $error	= 0;
     my $lastrun = 0;
 
-    while (1) {
+loop:;
+    foreach (shift @ircServers) {
 	# JUST IN CASE. irq was complaining about this.
 	if ($lastrun == time()) {
 	    &DEBUG("hrm... lastrun == time()");
@@ -32,28 +33,34 @@ sub ircloop {
 	    next;
 	}
 
-	foreach (@ircServers) {
-	    if (!defined $_) {
-		&DEBUG("ircloop: ircServers[x] = NULL.");
-		$lastrun = time();
-		next;
-	    }
-	    next unless (exists $ircPort{$_});
+	if (!defined $_) {
+	    &DEBUG("ircloop: ircServers[x] = NULL.");
+	    $lastrun = time();
+	    next;
+	}
+	next unless (exists $ircPort{$_});
 
-	    my $retval = &irc($_, $ircPort{$_});
-	    next unless (defined $retval and $retval == 0);
-	    $error++;
-	    if ($error % 3 == 0 and $error != 0) {
-		&ERROR("CANNOT connect to this server; next!");
-		next;
-	    }
+	my $retval = &irc($_, $ircPort{$_});
+	&DEBUG("ircloop: after irc()");
 
-	    if ($error >= 3*3) {
-		&ERROR("CANNOT connect to any irc server; stopping.");
-		exit 1;
-	    }
+	next unless (defined $retval and $retval == 0);
+
+	$error++;
+
+	if ($error % 3 == 0 and $error != 0) {
+	    &ERROR("CANNOT connect to this server; next!");
+	    next;
+	}
+
+	if ($error >= 3*3) {
+	    &ERROR("CANNOT connect to any irc server; stopping.");
+	    exit 1;
 	}
     }
+
+    &DEBUG("ircloop: end... going back.");
+    &loadIRCServers();
+    goto loop;
 }
 
 sub irc {
