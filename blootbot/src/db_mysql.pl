@@ -270,7 +270,7 @@ sub dbInsert {
 }
 
 #####
-# Usage: &dbReplace($table, $key %hash);
+# Usage: &dbReplace($table, $key, %hash);
 #  Note: dbReplace does optional dbQuote.
 sub dbReplace {
     my ($table, $key, %hash) = @_;
@@ -453,34 +453,6 @@ sub searchTable {
     $sth->finish;
 
     return @results;
-}
-
-####################################################################
-##### Factoid related stuff...
-#####
-
-#####
-# Usage: &getFactInfo($faqtoid, $type);
-#  Note: getFactInfo does dbQuote
-sub getFactInfo {
-    return &dbGet("factoids", $_[1], "factoid_key=".&dbQuote($_[0]) );
-}
-
-#####
-# Usage: &getFactoid($faqtoid);
-sub getFactoid {
-    return &getFactInfo($_[0], "factoid_value");
-}
-
-#####
-# Usage: &delFactoid($faqtoid);
-sub delFactoid {
-    my ($faqtoid) = @_;
-
-    &dbDel("factoids", "factoid_key",$faqtoid);
-    &status("DELETED '$faqtoid'");
-
-    return 1;
 }
 
 sub dbCreateTable {

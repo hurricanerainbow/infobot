@@ -87,20 +87,19 @@ sub loadDBModules {
 	&showProc(" (DBI // mysql)");
 
 	&status("  using MySQL support.");
-	require "$bot_src_dir/db_sql.pl";
 	require "$bot_src_dir/db_mysql.pl";
 	$moduleAge{"$bot_src_dir/db_mysql.pl"} = time();
 
     } elsif ($param{'DBType'} =~ /^pgsql$/i) {
-	eval "use Pg";
+#	eval "use Pg";
+	eval "use DBI";
 	if ($@) {
 	    &ERROR("libpgperl is not installed!");
 	    exit 1;
 	}
-	&showProc(" (Pg // postgreSQLl)");
+	&showProc(" (pgsql)");
 
-	&status("  using PostgreSQL support.");
-	require "$bot_src_dir/db_sql.pl";
+	&status("  using pgsql support.");
 	require "$bot_src_dir/db_pgsql.pl";
 
     } elsif ($param{'DBType'} =~ /^dbm$/i) {

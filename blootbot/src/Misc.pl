@@ -642,7 +642,7 @@ sub closeStats {
 	);		
 	$hash{time} = time() if ($z);
 
-	&dbReplace("stats", %hash);
+	&dbReplace("stats", "nick", %hash);
     }
 }
 

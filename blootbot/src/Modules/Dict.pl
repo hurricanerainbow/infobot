@@ -43,7 +43,7 @@ sub Dict {
 	$socket->autoflush(1);	# required.
 
 	my $num;
-	if ($query =~ /^(\d+)\s+/) {
+	if ($query =~ s/^(\d+)\s+//) {
 	    $num = $1;
 	}
 
@@ -58,7 +58,7 @@ sub Dict {
 	my $total = scalar @results;
 
 	if (defined $num and ($num > $total or $num < 1)) {
-	    &msg($::who, "error: choice in definition is out of range.");
+	    &::msg($::who, "error: choice in definition is out of range.");
 	    return;
 	}
 

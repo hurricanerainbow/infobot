@@ -564,7 +564,8 @@ sub uptime {
 
 # seen.
 sub seen {
-    my($person) = @_;
+    my($person) = lc shift;
+    $person =~ s/\?*$//;
 
     if (!defined $person or $person =~ /^$/) {
 	&help("seen");
@@ -577,7 +578,6 @@ sub seen {
     }
 
     my @seen;
-    $person =~ s/\?*$//;
 
     &seenFlush();	# very evil hack. oh well, better safe than sorry.
 

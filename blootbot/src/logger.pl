@@ -373,4 +373,12 @@ sub closeSQLDebug {
     &status("Closed SQL Debug file: $param{'SQLDebug'}");
 }
 
+sub SQLDebug {
+    return unless (&IsParam("SQLDebug"));
+
+    return unless (fileno SQLDEBUG);
+
+    print SQLDEBUG $_[0]."\n";
+}
+
 1;
