@@ -8,6 +8,7 @@
 package Debian;
 
 use strict;
+no strict 'refs'; # FIXME dstats aborts if set
 
 my $announce	= 0;
 my $defaultdist	= "sid";
@@ -15,7 +16,7 @@ my $refresh = &::getChanConfDefault("debianRefreshInterval",7)
 			* 60 * 60 * 24;
 my $debug	= 0;
 my $debian_dir	= "$::bot_state_dir/debian";
-my $country	= "ca";
+my $country	= "us"; # well .config it yourself then. ;-)
 my $protocol	= "http";
 
 # format: "alias=real".
@@ -23,7 +24,7 @@ my %dists	= (
 	"unstable"	=> "sid",
 	"testing"	=> "sarge",
 	"stable"	=> "woody",
-	"old-stable"	=> "potato",	# this still works?
+	"oldstable"	=> "potato",
 	"incoming"	=> "incoming",
 );
 
@@ -121,7 +122,7 @@ sub DebianDownload {
 		$bad++;
 		next;
 	    }
-	
+
 	} else {
 	    &::ERROR("Debian: invalid format of url => ($url).");
 	    $bad++;
@@ -319,7 +320,7 @@ sub searchContents {
 
     # !@list.
     &::DEBUG("deb: ok, !\@list, searching desc for '$query'.") if ($debug);
-    my @list = &searchDesc($query);
+    @list = &searchDesc($query);
 
     if (!scalar @list) {
 	my $prefix = "Debian Package/File/Desc Search of '$query' ";
@@ -738,7 +739,7 @@ sub infoPackages {
 		&::ERROR("iP: pkg $query is in incoming but we couldn't get any info?");
 	    }
 	}
-    } 
+    }
 
     if ($dist eq "incoming") {
 	$pkg{'info'} .= "Version: \002$pkg{'version'}\002";
@@ -781,7 +782,7 @@ sub infoStats {
     }
 
     my %stats;
-    my %total = (maint => 0, isize => 0, csize => 0);
+    my %total = (count => 0, maint => 0, isize => 0, csize => 0);
     my $file;
     foreach $file (keys %urlpackages) {
 	$file =~ s/##DIST/$dist/g;	# won't work for incoming.
@@ -791,10 +792,10 @@ sub infoStats {
 	    next;
 	}
 
-	open(IN, "zcat $file 2>&1 |");
+	open(IN, "zcat $debian_dir/$file 2>&1 |");
 
-	if (! -e $file) {
-	    &::DEBUG("deb: iS: $file does not exist.");
+	if (! -e "$debian_dir/$file") {
+	    &::DEBUG("deb: iS: $debian_dir/$file does not exist.");
 	    next;
 	}
 
