@@ -106,7 +106,8 @@ sub randomFactoid {
 }
 
 sub logCycle {
-    # check if current size is too large.
+
+    ### check if current size is too large.
     if ( -s $file{log} > $param{'maxLogSize'}) {
 	my $date = sprintf("%04d%02d%02d", (localtime)[5,4,3]);
 	$file{log} = $param{'logfile'} ."-". $date;
@@ -130,18 +131,18 @@ sub logCycle {
 	&status("cycling log file.");
     }
 
-    # check if all the logs exceed size.
+    ### check if all the logs exceed size.
     my $logdir = "$bot_base_dir/log/";
     if (opendir(LOGS, $logdir)) {
 	my $tsize = 0;
 	my (%age, %size);
 
 	while (defined($_ = readdir LOGS)) {
-	    my $logfile = "$logdir/$_";
+	    my $logfile		= "$logdir/$_";
 
 	    next unless ( -f $logfile);
-	    my $size = -s $logfile;
-	    my $age = (stat $logfile)[9]; ### or 8 ?
+	    my $size		= -s $logfile;
+	    my $age		= (stat $logfile)[9];
 
 	    $age{$age}		= $logfile;
 	    $size{$logfile}	= $size;
@@ -150,13 +151,13 @@ sub logCycle {
 	}
 	closedir LOGS;
 
-	my $delete = 0;
+	my $delete	= 0;
 	while ($tsize > $param{'maxLogSize'}) {
 	    &status("LOG: current size > max ($tsize > $param{'maxLogSize'})");
-	    my $oldest = (sort {$a <=> $b} keys %age)[0];
+	    my $oldest	= (sort {$a <=> $b} keys %age)[0];
 	    &status("LOG: unlinking $age{$oldest}.");
 	    unlink $age{$oldest};
-	    $tsize -= $oldest;
+	    $tsize	-= $oldest;
 	    $delete++;
 	}
 
@@ -211,20 +212,14 @@ sub chanlimitCheck {
     foreach (@channels) {
 	next unless (&validChan($_));
 
-	my $newlimit = scalar(keys %{$channels{$_}{''}}) + $limitplus;
-	my $limit = $channels{$_}{'l'};
+	my $newlimit	= scalar(keys %{$channels{$_}{''}}) + $limitplus;
+	my $limit	= $channels{$_}{'l'};
 
 	if (scalar keys %{$channels{$_}{''}} > $limit) {
 	    &status("LIMIT: set too low!!! FIXME");
 	}
 
 	next unless (!defined $limit or $limit != $newlimit);
-
-	if (scalar keys %netsplit and $limit) {
-	    &status("Removing limit for $_ [netsplit!!!]");
-	    &rawout("MODE $_ -l");
-	    return;
-	}
 
 	if (!exists $channels{$_}{'o'}{$ident}) {
 	    &ERROR("chanlimitcheck: dont have ops on $_.");
@@ -267,7 +262,7 @@ sub netsplitCheck {
 
 sub floodCycle {
     my $interval = $param{'floodInterval'} || 60;	# seconds.
-    my $delete = 0;
+    my $delete   = 0;
 
     my $who;
     foreach $who (keys %flood) {
@@ -284,9 +279,9 @@ sub floodCycle {
 }
 
 sub seenFlush {
-    my $nick;
-    my $flushed = 0;
     my %stats;
+    my $nick;
+    my $flushed 	= 0;
     $stats{'count_old'} = &countKeys("seen");
     $stats{'new'}	= 0;
     $stats{'old'}	= 0;
