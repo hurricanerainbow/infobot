@@ -875,6 +875,8 @@ sub userDCC {
 	if ($change) {
 	    $utime_userfile = time();
 	    $ucount_userfile++;
+	    #$flags.*FLAGS sort
+	    $flags = join('', sort split('', $flags));
 	    &performStrictReply("Current flags: $flags");
 	    $users{$user}{FLAGS} = $flags;
 	} else {
