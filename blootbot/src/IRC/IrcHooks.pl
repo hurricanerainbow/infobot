@@ -182,7 +182,7 @@ sub on_endofmotd {
     }
 
     if ($firsttime) {
-	&ScheduleThis(1, \&setupSchedulers);
+	&ScheduleThis(1, "setupSchedulers");
 	$firsttime = 0;
     }
 
