@@ -174,7 +174,7 @@ sub setup {
 
     &status("Setup: ". &countKeys("factoids") ." factoids.");
 
-    $param{tempDir} =~ s#\~/#$ENV{HOME}#;
+    $param{tempDir} =~ s#\~/#$ENV{HOME}/#;
 
     &status("Initial memory usage: $memusage kB");
 }
@@ -193,7 +193,7 @@ sub setupConfig {
 	exit 1;
     }
 
-    if ($param{tempDir} =~ s#\~/#$ENV{HOME}#) {
+    if ($param{tempDir} =~ s#\~/#$ENV{HOME}/#) {
 	&status("Fixing up tempDir.");
     }
 
