@@ -536,7 +536,7 @@ sub userCommands {
 	    }
 	}
 
-	&performReply( sprintf("'%s' is ascii %s", $arg, ord $1) );
+	&performReply( sprintf("'%s' is ascii %s", $arg, ord $arg) );
 	return;
     }
 
