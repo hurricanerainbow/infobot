@@ -117,9 +117,7 @@ sub update {
 	    &setFactInfo($lhs, "factoid_value", $rhs);
 	} else {				# not "also"
 	    if ($correction_plausible) {	# "no, blah is ..."
-		my $author = &getFactInfo($lhs, "created_by");
-
-		&DEBUG("Update: check: '$author' == '$who' ?");
+		my $author = &getFactInfo($lhs, "created_by") || "";
 
 		if (IsFlag("m") ne "m" and $author !~ /^\Q$who\E\!/i) {
 		    &msg($who, "you can't change that factoid.");
