@@ -1,4 +1,4 @@
-#v1: blootbot -- infobot -- written Tue Feb 22 05:10:22 2005
+#v1: blootbot -- blootbot -- written Thu Feb 24 22:25:12 2005
 
 #botpark
     +RootWarn
@@ -66,6 +66,7 @@ _default
     minVolunteerLength 50
     +nickometer
     +pager
+    +piglatin
     randomFactoidInterval 60
     randomQuoteInterval 60
     +scramble
