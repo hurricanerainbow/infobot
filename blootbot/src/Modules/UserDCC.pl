@@ -339,9 +339,9 @@ sub userDCC {
 	&DEBUG("chan => '$1', msg => '$msg'.");
 
 	if (&validChan($chan)) {
-	    &msg($chan, $2);
+	    &msg($chan, $msg);
 	} else {
-	    &msg($who,"i'm not on \002$1\002, sorry.");
+	    &msg($who,"i'm not on \002$chan\002, sorry.");
 	}
 	return;
     }

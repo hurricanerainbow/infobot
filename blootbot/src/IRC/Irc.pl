@@ -244,39 +244,31 @@ sub msg {
 	return;
     }
 
-    if ($msgType =~ /chat/i) {
-	# todo: warn that we're using msg() to do DCC CHAT?
-	&dccsay($nick, $msg);
-	# todo: make dccsay deal with flood protection?
-	return;
-    }
-
     &status(">$nick< $msg");
 
-    if (&whatInterface() =~ /IRC/) {
-	my $t = time();
+    return unless (&whatInterface() =~ /IRC/);
+    my $t = time();
 
-	if ($t == $msgtime) {
-	    $msgcount++;
-	    $msgsize += length $msg;
+    if ($t == $msgtime) {
+	$msgcount++;
+	$msgsize += length $msg;
 
-	    my $i = &getChanConfDefault("sendPrivateLimitLines", 3);
-	    my $j = &getChanConfDefault("sendPrivateLimitBytes", 1000);
-	    if ( ($msgcount % $i) == 0 and $msgcount) {
-		sleep 1;
-	    } elsif ($msgsize > $j) {
-		sleep 1;
-		$msgsize -= $j;
-	    }
-
-	} else {
-	    $msgcount	= 0;
-	    $msgtime	= $t;
-	    $msgsize	= length $msg;
+	my $i = &getChanConfDefault("sendPrivateLimitLines", 3);
+	my $j = &getChanConfDefault("sendPrivateLimitBytes", 1000);
+	if ( ($msgcount % $i) == 0 and $msgcount) {
+	    sleep 1;
+	} elsif ($msgsize > $j) {
+	    sleep 1;
+	    $msgsize -= $j;
 	}
 
-	$conn->privmsg($nick, $msg);
+    } else {
+	$msgcount	= 0;
+	$msgtime	= $t;
+	$msgsize	= length $msg;
     }
+
+    $conn->privmsg($nick, $msg);
 }
 
 # Usage: &action(nick || chan, txt);
