@@ -115,8 +115,8 @@ sub convertUnits {
 	return;
     }
     # yet another powers hack.
-    $from =~ s/(\D+)(\d)/$1\^$2/g;
-    $to   =~ s/(\D+)(\d)/$1\^$2/g;
+    $from =~ s/([[:alpha:]]+)(\d)/$1\^$2/g;
+    $to   =~ s/([[:alpha:]]+)(\d)/$1\^$2/g;
 
     &::performStrictReply(sprintf("$from is approximately \002%.6g\002 $to", $q));
   } else {
