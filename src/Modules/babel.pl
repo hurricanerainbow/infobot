@@ -53,16 +53,18 @@ BEGIN {
 sub babelfish {
     return '' if $no_babel;
   my ($from, $to, $phrase) = @_;
-  #&main::DEBUG("babelfish($from, $to, $phrase)");
+  &main::DEBUG("babelfish($from, $to, $phrase)");
 
   $from = $lang_code{$from};
   $to = $lang_code{$to};
 
   my $ua = new LWP::UserAgent;
+  $ua->agent("Mozilla/4.5 " . $ua->agent);        # Let's pretend
   $ua->timeout(5);
 
   my $req =
-    HTTP::Request->new('POST', 'http://babelfish.altavista.com/raging/translate.dyn');
+    #HTTP::Request->new('POST', 'http://babelfish.altavista.com/raging/translate.dyn');
+    HTTP::Request->new('POST', 'http://babelfish.altavista.com/babelfish/tr');
 
 # babelfish ignored this, but it SHOULD work
 # Accept-Charset: iso-8859-1
@@ -76,11 +78,11 @@ sub babelfish {
 sub translate {
     return '' if $no_babel;
   my ($phrase, $languagepair, $req, $ua) = @_;
-  #&main::DEBUG("translate($phrase, $languagepair, $req, $ua)");
+  &main::DEBUG("translate($phrase, $languagepair, $req, $ua)");
 
   my $urltext = uri_escape($phrase);
   $req->content("urltext=$urltext&lp=$languagepair");
-  #&main::DEBUG("http://babelfish.altavista.com/raging/translate.dyn??urltext=$urltext&lp=$languagepair");
+  &main::DEBUG("http://babelfish.altavista.com/babelfish/tr??urltext=$urltext&lp=$languagepair");
 
   my $res = $ua->request($req);
   my $translated;
@@ -89,40 +91,21 @@ sub translate {
       my $html = $res->content;
       # This method subject to change with the whims of Altavista's design
       # staff.
-      $html =~ s/\s+/ /sg;
-      #&main::DEBUG("$html\n===============\n");
-      # look for the first :< which should be the "To English:<", etc.
-      # strip any trailing tags, grab text that follows up to the next tag.
-      #my ($translated) = ($html =~ m{:\s*(<[^>]*>\s*)+([^<]*)}sx);
       ($translated) = $html;
-      #(undef, $translated) = ($html =~ m{(:\s+(<[^>]*>\s*)+)([^<\s]*)<}sx);
 
-      # Tim@Rikers.org get's frustrated and splits this into steps:
-      # 1) remove everything up to the first ':' in the text
-      $translated =~ s/.*?:\s*</</s;
-      # 2) remove any <attributes> till the first text
-      $translated =~ s/(<[^>]*>\s*)*//s;
-      # 3) remove the first trailing <attribute> and everything after it
-      $translated =~ s/<.*//s;
+      $translated =~ s/<[^>]*>//sg;
+      $translated =~ s/&nbsp;/ /sg;
+      $translated =~ s/\s+/ /sg;
+      #&main::DEBUG("$translated\n===remove <attributes>\n");
 
-      # look for contents of first textarea - not anymore cause > 40 char does not get one.
-      #my ($translated) = ($html =~ m{<textarea[^>]*>+([^<]*)}sx);
-      #&main::DEBUG("\"$translated\"\n===============\n");
-#       ($html =~ m{<textarea[^>]*>
-#               \s*
-#               ([^<]*)
-#               }sx);
-#         ($html =~ m{<br>
-#                         \s+
-#                             <font\ face="arial,\ helvetica">
-#                                 \s*
-#                                     (?:\*\*\s+time\ out\s+\*\*)?
-#                                         \s*
-#                                             ([^<]*)
-#                                             }sx);
+      $translated =~ s/\s*Translate again.*//i;
+      &main::DEBUG("$translated\n===remove after 'Translate again'\n");
+
+      $translated =~ s/[^:]*?:\s*(Help\s*)?//s;
+      &main::DEBUG("$translated\n===remove to first ':', optional Help\n");
+
       $translated =~ s/\n/ /g;
-      $translated =~ s/\s*$//;
-      # need a way to do unicode->iso
+      # FIXME should we do unicode->iso
   } else {
       $translated = ":("; # failure
   }
