@@ -19,6 +19,8 @@ use vars qw(
 	$flag_quit $msgType
 	$utime_userfile	$wtime_userfile	$ucount_userfile
 	$utime_chanfile	$wtime_chanfile	$ucount_chanfile
+	$pubsize $pubcount $pubtime
+	$msgsize $msgcount $msgtime
 );
 
 # dynamic hash.

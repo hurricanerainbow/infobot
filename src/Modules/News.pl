@@ -435,7 +435,7 @@ sub read {
 
     &::notice($::who, "+- News \002$chan\002 #$num: \037$item\037");
     &::notice($::who, "| Added by $a at $t");
-    &::notice($::who, "| Requested $rcount times, last by $rwho");
+    &::notice($::who, "| Requested $rcount times, last by $rwho") if ($rcount);
     &::notice($::who, $text);
 
     $::news{$chan}{$item}{'Request_By'}   = $::who;
