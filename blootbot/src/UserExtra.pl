@@ -407,7 +407,7 @@ sub DNS {
 sub userCommands {
     # conversion: ascii.
     if ($message =~ /^(asci*|chr) (\d+)$/) {
-	return '' unless (&IsParam("allowConv"));
+	return unless (&IsParam("allowConv"));
 
 	$arg	= $2;
 	$result	= chr($arg);
@@ -420,7 +420,7 @@ sub userCommands {
 
     # conversion: ord.
     if ($message =~ /^ord (.)$/) {
-	return '' unless (&IsParam("allowConv"));
+	return unless (&IsParam("allowConv"));
 
 	$arg = $1;
 	if (ord($arg) < 32) {
@@ -438,7 +438,7 @@ sub userCommands {
 
     # hex.
     if ($message =~ /^hex(\s+(.*))?$/i) {
-	return '' unless (&IsParam("allowConv"));
+	return unless (&IsParam("allowConv"));
 	my $arg = $2;
 
 	if (!defined $arg) {
@@ -605,7 +605,11 @@ sub userCommands {
     if ($message =~ /^ircstats$/i) {
 	my $count	= $ircstats{'ConnectCount'};
 	my $format_time	= &Time2String(time() - $ircstats{'ConnectTime'});
+	my $total_time	= time() - $ircstats{'ConnectTime'} + $ircstats{'TotalTime'};
 	my $reply;
+
+	&DEBUG("ircstats: total_time => $total_time.");
+	&DEBUG("ircstats: offtime => $ircstats{'OffTime'}");
 
 	foreach (keys %ircstats) {
 	    &DEBUG("ircstats: $_ => '$ircstats{$_}'.");
