@@ -1,9 +1,10 @@
 #
 #   dbi.pl: DBI (mysql/pgsql/sqlite) database frontend.
 #   Author: dms
-#  Version: v0.2c (19991224)
+#  Version: v0.9a (20021124)
 #  Created: 19991203
 #    Notes: based on db_mysql.pl
+#	    overhauled to be 31337.
 #
 
 use strict;
@@ -14,8 +15,8 @@ use vars qw($dbh $shm $bot_data_dir);
 package main;
 
 #####
-# &openDB($dbname, $dbtype, $sqluser, $sqlpass, $nofail);
-sub openDB {
+# &sqlOpenDB($dbname, $dbtype, $sqluser, $sqlpass, $nofail);
+sub sqlOpenDB {
     my ($db, $type, $user, $pass, $no_fail) = @_;
     # this is a mess. someone fix it, please.
     if ($type =~ /^SQLite$/i) {
@@ -51,7 +52,7 @@ sub openDB {
     }
 }
 
-sub closeDB {
+sub sqlCloseDB {
     return 0 unless ($dbh);
 
     my $x = $param{SQLHost};
@@ -64,42 +65,55 @@ sub closeDB {
 }
 
 #####
-# Usage: &dbQuote($str);
-sub dbQuote {
+# Usage: &sqlQuote($str);
+sub sqlQuote {
     return $dbh->quote($_[0]);
 }
 
 #####
-# Usage: &dbGet($table, $select, $where);
-sub dbGet {
-    my ($table, $select, $where) = @_;
-    my $query	= "SELECT $select FROM $table";
-    $query	.= " WHERE $where" if ($where);
+#  Usage: &sqlSelectMany($table, $select, [$where_href], [$other]);
+# Return: $sth (Statement handle object)
+sub sqlSelectMany {
+    my($table, $select, $where_href, $other) = @_;
+    my $query = "SELECT $select FROM $table";
+    my $sth;
 
     if (!defined $select or $select =~ /^\s*$/) {
-	&WARN("dbGet: select == NULL.");
+	&WARN("sqlSelectMany: select == NULL.");
 	return;
     }
 
     if (!defined $table or $table =~ /^\s*$/) {
-	&WARN("dbGet: table == NULL.");
+	&WARN("sqlSelectMany: table == NULL.");
 	return;
     }
 
-    my $sth;
+    $query .= " WHERE ".&hashref2where($where_href) if ($where_href);
+    $query .= "$other"		if $other;
+
     if (!($sth = $dbh->prepare($query))) {
-	&ERROR("Get: prepare: $DBI::errstr");
+	&ERROR("sqlSelectMany: prepare: $DBI::errstr");
 	return;
     }
 
     &SQLDebug($query);
     if (!$sth->execute) {
-	&ERROR("Get: execute: '$query'");
+	&ERROR("sqlSelectMany: execute: '$query'");
 	$sth->finish;
-	return 0;
+	return;
     }
 
-    my @retval = $sth->fetchrow_array;
+    return $sth;
+}
+
+#####
+#  Usage: &sqlSelect($table, $select, [$where_href, [$other]);
+# Return: scalar if one element, array if list of elements.
+#   Note: Suitable for one column returns, that is, one column in $select.
+#   Todo: Always return array?
+sub sqlSelect {
+    my $sth	= &sqlSelectMany(@_);
+    my @retval	= $sth->fetchrow_array;
 
     $sth->finish;
 
@@ -113,20 +127,14 @@ sub dbGet {
 }
 
 #####
-# Usage: &dbGetCol($table, $select, $where, [$type]);
-sub dbGetCol {
-    my ($table, $select, $where, $type) = @_;
-    my $query	= "SELECT $select FROM $table";
-    $query	.= " WHERE ".$where if ($where);
+#  Usage: &sqlSelectColHash($table, $select, [$where_href], [$type]);
+# Return: type = 1: $retval{ col2 }{ col1 } = 1;
+# Return: no  type: $retval{ col1 } = col2;
+#   Note: does not support $other, yet.
+sub sqlSelectColHash {
+    my ($table, $select, $where_href, $type) = @_;
+    my $sth	= &sqlSelectMany($table, $select, $where_href);
     my %retval;
-
-    my $sth = $dbh->prepare($query);
-    &SQLDebug($query);
-    if (!$sth->execute) {
-	&ERROR("GetCol: execute: '$query'");
-	$sth->finish;
-	return;
-    }
 
     if (defined $type and $type == 2) {
 	&DEBUG("dbgetcol: type 2!");
@@ -158,274 +166,155 @@ sub dbGetCol {
 }
 
 #####
-# Usage: &dbGetColNiceHash($table, $select, $where);
-sub dbGetColNiceHash {
-    my ($table, $select, $where) = @_;
-    $select	||= "*";
-    my $query	= "SELECT $select FROM $table";
-    $query	.= " WHERE ".$where if ($where);
-    my %retval;
-
-    my $sth;
-    if (!($sth = $dbh->prepare($query))) {
-	&ERROR("GetColNiceHash: prepare: $DBI::errstr");
-	return;
-    }
-    &SQLDebug($query);
-    if (!$sth->execute) {
-	&ERROR("GetColNiceHash: execute: '$query'");
-#	&ERROR("GetCol => $DBI::errstr");
-	$sth->finish;
-	return;
-    }
-
-    my $retval = $sth->fetchrow_hashref();
-
+#  Usage: &sqlSelectRowHash($table, $select, [$where_href]);
+# Return: $hash{ col } = value;
+#   Note: useful for returning only one/first row of data.
+sub sqlSelectRowHash {
+    my $sth	= &sqlSelectMany(@_);
+    my $retval	= $sth->fetchrow_hashref();
     $sth->finish;
 
     if ($retval) {
-	return %{$retval};
+	return %{ $retval };
     } else {
 	return;
     }
 }
 
-####
-# Usage: &dbGetColInfo($table);
-sub dbGetColInfo {
-    my ($table) = @_;
-
-    my $query = "SHOW COLUMNS from $table";
-    if ($param{DBType} =~ /^pg/i) {
-	$query = "SELECT * FROM $table LIMIT 1";
-    }
-
-    my %retval;
-
-    my $sth = $dbh->prepare($query);
-    &SQLDebug($query);
-    if (!$sth->execute) {
-	&ERROR("GRI => '$query'");
-	&ERROR("GRI => $DBI::errstr");
-	$sth->finish;
-	return;
-    }
-
-    my @cols;
-    while (my @row = $sth->fetchrow_array) {
-	push(@cols, $row[0]);
-    }
-    $sth->finish;
-
-    return @cols;
-}
-
-##### NOTE: not used yet.
-# Usage: &dbSelectHashref($select, $from, $where, $other)
-sub dbSelectHashref {
-    my $c = dbSelectManyHash(@_);
-    my $H = $c->fetchrow_hashref;
-    $c->finish;
-    return $H;
-}
-
-##### NOTE: not used yet.
-# Usage: &dbSelectHashref($select, $from, $where, $other)
-sub dbSelectManyHash {
-    my($select, $from, $where, $other) = @_;
-    my $sql;   
-
-    $sql = "SELECT $select ";
-    $sql .= "FROM $from "	if $from;
-    $sql .= "WHERE $where "	if $where;
-    $sql .= "$other"		if $other;
-
-#    sqlConnect();
-    my $c = $dbh->prepare($sql);
-    # $c->execute or print "\n<P><B>SQL Hashref Error</B><BR>\n";
-
-    unless ($c->execute) {
-#	apacheLog($sql);
-	#kill 9,$$;
-    }
-
-    return $c;
-}
-
+#
+# End of SELECT functions.
+#
 
 #####
-# Usage: &dbSet($table, $primhash_ref, $hash_ref);
-#  Note: dbSet does dbQuote.
-sub dbSet {
-    my ($table, $phref, $href) = @_;
-    my $where = join(' AND ', map {
-		$_."=".&dbQuote($phref->{$_})
-	} keys %{$phref}
-    );
+#  Usage: &sqlSet($table, $data_href, $where_href);
+# Return: 1 for success, undef for failure.
+sub sqlSet {
+    my ($table, $data_href, $where_href) = @_;
 
-    if (!defined $phref) {
-	&WARN("dbset: phref == NULL.");
+    if (!defined $table or $table =~ /^\s*$/) {
+	&WARN("sqlSet: table == NULL.");
 	return;
     }
 
-    if (!defined $href) {
-	&WARN("dbset: href == NULL.");
+    if (!defined $data_href or ref($data_href) ne "HASH") {
+	&WARN("sqlSet: data_href == NULL.");
 	return;
     }
 
-    if (!defined $table) {
-	&WARN("dbset: table == NULL.");
+    my $where  = &hashref2where($where_href) if ($where_href);
+    my $update = &hashref2update($data_href) if ($data_href);
+    my (@k,@v) = &hashref2array($data_href);
+
+    if (!@k or !@v) {
+	&WARN("sqlSet: keys or vals is NULL.");
 	return;
     }
 
-    my(@keys,@vals);
-    foreach (keys %{$href}) {
-	push(@keys, $_);
-	push(@vals, &dbQuote($href->{$_}) );
-    }
-
-    if (!@keys or !@vals) {
-	&WARN("dbset: keys or vals is NULL.");
-	return;
-    }
-
-    my $result = &dbGet($table, join(',', keys %{$phref}), $where);
-
-    my $query;
+    my $result = &sqlGet($table, join(',', @k), $where);
     if (defined $result) {
-	my @keyval;
-	for(my$i=0; $i<scalar @keys; $i++) {
-	    push(@keyval, $keys[$i]."=".$vals[$i] );
-	}
-
-	$query = "UPDATE $table SET ".
-		join(', ', @keyval).
-		" WHERE ".$where;
+	&sqlUpdate($table, $data_href, $where_href);
     } else {
-	foreach (keys %{$phref}) {
-	    push(@keys, $_);
-	    push(@vals, &dbQuote($phref->{$_}) );
-	}
-
-	$query = sprintf("INSERT INTO $table (%s) VALUES (%s)",
-		join(',',@keys), join(',',@vals) );
+	&sqlInsert($table, $data_href);
     }
-
-    &dbRaw("Set", $query);
 
     return 1;
 }
 
 #####
-# Usage: &dbUpdate($table, $primkey, $primval, %hash);
-#  Note: dbUpdate does dbQuote.
-sub dbUpdate {
-    my ($table, $primkey, $primval, %hash) = @_;
-    my (@array);
+# Usage: &sqlUpdate($table, $data_href, $where_href);
+sub sqlUpdate {
+    my ($table, $data_href, $where_href) = @_;
 
-    foreach (keys %hash) {
-	push(@array, "$_=".&dbQuote($hash{$_}) );
-    }
-
-    &dbRaw("Update", "UPDATE $table SET ".join(', ', @array).
-		" WHERE $primkey=".&dbQuote($primval)
-    );
-
-    return 1;
-}
-
-#####
-# Usage: &dbInsert($table, $primkey, %hash);
-#  Note: dbInsert does dbQuote.
-sub dbInsert {
-    my ($table, $primkey, %hash, $delay) = @_;
-    my (@keys, @vals);
-    my $p	= "";
-
-    if ($delay) {
-	&DEBUG("dbI: delay => $delay");
-	$p	= " DELAYED";
-    }
-
-    foreach (keys %hash) {
-	push(@keys, $_);
-	push(@vals, &dbQuote( $hash{$_} ));
-    }
-
-    &dbRaw("Insert($table)", "INSERT $p INTO $table (".join(',',@keys).
-		") VALUES (".join(',',@vals).")"
-    );
-
-    return 1;
-}
-
-#####
-# Usage: &dbReplace($table, $key, %hash);
-#  Note: dbReplace does optional dbQuote.
-sub dbReplace {
-    my ($table, $key, %hash) = @_;
-    my (@keys, @vals);
-
-    foreach (keys %hash) {
-	if (s/^-//) {	# as is.
-	    push(@keys, $_);
-	    push(@vals, $hash{'-'.$_});
-	} else {
-	    push(@keys, $_);
-	    push(@vals, &dbQuote( $hash{$_} ));
-	}
-    }
-
-    # hrm... does pgsql support REPLACE?
-    # if not, well... fuck it.
-    &dbRaw("Replace($table)", "REPLACE INTO $table (".join(',',@keys).
-		") VALUES (". join(',',@vals). ")"
-    );
-
-    return 1;
-}
-
-#####
-# Usage: &dbSetRow($table, $vref, $delay);
-#  Note: dbSetRow does dbQuote.
-sub dbSetRow ($@$) {
-    my ($table, $vref, $delay) = @_;
-    my $p	= ($delay) ? " DELAYED " : "";
-
-    # see 'perldoc perlreftut'
-    my @values;
-    foreach (@{ $vref }) {
-	push(@values, &dbQuote($_) );
-    }
-
-    if (!scalar @values) {
-	&WARN("dbSetRow: values array == NULL.");
+    if (!defined $data_href or ref($data_href) ne "HASH") {
+	&WARN("sqlSet: data_href == NULL.");
 	return;
     }
 
-    return &dbRaw("SetRow", "INSERT $p INTO $table VALUES (".
-	join(",", @values) .")" );
-}
+    my $where  = &hashref2where($where_href) if ($where_href);
+    my $update = &hashref2update($data_href) if ($data_href);
 
-#####
-# Usage: &dbDel($table, $primhash_ref);
-#  Note: dbDel does dbQuote
-sub dbDel {
-    my ($table, $phref) = @_;
-    my $where = join(' AND ', map {
-		$_."=".&dbQuote($phref->{$_})
-	} keys %{$phref}
-    );
-
-    &dbRaw("Del", "DELETE FROM $table WHERE $where");
+    &sqlRaw("Update", "UPDATE $table SET $update WHERE $where");
 
     return 1;
 }
 
-# Usage: &dbRaw($prefix,$rawquery);
-sub dbRaw {
-    my ($prefix,$query) = @_;
+#####
+# Usage: &sqlInsert($table, $data_href, $other);
+sub sqlInsert {
+    my ($table, $data_href, $other) = @_;
+    # note: if $other == 1, add "DELAYED" to function instead.
+
+    if (!defined $data_href or ref($data_href) ne "HASH") {
+	&WARN("sqlInsert: data_href == NULL.");
+	return;
+    }
+
+    my (@k,@v) = &hashref2array($data_href);
+    if (!@k or !@v) {
+	&WARN("sqlInsert: keys or vals is NULL.");
+	return;
+    }
+
+    &sqlRaw("Insert($table)", sprintf(
+	"INSERT %s INTO %s (%s) VALUES (%s)",
+	$other, $table, join(',',@k), join(',',@v)
+    ) );
+
+    return 1;
+}
+
+#####
+# Usage: &sqlReplace($table, $data_href);
+sub sqlReplace {
+    my ($table, $data_href) = @_;
+
+    if (!defined $data_href or ref($data_href) ne "HASH") {
+	&WARN("sqlReplace: data_href == NULL.");
+	return;
+    }
+
+    my (@k,@v) = &hashref2array($data_href);
+    if (!@k or !@v) {
+	&WARN("sqlReplace: keys or vals is NULL.");
+	return;
+    }
+
+    &sqlRaw("Replace($table)", sprintf(
+	"REPLACE INTO %s (%s) VALUES (%s)",
+	$table, join(',',@k), join(',',@v)
+    ) );
+
+    return 1;
+}
+
+#####
+# Usage: &sqlDelete($table, $where_href);
+sub sqlDelete {
+    my ($table, $where_href) = @_;
+
+    if (!defined $where_href or ref($where_href) ne "HASH") {
+	&WARN("sqlDelete: where_href == NULL.");
+	return;
+    }
+
+    my $where	= &hashref2where($where_href);
+
+    &sqlRaw("Delete", "DELETE FROM $table WHERE $where");
+
+    return 1;
+}
+
+#####
+#  Usage: &sqlRaw($prefix, $query);
+# Return: 1 for success, 0 for failure.
+sub sqlRaw {
+    my ($prefix, $query) = @_;
     my $sth;
+
+    if (!defined $query or $query =~ /^\s*$/) {
+	&WARN("sqlRaw: query == NULL.");
+	return 0;
+    }
 
     if (!($sth = $dbh->prepare($query))) {
 	&ERROR("Raw($prefix): !prepare => '$query'");
@@ -444,19 +333,36 @@ sub dbRaw {
     return 1;
 }
 
-# Usage: &dbRawReturn($rawquery);
-sub dbRawReturn {
+#####
+#  Usage: &sqlRawReturn($query);
+# Return: array.
+sub sqlRawReturn {
     my ($query) = @_;
     my @retval;
+    my $sth;
 
-    my $sth = $dbh->prepare($query);
+    if (!defined $query or $query =~ /^\s*$/) {
+	&WARN("sqlRawReturn: query == NULL.");
+	return 0;
+    }
+
+    if (!($sth = $dbh->prepare($query))) {
+	&ERROR("RawReturn: !prepare => '$query'");
+	return 0;
+    }
+
     &SQLDebug($query);
-    # what happens when it can't execute it? does it throw heaps more
-    # error lines? if so. follow dbRaw()'s style.
-    &ERROR("RawReturn => '$query'.") unless $sth->execute;
+    if (!$sth->execute) {
+	&ERROR("RawReturn: !execute => '$query'");
+	$sth->finish;
+	return 0;
+    }
+
+
     while (my @row = $sth->fetchrow_array) {
 	push(@retval, $row[0]);
     }
+
     $sth->finish;
 
     return @retval;
@@ -466,6 +372,82 @@ sub dbRawReturn {
 ##### Misc DBI stuff...
 #####
 
+sub hashref2where {
+    my ($href) = @_;
+
+    if (ref($href) ne "HASH") {
+	&WARN("hashref2where: href is not HASH ref.");
+	return;
+    }
+
+    my %hash = %{ $href };
+    foreach (keys %hash) {
+	my $v = $hash{$_};
+
+	if (s/^-//) {   # as is.
+	    $hash{$_} = $v;
+	    delete $hash{'-'.$_};
+	} else {
+	    $hash{$_} = &sqlQuote($v);
+	}
+    }
+
+    return join(' AND ', map { $_."=".$hash{$_} } keys %hash );
+}
+
+sub hashref2update {
+    my ($href) = @_;
+
+    if (ref($href) ne "HASH") {
+	&WARN("hashref2update: href is not HASH ref.");
+	return;
+    }
+
+    my %hash;
+    foreach (keys %{ $href }) {
+	my $k = $_;
+	my $v = ${ $href }{$_};
+
+	# is there a better way to do this?
+	if ($k =~ s/^-//) {   # as is.
+	    1;
+	} else {
+	    $v = &sqlQuote($v);
+	}
+
+	$hash{$k} = $v;
+    }
+
+    return join(', ', map { $_ => $hash{$_} } sort keys %hash);
+}
+
+sub hashref2array {
+    my ($href) = @_;
+
+    if (ref($href) ne "HASH") {
+	&WARN("hashref2update: href is not HASH ref.");
+	return;
+    }
+
+    my(@k, @v);
+    foreach (keys %{ $href }) {
+	my $k = $_;
+	my $v = ${ $href }{$_};
+
+	# is there a better way to do this?
+	if ($k =~ s/^-//) {   # as is.
+	    1;
+	} else {
+	    $v = &sqlQuote($v);
+	}
+
+	push(@k, $k);
+	push(@v, $v);
+    }
+
+    return (\@k, \@v);
+}
+
 #####
 # Usage: &countKeys($table, [$col]);
 sub countKeys {
@@ -473,7 +455,7 @@ sub countKeys {
     $col ||= "*";
     &DEBUG("&countKeys($table, $col);");
 
-    return (&dbRawReturn("SELECT count($col) FROM $table"))[0];
+    return (&sqlRawReturn("SELECT count($col) FROM $table"))[0];
 }
 
 #####
@@ -481,7 +463,7 @@ sub countKeys {
 sub sumKey {
     my ($table, $col) = @_;
 
-    return (&dbRawReturn("SELECT sum($col) FROM $table"))[0];
+    return (&sqlRawReturn("SELECT sum($col) FROM $table"))[0];
 }
 
 #####
@@ -506,7 +488,7 @@ sub randKey {
 #####
 # Usage: &deleteTable($table);
 sub deleteTable {
-    &dbRaw("deleteTable($_[0])", "DELETE FROM $_[0]");
+    &sqlRaw("deleteTable($_[0])", "DELETE FROM $_[0]");
 }
 
 #####
@@ -533,7 +515,7 @@ sub searchTable {
     # end of string fix.
 
     my $query = "SELECT $select FROM $table WHERE $key LIKE ". 
-		&dbQuote($str);
+		&sqlQuote($str);
     my $sth = $dbh->prepare($query);
 
     &SQLDebug($query);
@@ -577,7 +559,7 @@ sub dbCreateTable {
     if (!$found) {
 	return 0;
     } else {
-	&dbRaw("dbcreateTable($table)", $data);
+	&sqlRaw("dbcreateTable($table)", $data);
 	return 1;
     }
 }
@@ -588,14 +570,14 @@ sub checkTables {
 
     if ($param{DBType} =~ /^mysql$/i) {
 	my $sql = "SHOW DATABASES";
-	foreach ( &dbRawReturn($sql) ) {
+	foreach ( &sqlRawReturn($sql) ) {
 	    $database_exists++ if ($_ eq $param{'DBName'});
 	}
 
 	unless ($database_exists) {
 	    &status("Creating database $param{DBName}...");
 	    my $query = "CREATE DATABASE $param{DBName}";
-	    &dbRaw("create(db $param{DBName})", $query);
+	    &sqlRaw("create(db $param{DBName})", $query);
 	}
 
 	# retrieve a list of db's from the server.
@@ -606,7 +588,7 @@ sub checkTables {
     } elsif ($param{DBType} =~ /^SQLite$/i) {
 
 	# retrieve a list of db's from the server.
-	foreach ( &dbRawReturn("SELECT name FROM sqlite_master WHERE type='table'") ) {
+	foreach ( &sqlRawReturn("SELECT name FROM sqlite_master WHERE type='table'") ) {
 	    $db{$_} = 1;
 	}
 
@@ -614,7 +596,7 @@ sub checkTables {
 	if (!scalar keys %db) {
 	    &status("Creating database $param{'DBName'}...");
 	    my $query = "CREATE DATABASE $param{'DBName'}";
-	    &dbRaw("create(db $param{'DBName'})", $query);
+	    &sqlRaw("create(db $param{'DBName'})", $query);
 	}
     }
 
@@ -622,7 +604,7 @@ sub checkTables {
 	next if (exists $db{$_});
 	&status("checkTables: creating new table $_...");
 
-	&dbCreateTable($_);
+	&sqlCreateTable($_);
     }
 }
 
