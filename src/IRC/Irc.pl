@@ -683,7 +683,10 @@ sub closeDCC {
 	    &DEBUG("closing DCC $type to $nick (FIXME).");
 	    next unless (defined $dcc{$type}{$nick});
 
-	    $dcc{$type}{$nick}->close();
+	    my $ref = $dcc{$type}{$nick};
+	    &DEBUG("ref => $ref");
+
+#	    $dcc{$type}{$nick}->close();
 	}
     }
 }
