@@ -4,4 +4,5 @@ Method of installation.
 - Debian: (apt-get install postgresql)
 - Debian: (apt-get install libpgperl)
 
-- run 'scripts/setup.pl'
+SUPPORT FOR PGSQL IS CURRENTLY BROKEN! You'll have to use one of the other
+databases instead.
