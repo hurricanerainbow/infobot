@@ -27,10 +27,14 @@ BEGIN {
 sub pager::page {
 	my ($message) = @_;
 	my ($retval);
+
+	# TODO only allow registered users?
+
 	if ($no_page) {
-		&main::status("page module requires Mail::Mailer.");
+		&main::status('page module requires Mail::Mailer.');
 		return 'page module not active';
 	}
+
 	unless ($message =~ /^(\S+)\s+(.*)$/) {
 		return undef;
 	}
@@ -46,6 +50,7 @@ sub pager::page {
 	if ($tofactoid =~ /(\S+@\S+)/) {
 		my $toaddr = $1;
 		$toaddr =~ s/^mailto://;
+		# TODO require sender-locked factoid?
 
 		my $fromfactoid = &::getFactoid("${from}'s pager");
 
@@ -54,10 +59,12 @@ sub pager::page {
 			$fromaddr = $1;
 			$fromaddr =~ s/^mailto://;
 		} else {
+			# TODO require sender to have valid self-locked pager factoid?
 			$fromaddr = 'infobot@example.com';
 		}
 
 		my $channel = $::chan || 'infobot';
+		# TODO disallow use from private message? $chan="_default"
 
 		&main::status("pager: from $from <$fromaddr>, to $to <$toaddr>, msg \"$msg\"");
 		my %headers = (
