@@ -39,7 +39,7 @@ sub on_chat {
     my ($self, $event) = @_;
     my $msg  = ($event->args)[0];
     my $sock = ($event->to)[0];
-    my $nick = $event->nick();
+    my $nick = lc $event->nick();
 
     if (!exists $nuh{$nick}) {
 	&DEBUG("chat: nuh{$nick} doesn't exist; trying WHOIS .");
@@ -167,12 +167,12 @@ sub on_endofmotd {
 sub on_dcc {
     my ($self, $event) = @_;
     my $type = uc( ($event->args)[1] );
-    my $nick = $event->nick();
+    my $nick = lc $event->nick();
 
     # pity Net::IRC doesn't store nuh. Here's a hack :)
     if (!exists $nuh{lc $nick}) {
 	$self->whois($nick);
-	$nuh{lc $nick}	= "GETTING-NOW";	# trying.
+	$nuh{$nick}	= "GETTING-NOW";	# trying.
     }
     $type ||= "???";
 
@@ -229,7 +229,7 @@ sub on_dcc_close {
 sub on_dcc_open {
     my ($self, $event) = @_;
     my $type = uc( ($event->args)[0] );
-    my $nick = $event->nick();
+    my $nick = lc $event->nick();
     my $sock = ($event->to)[0];
 
     $msgType = 'chat';
@@ -265,7 +265,7 @@ sub on_dcc_open {
 # really custom sub to get NUH since Net::IRC doesn't appear to support
 # it.
 sub on_dcc_open_chat {
-    my(undef, $nick,$sock) = @_;
+    my(undef, $nick, $sock) = @_;
 
     if ($nuh{$nick} eq "GETTING-NOW") {
 	&DEBUG("getting nuh for $nick failed. FIXME.");
@@ -328,7 +328,7 @@ sub on_endofnames {
     my $txt;
     my @array;
     foreach ("o","v","") {
-	my $count = scalar(keys %{$channels{$chan}{$_}});
+	my $count = scalar(keys %{ $channels{$chan}{$_} });
 	next unless ($count);
 
 	$txt = "total" if ($_ eq "");
@@ -422,19 +422,25 @@ sub on_join {
     $nuh{lc $who} = $nuh unless (exists $nuh{lc $who});
 
     ### on-join bans.
-    my @bans	= keys %{ $bans{$chan} };
-    push(@bans, keys %{ $bans{"*"} });
+    my @bans;
+    push(@bans, keys %{ $bans{$chan} }) if (exists $bans{$chan});
+    push(@bans, keys %{ $bans{"*"} })  if (exists $bans{"*"});
     foreach (@bans) {
+	my $ban	= $_;
+	s/\?/./g;
 	s/\*/\\S*/g;
-	next unless /^\Q$nuh\E$/i;
+	next unless ($nuh =~ /^$_$/i);
 
 	### TODO: check $channels{$chan}{'b'} if ban already exists.
 	foreach (keys %{ $channels{$chan}{'b'} }) {
 	    &DEBUG(" bans_on_chan($chan) => $_");
 	}
 
-	### TODO: kick
-	&ban( "*!*@".&makeHostMask($host), $chan);
+	&DEBUG("ban($ban, $chan);");
+	&ban($ban, $chan);
+	### TODO: get ban message from ban list.
+	&DEBUG("kick($who, $chan, NULL);");
+	&kick($who, $chan, "NULL");
 	last;
     }
 
@@ -997,16 +1003,16 @@ sub hookMsg {
 
     # flood repeat protection.
     if ($addressed) {
-	my $time = $flood{$floodwho}{$message};
+	my $time = $flood{$floodwho}{$message} || 0;
 
-	if (defined $time and (time - $time < $interval)) {
+	if ($msgType eq "public" and (time() - $time < $interval)) {
 	    ### public != personal who so the below is kind of pointless.
 	    my @who;
 	    foreach (keys %flood) {
 		next if (/^\Q$floodwho\E$/);
 		next if (defined $chan and /^\Q$chan\E$/);
 
-		push(@who, grep /^\Q$message\E$/i, keys %{$flood{$_}});
+		push(@who, grep /^\Q$message\E$/i, keys %{ $flood{$_} });
 	    }
 
 	    if (scalar @who) {
@@ -1041,6 +1047,12 @@ sub hookMsg {
 	}
 
 	$flood{$floodwho}{$message} = time();
+    } elsif ($msgType eq "public" and &IsChanConf("kickOnRepeat")) {
+	# unaddressed, public only.
+
+	### TODO: use a separate "short-time" hash.
+	my @data;
+	@data	= keys %{ $flood{$floodwho} } if (exists $flood{$floodwho});
     }
 
     $val = &getChanConfDefault("floodMessages", "5:30", $c);
@@ -1070,7 +1082,7 @@ sub hookMsg {
     if ($msgType =~ /public/i) {		    # public.
 	$talkchannel	= $chan;
 	&status("<$orig{who}/$chan> $orig{message}");
-	@ignore		= keys %{ $ignore{$chan} };
+	push(@ignore, keys %{ $ignore{$chan} }) if (exists $ignore{$chan});
     } elsif ($msgType =~ /private/i) {		   # private.
 	&status("[$orig{who}] $orig{message}");
 	$talkchannel	= undef;
@@ -1078,7 +1090,7 @@ sub hookMsg {
     } else {
 	&DEBUG("unknown msgType => $msgType.");
     }
-    push(@ignore, keys %{ $ignore{"*"} });
+    push(@ignore, keys %{ $ignore{"*"} }) if (exists $ignore{"*"});
 
     if ((!$skipmessage or &IsChanConf("seenStoreAll")) and
 	&IsChanConf("seen") and
