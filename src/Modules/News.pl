@@ -789,7 +789,10 @@ sub latest {
     if (!$flag) {
 	return unless ($unread);
 
-	if ($::cache{newsTime} - time() < 5) {
+	# just a temporary measure not to flood ourself off the 
+	# network with news until we get global notice() and msg()
+	# throttling.
+	if (time() - ($::cache{newsTime} || 0) < 5) {
 	    &::status("news: not displaying latest notice to $who/$chan.");
 	    return;
 	}
