@@ -29,11 +29,7 @@ sub getReply {
     $message =~ tr/A-Z/a-z/;
     $message =~ s/^cmd:/CMD:/;
 
-    if (&IsChanConf("factoidSearch")) {
-	@searches = split(/\s+/, &getChanConf("factoidSearch"));
-    } else {
-	@searches = ('_default');
-    }
+    @searches = split(/\s+/, &getChanConfDefault('factoidSearch', '_default'));
 
     # requesting the _default one, ignore factoidSearch
     if ($message =~ /^_default\s+/) {
