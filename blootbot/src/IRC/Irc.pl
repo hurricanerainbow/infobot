@@ -99,7 +99,7 @@ sub irc {
     $args{'LocalAddr'} = $param{'ircHost'} if ($param{'ircHost'});
     $args{'Password'} = $param{'ircPasswd'} if ($param{'ircPasswd'});
 
-    $conn = $irc->newconn(%args);
+    my $conn = $irc->newconn(%args);
 
     if (!defined $conn) {
 	&ERROR("IRC: connection failed.");
@@ -114,7 +114,7 @@ sub irc {
 	# prep for real multiple nick/server connects
 	# FIXME: all locations should get nick/server out of self, not config
 	$args{'Nick'} = $param{'ircNick2'};
-	my $conn2 = $irc->newconn(%args);
+	my $conn = $irc->newconn(%args);
     }
 
     &clearIRCVars();

@@ -7,7 +7,8 @@
 
 # GENERIC. TO COPY.
 sub on_generic {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $nick = $event->nick();
     my $chan = ($event->to)[0];
 
@@ -20,7 +21,8 @@ sub on_generic {
 }
 
 sub on_action {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my ($nick, @args) = ($event->nick, $event->args);
     my $chan = ($event->to)[0];
 
@@ -34,14 +36,15 @@ sub on_action {
 }
 
 sub on_chat {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $msg  = ($event->args)[0];
     my $sock = ($event->to)[0];
     my $nick = lc $event->nick();
 
     if (!exists $nuh{$nick}) {
 	&DEBUG("chat: nuh{$nick} doesn't exist; trying WHOIS .");
-	$self->whois($nick);
+	$conn->whois($nick);
 	return;
     }
 
@@ -76,9 +79,9 @@ sub on_chat {
 
 	if (&ckpasswd($msg, $crypto)) {
 	    # stolen from eggdrop.
-	    $self->privmsg($sock, "Connected to $ident");
-	    $self->privmsg($sock, "Commands start with '.' (like '.quit' or '.help')");
-	    $self->privmsg($sock, "Everything else goes out to the party line.");
+	    $conn->privmsg($sock, "Connected to $ident");
+	    $conn->privmsg($sock, "Commands start with '.' (like '.quit' or '.help')");
+	    $conn->privmsg($sock, "Everything else goes out to the party line.");
 
 	    &dccStatus(2) unless (exists $sched{"dccStatus"}{RUNNING});
 
@@ -133,7 +136,8 @@ sub on_chat {
 
 # is there isoff? how do we know if someone signs off?
 sub on_ison {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $x1 = ($event->args)[0];
     my $x2 = ($event->args)[1];
     $x2 =~ s/\s$//;
@@ -144,7 +148,7 @@ sub on_ison {
 }
 
 sub on_endofmotd {
-    my ($self) = @_;
+    $conn = shift(@_);
 
     # update IRCStats.
     $ident = $param{'ircNick'};
@@ -216,7 +220,8 @@ sub on_endofmotd {
 }
 
 sub on_endofwho {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
 #    &DEBUG("endofwho: chan => $chan");
     $chan	||= ($event->args)[1];
 #    &DEBUG("endofwho: chan => $chan");
@@ -227,13 +232,14 @@ sub on_endofwho {
 }
 
 sub on_dcc {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $type = uc( ($event->args)[1] );
     my $nick = lc $event->nick();
 
     # pity Net::IRC doesn't store nuh. Here's a hack :)
     if (!exists $nuh{lc $nick}) {
-	$self->whois($nick);
+	$conn->whois($nick);
 	$nuh{$nick}	= "GETTING-NOW";	# trying.
     }
     $type ||= "???";
@@ -243,16 +249,16 @@ sub on_dcc {
 	my $get = ($event->args)[2];
 	open(DCCGET,">$get");
 
-	$self->new_get($event, \*DCCGET);
+	$conn->new_get($event, \*DCCGET);
 
     } elsif ($type eq 'GET') {	# SEND for us?
 	&status("DCC: Initializing SEND for $nick.");
-	$self->new_send($event->args);
+	$conn->new_send($event->args);
 
     } elsif ($type eq 'CHAT') {
 	&status("DCC: Initializing CHAT for $nick.");
-	$self->new_chat($event);
-#	$self->new_chat(1, $nick, $event->host);
+	$conn->new_chat($event);
+#	$conn->new_chat(1, $nick, $event->host);
 
     } else {
 	&WARN("${b_green}DCC $type$ob (1)");
@@ -260,7 +266,8 @@ sub on_dcc {
 }
 
 sub on_dcc_close {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $nick = $event->nick();
     my $sock = ($event->to)[0];
 
@@ -287,7 +294,8 @@ sub on_dcc_close {
 }
 
 sub on_dcc_open {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $type = uc( ($event->args)[0] );
     my $nick = lc $event->nick();
     my $sock = ($event->to)[0];
@@ -360,7 +368,8 @@ sub on_dcc_open_chat {
 }
 
 sub on_disconnect {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $from = $event->from();
     my $what = ($event->args)[0];
 
@@ -376,14 +385,14 @@ sub on_disconnect {
 
     &clearIRCVars();
 
-    if (!defined $self) {
+    if (!defined $conn) {
 	&WARN("on_disconnect: self is undefined! WTF");
 	&DEBUG("running function irc... lets hope this works.");
 	&irc();
 	return;
     }
 
-    if (!$self->connect()) {
+    if (!$conn->connect()) {
 	&DEBUG("on_disconnect: 3");
 	&WARN("not connected? help me. gonna call ircCheck() in 60s");
 	&clearIRCVars();
@@ -392,7 +401,8 @@ sub on_disconnect {
 }
 
 sub on_endofnames {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $chan = ($event->args)[1];
 
     # sync time should be done in on_endofwho like in BitchX
@@ -429,7 +439,8 @@ sub on_endofnames {
 }
 
 sub on_init {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my (@args) = ($event->args);
     shift @args;
 
@@ -437,7 +448,8 @@ sub on_init {
 }
 
 sub on_invite {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $chan = lc( ($event->args)[0] );
     my $nick = $event->nick;
 
@@ -460,7 +472,8 @@ sub on_invite {
 }
 
 sub on_join {
-    my ($self, $event)	= @_;
+    $conn = shift(@_);
+    my ($event)	= @_;
     my ($user,$host)	= split(/\@/, $event->userhost);
     $chan		= lc( ($event->to)[0] ); # CASING!!!!
     $who		= $event->nick();
@@ -590,7 +603,8 @@ sub on_join {
 }
 
 sub on_kick {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my ($chan,$reason) = $event->args;
     my $kicker	= $event->nick;
     my $kickee	= ($event->to)[0];
@@ -612,7 +626,8 @@ sub on_kick {
 }
 
 sub on_mode {
-    my ($self, $event)	= @_;
+    $conn = shift(@_);
+    my ($event)	= @_;
     my ($user, $host)	= split(/\@/, $event->userhost);
     my @args	= $event->args();
     my $nick	= $event->nick();
@@ -630,7 +645,8 @@ sub on_mode {
 }
 
 sub on_modeis {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my ($myself, undef,@args) = $event->args();
     my $nick	= $event->nick();
     $chan	= ($event->args())[1];
@@ -639,7 +655,8 @@ sub on_modeis {
 }
 
 sub on_msg {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $nick = $event->nick;
     my $msg  = ($event->args)[0];
 
@@ -664,7 +681,8 @@ sub on_msg {
 }
 
 sub on_names {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my @args = $event->args;
     my $chan = lc $args[2];		# CASING, the last of them!
 
@@ -676,7 +694,8 @@ sub on_names {
 }
 
 sub on_nick {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $nick	= $event->nick();
     my $newnick = ($event->args)[0];
 
@@ -713,8 +732,8 @@ sub on_nick {
 }
 
 sub on_nick_taken {
-    my ($self)	= @_;
-    my $nick	= $self->nick();
+    $conn = shift(@_);
+    my $nick	= $conn->nick();
     my $newnick = $nick.int(rand 10);
 
     if ($nick eq $ident) {
@@ -726,7 +745,7 @@ sub on_nick_taken {
 
     &status("nick taken ($nick); preparing nick change.");
 
-    $self->whois($nick);
+    $conn->whois($nick);
     $conn->schedule(5, sub {
 	&status("nick taken; changing to temporary nick ($nick -> $newnick).");
 	&nick($newnick);
@@ -734,8 +753,8 @@ sub on_nick_taken {
 }
 
 sub on_notice {
-    my ($self, $event) = @_;
-    #$conn = $self; <- ugly hack or elegant solution?
+    $conn = shift(@_);
+    my ($event) = @_;
     my $nick = $event->nick();
     my $chan = ($event->to)[0];
     my $args = ($event->args)[0];
@@ -787,7 +806,8 @@ sub on_notice {
 }
 
 sub on_other {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $chan = ($event->to)[0];
     my $nick = $event->nick;
 
@@ -796,7 +816,8 @@ sub on_other {
 }
 
 sub on_part {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     $chan	= lc( ($event->to)[0] );	# CASING!!!
     my $nick	= $event->nick;
     my $userhost = $event->userhost;
@@ -826,15 +847,17 @@ sub on_part {
 }
 
 sub on_ping {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $nick = $event->nick;
 
-    $self->ctcp_reply($nick, join(' ', ($event->args)));
+    $conn->ctcp_reply($nick, join(' ', ($event->args)));
     &status(">>> ${b_green}CTCP PING$ob request from $b_cyan$nick$ob received.");
 }
 
 sub on_ping_reply {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $nick	= $event->nick;
     my $t	= ($event->args)[1];
     if (!defined $t) {
@@ -848,7 +871,8 @@ sub on_ping_reply {
 }
 
 sub on_public {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $msg 	= ($event->args)[0];
     $chan	= lc( ($event->to)[0] );	# CASING.
     my $nick	= $event->nick;
@@ -919,7 +943,8 @@ sub on_public {
 }
 
 sub on_quit {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $nick	= $event->nick();
     my $reason	= ($event->args)[0];
 
@@ -990,7 +1015,8 @@ sub on_quit {
 }
 
 sub on_targettoofast {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $nick = $event->nick();
     my($me,$chan,$why) = $event->args();
 
@@ -1022,7 +1048,8 @@ sub on_targettoofast {
 }
 
 sub on_topic {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
 
     if (scalar($event->args) == 1) {	# change.
 	my $topic = ($event->args)[0];
@@ -1055,7 +1082,8 @@ sub on_topic {
 }
 
 sub on_topicinfo {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my ($myself,$chan,$setby,$time) = $event->args();
 
     my $timestr;
@@ -1069,7 +1097,8 @@ sub on_topicinfo {
 }
 
 sub on_crversion {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $nick	= $event->nick();
     my $ver;
 
@@ -1134,15 +1163,17 @@ sub on_crversion {
 }
 
 sub on_version {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my $nick = $event->nick;
 
     &status(">>> ${b_green}CTCP VERSION$ob request from $b_cyan$nick$ob");
-    $self->ctcp_reply($nick, "VERSION $bot_version");
+    $conn->ctcp_reply($nick, "VERSION $bot_version");
 }
 
 sub on_who {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my @args	= $event->args;
     my $str	= $args[5]."!".$args[2]."\@".$args[3];
 
@@ -1163,21 +1194,24 @@ sub on_who {
 }
 
 sub on_whois {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my @args	= $event->args;
 
     $nuh{lc $args[1]} = $args[1]."!".$args[2]."\@".$args[3];
 }
 
 sub on_whoischannels {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my @args	= $event->args;
 
     &DEBUG("on_whoischannels: @args");
 }
 
 sub on_useronchannel {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my @args	= $event->args;
 
     &DEBUG("on_useronchannel: @args");
@@ -1189,7 +1223,8 @@ sub on_useronchannel {
 ###
 
 sub on_chanfull {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my @args	= $event->args;
 
     &status(">>> chanfull/$b_blue$args[1]$ob");
@@ -1198,7 +1233,8 @@ sub on_chanfull {
 }
 
 sub on_inviteonly {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my @args	= $event->args;
 
     &status(">>> inviteonly/$b_cyan$args[1]$ob");
@@ -1207,7 +1243,8 @@ sub on_inviteonly {
 }
 
 sub on_banned {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my @args	= $event->args;
     my $chan	= $args[1];
 
@@ -1217,7 +1254,8 @@ sub on_banned {
 }
 
 sub on_badchankey {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my @args	= $event->args;
 
     &DEBUG("on_badchankey: args => @args");
@@ -1225,7 +1263,8 @@ sub on_badchankey {
 }
 
 sub on_useronchan {
-    my ($self, $event) = @_;
+    $conn = shift(@_);
+    my ($event) = @_;
     my @args	= $event->args;
 
     &DEBUG("on_useronchan: args => @args");
