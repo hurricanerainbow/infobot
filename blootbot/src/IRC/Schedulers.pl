@@ -489,6 +489,8 @@ sub leakCheck {
     my $delete	= 0;
     foreach (keys %nuh) {
 	next if (&IsNickInAnyChan($_));
+	next if (exists $dcc{CHAT}{$_});
+
 	delete $nuh{$_};
 	$delete++;
     }
@@ -527,7 +529,7 @@ sub ignoreCheck {
 sub ircCheck {
 
     if (@_) {
-	&ScheduleThis(240, "ircCheck");
+	&ScheduleThis(120, "ircCheck");
 	return if ($_[0] eq "2");	# defer.
     } else {
 	delete $sched{"ircCheck"}{RUNNING};
@@ -898,11 +900,18 @@ sub dccStatus {
 
     my $time = strftime("%H:%M", localtime(time()) );
 
+    my $c;
     foreach (keys %channels) {
-	my $users	= keys %{ $channels{$_}{''} };
-	my $chops	= keys %{ $channels{$_}{o}  };
-	my $bans	= keys %{ $channels{$_}{b}  };
-	&DCCBroadcast("[$time] $_: $users members ($chops chops), $bans bans","+o");
+	my $c		= $_;
+	my $users	= keys %{ $channels{$c}{''} };
+	my $chops	= keys %{ $channels{$c}{o}  };
+	my $bans	= keys %{ $channels{$c}{b}  };
+
+	my $txt = "[$time] $c: $users members ($chops chops), $bans bans";
+	foreach (keys %{ $dcc{'CHAT'} }) {
+	    next unless (exists $channels{$c}{''}{lc $_});
+	    $conn->privmsg($dcc{'CHAT'}{$_}, $txt);
+	}
     }
 }
 
