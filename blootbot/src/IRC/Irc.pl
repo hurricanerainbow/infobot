@@ -175,7 +175,7 @@ sub irc {
 
     $ircstats{'Server'}	= "$server:$port";
 
-    $irc->addfh(STDIN, \&on_stdin, "r");
+#    $irc->addfh(STDIN, \&on_stdin, "r");
 
     &status("starting main loop");
 
