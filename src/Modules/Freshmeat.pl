@@ -20,7 +20,8 @@ my %urls = (
 # Usage: &Freshmeat($string);
 sub Freshmeat {
     my $sstr	= lc($_[0]);
-    my $refresh	= $::param{'freshmeatRefreshInterval'} * 60 * 60;
+    my $refresh	= &::getChanConfDefault("freshmeatRefreshInterval",
+			"", 24) * 60 * 60;
 
     my $last_refresh = &::dbGet("freshmeat", "name","_","stable");
     my $renewtable   = 0;
