@@ -128,14 +128,14 @@ sub randomQuote {
 	return if ($_[0] eq "2");	# defer.
     }
 
-    my $line = &getRandomLineFromFile($bot_data_dir. "/blootbot.randtext");
-    if (!defined $line) {
-	&ERROR("random Quote: weird error?");
-	return;
-    }
-
     foreach ( &ChanConfList("randomQuote") ) {
 	next unless (&validChan($_));
+
+	my $line = &getRandomLineFromFile($bot_data_dir. "/blootbot.randtext");
+	if (!defined $line) {
+	    &ERROR("random Quote: weird error?");
+	    return;
+	}
 
 	&status("sending random Quote to $_.");
 	&action($_, "Ponders: ".$line);
@@ -154,22 +154,22 @@ sub randomFactoid {
 	return if ($_[0] eq "2");	# defer.
     }
 
-    while (1) {
-	($key,$val) = &randKey("factoids","factoid_key,factoid_value");
-###	$val =~ tr/^[A-Z]/[a-z]/;	# blah is Good => blah is good.
-	last if (defined $val and $val !~ /^</);
-
-	$error++;
-	if ($error == 5) {
-	    &ERROR("rF: tried 5 times but failed.");
-	    return;
-	}
-    }
-
     foreach ( &ChanConfList("randomFactoid") ) {
 	next unless (&validChan($_));
 
 	&status("sending random Factoid to $_.");
+	while (1) {
+	    ($key,$val) = &randKey("factoids","factoid_key,factoid_value");
+	    &DEBUG("rF: $key, $val");
+###	    $val =~ tr/^[A-Z]/[a-z]/;	# blah is Good => blah is good.
+	    last if ((defined $val) and ($val !~ /^</) and ($key !~ /\#DEL\#/) and ($key !~ /^CMD:/));
+
+	    $error++;
+	    if ($error == 5) {
+		&ERROR("rF: tried 5 times but failed.");
+		return;
+	    }
+	}
 	&action($_, "Thinks: \037$key\037 is $val");
 	### FIXME: Use &getReply() on above to format factoid properly?
 	$good++;
