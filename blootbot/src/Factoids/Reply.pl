@@ -29,7 +29,7 @@ sub getReply {
     $message =~ tr/A-Z/a-z/;
     $message =~ s/^cmd:/CMD:/;
 
-    if (!$literal and &IsChanConf("factoidSearch")) {
+    if (&IsChanConf("factoidSearch")) {
 	@searches = split(/\s+/, &getChanConf("factoidSearch"));
     } else {
 	@searches = ('_default');
@@ -130,8 +130,6 @@ sub getReply {
 	    }
 	}
     }
-
-    return $reply if ($literal);
 
     # remove excessive beginning and end whitespaces.
     $reply	=~ s/^\s+|\s+$//g;
