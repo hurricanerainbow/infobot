@@ -31,22 +31,22 @@ sub addCmdHook {
 
 # RUN IF ADDRESSED.
 sub parseCmdHook {
-    my @args = split(' ', $message);
+    my @args	= split(' ', $message);
+    my $cmd	= shift(@args);
 
     &shmFlush();
 
     foreach (keys %cmdhooks) {
 	my $ident = $_;
 
-	next unless ($args[0] =~ /^$ident$/i);
-	shift(@args);	# just gotta do it.
+	next unless ($cmd =~ /^$ident$/i);
 
-	&DEBUG("pCH: $args[0] matched $ident");
+	&DEBUG("pCH: $cmd matched $ident");
 	my %hash = %{ $cmdhooks{$ident} };
 
 	### DEBUG.
 	foreach (keys %hash) {
-	    &DEBUG(" $args[0]\->$_ => '$hash{$_}'.");
+	    &DEBUG(" $cmd->$_ => '$hash{$_}'.");
 	}
 
 	### HELP.
@@ -483,12 +483,13 @@ sub cookie {
 }
 
 sub convert {
-    my (@args) = @_;
-    my ($from,$to);
-    ($from,$to) = ($args[0],$args[2]) if ($args[1] =~ /^from$/i);
-    ($from,$to) = ($args[2],$args[0]) if ($args[1] =~ /^to$/i);
+    my $arg = join(' ',@_);
+    my ($from,$to) = ('','');
 
-    if (!defined $from or !defined $to or $to eq "" or $from eq "") {
+    ($from,$to) = ($1,$2) if ($arg =~ /^(.*?) to (.*)$/i);
+    ($from,$to) = ($2,$1) if ($arg =~ /^(.*?) from (.*)$/i);
+
+    if (!$to or !$from) {
 	&msg($who, "Invalid format!");
 	&help("convert");
 	return $noreply;
