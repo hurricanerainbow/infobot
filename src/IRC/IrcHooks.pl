@@ -789,7 +789,7 @@ sub on_quit {
     # hack for ICC.
     $msgType	= "public";
     $who	= $nick;
-    $chan	= $reason;	# not in split!
+###    $chan	= $reason;	# no.
 
     my $count	= 0;
     foreach (keys %channels) {
@@ -847,12 +847,16 @@ sub on_targettoofast {
     my($me,$chan,$why) = $event->args();
 
     ### TODO: incomplete.
-###    .* wait (\d+) second/) {
-	&status("on_ttf: X1 $why") if (defined $why);
-	my $sleep = 5;
+    if ($why =~ /.* wait (\d+) second/) {
+	my $sleep = $1;
 	&status("targettoofast: going to sleep for $sleep...");
 	sleep $sleep;
-### }
+    } else {
+	if (!exists $cache{TargetTooFast}) {
+	    &DEBUG("on_ttf: failed: $why");
+	    $cache{TargetTooFast}++;
+	}
+    }
 }
 
 sub on_topic {
