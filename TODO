@@ -1,6 +1,8 @@
 TODO:
 	- let's get a release out!
 	- kill SHM and and move to a pipe
+	- add CIA like support - http://cia.navi.cx/
+	- add pastebot like support - http://sial.org/pbot/
 	- move nicks/server into sql table
 	- make channel flags be server/channel flags
 	- move channel flags to sql table, include initial state
