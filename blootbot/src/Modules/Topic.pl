@@ -99,7 +99,7 @@ sub topicNew {
 
   # notification that the topic was altered.
   if (!$topicUpdate) {		# for cached changes with '-'.
-    &performReply("okay");
+    &msg($who, "okay");
     return 1;
   }
 
