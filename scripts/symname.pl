@@ -85,7 +85,11 @@ sub DumpPackage {
  my $symname;
  foreach $symname (sort keys %$package) {
   local *sym = $$package{$symname};
-  print "$padding \$$symname='$sym'\n" if (defined $sym);
+  if (defined $sym) {
+   print "$padding \$$symname='$sym'\n";
+   $scalar++;
+   $size += length($sym);
+  }
   $size += &DumpArray($pad+1, $symname, \@sym) if (defined @sym);
   $size += &DumpHash($pad+1, $symname, \%sym) if (defined %sym);
   $size += &DumpPackage($pad+1, \%sym, $symname) if (($symname =~ /::/) and ($symname ne 'main::'));
