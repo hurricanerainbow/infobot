@@ -130,7 +130,7 @@ sub on_endofmotd {
     }
 
     if (&IsParam("ircUMode")) {
-	&status("Changing user modes to $param{'ircUMode'}.");
+	&status("Attempting change of user modes to $param{'ircUMode'}.");
 	&rawout("MODE $ident $param{'ircUMode'}");
     }
 
@@ -641,7 +641,7 @@ sub on_targettoofast {
     }
 
 ###    .* wait (\d+) second/) {
-	&status($msg);
+	&status("X1 $msg");
 	my $sleep = $3 + 10;
 
 	&status("going to sleep for $sleep...");
