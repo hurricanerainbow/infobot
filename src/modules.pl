@@ -61,10 +61,17 @@ sub loadCoreModules {
 
     &status("Loading CORE modules...");
 
+    my @mods;
     while (defined(my $file = readdir DIR)) {
 	next unless $file =~ /\.pl$/;
 	next unless $file =~ /^[A-Z]/;
-	my $mod = "$bot_src_dir/$file";
+	push(@mods, $file);
+    }
+    closedir DIR;
+    &DEBUG("mods: ".scalar(@mods)." to be loaded...");
+
+    foreach (sort @mods) {
+	my $mod = "$bot_src_dir/$_";
 
 	### TODO: use eval and exit gracefully?
 	eval "require \"$mod\"";
@@ -75,9 +82,8 @@ sub loadCoreModules {
 	}
 
 	$moduleAge{$mod} = (stat $mod)[9];
-	&showProc(" ($file)") if (&IsParam("DEBUG"));
+	&showProc(" ($_)") if (&IsParam("DEBUG"));
     }
-    closedir DIR;
 }
 
 sub loadDBModules {
