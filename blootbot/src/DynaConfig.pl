@@ -225,7 +225,10 @@ sub readChanFile {
 	    $chanconf{$chan}{$1} = 1;
 
 	} elsif (/^[\s\t]+\-(\S+)$/) {		# bool, false.
-	    $chanconf{$chan}{$1} = 0;
+	    &DEBUG("deprecated support of negative options.") unless ($cache{negative});
+	    # although this is supported in run-time configuration.
+	    $cache{negative} = 1;
+#	    $chanconf{$chan}{$1} = 0;
 
 	} elsif (/^[\s\t]+(\S+)[\ss\t]+(.*)$/) {# what = val.
 	    $chanconf{$chan}{$1} = $2;
@@ -246,6 +249,8 @@ sub readChanFile {
 	    undef $chanconf{$chan}{$_};
 	}
     }
+
+    delete $cache{negative};
 
     &status("CHANFILE: Loaded: ".(scalar(keys %chanconf)-1)." chans");
 }
@@ -422,9 +427,14 @@ sub ckpasswd {
     return 0 unless ($plain ne "" and $encrypted ne "");
 
     # MD5 // DES. Bobby Billingsley++.
-    my $salt = substr($encrypted, 0, 2);
-    if ($encrypted =~ /^\$\d\$(\w\w)\$/) {
+    my $salt;
+    if ($encrypted =~ /^(\S{2})/ and length $encrypted == 13) {
 	$salt = $1;
+    } elsif ($encrypted =~ /^\$\d\$(\w\w)\$/) {
+	$salt = $1;
+    } else {
+	&DEBUG("unknown salt from $encrypted.");
+	return 0;
     }
 
     return ($encrypted eq crypt($plain, $salt));
@@ -541,6 +551,19 @@ sub banAdd {
     $exist++ if (exists $bans{$chan}{$mask} or
 		exists $bans{'*'}{$mask});
     $bans{$chan}{$mask} = [$expire, time(), 0, $who, $reason];
+
+    my @chans	= ($chan eq "*") ? keys %channels : $chan;
+    my $m	= $mask;
+    $m		=~ s/\?/\\./g;
+    $m		=~ s/\*/\\S*/g;
+    foreach (@chans) {
+	my $chan = $_;
+	foreach (keys %{ $channels{$chan}{''} }) {
+	    next unless (exists $nuh{lc $_});
+	    next unless ($nuh{lc $_} =~ /^$m$/i);
+	    &FIXME("nuh{$_} =~ /$m/");
+	}
+    }
 
     if ($exist == 1) {
 	$utime_userfile = time();
@@ -709,6 +732,10 @@ my @regFlagsChan = (
 ### TODO: finish off this list.
 );
 
-my @regFlagsUser = ("mno");	# todo...
+my @regFlagsUser = (
+	"m",		# master
+	"n",		# owner
+	"o",		# op
+);	# todo...
 
 1;
