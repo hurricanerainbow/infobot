@@ -102,7 +102,6 @@ sub irc {
     $args{'Password'} = $param{'ircPasswd'} if ($param{'ircPasswd'});
 
     foreach my $mynick (split ',', $param{'ircNick'}) {
-	&DEBUG("got $mynick");
 	&status("Connecting to port $port of server $server ($resolve) as $mynick ...");
 	$args{'Nick'} = $mynick;
 	$conns{$mynick} = $irc->newconn(%args);
