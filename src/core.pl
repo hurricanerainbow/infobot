@@ -26,6 +26,7 @@ use vars qw(@joinchan @ircServers @wingateBad @wingateNow @wingateCache
 use vars qw(%count %netsplit %netsplitservers %flood %dcc %orig
 	    %nuh %talkWho %seen %floodwarn %param %dbh %ircPort %userList
 	    %jointime %topic %joinverb %moduleAge %last %time %mask %file
+	    %forked %pid %fork
 );
 
 # Signals.
@@ -60,6 +61,8 @@ sub doExit {
     } elsif ($bot_pid == $$) {	# parent.
 	&status("parent caught SIG$sig (pid $$).") if (defined $sig);
 
+	&status("--- Start of quit.");
+
 	my $type;
 	&closeDCC();
 	&closePID();
@@ -71,6 +74,7 @@ sub doExit {
 	&dumpallvars()  if (&IsParam("dumpvarsAtExit"));
 	&closeLog();
 	&closeSQLDebug()	if (&IsParam("SQLDebug"));
+	&status("--- QUIT.");
     } else {					# child.
 	&status("child caught SIG$sig (pid $$).");
     }
@@ -147,6 +151,7 @@ sub showProc {
 sub setup {
     &showProc(" (\&openLog before)");
     &openLog();		# write, append.
+    &status("--- Started logging.");
 
     foreach ("debian") {
 	my $dir = "$bot_base_dir/$_/";
@@ -237,6 +242,10 @@ sub shutdown {
 
 sub restart {
     my ($sig) = @_;
+
+    &DEBUG(" forked => ".scalar(keys %forked) );
+    &DEBUG(" fork   => ".scalar(keys %fork) );
+    &DEBUG(" pid    => ".scalar(keys %pid) );
 
     if ($$ == $bot_pid) {
 	&status("--- $sig called.");
