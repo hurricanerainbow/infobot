@@ -1,6 +1,6 @@
 #
 # zippy -- infobot module for Zippy the Pinhead quotes
-#          hacked up by Rich Lafferty (mendel) <rich@vax2.concordia.ca> 
+#          hacked up by Rich Lafferty (mendel) <rich@vax2.concordia.ca>
 #
 # Data gratuitously swiped from fortune-mod-9708, the 'fortune' program.
 #
@@ -9,19 +9,20 @@ package zippy;
 
 my $no_zippy; # Can't think of any situation in which this won't work..
 
-sub zippy::get { 
+sub zippy::get {
     unless (@yows) { # read data unless it's been read already.
 	print "Reading...\n";
 	while (<DATA>) {
 	    chomp;
-	    push @yows, $_; 
+	    push @yows, $_;
 	}
     }
-   
+
     if ($no_zippy) { # ..but just in case :-)
 	return "YOW! I'm an INFOBOT without ZIPPY!" if $main::addressed;
     }
-    
+
+    srand(); # fork seems to not change rand. force it here
     my $yow = $yows[rand(@yows)];
 
     &::performStrictReply($yow);
@@ -144,7 +145,7 @@ Finally, Zippy drives his 1958 RAMBLER METROPOLITAN into the faculty dining room
 First, I'm going to give you all the ANSWERS to today's test ...  So just plug in your SONY WALKMANS and relax!!
 FOOLED you!  Absorb EGO SHATTERING impulse rays, polyester poltroon!! for ARTIFICIAL FLAVORING!!
 Four thousand different MAGNATES, MOGULS & NABOBS are romping in my gothic solarium!!
-FROZEN ENTREES may be flung by members of opposing SWANSON SECTS ... 
+FROZEN ENTREES may be flung by members of opposing SWANSON SECTS ...
 FUN is never having to say you're SUSHI!!
 Gee, I feel kind of LIGHT in the head now, knowing I can't make my satellite dish PAYMENTS!
 Gibble, Gobble, we ACCEPT YOU ...
@@ -218,7 +219,7 @@ I have a TINY BOWL in my HEAD
 I have a very good DENTAL PLAN.  Thank you.
 I have a VISION!  It's a RANCID double-FISHWICH on an ENRICHED BUN!!
 I have accepted Provolone into my life!
-I have many CHARTS and DIAGRAMS.. 
+I have many CHARTS and DIAGRAMS..
 ... I have read the INSTRUCTIONS ...
 -- I have seen the FUN --
 I have seen these EGG EXTENDERS in my Supermarket ... I have read the INSTRUCTIONS ...
@@ -311,7 +312,7 @@ I'm having a tax-deductible experience!  I need an energy crunch!!
 I'm having an emotional outburst!!
 I'm having an EMOTIONAL OUTBURST!!  But, uh, WHY is there a WAFFLE in my PAJAMA POCKET??
 I'm having BEAUTIFUL THOUGHTS about the INSIPID WIVES of smug and wealthy CORPORATE LAWYERS ...
-I'm having fun HITCHHIKING to CINCINNATI or FAR ROCKAWAY!! ... 
+I'm having fun HITCHHIKING to CINCINNATI or FAR ROCKAWAY!! ...
 I'm IMAGINING a sensuous GIRAFFE, CAVORTING in the BACK ROOM of a KOSHER DELI
 I'm in direct contact with many advanced fun CONCEPTS.
 I'm into SOFTWARE!
@@ -349,7 +350,7 @@ if it GLISTENS, gobble it!!
 If our behavior is strict, we do not need fun!
 If Robert Di Niro assassinates Walter Slezak, will Jodie Foster marry Bonzo??
 In 1962, you could buy a pair of SHARKSKIN SLACKS, with a "Continental Belt," for $10.99!!
-In Newark the laundromats are open 24 hours a day! 
+In Newark the laundromats are open 24 hours a day!
 INSIDE, I have the same personality disorder as LUCY RICARDO!!
 Inside, I'm already SOBBING!
 Is a tattoo real, like a curb or a battleship?  Or are we suffering in Safeway?
@@ -375,7 +376,7 @@ JAPAN is a WONDERFUL planet -- I wonder if we'll ever reach their level of COMPA
 Jesuit priests are DATING CAREER DIPLOMATS!!
 Jesus is my POSTMASTER GENERAL ...
 Kids, don't gross me off ... "Adventures with MENTAL HYGIENE" can be carried too FAR!
-Kids, the seven basic food groups are GUM, PUFF PASTRY, PIZZA, PESTICIDES, ANTIBIOTICS, NUTRA-SWEET and MILK DUDS!! 
+Kids, the seven basic food groups are GUM, PUFF PASTRY, PIZZA, PESTICIDES, ANTIBIOTICS, NUTRA-SWEET and MILK DUDS!!
 Laundry is the fifth dimension!!  ... um ... um ... th' washing machine is a black hole and the pink socks are bus drivers who just fell in!!
 LBJ, LBJ, how many JOKES did you tell today??!
 Leona, I want to CONFESS things to you ... I want to WRAP you in a SCARLET ROBE trimmed with POLYVINYL CHLORIDE ... I want to EMPTY your ASHTRAYS ...
@@ -393,7 +394,7 @@ Make me look like LINDA RONSTADT again!!
 Mary Tyler Moore's SEVENTH HUSBAND is wearing my DACRON TANK TOP in a cheap hotel in HONOLULU!
 Maybe we could paint GOLDIE HAWN a rich PRUSSIAN BLUE --
 MERYL STREEP is my obstetrician!
-MMM-MM!!  So THIS is BIO-NEBULATION! 
+MMM-MM!!  So THIS is BIO-NEBULATION!
 Mmmmmm-MMMMMM!!  A plate of STEAMING PIECES of a PIG mixed with the shreds of SEVERAL CHICKENS!! ... Oh BOY!!  I'm about to swallow a TORN-OFF section of a COW'S LEFT LEG soaked in COTTONSEED OIL and SUGAR!! ... Let's see ... Next, I'll have the GROUND-UP flesh of CUTE, BABY LAMBS fried in the MELTED, FATTY TISSUES from a warm-blooded animal someone once PETTED!! ... YUM!!  That was GOOD!!  For DESSERT, I'll have a TOFU BURGER with BEAN SPROUTS on a stone-ground, WHOLE WHEAT BUN!!
 Mr and Mrs PED, can I borrow 26.7% of the RAYON TEXTILE production of the INDONESIAN archipelago?
 My Aunt MAUREEN was a military advisor to IKE & TINA TURNER!!
@@ -408,7 +409,7 @@ My life is a patio of fun!
 My mind is a potato field ...
 My mind is making ashtrays in Dayton ...
 My nose feels like a bad Ronald Reagan movie ...
-My NOSE is NUMB! 
+My NOSE is NUMB!
 ... My pants just went on a wild rampage through a Long Island Bowling Alley!!
 My pants just went to high school in the Carlsbad Caverns!!!
 My polyvinyl cowboy wallet was made in Hong Kong by Montgomery Clift!
@@ -426,8 +427,8 @@ Now I'm being INVOLUNTARILY shuffled closer to the CLAM DIP with the BROKEN PLAS
 Now I'm concentrating on a specific tank battle toward the end of World War II!
 Now I'm having INSIPID THOUGHTS about the beatiful, round wives of HOLLYWOOD MOVIE MOGULS encased in PLEXIGLASS CARS and being approached by SMALL BOYS selling FRUIT ...
 Now KEN and BARBIE are PERMANENTLY ADDICTED to MIND-ALTERING DRUGS ...
-Now my EMOTIONAL RESOURCES are heavily committed to 23% of the SMELTING and REFINING industry of the state of NEVADA!! 
-Now that I have my "APPLE", I comprehend COST ACCOUNTING!! 
+Now my EMOTIONAL RESOURCES are heavily committed to 23% of the SMELTING and REFINING industry of the state of NEVADA!!
+Now that I have my "APPLE", I comprehend COST ACCOUNTING!!
 Now, let's SEND OUT for QUICHE!!
 Of course, you UNDERSTAND about the PLAIDS in the SPIN CYCLE --
 Oh my GOD -- the SUN just fell into YANKEE STADIUM!!
@@ -443,9 +444,9 @@ Once upon a time, four AMPHIBIOUS HOG CALLERS attacked a family of DEFENSELESS, 
 Once, there was NO fun ... This was before MENU planning, FASHION statements or NAUTILUS equipment ... Then, in 1985 ... FUN was completely encoded in this tiny MICROCHIP ... It contain 14,768 vaguely amusing SIT-COM pilots!!  We had to wait FOUR BILLION years but we finally got JERRY LEWIS, MTV and a large selection of creme-filled snack cakes!
 One FISHWICH coming up!!
 ONE LIFE TO LIVE for ALL MY CHILDREN in ANOTHER WORLD all THE DAYS OF OUR LIVES.
-ONE: I will donate my entire "BABY HUEY" comic book collection to the downtown PLASMA CENTER ... TWO: I won't START a BAND called "KHADAFY & THE HIT SQUAD" ... THREE: I won't ever TUMBLE DRY my FOX TERRIER again!! 
+ONE: I will donate my entire "BABY HUEY" comic book collection to the downtown PLASMA CENTER ... TWO: I won't START a BAND called "KHADAFY & THE HIT SQUAD" ... THREE: I won't ever TUMBLE DRY my FOX TERRIER again!!
 ... or were you driving the PONTIAC that HONKED at me in MIAMI last Tuesday?
-Our father who art in heaven ... I sincerely pray that SOMEBODY at this table will PAY for my SHREDDED WHAT and ENGLISH MUFFIN ... and also leave a GENEROUS TIP .... 
+Our father who art in heaven ... I sincerely pray that SOMEBODY at this table will PAY for my SHREDDED WHAT and ENGLISH MUFFIN ... and also leave a GENEROUS TIP ....
 over in west Philadelphia a puppy is vomiting ...
 OVER the underpass!  UNDER the overpass!  Around the FUTURE and BEYOND REPAIR!!
 PARDON me, am I speaking ENGLISH?
@@ -459,7 +460,7 @@ Psychoanalysis??  I thought this was a nude rap session!!!
 PUNK ROCK!!  DISCO DUCK!!  BIRTH CONTROL!!
 Quick, sing me the BUDAPEST NATIONAL ANTHEM!!
 RELATIVES!!
-Remember, in 2039, MOUSSE & PASTA will be available ONLY by prescription!! 
+Remember, in 2039, MOUSSE & PASTA will be available ONLY by prescription!!
 RHAPSODY in Glue!
 SANTA CLAUS comes down a FIRE ESCAPE wearing bright blue LEG WARMERS ... He scrubs the POPE with a mild soap or detergent for 15 minutes, starring JANE FONDA!!
 Send your questions to ``ASK ZIPPY'', Box 40474, San Francisco, CA 94140, USA
@@ -476,7 +477,7 @@ Somewhere in suburban Honolulu, an unemployed bellhop is whipping up a batch of 
 Somewhere in Tenafly, New Jersey, a chiropractor is viewing "Leave it
 to Beaver"!
 Spreading peanut butter reminds me of opera!!  I wonder why?
-TAILFINS!! ... click ... Talking Pinhead Blues: Oh, I LOST my ``HELLO KITTY'' DOLL and I get BAD reception on channel TWENTY-SIX!! 
+TAILFINS!! ... click ... Talking Pinhead Blues: Oh, I LOST my ``HELLO KITTY'' DOLL and I get BAD reception on channel TWENTY-SIX!!
 Th'HOSTESS FACTORY is closin' down and I just heard ZASU PITTS has been DEAD for YEARS..  (sniff)
 My PLATFORM SHOE collection was CHEWED up by th' dog, ALEXANDER HAIG  won't let me take a SHOWER 'til Easter ... (snurf)
 So I went to the kitchen, but WALNUT PANELING whup me upside mah HAID!!  (on no, no, no..  Heh, heh)
