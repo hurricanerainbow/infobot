@@ -365,7 +365,7 @@ sub chanlimitCheck {
 	}
 
 	next unless (!defined $limit);
-	if ($limit == $newlimit) {
+	if (defined $limit and $limit == $newlimit) {
 	    $cache{chanlimitChange}{$chan} = time();
 	    next;
 	}

@@ -354,6 +354,12 @@ sub setup {
 
     &status("Setup: ". &countKeys("factoids") ." factoids.");
     &News::readNews() if (&ChanConfList("news"));
+    &getChanConfDefault("sendPrivateLimitLines", 3);
+    &getChanConfDefault("sendPrivateLimitBytes", 1000);
+    &getChanConfDefault("sendPublicLimitLines", 3);
+    &getChanConfDefault("sendPublicLimitBytes", 1000);
+    &getChanConfDefault("sendNoticeLimitLines", 3);
+    &getChanConfDefault("sendNoticeLimitBytes", 1000);
 
     $param{tempDir} =~ s#\~/#$ENV{HOME}/#;
 

@@ -190,6 +190,17 @@ sub on_endofmotd {
     &joinNextChan();
 }
 
+sub on_endofwho {
+    my ($self, $event) = @_;
+#    &DEBUG("endofwho: chan => $chan");
+    $chan	||= ($event->args)[1];
+#    &DEBUG("endofwho: chan => $chan");
+
+    if (exists $cache{countryStats}) {
+	&do_countrystats();
+    }
+}
+
 sub on_dcc {
     my ($self, $event) = @_;
     my $type = uc( ($event->args)[1] );
@@ -977,6 +988,14 @@ sub on_version {
 sub on_who {
     my ($self, $event) = @_;
     my @args	= $event->args;
+    my $str	= $args[5]."!".$args[2]."\@".$args[3];
+
+    if ($cache{on_who_Hack}) {
+	$cache{nuhInfo}{lc $args[5]}{Nick} = $args[5];
+	$cache{nuhInfo}{lc $args[5]}{User} = $args[2];
+	$cache{nuhInfo}{lc $args[5]}{Host} = $args[3];
+	return;
+    }
 
     $nuh{lc $args[5]} = $args[5]."!".$args[2]."\@".$args[3];
 }

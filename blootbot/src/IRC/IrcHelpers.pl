@@ -85,7 +85,7 @@ sub hookMsg {
 	# addressing revamped by the xk.
 	### below needs to be fixed...
 	if (&IsParam("addressCharacter")) {
-	    if ($message =~ s/^$param{'addressCharacter'}//) {
+	    if ($message =~ s/^\Q$param{'addressCharacter'}\E//) {
 		$addrchar  = 1;
 		$addressed = 1;
 	    }

@@ -58,7 +58,7 @@ sub Parse {
 	}
 
 	$chan	= $chans[0];
-	&::DEBUG("Guessed $::who being on chan $chan");
+	&::VERB("Guessed $::who being on chan $chan",2);
 	$::chan	= $chan;	# hack for IsChanConf().
     }
 

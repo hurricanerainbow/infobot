@@ -776,3 +776,12 @@ my @regFlagsUser = (
 );	# todo...
 
 1;
+
+#####
+# Userflags
+#	+r	- ability to remove factoids
+#	+t	- ability to teach factoids
+#	+m	- ability to modify factoids
+#	+n	- bot owner
+#	+o	- authorised user of bot (like +m on eggdrop)
+#####
