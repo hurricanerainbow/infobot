@@ -17,20 +17,11 @@ my $refresh = &::getChanConfDefault("debianRefreshInterval",7)
 my $debug	= 0;
 my $debian_dir	= "$::bot_state_dir/debian";
 
-### ... old
-#my %dists	= (
-#	"sid"		=> "unstable",
-#	"woody"		=> "testing",	# new since 20001219.
-#	"potato"	=> "stable",
-#	"incoming"	=> "incoming",
-#);
-
-### new... the right way.
 my %dists	= (
 	"unstable"	=> "sid",
-	"testing"	=> "sarge",	# new since 20020719.
+	"testing"	=> "sarge",
 	"stable"	=> "woody",
-	"old-stable"	=> "potato",
+	"old-stable"	=> "potato",	# this still works?
 	"incoming"	=> "incoming",
 );
 

@@ -887,6 +887,7 @@ sub on_public {
 	    $v++;
 
 	    # don't allow ppl to cheat the stats :-)
+	    next unless (defined $t);
 	    next unless ($time - $t > 10);
 
 	    my %hash = (

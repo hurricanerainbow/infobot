@@ -312,7 +312,7 @@ sub dbReplace {
 	    push(@vals, $hash{'-'.$_});
 	} else {
 	    push(@keys, $_);
-	    push(@vals, &dbQuote($hash{$_}));
+	    push(@vals, &dbQuote( $hash{$_} ));
 	}
     }
 

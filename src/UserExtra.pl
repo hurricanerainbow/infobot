@@ -347,7 +347,7 @@ sub tell {
     $who		= $oldwho;
 
     # no such factoid.
-    if ($result =~ /^0?$/) {
+    if (!defined $result || $result =~ /^0?$/) {
 	$who		= $target;
 	$msgType	= "private";
 
