@@ -3,7 +3,7 @@
 #      Author: dms
 #     Version: v0.1 (20021122).
 #     Created: 20021122
-#	 NOTE: Motivated by BZFlag.
+#	 NOTE: Motivated by TimRiker.
 #        TODO: full-fledged notes services (optional auth, etc)
 #
 
