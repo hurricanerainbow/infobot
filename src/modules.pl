@@ -138,6 +138,7 @@ sub loadIRCModules {
 	    exit 1;
 	}
 	&showProc(" (Net::IRC)");
+
     } else {
 	&status("IRC support DISABLED.");
 	return;
@@ -323,18 +324,19 @@ sub loadMyModule {
 }
 
 ### this chews 3megs on potato, 300 kB on slink.
-$no_syscall = 0;
-###eval "require 'sys/syscall.ph'";
+#$no_syscall = 0;
+#eval "require 'sys/syscall.ph'";
 #if ($@) {
-#    &WARN("sys/syscall.ph has not been installed//generated. gettimeofday
-#will use time() instead");
+#    &WARN("sys/syscall.ph has not been installed//generated.
+#gettimeofday will use time() instead");
     $no_syscall = 1;
 #}
-#&showProc(" (syscall)");
+&showProc(" (syscall)");
 
 sub AUTOLOAD {
     &ERROR("UNKNOWN FUNCTION CALLED: $AUTOLOAD");
     foreach (@_) {
+	next unless (defined $_);
 	&status("  => $_");
     }
 }
