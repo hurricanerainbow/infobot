@@ -189,7 +189,7 @@ sub parseCmdHook {
 &addCmdHook("extra", 'uptime', ('CODEREF' => 'uptime', 'Identifier' => 'uptime',
 	'Cmdstats' => 'Uptime') );
 &addCmdHook("extra", 'nullski', ('CODEREF' => 'nullski', ) );
-sub nullski { my ($arg) = @_; foreach (`$arg`) { &msg($who,$_); } }
+	sub nullski { my ($arg) = @_; foreach (`$arg`) { &msg($who,$_); } }
 &addCmdHook("extra", '(fm|freshmeat)', ('CODEREF' => 'Freshmeat::Freshmeat',
 	'Identifier' => 'freshmeat', 'Cmdstats' => 'Freshmeat',
 	'Forker' => 1, 'Help' => 'freshmeat') );
@@ -286,7 +286,7 @@ sub Modules {
 	&loadMyModule($myModules{'nickometer'});
 
 	if ($term =~ /^$mask{chan}$/) {
-	    &DEBUG("nickometer: term == chan.");
+	    &status("Doing nickometer for chan $term.");
 
 	    if (!&validChan($term)) {
 		&msg($who, "error: channel is invalid.");
@@ -296,23 +296,27 @@ sub Modules {
 	    # step 1.
 	    my %nickometer;
 	    foreach (keys %{ $channels{lc $term}{''} }) {
-		if (!defined $_) {
-		    &WARN("nickometer: _ is undefined.");
+		my $value = &nickometer($_);
+
+		if (!defined $value) {
+		    &WARN("nickometer: value is undefined.");
 		    next;
 		}
+		&DEBUG("value => $value.");
 
-		my $value = &nickometer($_);
 		$nickometer{$value}{$_} = 1;
 	    }
+
 	    # step 2.
 	    ### TODO: compact with map?
 	    my @list;
 	    foreach (sort {$a <=> $b} keys %nickometer) {
 		my $str = join(", ", sort keys %{$nickometer{$_}});
-		push(@list, "$str ($_)");
+		push(@list, "$str ($_ %)");
 	    }
 
 	    &pSReply( &formListReply(0, "Nickometer list for $term ", @list) );
+	    &DEBUG("test.");
 
 	    return;
 	}
@@ -664,25 +668,35 @@ sub do_verstats {
 	return;
     }
 
-    if (scalar keys %ver) {
-	&DEBUG("keys ver exists... stopping.");
+    if (scalar keys %ver or scalar @vernick) {
+	&DEBUG("verstats already in progress.");
 	return;
     }
 
     &msg($who, "Sending CTCP VERSION...");
     $conn->ctcp("VERSION", $chan);
     $conn->schedule(60, sub {
-	my $total = 0;
+	my $vtotal	= 0;
+	my $total	= keys %{ $channels{lc $chan}{''} };
 
 	foreach (keys %ver) {
-	    $total += scalar keys %{ $ver{$_} };
+	    $vtotal	+= scalar keys %{ $ver{$_} };
 	}
 
 	my %sorted;
+	my $unknown	= $total - $vtotal;
+	my $perc	= sprintf("%.1f", $unknown * 100 / $total);
+	$sorted{$perc}	= "unknown/cloak - $unknown ($perc %)";
+	$perc		=~ s/.0$//;
+
 	foreach (keys %ver) {
-	    my $count = scalar keys %{ $ver{$_} };
-	    my $perc  = sprintf("%.01f", $count * 100 / $total);
-	    $perc =~ s/.0$//;	# lame compression.
+	    my $count	= scalar keys %{ $ver{$_} };
+	    $perc	= sprintf("%.01f", $count * 100 / $total);
+	    $perc	=~ s/.0$//;	# lame compression.
+
+	    if (exists $sorted{$perc}) {
+		&WARN("sorted{$perc} already exists; FIXME.");
+	    }
 
 	    $sorted{$perc} = "$_ - $count ($perc %)";
 	}
@@ -695,7 +709,9 @@ sub do_verstats {
 
 	&pSReply( &formListReply(0, "IRC Client versions for $chan ", @list) );
 
-	undef %ver;	# clean it up.
+	# clean up not-needed data structures.
+	undef %ver;
+	undef @vernick;
     } );
 
     return;
