@@ -115,7 +115,7 @@ sub on_chat {
 
     if ($message =~ s/^\.//) {	# dcc chat commands.
 	### TODO: make use of &Forker(); here?
-	&loadMyModule( $myModules{'ircdcc'} );
+	&loadMyModule( $myModules{'UserDCC'} );
 
 	&DCCBroadcast("#$who# $message","m");
 
