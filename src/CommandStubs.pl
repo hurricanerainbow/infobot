@@ -674,9 +674,14 @@ sub do_verstats {
 
     &msg($who, "Sending CTCP VERSION...");
     $conn->ctcp("VERSION", $chan);
+#    $cache{verstats}	= $chan;
+
     $conn->schedule(60, sub {
 	my $vtotal	= 0;
-	my $total	= keys %{ $channels{lc $chan}{''} };
+#	my $c		= lc $cache{verstats};
+	my $c		= lc $chan;
+	my $total	= keys %{ $channels{$c}{''} };
+#	delete $cache{verstats};
 
 	foreach (keys %ver) {
 	    $vtotal	+= scalar keys %{ $ver{$_} };
@@ -705,7 +710,7 @@ sub do_verstats {
 	    }
 	}
 
-	&pSReply( &formListReply(0, "IRC Client versions for $chan ", @list) );
+	&pSReply( &formListReply(0, "IRC Client versions for $c ", @list) );
 
 	# clean up not-needed data structures.
 	undef %ver;
