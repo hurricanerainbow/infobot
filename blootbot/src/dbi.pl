@@ -622,9 +622,12 @@ sub checkTables {
 	}
 
 	# retrieve a list of db's from the server.
-	foreach ($dbh->func('_ListTables')) {
-	    $db{$_} = 1;
+	my @tables = map {s/^\`//; s/\`$//; $_;} $dbh->func('_ListTables');
+	if ($#tables == -1){
+	    @tables = $dbh->tables;
 	}
+	&status("Tables: ".join(',',@tables));
+	@db{@tables} = (1) x @tables;
 
     } elsif ($param{DBType} =~ /^SQLite$/i) {
 
