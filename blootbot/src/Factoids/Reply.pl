@@ -110,11 +110,11 @@ sub getReply {
 	$count++;
 	&setFactInfo($lhs,"requested_count", $count);
 
+	# todo: rename $real to something else!
 	my $real   = 0;
-	my $author = &getFactInfo($lhs,"created_by") || '';
-
-	$real++ if ($author =~ /^\Q$who\E\!/);
-	$real++ if (&IsFlag("n"));
+#	my $author = &getFactInfo($lhs,"created_by") || '';
+#	$real++ if ($author =~ /^\Q$who\E\!/);
+#	$real++ if (&IsFlag("n"));
 	$real = 0 if ($msgType =~ /public/);
 
 	### fix up the reply.
