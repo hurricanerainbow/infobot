@@ -173,10 +173,11 @@ sub on_dcc {
     my $nick = $event->nick();
 
     # pity Net::IRC doesn't store nuh. Here's a hack :)
-    $self->whois($nick);
-    $nuh{lc $nick}	= "GETTING-NOW";	# trying.
+    if (!exists $nuh{lc $nick}) {
+	$self->whois($nick);
+	$nuh{lc $nick}	= "GETTING-NOW";	# trying.
+    }
     $type ||= "???";
-    &DEBUG("on_dcc: nuh => GETTING-NOW.");
 
     if ($type eq 'SEND') {	# GET for us.
 	# incoming DCC SEND. we're receiving a file.
