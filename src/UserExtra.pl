@@ -148,6 +148,13 @@ sub chaninfo {
 
     # Step 3:
     ### TODO: what's wrong with the following?
+    foreach (keys %userstats) {
+	next if (exists $userstats{$_}{'Count'});
+	delete $userstats{$_};
+	$delete++;
+    }
+    &DEBUG("chanstats: delete: $delete... nowtotal => ".scalar(keys %userstats) );
+
     my %new = map { $userstats{$_}{'Count'} => $_ } keys %userstats;
     my($count) = (sort { $b <=> $a } keys %new)[0];
     if ($count) {

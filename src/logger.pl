@@ -191,7 +191,7 @@ sub status {
     my $status;
 
     if ($input eq $logold) {
-	$logrepeat++;
+	$logrepeat++ unless (/!WARN! PERL: Use of uninitialized/);
 
 	if ($logrepeat >= 3) {
 	    $logrepeat = 0;
