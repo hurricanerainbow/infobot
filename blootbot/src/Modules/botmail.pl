@@ -27,6 +27,9 @@ sub parse {
     if ($what =~ /^(for|add)\s+(.*)$/i) {
 	&add( split(/\s+/, $2, 2) );
 
+    } elsif ($what =~ /^stats?$/i) {
+	&stats();
+
     } elsif ($what =~ /^check?$/i) {
 	&check( $1, 1);
 
@@ -35,6 +38,11 @@ sub parse {
 	&next($::who);
 
     }
+}
+
+sub stats {
+    my $botmail	= &::countKeys("botmail");
+    &::msg($::who, "I have \002$botmail\002 ". &::fixPlural("message", $botmail). ".");
 }
 
 #####
