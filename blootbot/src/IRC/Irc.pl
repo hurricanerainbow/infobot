@@ -271,9 +271,11 @@ sub performReply {
 	}
 	&msg($who, $reply);
     } elsif ($msgType eq 'chat') {
-	&DEBUG("pR: chat: reply => '$reply'.");
-	&DEBUG("pR: chat: sock => '$dcc{'CHAT'}{$nick}'.");
-	&DEBUG("pR: chat: sock => '$dcc{'CHAT'}{$who}'.");
+	if (!exists $dcc{'CHAT'}{$who}) {
+	    &WARN("pSR: dcc{'CHAT'}{$who} does not exist.");
+	    return;
+	}
+	$conn->privmsg($dcc{'CHAT'}{$who}, $reply);
     } else {
 	&ERROR("PR: msgType invalid? ($msgType).");
     }
@@ -462,6 +464,21 @@ sub joinNextChan {
 
 	if (my $i = scalar @joinchan) {
 	    &status("joinNextChan: $i chans to join.");
+	}
+    } else {
+	return unless (&IsParam("chanServ_ops"));
+	if (!$nickserv) {
+	    &DEBUG("jNC: nickserv/chanserv not up?");
+	}
+
+	my @chans = split(/[\s\t]+/, $param{'chanServ_ops'});
+	foreach $chan (keys %channels) {
+	    next unless (grep /^$chan$/i, @chans);
+
+	    if (!exists $channels{$chan}{'o'}{$ident}) {
+		&status("ChanServ ==> Requesting ops for $chan.");
+		&rawout("PRIVMSG ChanServ :OP $chan $ident");
+            }
 	}
     }
 }
