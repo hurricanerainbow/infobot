@@ -44,6 +44,8 @@ sub shmRead {
 	return $retval;
     } else {
 	&ERROR("shmRead: failed: $!");
+	### TODO: if this fails, never try again.
+	&openSHM();
 	return '';
     }
 }
