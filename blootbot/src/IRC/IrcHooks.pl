@@ -812,13 +812,14 @@ sub on_part {
     $conn = shift(@_);
     my ($event) = @_;
     $chan	= lc( ($event->to)[0] );	# CASING!!!
+    my $mynick	= $conn->nick();
     my $nick	= $event->nick;
     my $userhost = $event->userhost;
     $who	= $nick;
     $msgType	= "public";
 
-    if (0 and !exists $channels{$chan}) {
-	&DEBUG("on_part: found out we're on $chan!");
+    if (!exists $channels{$chan}) {
+	&DEBUG("on_part: found out $mynick is on $chan!");
 	$channels{$chan} = 1;
     }
 
