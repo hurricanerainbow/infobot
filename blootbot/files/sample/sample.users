@@ -1,7 +1,7 @@
 #v1: blootbot -- blootbot -- written Wed Oct 30 03:12:44 2002
 
 _default
---FLAGS		mrt
+--FLAGS		mrta
 --HOSTS		*!*@*
 
 local
