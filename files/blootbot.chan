@@ -1,0 +1,52 @@
+#v1: blootbot -- blootbot -- written Sun Jan 28 20:36:31 2001
+
+#debian-bots
+    ++freshmeat
+    +autojoin
+    -freshmeat
+    +joinfloodCheck
+    limitcheckInterval 10
+    limitcheckPlus 10
+
+_default
+    +allowConv
+    +allowDNS
+    -babelfish
+    +cookie
+    +countdown
+    +debian
+    +debianExtra
+    debianRefreshInterval 7
+    +dict
+    floodMessages 10:30
+    floodRepeat 2:10
+    +freshmeat
+    -freshmeatForFactoid
+    freshmeatRefreshInterval 24
+    -insult
+    +karma
+    +kernel
+    +lart
+    +limitcheck
+    +log
+    +nickometer
+    +perlMath
+    +quote
+    -randomFactoid
+    -randomQuote
+    +rootWarn
+    rootWarnMode passive
+    +search
+    +seen
+    seenFlushInterval 60
+    seenMaxDays 90
+    +seenStats
+    +slashdot
+    +spell
+    +tell
+    +topic
+    +units
+    +uptime
+    +userinfo
+    +wwwsearch
+
