@@ -88,9 +88,11 @@ sub sqlSelectMany {
 	return;
     }
 
-    my $where = ($where_href) ? &hashref2where($where_href) : "";
-    $query .= " WHERE $where"	if ($where);
-    $query .= "$other"		if $other;
+    if ($where_href) {
+	my $where = &hashref2where($where_href);
+	$query .= " WHERE $where" if ($where);
+    }
+    $query .= " $other"		if $other;
 
     if (!($sth = $dbh->prepare($query))) {
 	&ERROR("sqlSelectMany: prepare: $DBI::errstr");
@@ -130,13 +132,33 @@ sub sqlSelect {
 }
 
 #####
-#  Usage: &sqlSelectColHash($table, $select, [$where_href], [$type]);
+#  Usage: &sqlSelectColArray($table, $select, [$where_href], [$other]);
+# Return: array.
+sub sqlSelectColArray {
+    my $sth	= &sqlSelectMany(@_);
+    my @retval;
+
+    if (!defined $sth) {
+	&WARN("sqlSelect failed.");
+	return;
+    }
+
+    while (my @row = $sth->fetchrow_array) {
+	push(@retval, $row[0]);
+    }
+    $sth->finish;
+
+    return @retval;
+}
+
+#####
+#  Usage: &sqlSelectColHash($table, $select, [$where_href], [$other], [$type]);
 # Return: type = 1: $retval{ col2 }{ col1 } = 1;
 # Return: no  type: $retval{ col1 } = col2;
 #   Note: does not support $other, yet.
 sub sqlSelectColHash {
-    my ($table, $select, $where_href, $type) = @_;
-    my $sth	= &sqlSelectMany($table, $select, $where_href);
+    my ($table, $select, $where_href, $other, $type) = @_;
+    my $sth	= &sqlSelectMany($table, $select, $where_href, $other);
     if (!defined $sth) {
 	&WARN("sqlSelectColhash failed.");
 	return;
@@ -212,15 +234,14 @@ sub sqlSet {
 	return;
     }
 
-    my $k = (keys %{ $where_href })[0];
+    # any column can be NULL... so just get them all.
+    my $k = join(',', keys %{ $where_href } );
     my $result = &sqlSelect($table, $k, $where_href);
-    &DEBUG("result is not defined :(") if (!defined $result);
+#    &DEBUG("result is not defined :(") if (!defined $result);
 
     if (1 or defined $result) {
 	&sqlUpdate($table, $data_href, $where_href);
     } else {
-	&DEBUG("doing insert...");
-
 	# hack.
 	my %hash = %{ $where_href };
 	# add data_href values...
@@ -378,7 +399,6 @@ sub sqlRawReturn {
 	$sth->finish;
 	return 0;
     }
-
 
     while (my @row = $sth->fetchrow_array) {
 	push(@retval, $row[0]);
