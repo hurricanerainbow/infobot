@@ -67,6 +67,13 @@ babelfish: E: x en de your cars rock
 +ban: E: ## *!*@*microsoft.com STOOPID
 +ban: E: ## MoronMan
 
+botmail: D: Send someone botmail
+botmail: U: ## {for <who>[:] <message>}|stats|check|read
+botmail: E: ## for infobot: you rock!
+botmail: E: ## stats
+botmail: E: ## check
+botmail: E: ## read
+
 -chan: D: Leave a channel permanently
 -chan: U: ## -#channel
 -chan: E: ## -#botpark
@@ -299,6 +306,11 @@ nslookup: E: ## 3.1.33.7
 ord: D: Convert ascii to decimal
 ord: U: ## <single character>
 ord: E: ## c
+
+page: D: Send someone a pager message
+page: U: ## <who> <message>
+page: E: ## infobot you rock!
+page: NOTE: this uses the "<who>'s pager" factoids for the From: and To: addresses of the format "example's pager" is "mailto:me@example.com"
 
 part: D: Leave a channel (DCC only)
 part: U: ## <#channel>
