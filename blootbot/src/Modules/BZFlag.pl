@@ -43,6 +43,7 @@ sub BZFlag::BZFlag {
 sub BZFlag::list {
 	my ($response);
 	my $ua = new LWP::UserAgent;
+	$ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
 
 	$ua->timeout(5);
 
