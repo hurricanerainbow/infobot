@@ -207,7 +207,10 @@ sub process {
     # here's where the external routines get called.
     # if they return anything but null, that's the "answer".
     if ($addressed) {
-	&parseCmdHook();
+	if (&parseCmdHook()) {
+	    return 'DID SOMETHING IN PCH.';
+	}
+
 	my $er = &Modules();
 	if ($er =~ /\S/) {
 	    &performStrictReply($er) if ($er ne $noreply);
@@ -300,8 +303,17 @@ sub FactoidStuff {
 
 	    return 'locked factoid' if (&IsLocked($faqtoid) == 1);
 
-	    &status("forget: <$who> '$faqtoid' =is=> '$result'");
-	    &delFactoid($faqtoid);
+	    if (&IsParam("factoidDeleteDelay")) {
+		&status("forgot (safe delete): <$who> '$faqtoid' =is=> '$result'");
+		&setFactInfo($faqtoid, "factoid_key", $faqtoid." #DEL#");
+
+		### delete info. modified_ isn't really used.
+		&setFactInfo($faqtoid, "modified_by", $who);
+		&setFactInfo($faqtoid, "modified_time", time());
+	    } else {
+		&status("forget: <$who> '$faqtoid' =is=> '$result'");
+		&delFactoid($faqtoid);
+	    }
 
 	    &performReply("i forgot $faqtoid");
 
@@ -309,6 +321,48 @@ sub FactoidStuff {
 	} else {
 	    &performReply("i didn't have anything called '$faqtoid'");
 	}
+
+	return;
+    }
+
+    # factoid unforget/undelete.
+    if ($message =~ s/^un(forget|delete)\s+//i) {
+	return 'unforget: no addr' unless ($addressed);
+
+	if (!&IsParam("factoidDeleteDelay")) {
+	    &performReply("safe delete has been disable so what is there to undelete?");
+	    return;
+	}
+
+	my $faqtoid = $message;
+	if ($faqtoid eq "") {
+	    &help("undelete");
+	    return;
+	}
+
+	$faqtoid =~ tr/A-Z/a-z/;
+	my $result = &getFactoid($faqtoid." #DEL#");
+	my $check  = &getFactoid($faqtoid);
+
+	if (!defined $result) {
+	    &performReply("i didn't have anything ('$faqtoid') to undelete.");
+	    return;
+	}
+
+	if (defined $check) {
+	    &performReply("cannot undeleted '$faqtoid' because it already exists?");
+	    return;
+	}
+
+	&setFactInfo($faqtoid." #DEL#", "factoid_key", $faqtoid);
+
+	### delete info. modified_ isn't really used.
+	&setFactInfo($faqtoid, "modified_by",  "");
+	&setFactInfo($faqtoid, "modified_time", 0);
+
+	&performReply("Successfully recovered '$faqtoid'.  Have fun now.");
+
+	$count{'Undelete'}++;
 
 	return;
     }
