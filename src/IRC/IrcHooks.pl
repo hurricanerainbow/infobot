@@ -427,9 +427,10 @@ sub on_invite {
 
     ### TODO: join key.
     if (exists $chanconf{$chan}) {
+	# it's still buggy :/
 	if (&validChan($chan)) {
 	    &msg($who, "i'm already in \002$chan\002.");
-	    next;
+#	    return;
 	}
 
 	&status("invited to $b_blue$chan$ob by $b_cyan$nick$ob");
@@ -1044,7 +1045,7 @@ sub on_crversion {
     }
 
     if (grep /^\Q$nick\E$/i, @vernick) {
-	&WARN("nick $nick found in vernick; skipping.");
+	&WARN("nick $nick found in vernick ($ver); skipping.");
 	return;
     }
     push(@vernick, $nick);
@@ -1058,17 +1059,17 @@ sub on_crversion {
     } elsif ($ver =~ /irssi/i) {
 	$ver{irssi}{$nick}	= $ver;
 
-    } elsif ($ver =~ /epic/i) {
+    } elsif ($ver =~ /epic|(Third Eye)/i) {
 	$ver{epic}{$nick}	= $ver;
 
     } elsif ($ver =~ /mirc/i) {
-	&DEBUG("verstats: mirc: $nick => '$ver'.");
+#	&DEBUG("verstats: mirc: $nick => '$ver'.");
 	$ver{mirc}{$nick}	= $ver;
 
     } elsif ($ver =~ /ircle/i) {
 	$ver{ircle}{$nick}	= $ver;
 
-    } elsif ($ver =~ /ircII/i) {
+    } elsif ($ver =~ /ircII|PhoEniX/i) {
 	$ver{ircII}{$nick}	= $ver;
 
     } elsif ($ver =~ /sirc /i) {
