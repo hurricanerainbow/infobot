@@ -42,7 +42,7 @@ sub Freshmeat {
     }
 
     if (!&showPackage($sstr)) {		# no exact match.
-	my $start_time = &main::gettimeofday();
+	my $start_time = &main::timeget();
 	my %hash;
 
 	# search by key/NAME first.
@@ -65,7 +65,7 @@ sub Freshmeat {
 	}
 
 	# show how long it took.
-	my $delta_time = &main::gettimeofday() - $start_time;
+	my $delta_time = &main::timedelta($start_time);
 	&main::status(sprintf("freshmeat: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
 
 	for (@list) {
@@ -98,7 +98,7 @@ sub showPackage {
 }
 
 sub downloadIndex {
-    my $start_time	= &main::gettimeofday(); # set the start time.
+    my $start_time	= &main::timeget(); # set the start time.
     my $idx		= "$main::param{tempDir}/fm_index.txt";
 
     &main::msg($main::who, "Updating freshmeat index... please wait");
@@ -186,7 +186,7 @@ sub downloadIndex {
     &main::DEBUG("FM: data ".scalar(@data) );
     &main::dbRaw("UNLOCK", "UNLOCK TABLES");
 
-    my $delta_time = &main::gettimeofday() - $start_time;
+    my $delta_time = &main::timedelta($start_time);
     &main::status(sprintf("Freshmeat: %.02f sec to complete.", $delta_time)) if ($delta_time > 0);
 
     my $count = &main::countKeys("freshmeat");

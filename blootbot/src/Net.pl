@@ -65,7 +65,7 @@ sub ftpGet {
 	return 0;
     }
 
-    my $start_time = &gettimeofday();
+    my $start_time	= &timeget();
     if (defined $lfile) {
 	&status("FTP: getting $file as $lfile.") if ($verbose_ftp);
 	$ftp->get($file,$lfile);
@@ -81,7 +81,7 @@ sub ftpGet {
 	}
     }
 
-    my $delta_time = &gettimeofday() - $start_time;
+    my $delta_time	= &timedelta($start_time);
     if ($delta_time > 0 and $verbose_ftp) {
 	&status(sprintf("FTP: %.02f sec to complete.", $delta_time));
 	my ($rateunit,$rate) = ("B", $size / $delta_time);

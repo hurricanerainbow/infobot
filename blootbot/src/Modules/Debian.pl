@@ -192,7 +192,7 @@ sub searchContents {
     }
 
     # start of search.
-    my $start_time = &main::gettimeofday();
+    my $start_time = &main::timeget();
 
     my $found = 0;
     my %contents;
@@ -299,7 +299,7 @@ sub searchContents {
     @list = sort { length $a <=> length $b } @list;
 
     # show how long it took.
-    my $delta_time = &main::gettimeofday() - $start_time;
+    my $delta_time = &main::timedelta($start_time);
     &main::status(sprintf("Debian: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
 
     my $prefix = "Debian Search of '$query' ";
@@ -319,7 +319,7 @@ sub searchAuthor {
     $query =~ s/^\s+|\s+$//g;
 
     # start of search.
-    my $start_time = &main::gettimeofday();
+    my $start_time = &main::timeget();
     &main::status("Debian: starting author search.");
 
     my $files;
@@ -400,7 +400,7 @@ sub searchAuthor {
     my @pkg = sort keys %{$pkg{$list[0]}};
 
     # show how long it took.
-    my $delta_time = &main::gettimeofday() - $start_time;
+    my $delta_time = &main::timedelta($start_time);
     &main::status(sprintf("Debian: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
 
     my $email	= join(', ', keys %{$maint{$list[0]}});
@@ -416,7 +416,7 @@ sub searchDesc {
     $query =~ s/^\s+|\s+$//g;
 
     # start of search.
-    my $start_time = &main::gettimeofday();
+    my $start_time = &main::timeget();
     &main::status("Debian: starting desc search.");
 
     my $files;
@@ -479,7 +479,7 @@ sub searchDesc {
     }
 
     # show how long it took.
-    my $delta_time = &main::gettimeofday() - $start_time;
+    my $delta_time = &main::timedelta($start_time);
     &main::status(sprintf("Debian: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
 }
 
@@ -906,7 +906,7 @@ sub validPackage {
 	    next;
 	}
 
-	if (/^$package\n$/) {
+	if (/^\Q$package\E\n$/) {
 	    push(@files,$file);
 	}
 	$count++;
