@@ -160,7 +160,7 @@ sub output_timenicktext {
 		$lineout .= "$time " if $time;
 		$lineout .= "<font color=\"$htmlcolour\">&lt\;$nick&gt\; $text<\/font><br>\n";
 	}
-	output_line($date, $time,$channel,$lineout);
+	output_line($date, $time, $channel, $lineout);
 }
 
 sub output_timeservermsg {
