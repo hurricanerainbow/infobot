@@ -914,18 +914,22 @@ sub fixNonUS {
     foreach (keys %urls) {
 	last unless ($dist =~ /^(woody|potato)$/);
 	next unless (/non-US/);
-	&main::DEBUG("DD: Enabling hack (to keep slink happy) for $dist non-US.");
+
+	&main::DEBUG("DD: woody's non-US is borked, fixing.");
 
 	my $file = $_;
 	my $url  = $urls{$_};
 	delete $urls{$file};	# heh.
+
+	$file =~ s/woody/potato/g;
+	$url  =~ s/woody/potato/g;
 
 	foreach ("main","contrib","non-free") {
 	    my ($newfile,$newurl) = ($file,$url);
 	    # only needed for Packages for now, not Contents; good.
 	    $newfile =~ s/non-US/non-US_$_/;
 	    $newurl =~ s#non-US/bin#non-US/$_/bin#;
-	    &main::DEBUG("URL{$newfile} => '$newurl'.");
+
 	    $urls{$newfile} = $newurl;
 	}
 
