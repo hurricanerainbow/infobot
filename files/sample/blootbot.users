@@ -1,21 +1,21 @@
-#v1: blootbot -- blootbot -- written Tue Nov 23 22:55:57 2004
+#v1: blootbot -- blootbot -- written Tue Nov 23 23:05:41 2004
 
 _default
---FLAGS		mrta
+--FLAGS		amrt
 --HOSTS		*!*@*
 
 local
---FLAGS		mrsteonA
+--FLAGS		Aemnorst
 --HOSTS		local!local@local
 --PASS		xxfxfIfoJHdYg
 
 timriker
---FLAGS		mrsteonA
+--FLAGS		Aemnorst
 --HOSTS		*!~timr@TimRiker.active.supporter.pdpc
 --PASS		xxfxfIfoJHdYg
 
 xk
---FLAGS		mrsteon
+--FLAGS		emnorst
 --HOSTS		*!xk@example.com
 --HOSTS		*!xk@superbox.home.org
 --PASS		5K/rmJPzwxJhU
