@@ -1,5 +1,9 @@
 TODO:
 	- let's get a release out!
+	- kill SHM and and move to a pipe
+	- move nicks/server into sql table
+	- make channel flags be server/channel flags
+	- move channel flags to sql table, include initial state
 	- move praise from blootbot.lang to "praise:<something>" in factoids?
 	- move lart from blootbot.lang to "lart:<something>" in factoids?
 	- add handling for channel specific factoids:
@@ -17,7 +21,6 @@ TODO:
 	  "ignored"
 	- add notes about news redesign to accomodate individual items
 	  read - need to add id's to each item too.
-	- debian bug lookup.
 	- bind DCC CHAT service to port.
 		- man perlipc, search for service.
 		- do forking aswell.
@@ -29,7 +32,6 @@ TODO:
 		- end of DynaConfig.pl
 		- use in UserDCC.. warn if value is not in list.
 		- add &checkSet() or &_chanset();
-	- update blootbot.chan and blootbot.config
 	- attempt to move userDCC to hooks.
 		- need to modify parseCmdHooks for user flags?
 	- make timers below 5 or 10 mins non-random values.
@@ -46,24 +48,21 @@ TODO:
 	- <greycat> ~country ua
 	- <irq_w> xk: add it :) and my imdb feature :)
 	- <greycat> xk: and ~bugs :)
-	- stats to keep common words.
-		- "heh", "?", "lol", ":)", "hi"
 	- "HACKING" text file, documentation of where things start,
 	  what "core" or reuseable functions are used and what for.
-	- web interface... learn php + tables.
+	- web interface
 	- on join message - customizeable, option.
 		- addon to UserInfo but for channels?
 	- ^B's are removed (HOW?) from factoids.
 	- asking questions.... make more guesses
 	- throttling of "help topic": push-pull system of &msg().
-	- one key for berk db to show format...
 	- use autoloader properly.
 		- Module::<BLAH>::<CMD>
 		- make a global autoloader.
 	- support notification of author of deleted factoids,
 	- flag to hide owner of factoid.
 	- table data for DCC CHAT or misc table.
-	- DYNAMIC USER//CONFIGURATION FILE UPGRADE:
+	- dynamic user//configuration file upgrade:
 		- finer granuality(sp) of userlist/ignore file
 	- <el_gore> apt, find netconfig -- merge similar files.
 		- and same files(1 per package) for multiple packages.
@@ -71,18 +70,13 @@ TODO:
 		- do some test cases to confirm code actually works as
 		  proposed.
 
-------------------- useless statistics
+-- useless statistics
 - 20010420:
-[router] [~blootbot/src] # grep DEBUG `find -type f`| wc -l
-    373
-[router] [~blootbot/src] # grep WARN `find -type f` | wc -l
-    129
-[router] [~blootbot/src] # grep FIXME `find -type f` | wc -l
-     35
-[router] [~blootbot/src] # grep status `find -type f` | wc -l
-    386
-[router] [~blootbot/src] # grep ERROR `find -type f` | wc -l
-    145
+DEBUG:      373
+WARN:       129
+FIXME:       35
+status:     386
+TODO:       145
 20031111: scripts/output_stats.sh
 DEBUG:      384
 WARN:       167
