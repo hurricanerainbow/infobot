@@ -1,0 +1,50 @@
+				EXAMPLES
+			last updated 16.03.2000
+			      written by xk
+
+<me> blootbot: test is testing
+<blootbot> me: okay
+<me> blootbot: testing?
+<blootbot> testing is testing
+
+<me> blootbot: tests is <REPLY> testing
+<blootbot> me: okay
+<me> blootbot: tests?
+<blootbot> testing
+
+<me> blootbot: cough is <ACTION> coughs
+<blootbot> me: okay
+<me> blootbot: cough
+* blootbot/#blootbot coughs
+
+<me> blootbot: test is <REPLY> What's (one|two|three|four|five|six)
+	times (seven|eight|nine|ten|eleven|twelve)?
+<blootbot> okay, me
+<me> blootbot: test
+<blootbot> What's four times nine?
+<me> blootbot: test?
+<blootbot> What's six times ten?
+
+<me> blootbot: op me is <ACTION> Mode change "+o $nick" on channel
+	$channel by $ident
+<blootbot> me: okay
+<me> blootbot: op me
+* blootbot/#debian-bots Mode change "+o me" on channel #blootbot by
+	blootbot
+
+<me> blootbot: no who am i is <REPLY> You are $nick!$user@$host on
+	$channel.
+<blootbot> okay, me
+<me> blootbot: who am i
+<blootbot> You are me!me@home.org on #blootbot.
+
+<me> blootbot: who last spoke is <REPLY> To my knowledge, $lastspeaker
+	was the last to say something worthwhile.
+<blootbot> me: okay
+<me> blootbot: who last spoke
+<blootbot> To my knowledge, me was the last to say something worthwhile.
+
+<me> blootbot: percentage is <REPLY> you are $randpercentage% lame
+<blootbot> me: okay
+<me> blootbot: percentage
+<blootbot> you are 79% lame
