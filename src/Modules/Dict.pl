@@ -53,17 +53,25 @@ sub Dict {
 	if ($query =~ s/^(\d+)\s+//) {
 	    $num = $1;
 	}
+	my $dict = '*';
+	if ($query =~ s/\/(\S+)$//) {
+	    $dict = $1;
+	}
 
 	# body.
-	push(@results, &Dict_Wordnet($socket,$query));
-	push(@results, &Dict_Foldoc($socket,$query));
-	push(@results, &Dict_web1913($socket,$query));
+	push(@results, &Define($socket,$query,$dict));
+	#push(@results, &Define($socket,$query,'foldoc'));
+	#push(@results, &Define($socket,$query,'web1913'));
 	# end.
 
 	print $socket "QUIT\n";
 	close $socket;
 
-	&::DEBUG(join(";;\n",@results));
+	my $count=0;
+	foreach (@results) {
+	    $count++;
+	    &::DEBUG("$count: $_");
+	}
 	my $total = scalar @results;
 
 	if ($total == 0) {
@@ -88,163 +96,87 @@ sub Dict {
 	    $retval = "Dictionary '$query' ".$results[0];
 	} else {
 	    $retval = "could not find definition for \002$query\002";
+	    $retval .= " in $dict" if ($dict ne '*');
 	}
     }
 
     &::performStrictReply($retval);
 }
 
-sub Dict_Wordnet {
-    my ($socket, $query) = @_;
+sub Define {
+    my ($socket, $query, $dict) = @_;
     my @results;
 
-    &::status("Dict: asking Wordnet.");
-    print $socket "DEFINE wn \"$query\"\n";
+    &::DEBUG("Dict: asking $dict.");
+    print $socket "DEFINE $dict \"$query\"\n";
 
-    my $def		= "";
-    my $wordtype	= "";
+    my $def = "";
+    my $term = $query;
 
     while (<$socket>) {
 	chop;	# remove \n
 	chop;	# remove \r
 
-	&::DEBUG("wordnet '$_'");
-	if (/^552 no match/) {
+	&::DEBUG("$term/$dict '$_'");
+	if (/^552 /) {
 	    # no match.
 	    return;
-	} elsif (/^250 ok/) {
-            # stats.
+	} elsif (/^250 /) {
+            # end w/ optional stats
 	    last;
-	} elsif ($_ eq ".") {
-	    # end of def.
-	    push(@results, $def);
-	} elsif (/^\s+(\S+ )?(\d+)?: (.*)/) {	# start of sub def.
-	    my $text = $3;
-	    $def =~ s/\s+$//;
-	    #&::DEBUG("def => '$def'.");
-	    push(@results, $def)		if ($def ne "");
-	    $def = $text;
-
-	    if (0) {	# old non-fLR format.
-		$def = "$query $wordtype: $text" if (defined $text);
-		$wordtype = substr($1,0,-1)	if (defined $1);
-		#&::DEBUG("_ => '$_'.") if (!defined $text);
-	    }
-	} elsif (/^\s+(.*)/) {
-	    s/^\s{2,}/ /;
-	    $def	.= $_;
-	    $def =~ s/\[.*?\]$//g;
+	} elsif (/^151 "([^"]*)" (\S+) .*/) {
+            # 151 "Good Thing" jargon "Jargon File (4.3.0, 30 APR 2001)"
+            $term=$1;
+	    $dict=$2;
+	    $def = '';
+            &::DEBUG("term=$term dict=$dict");
 	} else {
-	    &::DEBUG("ignored '$_'");
-	}
-    }
-
-    &::status("Dict: wordnet: found ". scalar(@results) ." defs.");
-
-    return if (!scalar @results);
-
-    return @results;
-}
-
-sub Dict_Foldoc {
-    my ($socket,$query) = @_;
-    my @results;
-
-    &::status("Dict: asking Foldoc.");
-    print $socket "DEFINE foldoc \"$query\"\n";
-
-    my $firsttime = 1;
-    my $def;
-    while (<$socket>) {
-	chop;	# remove \n
-	chop;	# remove \r
-
-	&::DEBUG("foldoc '$_'");
-	if (/^552 /) {
-	    # no match
-	    return;
-	} elsif (/^250 ok/) {
-	    #end
-	    last;
-	} elsif (/^\.$/) {
-	    #end of def
-	    next if ($def eq "");
-	    $def =~ s/^\s+|\s+$//g;	# sub def.
-	    push(@results, $def);
-	    $def = "";
-	    next;
-	} elsif (/^\s+(.*)/) {
-	    # each line.
-	    s/[{}]//g;
-	    s/^\s+|\s+$//g;
-	    $def .= $_." ";
-	} elsif ($_ eq "") {			# sub def separator.
-	    if ($firsttime) {
-		$firsttime--;
-		next;
+	    my $line = $_;
+	    # some dicts put part of the definition on the same line ie: jargon
+	    $line =~ s/^$term//i;
+	    $line =~ s/^\s+/ /;
+	    if ($dict eq 'wn') {
+		# special processing for sub defs in wordnet
+		if ($line eq '.') {
+		    # end of def.
+		    $def =~ s/\s+$//;
+		    $def =~ s/\[[^\]]*\]//g;
+		    push(@results, $def);
+		} elsif ($line =~ m/^\s+(\S+ )?(\d+)?: (.*)/) {
+		    # start of sub def.
+		    my $text = $3;
+		    $def =~ s/\s+$//;
+		    #&::DEBUG("def => '$def'.");
+		    $def =~ s/\[[^\]]*\]//g;
+		    push(@results, $def) if ($def ne "");
+		    $def = $text;
+		} elsif (/^\s+(.*)/) {
+		    $def .= $line;
+		} else {
+		    &::DEBUG("ignored '$line'");
+		}
+	    } else {
+		# would be nice to divide other dicts
+		# but many are not always in a parsable format
+		if ($line eq '.') {
+		    # end of def.
+		    next if ($def eq '');
+		    push(@results, $def);
+		    $def = '';
+		} elsif ($line =~ m/^\s+(\S.*\S)\s*$/) {
+		    #&::DEBUG("got '$1'");
+		    $def .= ' ' if ($def ne '');
+		    $def .= $1;
+		} else {
+		    &::DEBUG("ignored '$line'");
+		}
 	    }
-	    $def =~ s/^\s+|\s+$//g;	# sub def.
-	    $def =~ s/[{}]//g;
-	} else {
-	    &::DEBUG("ignored '$_'");
 	}
     }
 
-    &::status("Dict: foldoc: found ". scalar(@results) ." defs.");
+    &::DEBUG("Dict: $dict: found ". scalar(@results) ." defs.");
 
     return if (!scalar @results);
-    #pop @results;	# last def is date of entry.
-
-    return @results;
-}
-
-sub Dict_web1913 {
-    my ($socket,$query) = @_;
-    my @results;
-
-    &::status("Dict: asking web1913.");
-    print $socket "DEFINE web1913 \"$query\"\n";
-
-    my $string;
-    while (<$socket>) {
-	# remove \n
-	chop;
-	# remove \r
-	chop;
-	&::DEBUG("web1913 '$_'");
-
-	# no match.
-	return if /^552/;
-
-	# stats; end of def.
-	last if (/^250/);
-
-	# definition and/or retrieval
-	next if (/^151/ or /^150/);
-
-	# each line.
-	s/^\s+|\s+$//g;
-
-	# sub def separator.
-	if ($_ eq "" or $_ =~ /^\.$/) {
-	    # sub def.
-	    $string =~ s/^\s+|\s+$//g;
-	    $string =~ s/[{}]//g;
-
-	    next if ($string eq "");
-
-	    push(@results, $string);
-	    $string = "";
-	}
-
-	$string .= $_." ";
-    }
-
-    &::status("Dict: web1913: found ". scalar(@results) ." defs.");
-
-    return if (!scalar @results);
-    # last def is date of entry.
-    #pop @results;
 
     return @results;
 }

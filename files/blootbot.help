@@ -160,10 +160,10 @@ dfind: U: ## <string> [dist]
 dfind: E: ## strings.h
 dfind: E: ## x11amp potato
 
-dict: D: DICT Protocol Client
-dict: U: ## <query>
-dict: E: ## AI
-dict: E: ## 1 linux
+dict: D: DICT Protocol Client - likely dicts: elements web1913 wn gazetteer jargon foldoc easton hitchcock devils world02 vera
+dict: U: ## [entry num] <query>[/dict]
+dict: E: ## linux
+dict: E: ## 33 set/wn
 
 dns: D: Query DNS
 dns: U: ## <host|ip>
