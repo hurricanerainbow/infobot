@@ -550,6 +550,7 @@ sub on_msg {
     ($user,$host) = split(/\@/, $event->userhost);
     $uh		= $event->userhost();
     $nuh	= $nick."!".$uh;
+    $msgtime	= time();
 
     &hookMsg('private', undef, $nick, $msg);
 }
@@ -718,7 +719,6 @@ sub on_public {
 	    }
 	}
     }
-
 
     $msgtime = time();
     $lastWho{$chan} = $nick;
