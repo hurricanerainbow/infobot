@@ -668,7 +668,7 @@ sub infoStats {
 	    } elsif (/^Size: (.*)$/) {		# compressed size.
 		$stats{$file}{'csize'}	+= $1;
 		$total{'csize'}		+= $1;
-	    } elsif (/^i.*size: (.*)$/) {	# installed size.
+	    } elsif (/^i.*size: (.*)$/i) {	# installed size.
 		$stats{$file}{'isize'}	+= $1;
 		$total{'isize'}		+= $1;
 	    }
