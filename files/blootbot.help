@@ -139,15 +139,18 @@ ddesc: U: ## <string> [dist]
 ddesc: E: ## mule
 ddesc: E: ## mule potato
 
+dfind: D: Debian Packages (fallback to Contents) search
+dfind: U: ## <string> [dist]
+dfind: E: ## strings.h
+dfind: E: ## x11amp potato
+
 dict: D: DICT Protocol Client
 dict: U: ## <query>
 dict: E: ## AI
 dict: E: ## 1 linux
 
-dfind: D: Debian Packages (fallback to Contents) search
-dfind: U: ## <string> [dist]
-dfind: E: ## strings.h
-dfind: E: ## x11amp potato
+do: D: operator command to do things in a channel
+do: U: ## <chan> <what>
 
 dstats: D: Show basic stats on the current size of the Debian distros
 dstats: U: ## [dist]
@@ -314,6 +317,9 @@ rot13: D: ROT13's the given string
 rot13: U: ## <string>
 rot13: E: ## guvf vf n ynzr rknzcyr
 
+say: D: operator command to say things in a channel
+say: U: ## <chan> <what>
+
 search: U: ## <engine> for <string>
 search: E: ## google for blootbot
 
@@ -329,9 +335,9 @@ spell: You've guessed it right, I'm a spell checker. Give me any word and I can 
 status: status dumps general status information
 
 tell: D: Tell someone about a factoid or command
-tell: U: tell <who> -?about <what>
-tell: E: tell me about blootbot
-tell: E: tell someone -about testing
+tell: U: ## <who> -?about <what>
+tell: E: ## me about blootbot
+tell: E: ## someone -about testing
 
 topic add: D: Add your own topic
 topic add: U: ## <topic>
@@ -345,8 +351,8 @@ topic del: E: ## last
 
 topic mod: D: Search and replace strings in the topic
 topic mod: U: ## <REGEX>
-topic mod: E: s/test/TEST/
-topic mod: E: s#msg test#/msg test#g
+topic mod: E: ## s/test/TEST/
+topic mod: E: ## s#msg test#/msg test#g
 
 topic mv: D: Move subtopics around.
 topic mv: U: ## <#> <before|after|swap> <#>
@@ -392,16 +398,17 @@ uptime: U: ##
 wantnick: If someone's taken my nick (I hope not) and I'm using some temporary nick, I can change back to my original nick if it's not taken (again).
 
 wikipedia: D: Frontend to the Wikipedia at http://www.wikipedia.org/wiki/ Note that utf8 is used for non-ascii characters.
-wikipedia: U: wikipedia <topic>
+wikipedia: U: ## <topic>
 wikipedia: U: wiki <topic>
 wikipedia: E: wiki irc
 
--host: D: FIXME:
+-host: D: admin command to remove hostmask from a user account
 -host: U: ## [user] <mask>
 -host: E: ## *!*@owns.org
 -host: E: ## owner leet!leet@*.heh.org
 
-+host: D: FIXME:
-+host: U: ## [user] <mask>
++host: D: admin command to list or add hostmasks to a user account
++host: U: ## [user] [<mask>]
++host: E: ## owner
 +host: E: ## *!*@owns.org
 +host: E: ## owner leet!leet@*.heh.org
