@@ -342,6 +342,7 @@ sub seenFlush {
     }
 
     &VERB("Flushed $flushed seen entries.",2);
+    &DEBUG("seen: ".scalar(keys %seenflush)." remaining.");
 
     my $interval = $param{'seenFlushInterval'} || 60;
     &ScheduleThis($interval, "seenFlush") if (@_);
