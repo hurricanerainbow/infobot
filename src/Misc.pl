@@ -595,7 +595,7 @@ sub Forker {
     my $pid;
 
     &shmFlush();
-    &status("double fork detected; not forking.") if ($$ != $bot_pid);
+    &VERB("double fork detected; not forking.",2) if ($$ != $bot_pid);
 
     if (&IsParam("forking") and $$ == $bot_pid) {
 	return $noreply unless (&addForked($label));
@@ -635,4 +635,5 @@ sub closePID {
     return 1 if (unlink $file{PID});
     return 0 if ( -f $file{PID});
 }
+
 1;
