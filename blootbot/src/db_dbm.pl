@@ -8,89 +8,105 @@
 
 package main;
 
-if (&IsParam("useStrict")) { use strict; }
+if (&IsParam('useStrict')) { use strict;}
 
 use vars qw(%factoids %freshmeat %seen %rootwarn);	# db hash.
-use vars qw(@factoids_format @rootwarn_format @seen_format);
 
-@factoids_format = (
-	"factoid_key",
-	"factoid_value",
-	"created_by",
-	"created_time",
-	"modified_by",
-	"modified_time",
-	"requested_by",
-	"requested_time",
-	"requested_count",
-	"locked_by",
-	"locked_time"
-);
 
-@freshmeat_format = (
-	"name",
-	"stable",
-	"devel",
-	"section",
-	"license",
-	"homepage",
-	"download",
-	"changelog",
-	"deb",
-	"rpm",
-	"link",
-	"oneliner",
-);
+{
+    my %formats = (
+	'factoids', [
+	    'factoid_key',
+	    'factoid_value',
+	    'created_by',
+	    'created_time',
+	    'modified_by',
+	    'modified_time',
+	    'requested_by',
+	    'requested_time',
+	    'requested_count',
+	    'locked_by',
+	    'locked_time'
+	],
+	'freshmeat', [
+	    'name',
+	    'stable',
+	    'devel',
+	    'section',
+	    'license',
+	    'homepage',
+	    'download',
+	    'changelog',
+	    'deb',
+	    'rpm',
+	    'link',
+	    'oneliner'
+	],
+	'rootwarn', [
+	    'nick',
+	    'attempt',
+	    'time',
+	    'host',
+	    'channel'
+	],
+	'seen', [
+	    'nick',
+	    'time',
+	    'channel',
+	    'host',
+	    'messagecount',
+	    'hehcount',
+	    'karma',
+	    'message'
+	],
+	'stats', [
+	    'nick',
+	    'type',
+	    'counter',
+	    'time'
+	]
+    );
 
-@rootwarn_format = ("nick", "attempt", "time", "host", "channel");
+    sub openDB {
+	use DB_File;
+	foreach (keys %formats) {
+	    next unless (&IsParam($_));
 
-@seen_format = (
-	"nick",
-	"time",
-	"channel",
-	"host",
-	"messagecount",
-	"hehcount",
-	"karma",
-	"message"
-);
+	    my $file = "$param{'DBName'}-$_";
 
-@stats_format = (
-	"nick",
-	"type",
-	"counter",
-	"time"
-);
-
-my @dbm	= ("factoids","freshmeat","rootwarn","seen","stats");
-
-sub openDB {
-    use DB_File;
-    foreach (@dbm) {
-	next unless (&IsParam($_));
-
-	my $file = "$param{'DBName'}-$_";
-
-	if (dbmopen(%{ $_ }, $file, 0666)) {
-	    &status("Opened DBM $_ ($file).");
-	} else {
-	    &ERROR("Failed open to DBM $_ ($file).");
-	    &shutdown();
-	    exit 1;
+	    if (dbmopen(%{ $_ }, $file, 0666)) {
+		&status("Opened DBM $_ ($file).");
+	    } else {
+		&ERROR("Failed open to DBM $_ ($file).");
+		&shutdown();
+		exit 1;
+	    }
 	}
     }
-}
 
-sub closeDB {
+    sub closeDB {
+	foreach (keys %formats) {
+	    next unless (&IsParam($_));
 
-    foreach (@dbm) {
-	next unless (&IsParam($_));
-
-	if (dbmclose(%{ $_ })) {
-	    &status("Closed DBM $_ successfully.");
-	    next;
+	    if (dbmclose(%{ $_ })) {
+		&status("Closed DBM $_ successfully.");
+		next;
+	    }
+	    &ERROR("Failed closing DBM $_.");
 	}
-	&ERROR("Failed closing DBM $_.");
+    }
+
+    #####
+    # Usage: &dbGetColInfo($table);
+    sub dbGetColInfo {
+	my ($table) = @_;
+
+	if (scalar @{$formats{$table}}) {
+	    return @{$formats{$table}};
+	} else {
+	    &ERROR("dbGCI: no format for table ($table).");
+	    return;
+	}
     }
 }
 
@@ -111,8 +127,8 @@ sub dbGet {
     &DEBUG("dbGet($table, $select, $where);");
     return unless $key;
 
-    if (!scalar @{ "${table}_format" }) {
-	&ERROR("dG: no valid format layout for $table.");
+    my @format = &dbGetColInfo($table);
+    if (!scalar @format) {
 	return;
     }
 
@@ -123,16 +139,17 @@ sub dbGet {
 
     # return the whole row.
     if ($select eq "*") {
-	return split $;, ${ "$table" }{lc $val};
-    } else {
-	&DEBUG("dbGet: select => '$select'.");
+	@retval = split $;, ${"$table"}{lc $val};
+	unshift(@retval,$key);
+	return(@retval);
     }
 
-    my @array = split "$;", ${ "$table" }{lc $val};
-    for (0 .. $#{ "${table}_format" }) {
-	my $str = ${ "${table}_format" }[$_];
+    &DEBUG("dbGet: select => '$select'.");
+    my @array = split "$;", ${"$table"}{lc $val};
+    unshift(@array,$key);
+    for (0 .. $#format) {
+	my $str = $format[$_];
 	next unless (grep /^$str$/, split(/\,/, $select));
-
 	$array[$_] ||= '';
 	&DEBUG("dG: pushing '$array[$_]'.");
 	push(@retval, $array[$_]);
@@ -161,23 +178,13 @@ sub dbGetColNiceHash {
     my ($table, $select, $where) = @_;
     &DEBUG("dbGetColNiceHash($table, $select, $where);");
     my ($key, $val) = split('=',$where) if $where =~ /=/;
-    my (%hash) = ();
     return unless ${$table}{lc $val};
-    @hash{@{"${table}_format"}} = split $;, ${$table}{lc $val};
+    my (%hash) = ();
+    $hash{lc $key} = $val;
+    my (@format) = &dbGetColInfo($table);
+    shift @format;
+    @hash{@format} = split $;, ${$table}{lc $val};
     return %hash;
-}
-
-#####
-# Usage: &dbGetColInfo();
-sub dbGetColInfo {
-    my ($table) = @_;
-
-    if (scalar @{ "${table}_format" }) {
-	return @{ "${table}_format" };
-    } else {
-	&ERROR("dbGCI: invalid format name ($table) [${table}_format].");
-	return;
-    }
 }
 
 #####
@@ -190,21 +197,20 @@ sub dbInsert {
 
     my $info = ${$table}{lc $primkey} || '';	# primkey or primval?
 
-    if (!scalar @{ "${table}_format" }) {
-	&ERROR("dbI: array ${table}_format does not exist.");
+    my @format = &dbGetColInfo($table);
+    if (!scalar @format) {
 	return 0;
     }
 
     my $i;
     my @array = split $;, $info;
-    $array[0]=$primkey;
-    delete $hash{${ "${table}_format" }[0]};
-    for $i (1 .. $#{ "${table}_format" }) {
-	my $col = ${ "${table}_format" }[$i];
-	$array[$i]=$hash{$col};
-	$array[$i]='' unless $array[$i];
+    delete $hash{$format[0]};
+    for $i (1 .. $#format) {
+	my $col = $format[$i];
+	$array[$i - 1]=$hash{$col};
+	$array[$i - 1]='' unless $array[$i - 1];
 	delete $hash{$col};
-	&DEBUG("dbI: setting $table->$primkey\{$col\} => '$array[$i]'.");
+	&DEBUG("dbI: setting $table->$primkey\{$col\} => '$array[$i - 1]'.");
     }
 
     if (scalar keys %hash) {
@@ -231,8 +237,8 @@ sub dbSetRow {
     &DEBUG("dbSetRow(@_);");
     my $key = lc $values[0];
 
-    if (!scalar @{ "${table}_format" }) {
-	&ERROR("dbSR: array ${table}_format does not exist.");
+    my @format = &dbGetColInfo($table);
+    if (!scalar @format) {
 	return 0;
     }
 
@@ -240,11 +246,11 @@ sub dbSetRow {
 	&WARN("dbSetRow: $table {$key} already exists?");
     }
 
-    if (scalar @values != scalar @{ "${table}_format" }) {
-	&WARN("dbSetRow: scalar values != scalar ${table}_format.");
+    if (scalar @values != scalar @format) {
+	&WARN("dbSetRow: scalar values != scalar ${table} format.");
     }
 
-    for (0 .. $#{ "${table}_format" }) {
+    for (0 .. $#format) {
 	if (defined $array[$_] and $array[$_] ne "") {
 	    &DEBUG("dbSetRow: array[$_] != NULL($array[$_]).");
 	}
@@ -259,11 +265,6 @@ sub dbSetRow {
 sub dbDel {
     my ($table, $primkey, $primval, $key) = @_;
     &DEBUG("dbDel($table, $primkey, $primval);");
-
-    if (!scalar @{ "${table}_format" }) {
-	&ERROR("dbD: array ${table}_format does not exist.");
-	return 0;
-    }
 
     if (!defined ${$table}{lc $primval}) {
 	&WARN("dbDel: lc $primval does not exist in $table.");
@@ -337,8 +338,7 @@ sub searchTable {
     my ($table, $primkey, $key, $str) = @_;
     &DEBUG("searchTable($table, $primkey, $key, $str)");
 
-    if (!scalar @{ "${table}_format" }) {
-	&ERROR("sT: no valid format layout for $table.");
+    if (!scalar &dbGetColInfo($table)) {
 	return;
     }   
 
@@ -355,9 +355,14 @@ sub searchTable {
 }
 
 #####
-# Usage: &getFactInfo($faqtoid, type);
+# Usage: &getFactInfo($faqtoid, $type);
 sub getFactInfo {
     my ($faqtoid, $type) = @_;
+
+    my @format = &dbGetColInfo("factoids");
+    if (!scalar @format) {
+	return;
+    }
 
     if (!defined $factoids{$faqtoid}) {	# dbm hash exception.
 	return;
@@ -368,14 +373,14 @@ sub getFactInfo {
     }
 
     # specific.
-    if (!grep /^$type$/, @factoids_format) {
+    if (!grep /^$type$/, @format) {
 	&ERROR("gFI: type '$type' not valid for factoids.");
 	return;
     }
 
     my @array	= split /$;/, $factoids{$faqtoid};
-    for (0 .. $#factoids_format) {
-	next unless ($type eq $factoids_format[$_]);
+    for (0 .. $#format) {
+	next unless ($type eq $format[$_]);
 	return $array[$_];
     }
 
