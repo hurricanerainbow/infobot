@@ -618,7 +618,7 @@ sub Forker {
 
 	select(undef, undef, undef, 0.2);
 #	&status("fork starting for '$label', PID == $$.");
-	&status("--- fork starting for '$label', PID == $$ ---");
+	&status("--- fork starting for '$label', PID == $$, bot_pid == $bot_pid ---");
 	&shmWrite($shm,"SET FORKPID $label $$");
 
 	sleep 1;
