@@ -309,15 +309,15 @@ sub Modules {
     }
 
     # list{keys|values}. xk++. Idea taken from #linuxwarez@EFNET
-    if ($message =~ /^list(\S+)( (.*))?$/i) {
+    if ($message =~ /^list(\S+)(\s+(.*))?$/i) {
 	return unless (&hasParam("search"));
 
-	my $thiscmd	= lc($1);
-	$thiscmd	=~ s/^vals$/values/;
-	return if ($thiscmd ne "keys" && $thiscmd ne "values");
-
+	my $thiscmd	= lc $1;
 	my $args	= $3 || "";
-	$args		=~ s/\s+$//g;
+
+	$thiscmd	=~ s/^vals$/values/;
+#	$args		=~ s/\s+$//g;
+	return if ($thiscmd ne "keys" && $thiscmd ne "values");
 
 	# Usage:
 	if (!defined $args or $args =~ /^\s*$/) {

@@ -422,7 +422,7 @@ sub startup {
 
 sub shutdown {
     # reverse order of &setup().
-    &DEBUG("shutdown called.");
+    &status("--- shutdown called.");
 
     $ident ||=	"blootbot";	# hack.
 
