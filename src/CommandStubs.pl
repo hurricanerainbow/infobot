@@ -283,6 +283,9 @@ sub parseCmdHook {
 &addCmdHook("extra", 'dns|d?nslookup|host', ('CODEREF' => 'dns::query',
 	'Identifier' => 'dns', 'Cmdstats' => 'dns',
 	'Forker' => 1, 'Help' => 'dns') );
+&addCmdHook("extra", 'piglatin', ('CODEREF' => 'piglatin::piglatin',
+	'Identifier' => 'piglatin', 'Cmdstats' => 'piglatin',
+	'Forker' => 1) );
 ###
 ### END OF ADDING HOOKS.
 ###
