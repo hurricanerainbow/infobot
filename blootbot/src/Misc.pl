@@ -416,7 +416,10 @@ sub IsHostMatch {
 	$local{'host'} = &makeHostMask(lc $3);
     }
 
-    if ($thisnuh =~ /^(\S+)!(\S+)@(\S+)/) {
+    if (!defined $thisnuh) {
+	&WARN("IHM: thisnuh == NULL.");
+	return 0;
+    } elsif ($thisnuh =~ /^(\S+)!(\S+)@(\S+)/) {
 	$this{'nick'} = lc $1;
 	$this{'user'} = lc $2;
 	$this{'host'} = &makeHostMask(lc $3);

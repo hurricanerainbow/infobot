@@ -787,17 +787,6 @@ sub miscCheck {
 	return if ($_[0] eq "2");	# defer.
     }
 
-    # debian check.
-    opendir(DEBIAN, "$bot_state_dir/debian");
-    foreach ( grep /gz$/, readdir(DEBIAN) ) {
-	my $exit = CORE::system("gzip -t $bot_state_dir/debian/$_");
-	next unless ($exit);
-
-	&status("debian: unlinking file => $_");
-	unlink "$bot_state_dir/debian/$_";
-    }
-    closedir DEBIAN;
-
     # SHM check.
     my @ipcs;
     if ( -x "/usr/bin/ipcs") {
@@ -850,6 +839,17 @@ sub miscCheck2 {
 	&ScheduleThis(240, "miscCheck2");
 	return if ($_[0] eq "2");	# defer.
     }
+
+    # debian check.
+    opendir(DEBIAN, "$bot_state_dir/debian");
+    foreach ( grep /gz$/, readdir(DEBIAN) ) {
+	my $exit = CORE::system("gzip -t $bot_state_dir/debian/$_");
+	next unless ($exit);
+
+	&status("debian: unlinking file => $_");
+	unlink "$bot_state_dir/debian/$_";
+    }
+    closedir DEBIAN;
 
     # compress logs that should have been compressed.
     # todo: use strftime?

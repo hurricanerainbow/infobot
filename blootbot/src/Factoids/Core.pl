@@ -145,128 +145,136 @@ sub FactoidStuff {
 	$faqtoid =~ tr/A-Z/a-z/;
 	my $result = &getFactoid($faqtoid);
 
-	if (defined $result) {
-	    my $author	= &getFactInfo($faqtoid, "created_by");
-	    my $count	= &getFactInfo($faqtoid, "requested_count") || 0;
-	    my $limit	= &getChanConfDefault(
+	# if it doesn't exist, well... it doesn't!
+	if (!defined $result) {
+	    &performReply("i didn't have anything called '$faqtoid'");
+	    return;
+	}
+
+	my $author	= &getFactInfo($faqtoid, "created_by");
+	my $count	= &getFactInfo($faqtoid, "requested_count") || 0;
+	my $limit	= &getChanConfDefault(
 				"factoidPreventForgetLimit", 100, $chan);
-	    my $limitage = &getChanConfDefault(
+	my $limitage	= &getChanConfDefault(
 				"factoidPreventForgetLimitTime", 180, $chan);
-	    my $age	= time() - &getFactInfo($faqtoid, "created_time");
+	my $t		= &getFactInfo($faqtoid, "created_time") || 0;
+	my $age		= time() - $t;
 
-	    if (IsFlag("r") ne "r") {
-		&msg($who, "you don't have access to remove factoids");
+	# lets scale limitage from 1 (nearly 0) to $limit (full time).
+	$limitage	= $limitage*($count+1)/$limit if ($count < $limit);
+	# isauthor and isop.
+	my $isau	= (defined $author and &IsHostMatch($author) == 2) ? 1 : 0;
+	my $isop 	= (&IsFlag("o") eq "o") ? 1 : 0;
+
+	if (IsFlag("r") ne "r") {
+	    &msg($who, "you don't have access to remove factoids");
+	    return;
+	}
+
+	return 'locked factoid' if (&IsLocked($faqtoid) == 1);
+
+	###
+	### lets go do some checking.
+	###
+
+	# factoidPreventForgetLimitTime:
+	if (!($isop or $isau) and $age/(60*60*24) > $limitage) {
+	    &msg($who, "cannot remove factoid '$faqtoid' since it is protected by Time.");
+	    return;
+	}
+
+	# factoidPreventForgetLimit:
+	if (!($isop or $isau) and $limit and $count > $limit) {
+	    &msg($who, "will not delete '$faqtoid', count > limit ($count > $limit)");
+	    return;
+	}
+
+	# this may eat some memory.
+	# prevent deletion if other factoids redirect to it.
+	# todo: use hash instead of array.
+	my @list;
+	if (&getChanConf("factoidPreventForgetRedirect")) {
+	    &status("Factoids/Core: forget: checking for redirect factoids");
+	    @list = &searchTable("factoids", "factoid_key",
+			"factoid_value", "^<REPLY> see ");
+	}
+
+	my $match = 0;
+	for (@list) {
+	    my $f = $_;
+	    my $v = &getFactInfo($f, "factoid_value");
+	    my $fsafe = quotemeta($faqtoid);
+	    next unless ($v =~ /^<REPLY> ?see( also)? $fsafe\.?$/i);
+
+	    &DEBUG("Factoids/Core: match! ($f || $faqtoid)");
+
+	    $match++;
+	}
+	# todo: warn for op aswell, but allow force delete.
+	if (!$isop and $match) {
+	    &msg($who, "uhm, other (redirection) factoids depend on this one.");
+	    return;
+	}
+
+	# minimize abuse.
+	if (!$isop and &IsHostMatch($author) != 2) {
+	    $cache{forget}{$h}++;
+
+	    # warn.
+	    if ($cache{forget}{$h} > 3) {
+		&msg($who, "Stop abusing forget!");
+	    }
+
+	    # ignore.
+	    # todo: make forget limit configurable.
+	    # todo: make forget ignore time configurable.
+	    if ($cache{forget}{$h} > 5) {
+		&ignoreAdd(&makeHostMask($nuh), "*", 3*24*60*60, "abuse of forget");
+		&msg($who, "forget: Suck it!");
+	    }
+	}
+
+	# lets do it!
+
+	if (&IsParam("factoidDeleteDelay") or &IsChanConf("factoidDeleteDelay")) {
+	    if (!($isop or $isau) and $faqtoid =~ / #DEL#$/) {
+		&msg($who, "cannot delete it ($faqtoid).");
 		return;
 	    }
 
-	    return 'locked factoid' if (&IsLocked($faqtoid) == 1);
-	    my $isop = (&IsFlag("o") eq "o") ? 1 : 0;
+	    &status("forgot (safe delete): '$faqtoid' - ". scalar(localtime));
+	    ### TODO: check if the "backup" exists and overwrite it
+	    my $check = &getFactoid("$faqtoid #DEL#");
 
-	    ### lets go do some checking.
+	    if (!defined $check or $check =~ /^\s*$/) {
+		if ($faqtoid !~ / #DEL#$/) {
+		    my $new = $faqtoid." #DEL#";
 
-	    # factoidPreventForgetLimitTime:
-	    if (!$isop and $age/(60*60*24) > $limitage) {
-		&msg($who, "cannot remove factoid since it is protected by Time.");
-		return;
-	    }
-
-	    # factoidPreventForgetLimit:
-	    if (!$isop and $limit and $count > $limit) {
-		&msg($who, "will not delete '$faqtoid', count > limit ($count > $limit)");
-		return;
-	    }
-
-	    # this may eat some memory.
-	    # prevent deletion if other factoids redirect to it.
-	    # todo: use hash instead of array.
-	    my @list;
-	    if (&getChanConf("factoidPreventForgetRedirect")) {
-		&status("Factoids/Core: forget: checking for redirect factoids");
-		@list = &searchTable("factoids", "factoid_key",
-				"factoid_value", "^<REPLY> see ");
-	    }
-
-	    my $match = 0;
-	    for (@list) {
-		my $f = $_;
-		my $v = &getFactInfo($f, "factoid_value");
-		my $fsafe = quotemeta($faqtoid);
-		next unless ($v =~ /^<REPLY> ?see( also)? $fsafe\.?$/i);
-
-		&DEBUG("Factoids/Core: match! ($f || $faqtoid)");
-
-		$match++;
-	    }
-	    # todo: warn for op aswell, but allow force delete.
-	    if (!$isop and $match) {
-		&msg($who, "uhm, other (redirection) factoids depend on this one.");
-		return;
-	    }
-
-	    # minimize abuse.
-	    my $faqauth = &getFactInfo($faqtoid, "created_by");
-	    if (!$isop and &IsHostMatch($faqauth) != 2) {
-		$cache{forget}{$h}++;
-
-		# warn.
-		if ($cache{forget}{$h} > 3) {
-		    &msg($who, "Stop abusing forget!");
-		}
-
-		# ignore.
-		# todo: make forget limit configurable.
-		# todo: make forget ignore time configurable.
-		if ($cache{forget}{$h} > 5) {
-		    &ignoreAdd(&makeHostMask($nuh), "*", 3*24*60*60, "abuse of forget");
-		    &msg($who, "forget: Suck it!");
-		}
-	    }
-
-	    # lets do it!
-
-	    if (&IsParam("factoidDeleteDelay") or &IsChanConf("factoidDeleteDelay")) {
-		if (!$isop and $faqtoid =~ / #DEL#$/) {
-		    &msg($who, "cannot delete it ($faqtoid).");
-		    return;
-		}
-
-		&status("forgot (safe delete): '$faqtoid' - ". scalar(localtime));
-		### TODO: check if the "backup" exists and overwrite it
-		my $check = &getFactoid("$faqtoid #DEL#");
-
-		if (!defined $check or $check =~ /^\s*$/) {
-		    if ($faqtoid !~ / #DEL#$/) {
-			my $new = $faqtoid." #DEL#";
-
-			my $backup = &getFactoid($new);
-			if ($backup) {
-			    &DEBUG("forget: not overwriting backup: $faqtoid");
-			} else {
-			    &status("forget: backing up '$faqtoid'");
-			    &setFactInfo($faqtoid, "factoid_key", $new);
-			    &setFactInfo($new, "modified_by", $who);
-			    &setFactInfo($new, "modified_time", time());
-			}
-
+		    my $backup = &getFactoid($new);
+		    if ($backup) {
+			&DEBUG("forget: not overwriting backup: $faqtoid");
 		    } else {
-			&status("forget: not backing up $faqtoid.");
+			&status("forget: backing up '$faqtoid'");
+			&setFactInfo($faqtoid, "factoid_key", $new);
+			&setFactInfo($new, "modified_by", $who);
+			&setFactInfo($new, "modified_time", time());
 		    }
 
 		} else {
-		    &status("forget: not overwriting backup!");
+		    &status("forget: not backing up $faqtoid.");
 		}
+
+	    } else {
+		&status("forget: not overwriting backup!");
 	    }
-
-	    &status("forget: <$who> '$faqtoid' =is=> '$result'");
-	    &delFactoid($faqtoid);
-
-	    &performReply("i forgot $faqtoid");
-
-	    $count{'Update'}++;
-
-	} else {
-	    &performReply("i didn't have anything called '$faqtoid'");
 	}
+
+	&status("forget: <$who> '$faqtoid' =is=> '$result'");
+	&delFactoid($faqtoid);
+
+	&performReply("i forgot $faqtoid");
+
+	$count{'Update'}++;
 
 	return;
     }
@@ -293,25 +301,28 @@ sub FactoidStuff {
 	my $result = &getFactoid($faqtoid." #DEL#");
 	my $check  = &getFactoid($faqtoid);
 
-	if (!defined $result) {
-	    &performReply("that factoid was not backedup :/");
-	    return;
-	}
-
 	if (defined $check) {
 	    &performReply("cannot undeleted '$faqtoid' because it already exists!");
 	    return;
 	}
 
-	&setFactInfo($faqtoid." #DEL#", "factoid_key", $faqtoid);
+	if (!defined $result) {
+	    &performReply("that factoid was not backedup :/");
+	    return;
+	}
 
-	### delete info. modified_ isn't really used.
-	&setFactInfo($faqtoid, "modified_by",  "");
-	&setFactInfo($faqtoid, "modified_time", 0);
+	&setFactInfo($faqtoid." #DEL#", "factoid_key",   $faqtoid);
+#	&setFactInfo($faqtoid, "modified_by",   "");
+#	&setFactInfo($faqtoid, "modified_time", 0);
 
-	&performReply("Successfully recovered '$faqtoid'.  Have fun now.");
-
-	$count{'Undelete'}++;
+	$check	= &getFactoid($faqtoid);
+	# todo: check if $faqtoid." #DEL#" exists?
+	if (defined $check) {
+	    &performReply("Successfully recovered '$faqtoid'.  Have fun now.");
+	    $count{'Undelete'}++;
+	} else {
+	    &performReply("did not recover '$faqtoid'.  What happened?");
+	}
 
 	return;
     }
