@@ -669,7 +669,7 @@ sub CmdFactStats {
 	for (@list) {
 	    my $factoid = $_;
 	    my $val = &getFactInfo($factoid, "factoid_value");
-	
+
 	    next unless ($val =~ /^see( also)? (.*?)\.?$/i);
 
 	    my $redirf	= lc $2;
@@ -728,14 +728,9 @@ sub CmdFactStats {
 
     } elsif ($type =~ /^unrequest(ed)?$/i) {
 	# todo: use sqlSelect()
-	my @list = &sqlRawReturn("SELECT factoid_key FROM factoids WHERE requested_count IS NULL");
+	my $count = &sqlRawReturn("SELECT COUNT(*) FROM factoids WHERE requested_count = '0'");
 
-	for (@list) {
-	    s/([\,\;]+)/\037$1\037/g;
-	}
-
-	my $prefix = "Unrequested factoids ";
-	return &formListReply(0, $prefix, @list);
+	return "Unrequested factoids: $count";
     }
 
     return "error: invalid type => '$type'.";
