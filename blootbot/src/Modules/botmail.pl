@@ -19,8 +19,11 @@ sub parse {
 	return;
     }
 
-    if ($what =~ /^add\s+(.*)$/i) {
-	&add( split(/\s+/, $1, 2) );
+    if ($what =~ /^(add|for)\s+(.*)$/i) {
+	&add( split(/\s+/, $2, 2) );
+
+    } elsif ($what =~ /^check(\s+(.*))?$/i) {
+	&check( split(/\s+/, $1, 2) );
 
     } elsif ($what =~ /^next$/i) {
 	# todo: read specific items? nah, will make this too complex.
@@ -33,6 +36,7 @@ sub parse {
 # Usage: botmail::check($recipient)
 sub check {
     my($recipient) = @_;
+    $recipient ||= $::who;
 
     # todo: simplify this select (use a diff function)
     my @from = &::dbGet("botmail", "srcwho",
