@@ -276,7 +276,7 @@ sub readChanFile {
 	    $cache{negative} = 1;
 #	    $chanconf{$chan}{$1} = 0;
 
-	} elsif (/^[\s\t]+(\S+)[\ss\t]+(.*)$/) {# what = val.
+	} elsif (/^[\s\t]+(\S+)[\s\t]+(.*)$/) {# what = val.
 	    $chanconf{$chan}{$1} = $2;
 
 	} else {
