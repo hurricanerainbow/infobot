@@ -6,6 +6,7 @@
 #
 
 use strict;
+no strict 'refs';
 
 use vars qw(%floodjoin %nuh %dcc %cache %channels %param %mask
 	%chanconf %orig %ircPort %ircstats %last %netsplit);
