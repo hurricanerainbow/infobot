@@ -570,7 +570,7 @@ sub on_join {
     ### ROOTWARN:
     &rootWarn($who,$user,$host,$chan) if (
 		&IsChanConf("rootWarn") &&
-		$user =~ /^r(oo|ew|00)t$/i
+		$user =~ /^~?r(oo|ew|00)t$/i
     );
 
     ### NEWS:
