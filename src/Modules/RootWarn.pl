@@ -21,11 +21,11 @@ sub rootWarn {
 	    &status("rootwarn: Detected root user; notifying user");
 	} else {
 	    &status("rootwarn: Detected root user; notifying nick and channel.");
-	    &msg($chan, "ROO".("O" x int(rand 68))."T has landed!");
+	    &msg($chan, "ROO".("O" x int(rand 8))."T has landed!");
 	}
 
 	if ($_ = &getFactoid("root")) {
-	    &msg($nick, "root is $_");
+	    &msg($nick, "rootwarn: $attempt : $_");
 	} else {
 	    &status("root needs to be defined in database.");
 	}
@@ -33,13 +33,12 @@ sub rootWarn {
     } elsif ($attempt < 2) {	# 2nd/3rd time occurrance.
 	&status("RootWarn: not first time root user; msg'ing $nick.");
 	if ($_ = &getFactoid("root again")) {
-	    &msg($nick, $_);
+	    &msg($nick, "rootwarn: $attempt : $_");
 	} else {
 	    &status("root again needs to be defined in database.");
 	}
 
     } else {			# >3rd time occurrance.
-
 	# disable this for the time being.
 	if (0 and $warnmode =~ /aggressive/i) {
 	    if ($channels{$chan}{'o'}{$ident}) {
