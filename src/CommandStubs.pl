@@ -205,8 +205,8 @@ sub parseCmdHook {
 &addCmdHook("extra", '(cookie|random)', ('CODEREF' => 'cookie',
 	'Forker' => 1, 'Identifier' => 'Factoids') );
 &addCmdHook("extra", 'u(ser)?info', ('CODEREF' => 'userinfo',
-	'Identifier' => 'userinfo', 'Help' => 'userinfo',
-	'Module' => 'userinfo') );
+	'Identifier' => 'UserInfo', 'Help' => 'userinfo',
+	'Module' => 'UserInfo') );
 &addCmdHook("extra", 'RootWarn', ('CODEREF' => 'CmdrootWarn',
 	'Identifier' => 'RootWarn', 'Module' => 'RootWarn') );
 &addCmdHook("extra", 'seen', ('CODEREF' => 'seen', 'Identifier' =>
@@ -567,7 +567,7 @@ sub userinfo {
     if ($arg =~ /^set(\s+(.*))?$/i) {
 	$arg = $2;
 	if (!defined $arg) {
-	    &help("userinfo set");
+	    &help('userinfo set');
 	    return;
 	}
 
@@ -575,11 +575,11 @@ sub userinfo {
     } elsif ($arg =~ /^unset(\s+(.*))?$/i) {
 	$arg = $2;
 	if (!defined $arg) {
-	    &help("userinfo unset");
+	    &help('userinfo unset');
 	    return;
 	}
 
-	&UserInfoSet($arg, "");
+	&UserInfoSet($arg, '');
     } else {
 	&UserInfoGet($arg);
     }

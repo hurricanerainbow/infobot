@@ -50,7 +50,7 @@ if ($@) {
 	"Topic"		=> "Topic.pl",
 	"Units"		=> "Units.pl",
 	"Uptime"	=> "Uptime.pl",
-	"userinfo"	=> "UserInfo.pl",
+	"UserInfo"	=> "UserInfo.pl",
 	"weather"	=> "Weather.pl",
 	"whatis"	=> "WhatIs.pl",
 	"wikipedia"	=> "wikipedia.pl",
