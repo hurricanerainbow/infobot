@@ -93,8 +93,8 @@ sub ScheduleChecked {
 sub randomQuote {
     my $interval = $param{'randomQuoteInterval'} || 60;
     &ScheduleThis($interval, "randomQuote") if (@_);
-    return if ($_[0] eq "2");	# defer.
     &ScheduleChecked("randomQuote");
+    return if ($_[0] eq "2");	# defer.
 
     my $line = &getRandomLineFromFile($bot_misc_dir. "/blootbot.randtext");
     if (!defined $line) {
@@ -118,8 +118,8 @@ sub randomFactoid {
 
     my $interval = $param{'randomFactoidInterval'} || 60; # FIXME.
     &ScheduleThis($interval, "randomFactoid") if (@_);
-    return if ($_[0] eq "2");	# defer.
     &ScheduleChecked("randomFactoid");
+    return if ($_[0] eq "2");	# defer.
 
     while (1) {
 	($key,$val) = &randKey("factoids","factoid_key,factoid_value");
@@ -145,8 +145,8 @@ sub randomFactoid {
 sub randomFreshmeat {
     my $interval = $param{'randomFresheatInterval'} || 60;
     &ScheduleThis($interval, "randomFreshmeat") if (@_);
-    return if ($_[0] eq "2");	# defer.
     &ScheduleChecked("randomFreshmeat");
+    return if ($_[0] eq "2");	# defer.
 
     my @chans = &ChanConfList("randomFreshmeat");
     return unless (scalar @chans);
@@ -166,8 +166,8 @@ sub randomFreshmeat {
 sub logCycle {
     if (@_) {
 	&ScheduleThis(60, "logCycle");
-	return if ($_[0] eq "2");	# defer.
 	&ScheduleChecked("logCycle");
+	return if ($_[0] eq "2");	# defer.
     }
 
     return unless (defined fileno LOG);
@@ -239,8 +239,8 @@ sub logCycle {
 sub seenFlushOld {
     if (@_) {
 	&ScheduleThis(1440, "seenFlushOld");
-	return if ($_[0] eq "2");	# defer.
 	&ScheduleChecked("seenFlushOld");
+	return if ($_[0] eq "2");	# defer.
     }
 
     # is this global-only?
@@ -285,8 +285,8 @@ sub chanlimitCheck {
     if (@_) {
 	my $interval = &getChanConf("chanlimitcheckInterval") || 10;
 	&ScheduleThis($interval, "chanlimitCheck");
-	return if ($_[0] eq "2");
 	&ScheduleChecked("chanlimitCheck");
+	return if ($_[0] eq "2");
     }
 
     foreach ( &ChanConfList("chanlimitcheck") ) {
@@ -317,8 +317,8 @@ sub netsplitCheck {
 
     if (@_) {
 	&ScheduleThis(30, "netsplitCheck");
-	return if ($_[0] eq "2");
 	&ScheduleChecked("netsplitCheck");
+	return if ($_[0] eq "2");
     }
 
     foreach $s1 (keys %netsplitservers) {
@@ -350,13 +350,18 @@ sub floodCycle {
 
     if (@_) {
 	&ScheduleThis(60, "floodCycle");	# minutes.
-	return if ($_[0] eq "2");
 	&ScheduleChecked("floodCycle");
+	return if ($_[0] eq "2");
     }
 
     my $time	= time();
     foreach $who (keys %flood) {
 	foreach (keys %{$flood{$who}}) {
+	    if (!exists $flood{$who}{$_} or defined $flood{$who}{$_}) {
+		&WARN("flood{$who}{$_} undefined?");
+		next;
+	    }
+
 	    if ($time - $flood{$who}{$_} > $interval) {
 		delete $flood{$who}{$_};
 		$delete++;
@@ -378,8 +383,8 @@ sub seenFlush {
     if (@_) {
 	my $interval = $param{'seenFlushInterval'} || 60;
 	&ScheduleThis($interval, "seenFlush");
-	return if ($_[0] eq "2");
 	&ScheduleChecked("seenFlush");
+	return if ($_[0] eq "2");
     }
 
     if ($param{'DBType'} =~ /^mysql|pg|postgres/i) {
@@ -451,8 +456,8 @@ sub leakCheck {
 
     if (@_) {
 	&ScheduleThis(60, "leakCheck");
-	return if ($_[0] eq "2");
 	&ScheduleChecked("leakCheck");
+	return if ($_[0] eq "2");
     }
 
     # flood.
@@ -548,12 +553,15 @@ sub ircCheck {
 }
 
 sub miscCheck {
+    &ScheduleThis(240, "miscCheck") if (@_);
+
     # SHM check.
     my @ipcs;
     if ( -x "/usr/bin/ipcs") {
 	@ipcs = `/usr/bin/ipcs`;
     } else {
 	&WARN("ircCheck: no 'ipcs' binary.");
+	return;
     }
 
     # shmid stale remove.
@@ -566,21 +574,19 @@ sub miscCheck {
 	my ($shmid, $size) = ($2,$5);
 	next unless ($shmid != $shm and $size == 2000);
 
-	&status("SHM: nuking shmid $shmid");
-	system("/usr/bin/ipcrm shm $shmid >/dev/null");
+###	&status("SHM: nuking shmid $shmid");
+###	system("/usr/bin/ipcrm shm $shmid >/dev/null");
     }
 
     ### check modules if they've been modified. might be evil.
     &reloadAllModules();
-
-    &ScheduleThis(240, "miscCheck") if (@_);
 }
 
 sub shmFlush {
     if (@_) {
 	&ScheduleThis(5, "shmFlush");
-	return if ($_[0] eq "2");
 	&ScheduleChecked("shmFlush");
+	return if ($_[0] eq "2");
     }
 
     my $shmmsg = &shmRead($shm);
@@ -636,8 +642,8 @@ sub uptimeCycle {
 
 sub slashdotCycle {
     &ScheduleThis(60, "slashdotCycle") if (@_);
-    return if ($_[0] eq "2");
     &ScheduleChecked("slashdotCycle");
+    return if ($_[0] eq "2");
 
     my @chans = &ChanConfList("slashdotAnnounce");
     return unless (scalar @chans);
@@ -659,8 +665,8 @@ sub slashdotCycle {
 
 sub freshmeatCycle {
     &ScheduleThis(60, "freshmeatCycle") if (@_);
-    return if ($_[0] eq "2");
     &ScheduleChecked("freshmeatCycle");
+    return if ($_[0] eq "2");
 
     my @chans = &ChanConfList("freshmeatAnnounce");
     return unless (scalar @chans);
@@ -679,8 +685,8 @@ sub freshmeatCycle {
 
 sub kernelCycle {
     &ScheduleThis(240, "kernelCycle") if (@_);
-    return if ($_[0] eq "2");
     &ScheduleChecked("kernelCycle");
+    return if ($_[0] eq "2");
 
     my @chans = &ChanConfList("kernelAnnounce");
     return unless (scalar @chans);
@@ -764,7 +770,7 @@ sub wingateWriteFile {
 
 sub factoidCheck {
     my @list = &searchTable("factoids", "factoid_key", "factoid_key", " #DEL#");
-    my $stale = $param{'factoidDeleteDelay'}*60*60*24;
+    my $stale = ($param{'factoidDeleteDelay'} || 7)*60*60*24;
 
     foreach (@list) {
 	my $age = &getFactInfo($_, "modified_time");	
@@ -824,6 +830,22 @@ sub scheduleList {
     }
 
     &DEBUG("end of sList.");
+}
+
+sub getChanConfDefault {
+    my($what, $chan, $default) = @_;
+
+    if (exists $param{$what}) {
+	return $param{$what};
+    }
+
+    my $val = &getChanConf($what, $chan);
+    if (defined $val) {
+	return $val;
+    }
+    &DEBUG("returning default $default for $what");
+    ### TODO: set some vars?
+    return $default;
 }
 
 1;
