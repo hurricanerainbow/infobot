@@ -212,7 +212,7 @@ sub IsChanConf {
     # should we use IsParam() externally where needed or hack it in 
     # here just in case? fix it later.
     if (&IsParam($param)) {
-	&status("ICC: found '$param' option in main config file.");
+	&DEBUG("ICC: found '$param' option in main config file.");
 	return 1;
     }
 
