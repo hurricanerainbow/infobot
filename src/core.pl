@@ -280,7 +280,7 @@ sub setup {
 
     # read.
     &loadLang($bot_misc_dir.		"/blootbot.lang");
-    &loadIRCServers($bot_misc_dir.	"/ircII.servers");
+    &loadIRCServers();
     &readUserFile();
     &readChanFile();
     &loadMyModulesNow();	# must be after chan file.

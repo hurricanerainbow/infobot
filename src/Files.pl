@@ -49,7 +49,7 @@ sub loadLang {
 
 # File: Irc Servers list.
 sub loadIRCServers {
-    my ($file) = @_;
+    my ($file)	= $bot_misc_dir."/ircII.servers";
     @ircServers = ();
     %ircPort = ();
 
