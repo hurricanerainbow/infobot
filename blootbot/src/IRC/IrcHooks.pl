@@ -267,11 +267,7 @@ sub on_dcc_open {
 sub on_dcc_open_chat {
     my(undef, $nick,$sock) = @_;
 
-    &DEBUG("nuh{$nick} => $nuh{$nick}.");
-    if ($nuh{$nick} =~ /^(\S+)(\d+)$/) {
-	my $i = $2;
-	$i++;
-	$nuh{$nick} = $1.$i;
+    if ($nuh{$nick} eq "GETTING-NOW") {
 	&DEBUG("getting nuh for $nick failed. FIXME.");
 	return;
     }
@@ -709,13 +705,18 @@ sub on_quit {
     my $nick = $event->nick();
     my $reason = ($event->args)[0];
 
+    my $count	= 0;
     foreach (keys %channels) {
 	# fixes inconsistent chanstats bug #1.
 	if (!&IsNickInChan($nick,$_)) {
-	    &DEBUG("on_quit: nick $nick was not in chan $_.");
+	    $count++;
 	    next;
 	}
 	$chanstats{$_}{'SignOff'}++;
+    }
+
+    if ($count == scalar keys %channels) {
+	&DEBUG("on_quit: nick $nick was not found in any chan.");
     }
 
     &DeleteUserInfo($nick, keys %channels);
