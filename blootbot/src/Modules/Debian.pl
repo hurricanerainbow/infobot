@@ -13,32 +13,31 @@ use strict;
 my $defaultdist	= "woody";
 my %dists	= (
 	"unstable"	=> "woody",
-	"frozen"	=> "potato",
-	"stable"	=> "slink",
+	"stable"	=> "potato",
 	"incoming"	=> "incoming",
 );
 
 my %urlcontents = (
 	"debian/Contents-##DIST-i386.gz" =>
 		"ftp://ftp.us.debian.org".
-		"/debian/dists/##DIST/Contents-i386.gz",
+		"/debian/dists/##DIST/Contents-i386.gz",#all but woody?
 
-	"debian/Contents-##DIST-i386-non-US.gz" =>
+	"debian/Contents-##DIST-i386-non-US.gz" =>	# OK, no hacks
 		"ftp://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/Contents-i386.gz",
 );
 
 my %urlpackages = (
-	"debian/Packages-##DIST-main-i386.gz" =>
+	"debian/Packages-##DIST-main-i386.gz" =>	# OK
 		"ftp://ftp.us.debian.org".
 		"/debian/dists/##DIST/main/binary-i386/Packages.gz",
-	"debian/Packages-##DIST-contrib-i386.gz" =>
+	"debian/Packages-##DIST-contrib-i386.gz" =>	# OK
 		"ftp://ftp.us.debian.org".
 		"/debian/dists/##DIST/contrib/binary-i386/Packages.gz",
-	"debian/Packages-##DIST-non-free-i386.gz" =>
+	"debian/Packages-##DIST-non-free-i386.gz" =>	# OK
 		"ftp://ftp.us.debian.org".
 		"/debian/dists/##DIST/non-free/binary-i386/Packages.gz",
-	"debian/Packages-##DIST-non-US-i386.gz" =>
+	"debian/Packages-##DIST-non-US-i386.gz" =>	# SLINK ONLY
 		"ftp://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/binary-i386/Packages.gz",
 );
@@ -99,7 +98,7 @@ sub DebianDownload {
 	    # error internally to ftp.
 	    # hope it doesn't do anything bad.
 	    if (!&main::ftpGet($host,$path,$thisfile,$file)) {
-		&main::DEBUG("deb: down: ftpGet: bad.");
+		&main::DEBUG("deb: down: ftpGet($host,$path,$thisfile,$file) == BAD.");
 		$bad++;
 		next;
 	    }
@@ -171,7 +170,10 @@ sub searchContents {
     my $found = 0;
     my %contents;
     my $search = "$query.*\[ \t]";
+    my @files;
     foreach (keys %urlcontents) {
+	s/##DIST/$dist/g;
+	&main::DEBUG("checking for '$_'.");
 	next unless ( -f $_);
 	push(@files,$_);
     }
@@ -183,7 +185,6 @@ sub searchContents {
     }
 
     my $files = join(' ', @files);
-    $files =~ s/##DIST/$dist/g;
 
     open(IN,"zegrep -h '$search' $files |");
     while (<IN>) {
@@ -913,7 +914,7 @@ sub fixNonUS {
     foreach (keys %urls) {
 	last unless ($dist =~ /^(woody|potato)$/);
 	next unless (/non-US/);
-	&main::DEBUG("DD: Enabling hack(??) for $dist non-US.");
+	&main::DEBUG("DD: Enabling hack (to keep slink happy) for $dist non-US.");
 
 	my $file = $_;
 	my $url  = $urls{$_};
@@ -924,6 +925,7 @@ sub fixNonUS {
 	    # only needed for Packages for now, not Contents; good.
 	    $newfile =~ s/non-US/non-US_$_/;
 	    $newurl =~ s#non-US/bin#non-US/$_/bin#;
+	    &main::DEBUG("URL{$newfile} => '$newurl'.");
 	    $urls{$newfile} = $newurl;
 	}
 
