@@ -129,10 +129,12 @@ sub addForked {
 	$continue++ if ($forked{$name}{PID} == $$);
 
 	if ($continue) {
-	    &DEBUG("hrm.. fork pid == mypid == $$; how did this happen?");
+	    &WARN("hrm.. fork pid == mypid == $$; how did this happen?");
+
 	} elsif ( -d "/proc/$forked{$name}{PID}") {
 	    &status("fork: still running; good. BAIL OUT.");
 	    return 0;
+
 	} else {
 	    &WARN("Found dead fork; removing and resetting.");
 	    $continue = 1;
@@ -140,8 +142,10 @@ sub addForked {
 
 	if ($continue) {
 	    # NOTHING.
+
 	} elsif (time() - $time > 900) {	# stale fork > 15m.
 	    &status("forked: forked{$name} presumably exited without notifying us.");
+
 	} else {				# fresh fork.
 	    &msg($who, "$name is already running ". &Time2String(time() - $time));
 	    return 0;

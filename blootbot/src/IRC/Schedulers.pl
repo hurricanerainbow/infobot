@@ -419,8 +419,15 @@ sub netsplitCheck {
 	return if ($_[0] eq "2");
     }
 
+    &DEBUG("running netsplitCheck...");
+
     foreach $s1 (keys %netsplitservers) {
+	&DEBUG("nsC: s1 => $s1");
+
 	foreach $s2 (keys %{ $netsplitservers{$s1} }) {
+	    my $delta = time() - $netsplitservers{$s1}{$s2};
+	    &DEBUG("nss{$s1}{$s2} = $delta");
+
 	    if (time() - $netsplitservers{$s1}{$s2} > 3600) {
 		&status("netsplit between $s1 and $s2 appears to be stale.");
 		delete $netsplitservers{$s1}{$s2};
@@ -496,7 +503,7 @@ sub seenFlush {
     if ($param{'DBType'} =~ /^mysql|pg|postgres/i) {
 	foreach $nick (keys %seencache) {
 	    my $retval = &dbReplace("seen", "nick", $nick, (
-			"nick" => $seencache{$nick}{'nick'},
+###			"nick" => $seencache{$nick}{'nick'},
 			"time" => $seencache{$nick}{'time'},
 			"host" => $seencache{$nick}{'host'},
 			"channel" => $seencache{$nick}{'chan'},
@@ -784,8 +791,6 @@ sub miscCheck2 {
 	&ScheduleThis(240, "miscCheck2");
 	return if ($_[0] eq "2");	# defer.
     }
-
-    &DEBUG("miscCheck2: Doing debian checking...");
 
     # debian check.
     opendir(DEBIAN, "$bot_base_dir/debian");

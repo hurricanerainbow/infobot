@@ -80,7 +80,7 @@ sub Parse {
 	&set($2);
 
     } elsif ($what =~ /^(\d+)$/i) {
-	&::DEBUG("read shortcut called.");
+	&::VERB("News: read shortcut called.",2);
 	&read($1);
 
     } elsif ($what =~ /^read(\s+(.*))?$/i) {
@@ -707,8 +707,6 @@ sub latest {
 	    if (time() - $::news{$chan}{$_}{Time} > 60*60*24*3) {
 		&::DEBUG("deleting news{$chan}{$_} because it was too old and had no text info.");
 		delete $::news{$chan}{$_};
-	    } else {
-		&::WARN("news: news{$chan}{$_}{Text} undef.");
 	    }
 
 	    next;
@@ -729,7 +727,7 @@ sub latest {
     if (!$flag) {
 	return unless ($unread);
 
-	my $reply = "There are unread news in $chan ($unread unread, $total total). /msg $::ident news latest.";
+	my $reply = "There are unread news in $chan ($unread unread, $total total). /msg $::ident news latest";
 	$reply	 .= "  If you don't want further news notification, /msg $::ident news unnotify" if ($unread == $total);
 	&::notice($::who, $reply);
 

@@ -22,7 +22,7 @@ sub CmdFactInfo {
     my $i = 0;
     my %factinfo;
     my @factinfo = &getFactInfo($faqtoid,"*");
-    foreach ( &dbGetRowInfo("factoids") ) {
+    foreach ( &dbGetColInfo("factoids") ) {
 	$factinfo{$_} = $factinfo[$i] || '';
 	$i++;
     }

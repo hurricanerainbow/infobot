@@ -223,7 +223,7 @@ sub Modules {
     }
 
     # babel bot: Jonathan Feinberg++
-    if (&IsChanConf("babelfish") and $message =~ m{
+    if ($message =~ m{
 		^\s*
 		(?:babel(?:fish)?|x|xlate|translate)
 		\s+
@@ -232,7 +232,8 @@ sub Modules {
 		($babel_lang_regex)\w*	# which language?
 		\s*
 		(.+)			# The phrase to be translated
-	}xoi) {
+    }xoi) {
+	return unless (&hasParam("babelfish"));
 
 	&Forker("babelfish", sub { &babel::babelfish(lc $1, lc $2, $3); } );
 
@@ -240,24 +241,24 @@ sub Modules {
 	return;
     }
 
-    if (&IsChanConf("debian")) {
-	my $debiancmd	 = 'conflicts?|depends?|desc|file|info|provides?';
-	$debiancmd	.= '|recommends?|suggests?|maint|maintainer';
-	if ($message =~ /^($debiancmd)(\s+(.*))?$/i) {
-	    my $package = lc $3;
+    my $debiancmd	 = 'conflicts?|depends?|desc|file|info|provides?';
+    $debiancmd		.= '|recommends?|suggests?|maint|maintainer';
 
-	    if (defined $package) {
-		&Forker("debian", sub { &Debian::infoPackages($1, $package); } );
-	    } else {
-		&help($1);
-	    }
+    if ($message =~ /^($debiancmd)(\s+(.*))?$/i) {
+	return unless (&hasParam("debian"));
+	my $package = lc $3;
 
-	    return;
+	if (defined $package) {
+	    &Forker("debian", sub { &Debian::infoPackages($1, $package); } );
+	} else {
+	    &help($1);
 	}
+
+	return;
     }
 
     # google searching. Simon++
-    if (&IsChanConf("wwwsearch") and $message =~ /^(?:search\s+)?(\S+)\s+for\s+['"]?(.*?)['"]?\s*\?*$/i) {
+    if ($message =~ /^(?:search\s+)?(\S+)\s+for\s+['"]?(.*?)['"]?\s*\?*$/i) {
 	return unless (&hasParam("wwwsearch"));
 
 	&Forker("wwwsearch", sub { &W3Search::W3Search($1,$2); } );
@@ -478,7 +479,7 @@ sub seen {
 
     &seenFlush();	# very evil hack. oh well, better safe than sorry.
 
-    ### TODO: Support &dbGetRowInfo(); like in &FactInfo();
+    ### TODO: Support &dbGetColInfo(); like in &FactInfo();
     my $select = "nick,time,channel,host,message";
     if ($person eq "random") {
 	@seen = &randKey("seen", $select);

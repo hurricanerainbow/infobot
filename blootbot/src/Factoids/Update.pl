@@ -49,8 +49,7 @@ sub update {
     }
 
     # also checking.
-    my $also    = ($rhs =~ s/^(\-)?also //i);
-    &DEBUG("1=>$1");	# this does not work!
+    my $also    = ($rhs =~ s/^-?also //i);
     my $also_or = ($also and $rhs =~ s/\s+(or|\|\|)\s+//);
 
     # freshmeat
@@ -68,7 +67,7 @@ sub update {
     if (!$exists) {
 	# nice 'are' hack (or work-around).
 	if ($mhs =~ /^are$/i and $rhs !~ /<\S+>/) {
-	    &DEBUG("Update: 'are' hack detected.");
+	    &status("Update: 'are' hack detected.");
 	    $mhs = "is";
 	    $rhs = "<REPLY> are ". $rhs;
 	}
@@ -106,12 +105,16 @@ sub update {
 #	    if ($exists =~ s/\,\s*$/,  /) {
 	    if ($exists =~ /\,\s*$/) {
 		&DEBUG("current has trailing comma, just append as is");
+		&DEBUG("Up: exists => $exists");
+		&DEBUG("Up: rhs    => $rhs");
 		# $rhs =~ s/^\s+//;
 		# $rhs = $exists." ".$rhs;	# keep comma.
 	    }
 
 	    if ($exists =~ /\.\s*$/) {
 		&DEBUG("current has trailing period, just append as is with 2 WS");
+		&DEBUG("Up: exists => $exists");
+		&DEBUG("Up: rhs    => $rhs");
 		# $rhs =~ s/^\s+//;
 		# use ucfirst();?
 		# $rhs = $exists."  ".$rhs;	# keep comma.

@@ -14,6 +14,7 @@ my $announce	= 0;
 my $defaultdist	= "sid";
 my $refresh = &::getChanConfDefault("debianRefreshInterval",7)
 			* 60 * 60 * 24;
+my $debug	= 1;
 
 ### ... old
 #my %dists	= (
@@ -96,7 +97,7 @@ sub DebianDownload {
 
 	next unless ($update);
 
-	&::DEBUG("announce == $announce.");
+	&::DEBUG("announce == $announce.") if ($debug);
 	if ($good + $bad == 0 and !$announce) {
 	    &::status("Debian: Downloading files for '$dist'.");
 	    &::msg($::who, "Updating debian files... please wait.");
@@ -104,9 +105,9 @@ sub DebianDownload {
 	}
 
 	if (exists $::debian{$url}) {
-	    &::DEBUG("2: ".(time - $::debian{$url})." <= $refresh");
+	    &::DEBUG("2: ".(time - $::debian{$url})." <= $refresh") if ($debug);
 	    next if (time() - $::debian{$url} <= $refresh);
-	    &::DEBUG("stale for url $url; updating!");
+	    &::DEBUG("stale for url $url; updating!") if ($debug);
 	}
 
 	if ($url =~ /^ftp:\/\/(.*?)\/(\S+)\/(\S+)$/) {
@@ -127,7 +128,7 @@ sub DebianDownload {
 	    }
 
 	    if (! -f $file) {
-		&::DEBUG("deb: down: ftpGet: !file");
+		&::WARN("deb: down: ftpGet: !file");
 		$bad++;
 		next;
 	    }
@@ -138,7 +139,7 @@ sub DebianDownload {
 #		system("cp debian/Contents-potato-i386-non-US.gz debian/Contents-woody-i386-non-US.gz");
 #	    }
 
-	    &::DEBUG("deb: download: good.");
+	    &::DEBUG("deb: download: good.") if ($debug);
 	    $good++;
 	} else {
 	    &::ERROR("Debian: invalid format of url => ($url).");
@@ -302,20 +303,17 @@ sub searchContents {
 	$pkg =~ s/\,/\037\,\037/g;	# underline ','.
 	push(@list, "(". join(', ',@sublist) .") in $pkg");
     }
-    &::DEBUG("debian: 0");
     # sort the total list from shortest to longest...
     @list = sort { length $a <=> length $b } @list;
 
     # show how long it took.
-    &::DEBUG("debian: 1");
     my $delta_time = &::timedelta($start_time);
-    &::DEBUG("debian: 2");
     &::status(sprintf("Debian: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
-    &::DEBUG("debian: 3");
 
     my $prefix = "Debian Search of '$query' ";
     if (scalar @list) {	# @list.
 	&::pSReply( &::formListReply(0, $prefix, @list) );
+
     } else {		# !@list.
 	&::DEBUG("ok, !\@list, searching desc for '$query'.");
 	my @list = &searchDesc($query);
@@ -323,9 +321,11 @@ sub searchContents {
 	if (!scalar @list) {
 	    my $prefix = "Debian Package/File/Desc Search of '$query' ";
 	    &::pSReply( &::formListReply(0, $prefix, ) );
+
 	} elsif (scalar @list == 1) {	# list = 1.
 	    &::DEBUG("list == 1; showing package info of '$list[0]'.");
 	    &infoPackages("info", $list[0]);
+
 	} else {				# list > 1.
 	    my $prefix = "Debian Desc Search of '$query' ";
 	    &::pSReply( &::formListReply(0, $prefix, @list) );
@@ -365,6 +365,7 @@ sub searchAuthor {
     if ($good == 0 and $bad != 0) {
 	my %urls = &fixDist($dist, %urlpackages);
 	&::DEBUG("deb: download 2.");
+
 	if (!&DebianDownload($dist, %urls)) {
 	    &::ERROR("Debian(sA): could not download files.");
 	    return;
@@ -376,6 +377,7 @@ sub searchAuthor {
     while (<IN>) {
 	if (/^Package: (\S+)$/) {
 	    $package = $1;
+
 	} elsif (/^Maintainer: (.*) \<(\S+)\>$/) {
 	    my($name,$email) = ($1,$2);
 	    if ($package eq "") {
@@ -385,6 +387,7 @@ sub searchAuthor {
 	    $maint{$name}{$email} = 1;
 	    $pkg{$name}{$package} = 1;
 	    $package = "";
+
 	} else {
 	    &::WARN("invalid line: '$_'.");
 	}
@@ -400,8 +403,10 @@ sub searchAuthor {
     # TODO: should we only search email if '@' is used?
     if (scalar keys %hash < 15) {
 	my $name;
+
 	foreach $name (keys %maint) {
 	    my $email;
+
 	    foreach $email (keys %{ $maint{$name} }) {
 		next unless ($email =~ /\Q$query\E/i);
 		next if (exists $hash{$name});
@@ -462,6 +467,7 @@ sub searchDesc {
     if ($good == 0 and $bad != 0) {
 	my %urls = &fixDist($dist, %urlpackages);
 	&::DEBUG("deb: download 2c.");
+
 	if (!&DebianDownload($dist, %urls)) {
 	    &::ERROR("Debian(sD): could not download files.");
 	    return;
@@ -647,7 +653,8 @@ sub infoPackages {
     # hrm...
     my %urls = &fixDist($dist, %urlpackages);
     if ($dist ne "incoming") {
-	&::DEBUG("deb: download 3.");
+	&::DEBUG("deb: download 3.") if ($debug);
+
 	if (!&DebianDownload($dist, %urls)) {	# no good download.
 	    &::WARN("Debian(iP): could not download ANY files.");
 	}
@@ -911,7 +918,7 @@ sub validPackage {
     my $olddist	= $dist;
     $dist = &getDistro($dist);
 
-    &::DEBUG("D: validPackage($package, $dist) called.");
+    &::DEBUG("D: validPackage($package, $dist) called.") if ($debug);
 
     my $error = 0;
     while (!open(IN, "debian/Packages-$dist.idx")) {
