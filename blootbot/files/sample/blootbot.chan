@@ -59,6 +59,8 @@ _default
     +lart
     +limitcheck
     +log
+    maxListReplyCount 15
+    maxListReplyLength 400
     +md5
     +nickometer
     +page
