@@ -357,6 +357,9 @@ sub on_endofnames {
     if (exists $cache{jointime}{$chan}) {
 	my $delta_time = sprintf("%.03f", &timeget() - $cache{jointime}{$chan});
 	$delta_time    = 0	if ($delta_time < 0);
+	if ($delta_time > 100) {
+	    &WARN("endofnames: delta_time > 100 ($delta_time)");
+	}
 
 	&status("$b_blue$chan$ob: sync in ${delta_time}s.");
     }

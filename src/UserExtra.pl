@@ -678,21 +678,26 @@ sub userCommands {
 
 	# utime(13) + stime(14).
 	my $cpu_usage	= sprintf("%.01f", ($data[13]+$data[14]) / 100 );
+	# cutime(15) + cstime (16).
+	my $cpu_usage2	= sprintf("%.01f", ($data[15]+$data[16]) / 100 );
 	my $time	= time() - $^T;
 	my $raw_perc	= $cpu_usage*100/$time;
+	my $raw_perc2	= $cpu_usage2*100/$time;
 	my $perc;
+	my $perc2;
 
 	if ($raw_perc > 1) {
 	    $perc	= sprintf("%.01f", $raw_perc);
+	    $perc2	= sprintf("%.01f", $raw_perc2);
 	} elsif ($raw_perc > 0.1) {
 	    $perc	= sprintf("%.02f", $raw_perc);
+	    $perc2	= sprintf("%.02f", $raw_perc2);
 	} else {			# <=0.1
 	    $perc	= sprintf("%.03f", $raw_perc);
+	    $perc2	= sprintf("%.03f", $raw_perc2);
 	}
 
-	&pSReply("Total CPU usage: $cpu_usage s ... Percentage CPU used: $perc %");
-	&DEBUG("15 => $data[15] (cutime)");
-	&DEBUG("16 => $data[16] (cstime)");
+	&pSReply("Total CPU usage: $cpu_usage s ... Percentage CPU used: $perc % (+childs: $perc2 %)");
 
 	return;
     }

@@ -37,7 +37,7 @@ sub setupSchedulers {
     &freshmeatLoop(2);
     &kernelLoop(2);
     &wingateWriteFile(2);
-    &factoidCheck(2);
+    &factoidCheck(1);
     &newsFlush(1);
 
 #    my $count = map { exists $sched{$_}{TIME} } keys %sched;
@@ -294,7 +294,7 @@ sub newsFlush {
 	my $i		= 0;
 	my $total	= scalar(keys %{ $::news{$chan} });
 
-	&DEBUG("newsFlush: chan => $chan");
+	&DEBUG("newsFlush: chan => $chan (total => $total)");
 
 	foreach $item (keys %{ $::news{$chan} }) {
 	    my $t = $::news{$chan}{$item}{Expire};
@@ -341,6 +341,9 @@ sub newsFlush {
 	    delete $::newsuser{$chan}{$_};
 	    $duser++;
 	}
+
+	my $i = scalar(keys %{ $::newsuser{$chan} });
+	delete $::newsuser{$chan} unless ($i);
     }
 
     if ($delete or $duser) {
@@ -433,6 +436,9 @@ sub netsplitCheck {
 		delete $netsplitservers{$s1}{$s2};
 	    }
 	}
+
+	my $i = scalar(keys %{ $netsplitservers{$s1} });
+	delete $netsplitservers{$s1} unless ($i);
     }
 
     # %netsplit hash checker.
@@ -1025,7 +1031,7 @@ sub wingateWriteFile {
 
 sub factoidCheck {
     if (@_) {
-	&ScheduleThis(1440, "factoidCheck");
+	&ScheduleThis(720, "factoidCheck");
 	return if ($_[0] eq "2");	# defer.
     }
 
@@ -1035,6 +1041,7 @@ sub factoidCheck {
 
     foreach (@list) {
 	my $age = &getFactInfo($_, "modified_time");	
+	&DEBUG("fC: _ => '$_'; age => $age");
 
 	if (!defined $age or $age !~ /^\d+$/) {
 	    if (scalar @list > 50) {
@@ -1045,16 +1052,18 @@ sub factoidCheck {
 		}
 	    }
 
-	    &WARN("old cruft (no time): $_");
+	    &WARN("del factoid: old cruft (no time): $_");
 	    &delFactoid($_);
 	    next;
 	}
 
+	&DEBUG("del factoid: delta => ".($time - $age) );
 	next unless ($time - $age > $stale);
 
 	my $fix = $_;
 	$fix =~ s/ #DEL#$//g;
-	&DEBUG("safedel: Removing $fix ($_) for good.");
+	my $agestr = &Time2String($time - $age);
+	&DEBUG("safedel: Removing '$_' for good. [$agestr old]");
 
 	&delFactoid($_);
     }
