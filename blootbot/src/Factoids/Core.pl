@@ -238,7 +238,7 @@ sub FactoidStuff {
 	    # todo: make forget ignore time configurable.
 	    if ($cache{forget}{$h} > 5) {
 		&ignoreAdd(&makeHostMask($nuh), "*", 3*24*60, "abuse of forget");
-		&msg($who, "forget: Suck it!");
+		&msg($who, "forget: Ignoring you for abuse!");
 	    }
 	}
 
