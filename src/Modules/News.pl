@@ -15,11 +15,14 @@
 #	Text	- Actual text.
 ###
 
+use vars qw($who);
+
 package News;
 
 sub Parse {
     my($what)	= @_;
     $chan	= undef;
+    $who	= lc $::who;
 
     if (!keys %::news) {
 	if (!exists $::cache{newsFirst}) {
@@ -38,7 +41,7 @@ sub Parse {
 	# todo: check if the channel exists aswell.
 	$chan	= lc $1;
 
-	if (!&::IsNickInChan($::who, $chan)) {
+	if (!&::IsNickInChan($who, $chan)) {
 	    &::notice($::who, "sorry but you're not on $chan.");
 	    return;
 	}
@@ -119,22 +122,22 @@ sub Parse {
 	    return;
 	}
 
-	my $t = $::newsuser{$chan}{$::who};
+	my $t = $::newsuser{$chan}{$who};
 	if ($state) {	# state = 1
 	    if (defined $t and ($t == 0 or $t == -1)) {
 		&::notice($::who, "enabled notify.");
-		delete $::newsuser{$chan}{$::who};
+		delete $::newsuser{$chan}{$who};
 		return;
 	    }
 	    &::notice($::who, "already enabled.");
 
 	} else {		# state = 0
-	    my $x = $::newsuser{$chan}{$::who};
+	    my $x = $::newsuser{$chan}{$who};
 	    if (defined $x and ($x == 0 or $x == -1)) {
 		&::notice($::who, "notify already disabled");
 		return;
 	    }
-	    $::newsuser{$chan}{$::who} = -1;
+	    $::newsuser{$chan}{$who} = -1;
 	    &::notice($::who, "notify is now disabled.");
 	}
 
@@ -362,7 +365,7 @@ sub list {
     }
 
     if (&::IsChanConf("newsKeepRead")) {
-	my $x = $::newsuser{$chan}{$::who};
+	my $x = $::newsuser{$chan}{$who};
 
 	if (defined $x and ($x == 0 or $x == -1)) {
 	    &::DEBUG("news: not updating time for $::who.");
@@ -371,7 +374,7 @@ sub list {
 		&::DEBUG("news: should not add $chan/$::who to cache!");
 	    }
 
-	    $::newsuser{$chan}{$::who} = time();
+	    $::newsuser{$chan}{$who} = time();
 	}
     }
 
@@ -687,7 +690,7 @@ sub latest {
 	return;
     }
 
-    my $t = $::newsuser{$chan}{$::who};
+    my $t = $::newsuser{$chan}{$who};
     if (defined $t and ($t == 0 or $t == -1)) {
 	if ($flag) {
 	    &::notice($::who, "if you want to read news, try /msg $::ident news or /msg $::ident news notify");
@@ -751,7 +754,7 @@ sub latest {
     if (scalar @new) {
 	&::notice($::who, "+==== New news for \002$chan\002 ($unread new; $total total):");
 
-	my $t = $::newsuser{$chan}{$::who};
+	my $t = $::newsuser{$chan}{$who};
 	if (defined $t and $t > 1) {
 	    my $timestr = &::Time2String( time() - $t );
 	    &::notice($::who, "|= Last time read $timestr ago");
@@ -776,11 +779,11 @@ sub latest {
 	&::notice($::who, "|= to read, do 'news read <#>' or 'news read <keyword>'");
 
 	# lame hack to prevent dupes if we just ignore it.
-	my $x = $::newsuser{$chan}{$::who};
+	my $x = $::newsuser{$chan}{$who};
 	if (defined $x and ($x == 0 or $x == -1)) {
 	    &::DEBUG("news: not updating time for $::who. (2)");
 	} else {
-	    $::newsuser{$chan}{$::who} = time();
+	    $::newsuser{$chan}{$who} = time();
 	}
     }
 }
@@ -941,6 +944,7 @@ sub stats {
     my $t = time();
     foreach $chan (keys %::newsuser) {
 	$i += $t - $::newsuser{$chan}{$_};
+	&DEBUG(" i = $i");
 	$j++;
     }
     &::DEBUG("news: stats: average latest time read: total time: $i");
