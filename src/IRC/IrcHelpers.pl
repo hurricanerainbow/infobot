@@ -258,6 +258,7 @@ sub chanLimitVerify {
     if (defined $l and &IsChanConf("chanlimitcheck")) {
 	my $plus  = &getChanConfDefault("chanlimitcheckPlus", 5, $chan);
 	my $count = scalar(keys %{ $channels{$chan}{''} });
+	my $int   = &getChanConfDefault("chanlimitcheckInterval", 10, $chan);
 
 	my $delta = $count + $plus - $l;
 	$delta    =~ s/^\-//;
@@ -267,11 +268,9 @@ sub chanLimitVerify {
 	}
 
 	if (exists $cache{ "chanlimitChange_$chan" }) {
-	    if (time() - $cache{ "chanlimitChange_$chan" } < 60) {
-		&DEBUG("not going to change chanlimit!");
+	    if (time() - $cache{ "chanlimitChange_$chan" } < $int*60) {
 		return;
 	    }
-	    delete $cache{ "chanlimitChange_$chan" };
 	}
 
 	### todo: check if we have ops.
@@ -280,6 +279,7 @@ sub chanLimitVerify {
 	if ($delta > 5) {
 	    &status("clc: big change in limit; changing.");
 	    &rawout("MODE $chan +l ".($count+$plus) );
+	    $cache{ "chanlimitChange_$chan" } = time();
 	}
     }
 }

@@ -16,18 +16,15 @@ sub W3Search {
     my ($where, $what, $type) = @_;
     my $retval = "$where can't find \002$what\002";
 
-    return unless &::loadPerlModule("WWW::Search");
-
-    if (defined $type) {
-	&::DEBUG("W3S: type => $type");
-    }
-
     my @matches = grep { lc($_) eq lc($where) ? $_ : undef } @W3Search_engines;
     if (@matches) {
 	$where = shift @matches;
     } else {
 	&::msg($::who, "i don't know how to check '$where'");
+	return;
     }
+
+    return unless &::loadPerlModule("WWW::Search");
 
     my $Search	= new WWW::Search($where);
     my $Query	= WWW::Search::escape_query($what);
