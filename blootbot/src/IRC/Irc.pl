@@ -584,7 +584,8 @@ sub clearChanVars {
 
 sub clearIRCVars {
     &DEBUG("clearIRCVars() called!");
-    %channels = ();
+    undef %channels;
+    undef %floodjoin;
     @joinchan = split /[\t\s]+/, $param{'join_channels'};
 }
 
