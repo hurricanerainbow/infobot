@@ -244,29 +244,37 @@ sub showProc {
 	}
 	close IN;
 
-	if (defined $memusageOld and &IsParam("DEBUG")) {
-	    # it's always going to be increase.
-	    my $delta = $memusage - $memusageOld;
-	    my $str;
-	    if ($delta == 0) {
-		return;
-	    } elsif ($delta > 500) {
-		$str = "MEM:$prefix increased by $delta kB. (total: $memusage kB)";
-	    } elsif ($delta > 0) {
-		$str = "MEM:$prefix increased by $delta kB";
-	    } else {	# delta < 0.
-		$delta = -$delta;
-		# never knew RSS could decrease, probably Size can't?
-		$str = "MEM:$prefix decreased by $delta kB. YES YES YES";
-	    }
+    } elsif ($^O eq "netbsd") {
+	$memusage = (stat "/proc/$$/mem")[7]/1024;
 
-	    &status($str);
-	}
-	$memusageOld = $memusage;
+    } elsif ($^O =~ /^(free|open)bsd$/) {
+	my @info  = split /\s+/, `/bin/ps -l -p $$`;
+	$memusage = $info[20];
+
     } else {
 	$memusage = "UNKNOWN";
+	return;
     }
-    ### TODO: FreeBSD/*BSD support.
+
+    if (defined $memusageOld and &IsParam("DEBUG")) {
+	# it's always going to be increase.
+	my $delta = $memusage - $memusageOld;
+	my $str;
+	if ($delta == 0) {
+	    return;
+	} elsif ($delta > 500) {
+	    $str = "MEM:$prefix increased by $delta kB. (total: $memusage kB)";
+	} elsif ($delta > 0) {
+	    $str = "MEM:$prefix increased by $delta kB";
+	} else {	# delta < 0.
+	    $delta = -$delta;
+	    # never knew RSS could decrease, probably Size can't?
+	    $str = "MEM:$prefix decreased by $delta kB. YES YES YES";
+	}
+
+	&status($str);
+    }
+    $memusageOld = $memusage;
 }
 
 ######
