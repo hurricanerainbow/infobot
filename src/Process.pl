@@ -50,7 +50,7 @@ sub process {
 
 	$2 =~ /^($mask{chan})(,(\S+))?/;
 	my($thischan, $key) = (lc $1, $3);
-	my $chankey	= $thischan;
+	my $chankey	= lc $thischan;
 	$chankey	.= " $key"	if (defined $key);
 
 	if ($thischan eq "") {
@@ -58,18 +58,16 @@ sub process {
 	    return;
 	}
 
-	# Thanks to Eden Li (tile) for the channel key patch
-	my @chans = split(/[\s\t]+/, $param{'join_channels'});
-	if (!grep /^$thischan$/i, @chans) {
-	    if (&IsFlag("o") ne "o") {
+	if (&IsFlag("o") ne "o") {
+	    if (!exists $chanconf{$thischan}) {
 		&msg($who, "I am not allowed to join $thischan.");
 		return;
 	    }
-	}
 
-	if (&validChan($thischan) and &IsFlag("o") ne "o") {
-	    &msg($who,"I'm already on $thischan...");
-	    return;
+	    if (&validChan($thischan)) {
+		&msg($who,"I'm already on $thischan...");
+		return;
+	    }
 	}
 	$joinverb{$thischan} = $who;	# used for on_join self.
 
