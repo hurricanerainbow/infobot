@@ -293,7 +293,8 @@ sub exchange {
     }
 
     my $ua = new LWP::UserAgent;
-    $ua->agent("Mozilla/4.5 " . $ua->agent);        # Let's pretend
+    #$ua->agent("Mozilla/5.0 " . $ua->agent);        # Let's pretend
+    $ua->agent("Mozilla/5.0");        # Let's pretend
     $ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
     $ua->timeout(10);
 
