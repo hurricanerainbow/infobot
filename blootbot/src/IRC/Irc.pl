@@ -444,16 +444,18 @@ sub joinchan {
 
     # hopefully validChan is right.
     if (&validChan($chan)) {
-	&status("join: already on $chan");
-    } else {
+	&status("join: already on $chan?");
+    }
+    #} else {
 	&status("joining $b_blue$chan$ob");
 
 	return if ($conn->join($chan, $key));
+    	return if (&validChan($chan));
 
 	&DEBUG("joinchan: join failed. trying connect!");
 	&clearIRCVars();
 	$conn->connect();
-    }
+    #}
 }
 
 sub part {
