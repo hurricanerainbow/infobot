@@ -166,6 +166,9 @@ sub on_dcc_close {
     my $nick = $event->nick();
     my $sock = ($event->to)[0];
 
+    # DCC CHAT close on fork exit workaround.
+    return if ($bot_pid != $$);
+
     &DEBUG("dcc_close: nick => '$nick'.");
 
     if (exists $dcc{'SEND'}{$nick} and -f "temp/$nick.txt") {
@@ -894,9 +897,9 @@ sub hookMsg {
 	&status("[$orig{who}] $orig{message}");
     }
 
-    if ((&IsParam("seenStoreAll") or !$skipmessage) and
+    if ((!$skipmessage or &IsParam("seenStoreAll")) and
 	&IsParam("seen") and
-	$msgType =~ /public/ and
+	$msgType =~ /public/
     ) {
 	$seencache{$who}{'time'} = time();
 	$seencache{$who}{'nick'} = $orig{who};
