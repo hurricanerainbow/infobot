@@ -849,45 +849,45 @@ if (0) {
     }
 
     # wantNick. xk++
-    if ($message =~ /^wantNick(\+)?$/i) {
-	my ($force) = ($1) ? 1 : 0;
-	$force = 0 unless (&IsFlag("n"));
-
-	# cannot trust Net::IRC's nick() (TimRiker asks why?)
-	if ($param{'ircNick'} eq $ident) {
-	    &msg($who, "I hope you're right. I'll try anyway.");
-	    &DEBUG("ircNick => $param{'ircNick'}");
-	    &DEBUG("ident => $ident");
-	}
-
-	# fallback check, I guess.  needed?
-	if (! &IsNickInAnyChan( $param{'ircNick'} ) ) {
-	    my $str = "attempting to change nick to $param{'ircNick'}";
-	    &status($str);
-	    &msg($who, $str);
-	    &nick($param{ 'ircNick' });
-	    return;
-	}
-
-	# idea from dondelecarlo :)
-	# TODO: use cache{nickserv}
-	if ($param{'nickServ_pass'}) {
-	    return if ($param{'ircNick'} eq $ident or $force == 0);
-
-	    &status("someone is using our nick; GHOSTing");
-	    &msg($who, "using GHOST on $param{'ircNick'}.");
-	    &msg("NickServ", "GHOST $param{'ircNick'} $param{'nickServ_pass'}");
-
-	    $conn->schedule(5, sub {
-		&status("going to change nick after GHOST.");
-		&nick( $param{'ircNick'} );
-	    } );
-
-	    return;
-	}
-
-	return;
-    }
+#    if ($message =~ /^wantNick(\+)?$/i) {
+#	my ($force) = ($1) ? 1 : 0;
+#	$force = 0 unless (&IsFlag("n"));
+#
+#	# cannot trust Net::IRC's nick() (TimRiker asks why?)
+#	if ($param{'ircNick'} eq $ident) {
+#	    &msg($who, "I hope you're right. I'll try anyway.");
+#	    &DEBUG("ircNick => $param{'ircNick'}");
+#	    &DEBUG("ident => $ident");
+#	}
+#
+#	# fallback check, I guess.  needed?
+#	if (! &IsNickInAnyChan( $param{'ircNick'} ) ) {
+#	    my $str = "attempting to change nick to $param{'ircNick'}";
+#	    &status($str);
+#	    &msg($who, $str);
+#	    &nick($param{ 'ircNick' });
+#	    return;
+#	}
+#
+#	# idea from dondelecarlo :)
+#	# TODO: use cache{nickserv}
+#	if ($param{'nickServ_pass'}) {
+#	    return if ($param{'ircNick'} eq $ident or $force == 0);
+#
+#	    &status("someone is using our nick; GHOSTing");
+#	    &msg($who, "using GHOST on $param{'ircNick'}.");
+#	    &msg("NickServ", "GHOST $param{'ircNick'} $param{'nickServ_pass'}");
+#
+#	    $conn->schedule(5, sub {
+#		&status("going to change nick after GHOST.");
+#		&nick( $param{'ircNick'} );
+#	    } );
+#
+#	    return;
+#	}
+#
+#	return;
+#   }
 
     return "CONTINUE";
 }
