@@ -249,7 +249,7 @@ sub parseCmdHook {
 	'Identifier' => 'zsi', 'Cmdstats' => 'zsi',
 	'Forker' => 1) );
 &addCmdHook("extra", '(ex)?change', ('CODEREF' => 'Exchange::query',
-	'Identifier' => 'exchange', 'Cmdstats' => 'exchange',
+	'Identifier' => 'Exchange', 'Cmdstats' => 'Exchange',
 	'Forker' => 1) );
 &addCmdHook("extra", '(botmail|message)', ('CODEREF' => 'botmail::parse',
 	'Identifier' => 'botmail', 'Cmdstats' => 'botmail') );

@@ -30,6 +30,7 @@ _default
     +DebianExtra
     debianRefreshInterval 7
     +Dict
+    +Exchange
     +factoidArguments
     floodMessages 10:30
     floodRepeat 2:10
