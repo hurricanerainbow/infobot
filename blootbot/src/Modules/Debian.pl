@@ -12,8 +12,8 @@ use strict;
 # format: "alias=real".
 my $announce	= 0;
 my $defaultdist	= "unstable";
-my $refresh = &::getChanConfDefault("debianRefreshInterval",
-			undef, 7) * 60 * 60 * 24;
+my $refresh = &::getChanConfDefault("debianRefreshInterval",7)
+			* 60 * 60 * 24;
 
 my %dists	= (
 	"unstable"	=> "sid",
