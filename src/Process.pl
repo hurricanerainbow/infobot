@@ -12,6 +12,7 @@ sub process {
     $learnok	= 0;	# Able to learn?
     $talkok	= 0;	# Able to yap?
     $force_public_reply = 0;
+    $literal	= 0;
 
     return 'X'			if $who eq $ident;	# self-message.
     return 'addressedother set' if ($addressedother);
@@ -74,7 +75,7 @@ sub process {
     }
 
     # 'identify'
-    if ($msgType =~ /private/ and $message =~ s/^identify//) {
+    if ($msgType =~ /private/ and $message =~ s/^identify//i) {
 	$message =~ s/^\s+|\s+$//g;
 	my @array = split / /, $message;
 
@@ -115,6 +116,58 @@ sub process {
 	return;
     }
 
+    # 'pass'
+    if ($msgType =~ /private/ and $message =~ s/^pass//i) {
+	$message =~ s/^\s+|\s+$//g;
+	my @array = split / /, $message;
+
+	if ($who =~ /^_default$/i) {
+	    &pSReply("you are too eleet.");
+	    return;
+	}
+
+	if (scalar @array != 1) {
+	    &help("pass");
+	    return;
+	}
+
+	# todo: use &getUser()?
+	my $first	= (scalar keys %users) ? 1 : 0;
+	if (!exists $users{$who} and !$first) {
+	    &pSReply("nick $who is not in user list.");
+	    return;
+	}
+
+	if ($first) {
+	    &pSReply("first time user... adding you as master.");
+	    $users{$who}{FLAGS} = "mrsteon";
+	}
+
+	my $crypt = $users{$who}{PASS};
+	if (defined $crypt) {
+	    &pSReply("user $who already has pass set.");
+	    return;
+	}
+
+	if (!defined $host) {
+	    &WARN("pass: host == NULL.");
+	    return;
+	}
+
+	if (!scalar keys %{ $users{$who}{HOSTS} }) {
+	    my $mask = "*!$user@".&makeHostMask($host);
+	    &pSReply("added mask $mask to $who.");
+	    $users{$who}{HOSTS}{$mask}	= 1;
+	}
+
+	my $salt = join '',('.','/',0..9,'A'..'Z','a'..'z')[rand 64, rand 64];
+	# todo: show crypt?
+	&pSReply("new pass for $who, salt $salt.");
+	$users{$who}{PASS}		= crypt($array[0], $salt);
+
+	return;
+    }
+
     # allowOutsiders.
     if (&IsParam("disallowOutsiders") and $msgType =~ /private/i) {
 	my $found = 0;
@@ -147,7 +200,7 @@ sub process {
     ###
 
     # confused? is this for infobot communications?
-    foreach (keys %{$lang{'confused'}}) {
+    foreach (keys %{ $lang{'confused'} }) {
 	my $y = $_;
 
 	next unless ($message =~ /^\Q$y\E\s*/);
@@ -169,14 +222,14 @@ sub process {
 
 	# customized random message.
 	my $tmp = (rand() < 0.5) ? ", $who" : "";
-	&performStrictReply(&getRandom(keys %{$lang{'hello'}}) . $tmp);
+	&performStrictReply(&getRandom(keys %{ $lang{'hello'} }) . $tmp);
 	return;
     }
 
     # greetings.
     if ($message =~ /how (the hell )?are (ya|you)( doin\'?g?)?\?*$/) {
-	my $reply = &getRandom(keys %{$lang{'howareyou'}});
-        
+	my $reply = &getRandom(keys %{ $lang{'howareyou'} });
+
 	&performReply($reply);
         
 	return;
@@ -204,7 +257,6 @@ sub process {
 	return;
     }
 
-
     ###
     ### bot commands...
     ###
@@ -214,6 +266,11 @@ sub process {
 	&status("found '+' flag; setting msgType to public.");
 	$force_public_reply++;
 	$msgType = 'public';
+    }
+
+    if ($message =~ s/^literal\s+//i) {
+	&status("literal ask of '$message'.");
+	$literal = 1;
     }
 
     # karma. set...
@@ -335,8 +392,8 @@ sub FactoidStuff {
 
 	if (defined $result) {
 	    my $author = &getFactInfo($faqtoid, "created_by");
-	    if (IsFlag("r") ne "r" && $author =~ /^\Q$who\E\!/i) {
-		&msg($who, "you don't have access to remove that factoid");
+	    if (IsFlag("r") ne "r") {
+		&msg($who, "you don't have access to remove factoids");
 		return;
 	    }
 
