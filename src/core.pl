@@ -78,11 +78,10 @@ $nottime	= 0;
 $notsize	= 0;
 $notcount	= 0;
 ###
+$bot_release	= "1.1.0";
 if ( -d "CVS" ) {
     use POSIX qw(strftime);
-    $bot_release	= strftime("cvs (%Y%m%d)", gmtime( (stat("CVS"))[9] ) );
-} else {
-    $bot_release	= "1.0.10 (2001xxxx)";
+    $bot_release	.= strftime(" cvs (%Y%m%d)", gmtime( (stat("CVS"))[9] ) );
 }
 $bot_version	= "blootbot $bot_release -- $^O";
 $noreply	= "NOREPLY";
