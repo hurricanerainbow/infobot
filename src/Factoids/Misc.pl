@@ -309,7 +309,7 @@ sub FactoidStuff {
 	    if (defined $result) {
 		my $author = &getFactInfo($from, "created_by");
 
-		if (&IsFlag("m") or $author =~ /^\Q$who\E\!/i) {
+		if (0 and !&IsFlag("m") or $author !~ /^\Q$who\E\!/i) {
 		    &msg($who, "It's not yours to modify.");
 		    return;
 		}

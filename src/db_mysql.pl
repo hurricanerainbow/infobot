@@ -145,10 +145,7 @@ sub dbGetColNiceHash {
 	return;
     }
 
-    # todo: get column names, do $hash{$primkey}{blah} = ...
-    while (my @row = $sth->fetchrow_array) {
-	# reverse it to make it easier to count.
-    }
+    %retval = %{ $sth->fetchrow_hashref() };
 
     $sth->finish;
 
@@ -273,10 +270,10 @@ sub dbInsert {
 }
 
 #####
-# Usage: &dbReplace($table, %hash);
+# Usage: &dbReplace($table, $key %hash);
 #  Note: dbReplace does optional dbQuote.
 sub dbReplace {
-    my ($table, %hash) = @_;
+    my ($table, $key, %hash) = @_;
     my (@keys, @vals);
 
     foreach (keys %hash) {

@@ -329,7 +329,7 @@ sub process {
 	}
     }
 
-    if (&IsParam("factoids") and $param{'DBType'} =~ /^(mysql|pg|postgres|dbm)/i) {
+    if (&IsParam("factoids") and $param{'DBType'} =~ /^(mysql|pgsql|dbm)/i) {
 	&FactoidStuff();
     } elsif ($param{'DBType'} =~ /^none$/i) {
 	return "NO FACTOIDS.";

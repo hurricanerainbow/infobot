@@ -19,16 +19,10 @@ sub CmdFactInfo {
 	return;
     }
 
-    my $i = 0;
-    my %factinfo;
-    my @factinfo = &getFactInfo($faqtoid,"*");
-    foreach ( &dbGetColInfo("factoids") ) {
-	$factinfo{$_} = $factinfo[$i] || '';
-	$i++;
-    }
+    my %factinfo = &dbGetColNiceHash("factoids", "*", "factoid_key=".&dbQuote($faqtoid));
 
     # factoid does not exist.
-    if (scalar @factinfo <= 1) {
+    if (scalar (keys %factinfo) <= 1) {
 	&performReply("there's no such factoid as \002$faqtoid\002");
 	return;
     }
