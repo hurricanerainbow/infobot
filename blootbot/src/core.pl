@@ -70,6 +70,7 @@ sub doExit {
 	&closeSHM($shm);
 	&dumpallvars()  if (&IsParam("dumpvarsAtExit"));
 	&closeLog();
+	&closeSQLDebug()	if (&IsParam("SQLDebug"));
     } else {					# child.
 	&status("child caught SIG$sig (pid $$).");
     }
@@ -115,15 +116,19 @@ sub showProc {
 	if (defined $memusageOld and &IsParam("DEBUG")) {
 	    # it's always going to be increase.
 	    my $delta = $memusage - $memusageOld;
+	    my $str;
 	    if ($delta > 500) {
-		&status("MEM:$prefix increased by $delta kB. (total: $memusage kB)");
+		$str = "MEM:$prefix increased by $delta kB. (total: $memusage kB)";
 	    } elsif ($delta > 0) {
-		&status("MEM:$prefix increased by $delta kB.");
+		$str = "MEM:$prefix increased by $delta kB";
 	    } elsif ($delta < 0) {
 		$delta = -$delta;
 		# never knew RSS could decrease, probably Size can't?
-		&status("MEM:$prefix decreased by $delta kB. YES YES YES");
+		$str = "MEM:$prefix decreased by $delta kB. YES YES YES";
 	    }
+	    &status($str);
+	    &DCCBroadcast($str) if (&whatInterface() =~ /IRC/ &&
+		grep(/Irc.pl/, keys %moduleAge));
 	}
 	$memusageOld = $memusage;
     } else {
@@ -147,6 +152,7 @@ sub setup {
     &loadUsers($bot_misc_dir.		"/blootbot.users");
 
     $shm = &openSHM();
+    &openSQLDebug()	if (&IsParam("SQLDebug"));
     &openDB($param{'DBName'}, $param{'SQLUser'}, $param{'SQLPass'});
 
     &status("Setup: ". &countKeys("factoids") ." factoids.");
@@ -206,7 +212,7 @@ sub restart {
 
 	&shutdown();
 	&loadConfig($bot_misc_dir."/blootbot.config");
-	&reloadModules() if (&IsParam("DEBUG"));
+	&reloadAllModules() if (&IsParam("DEBUG"));
 	&setup();
 
 	&status("End of $sig.");
