@@ -514,6 +514,7 @@ sub validFactoid {
 	/^\S+ to \S+ \S+/ and last;	# babelfish.
 
 	/^\=/ and last;			# botnick = heh is.
+	/wants you to know/ and last;
 
 	# symbols.
 	/(\"\*)/ and last;
@@ -605,7 +606,7 @@ sub Forker {
 	$pid = eval { fork() };
 	return $noreply if $pid;	# parent does nothing
 	&status("fork starting for '$label', PID == $$.");
-	&shmWrite($shm,"SET FORKPID $name $$");
+	&shmWrite($shm,"SET FORKPID $label $$");
     }
 
     if (!&loadMyModule($myModules{$label})) {
