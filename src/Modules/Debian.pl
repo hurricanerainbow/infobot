@@ -390,7 +390,7 @@ sub searchAuthor {
 	    $package = "";
 
 	} else {
-	    &::WARN("invalid line: '$_'.");
+	    &::WARN("debian: invalid line: '$_' (1).");
 	}
     }
     close IN;
@@ -497,7 +497,7 @@ sub searchDesc {
 	    $desc{$package} = $desc;
 	    $package = "";
 	} else {
-	    &::WARN("invalid line: '$_'.");
+	    &::WARN("debian: invalid line: '$_'. (2)");
 	}
     }
     close IN;
@@ -870,7 +870,7 @@ sub generateIndex {
 	    system("cp $idx $idx-old");
 	}
 
-	&::DEBUG("deb: gIndex: calling DebianDownload($dist, ...).");
+	&::DEBUG("deb: gIndex: calling DebianDownload($dist, ...).") if ($debug);
 	&DebianDownload($dist, &fixDist($dist, %urlpackages) );
 
 	&::status("Debian: generating index for '$dist'.");
@@ -1129,7 +1129,7 @@ sub checkEval {
 }
 
 sub searchDescFE {
-    &::DEBUG("deb: FE called for searchDesc");
+#    &::DEBUG("deb: FE called for searchDesc");
     my ($query)	= @_;
     my @list = &searchDesc($query);
 

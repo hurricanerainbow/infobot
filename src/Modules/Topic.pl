@@ -55,7 +55,7 @@ sub topicDecipher {
 # Usage: &topicCipher(@topics);
 sub topicCipher {
   if (!@_) {
-    &DEBUG("topicCipher: topic is NULL.");
+    &WARN("topicCipher: topic is NULL for $chan.");
     return;
   }
 
@@ -390,7 +390,7 @@ sub Topic {
 
 	undef @subtopics;			# lets reuse this array.
 	foreach (@newtopics) {
-	  next if ($_ eq "");
+	  next if (!defined $_ or $_ eq "");
 	  push(@subtopics, $_);
 	}
 

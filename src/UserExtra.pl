@@ -161,7 +161,7 @@ sub chaninfo {
     }
 
     # todo: show top 3 with percentages?
-    my($count) = (sort { $a <=> $b } keys %new)[0];
+    my($count) = (sort { $new{$a} <=> $new{$b} } keys %new)[0];
     if ($count) {
 	$reply .= ".  \002$count\002 has said the most with a total of \002$new{$count}\002 messages";
     }
@@ -262,6 +262,9 @@ sub ispell {
 	    last;
 	} elsif (/^\+/) {
 	    &DEBUG("spell: '+' found => '$_'.");
+	    last;
+	} elsif (/^# (.*?) 0$/) {
+	    # none found.
 	    last;
 	} else {
 	    &DEBUG("spell: unknown: '$_'.");
@@ -392,6 +395,11 @@ sub DNS {
     my($match, $x, $y, $result);
     my $pid;
     $dns =~ s/^\s+|\s+$//g;
+
+    if (!defined $dns or $dns =~ /^\s*$/ or $dns =~ / /) {
+	&help("dns");
+	return;
+    }
 
     if ($dns =~ /(\d+\.\d+\.\d+\.\d+)/) {
 	$match = $1;
@@ -803,7 +811,10 @@ sub userCommands {
 			" ORDER BY counter DESC", 1);
 
 	foreach (keys %hash) {
-	    &DEBUG("cmdstats: hash{$_} => $hash{$_}");
+	    my $i = $_;
+	    foreach (keys %{ $hash{$i} }) {
+		&DEBUG("cmdstats: $hash{$i}{$_} = $_");
+	    }
 	}
 	&DEBUG("end of cmdstats.");
 

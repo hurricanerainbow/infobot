@@ -138,7 +138,7 @@ sub update {
 
     if ($also) {			# 'is also'.
 	if ($exists =~ /^<REPLY> see /i) {
-	    &DEBUG("todo: append to linked factoid.");
+	    &DEBUG("Update.pl: todo: append to linked factoid.");
 	}
 
 	if ($also_or) {			# 'is also ||'.

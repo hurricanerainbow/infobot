@@ -440,7 +440,7 @@ sub netsplitCheck {
     }
 
     $cache{'netsplitCache'}++;
-    &DEBUG("running netsplitCheck... $cache{netsplitCache}");
+#    &DEBUG("running netsplitCheck... $cache{netsplitCache}");
 
     if (!scalar %netsplit and scalar %netsplitservers) {
 	&DEBUG("nsC: !hash netsplit but hash netsplitservers <- removing!");
@@ -493,7 +493,7 @@ sub netsplitCheck {
 
     if ($delete) {
 	my $j = scalar(keys %netsplit);
-	&DEBUG("nsC: removed from netsplit list: (before: $count; after: $j)");
+	&status("nsC: removed from netsplit list: (before: $count; after: $j)");
     }
 
     if (!scalar %netsplit and scalar %netsplitservers) {
@@ -642,7 +642,7 @@ sub leakCheck {
 	    $count += scalar(keys %{ $flood{$blah1}{$blah2} });
 	}
     }
-    &DEBUG("leak: hash flood has $count total keys.",2);
+    &VERB("leak: hash flood has $count total keys.",2);
 
     # floodjoin.
     $count = 0;
@@ -651,11 +651,11 @@ sub leakCheck {
 	    $count += scalar(keys %{ $floodjoin{$blah1}{$blah2} });
 	}
     }
-    &DEBUG("leak: hash floodjoin has $count total keys.",2);
+    &VERB("leak: hash floodjoin has $count total keys.",2);
 
     # floodwarn.
     $count = scalar(keys %floodwarn);
-    &DEBUG("leak: hash floodwarn has $count total keys.",2);
+    &VERB("leak: hash floodwarn has $count total keys.",2);
 
     my $chan;
     foreach $chan (grep /[A-Z]/, keys %channels) {
@@ -670,7 +670,7 @@ sub leakCheck {
 
     # chanstats
     $count = scalar(keys %chanstats);
-    &DEBUG("leak: hash chanstats has $count total keys.",2);
+    &VERB("leak: hash chanstats has $count total keys.",2);
 
     # nuh.
     my $delete	= 0;
