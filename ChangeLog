@@ -2,7 +2,7 @@
 
 	* src/IRC/: IrcHelpers.pl, IrcHooks.pl, Schedulers.pl: hookMode: change chan to nick.  if deopped by chanserv, check it
 	dont change channel limits during netsplit.
-	
+
 2001-04-26 22:37  dms
 
 	* src/: DynaConfig.pl, Process.pl, UserExtra.pl, core.pl,
@@ -14,13 +14,13 @@
 	"blootbot: are you fixed now? :)" -- fixed. found by greycat
 	use hasParam instead of IsParam in UserExtra.pl/userCommands()
 	command "ord" handling fixed.
-	
+
 2001-04-24 20:58  dms
 
 	* src/: logger.pl, IRC/Irc.pl, IRC/IrcHelpers.pl, IRC/IrcHooks.pl,
 	IRC/Schedulers.pl: fix more warnings
 	set $ident in nick()
-	
+
 2001-04-23 20:14  dms
 
 	* src/: Process.pl, UserExtra.pl, logger.pl, IRC/Irc.pl,
@@ -31,51 +31,51 @@
 	disable notify code
 	leakCheck: show stats on hash chanstats
 	mkBackup: show age of file.
-	
+
 2001-04-22 22:58  dms
 
 	* src/IRC/IrcHooks.pl: fix on_targettoofast once and for all, hopefully.
-	
+
 2001-04-22 22:01  dms
 
 	* src/: UserExtra.pl, logger.pl: make sure chanstats don't flood
 	don't throttle if it's a perl warn message
-	
+
 2001-04-22 21:52  dms
 
 	* src/Factoids/Reply.pl: woops... forgot this aswell
-	
+
 2001-04-22 21:48  dms
 
 	* src/Factoids/Reply.pl: disabled literal if factoid is requested via /msg by author; use literal
 	instead
-	
+
 2001-04-22 20:25  dms
 
 	* src/IRC/: Irc.pl, IrcHooks.pl, Schedulers.pl: don't call chanservcheck in joinnextchan
 	call chanservcheck in on_endofnames
 	ircCheck "resets" itself if it thinks so
-	
+
 2001-04-22 20:17  dms
 
 	* src/: Factoids/Question.pl, Factoids/Reply.pl, IRC/Irc.pl,
 	Modules/UserDCC.pl: part now warns if we're on a channel - allow it anyway.
 	added "reset" to DCC CHAT
-	
+
 2001-04-21 22:37  dms
 
 	* TODO: todo list, for those who want to know what "new" features will be coming
-	
+
 2001-04-20 21:27  dms
 
 	* src/: Process.pl, IRC/Schedulers.pl: we didn't set modified_time for deleted factoids - fixed
 	also... if final delete factoid list is >50... don't do it!
-	
+
 2001-04-20 21:16  dms
 
 	* src/: UserExtra.pl, IRC/Irc.pl: chagned notice lines/sec to 3
 	made connectivity percentage 5 significant decimal places.
-	
+
 2001-04-20 20:54  dms
 
 	* src/: CommandStubs.pl, DynaConfig.pl, Misc.pl, Process.pl,
@@ -93,11 +93,11 @@
 	chanserv/ops removed from ircCheck()
 	joinNextChan removed from ircCheck()
 	added preliminary debian BTS frontend support
-	
+
 2001-04-19 20:11  dms
 
 	* src/Modules/News.pl: news: don't list new items if they don't have Text.
-	
+
 2001-04-18 23:07  dms
 
 	* src/: CommandStubs.pl, IRC/Irc.pl, IRC/IrcHooks.pl,
@@ -105,47 +105,47 @@
 	added where debugging messages came from (functions)
 	fixed reversed use of % in if statement, stupid me :)
 	changed backup times for files again
-	
+
 2001-04-18 22:51  dms
 
 	* src/IRC/Irc.pl: forgot this one
-	
+
 2001-04-18 22:50  dms
 
 	* src/: UserExtra.pl, core.pl, IRC/Irc.pl, IRC/Schedulers.pl: added flood protection for notice()
 	added connectivity percentage to ircstats.
 	other changes forgotten
-	
+
 2001-04-18 22:41  dms
 
 	* src/IRC/IrcHooks.pl: fixed the following bugs:
 	[57419] on_ttf: X1 Target change too fast. Please wait 50 seconds.
 	[57604] !WARN! IsChanConf: lowercased chan. (Read error to
 		boren-[adsl-63-197-68-132.dsl.snfc21.pacbell.net]: EOF from client)
-	
+
 2001-04-18 22:30  dms
 
 	* src/: core.pl, IRC/IrcHelpers.pl, IRC/Schedulers.pl,
 	Modules/W3Search.pl: fix chanlimitChange time
 	w3search => "blah for blah" fails - fixed.
-	
+
 2001-04-17 23:56  dms
 
 	* src/IRC/IrcHelpers.pl: ok... use "" around hashes that use _ bare.
-	
+
 2001-04-17 23:34  dms
 
 	* src/: core.pl, Modules/News.pl: ...
-	
+
 2001-04-17 22:03  dms
 
 	* src/Modules/News.pl: forgot to use \d+ for read shortcut
 	other changes that the last commit missed or something
-	
+
 2001-04-17 20:35  dms
 
 	* src/core.pl: another round of useless changes
-	
+
 2001-04-16 21:45  dms
 
 	* src/: CommandStubs.pl, DynaConfig.pl, core.pl, IRC/Irc.pl,
@@ -159,13 +159,13 @@
 		- msgcount, msgbyte, msgtime
 		- pubcount, pubbyte, pubtime
 	- fixed other bugs.... weeeeeeee....
-	
+
 2001-04-14 22:48  dms
 
 	* src/IRC/: IrcHelpers.pl, Schedulers.pl: prevent erratic (multiple) changes of chan limit in short space of time.
 	this would be a major problem in chanlimitVerify@IrcHelpers.pl since
 	it's called for every join.  Better safe than sorry.
-	
+
 2001-04-14 20:17  dms
 
 	* src/: Process.pl, core.pl, IRC/Irc.pl, IRC/IrcHooks.pl,
@@ -181,7 +181,7 @@
 		=> should fix all bugs.
 		=> I have no idea how this worked so brokenly.
 	News.pl - more more changes
-	
+
 2001-04-14 00:45  dms
 
 	* src/: core.pl, IRC/IrcHelpers.pl, IRC/IrcHooks.pl,
@@ -191,7 +191,7 @@
 	- Also fixed netsplit problems, forgot a next line.
 	- don't run all funky commands in on_join if netsplit is enabled.
 	- other tiny things not worth mentioning.
-	
+
 2001-04-13 23:23  dms
 
 	* src/: IRC/IrcHelpers.pl, IRC/IrcHooks.pl, IRC/Schedulers.pl,
@@ -200,13 +200,13 @@
 	irchooks: splitted into IrcHelpers.pl so we can reload it on the fly.
 	factoids: added debugging for short factoids that may be botched up
 	          references
-	
+
 2001-04-12 21:12  dms
 
 	* src/: UserExtra.pl, db_mysql.pl, IRC/Schedulers.pl,
 	Modules/News.pl, Modules/UserDCC.pl: news: added news->factoid redirection
 	ton load of minor changes or bug fixes that cannot really be summarized
-	
+
 2001-04-11 22:34  dms
 
 	* src/: Process.pl, UserExtra.pl, db_mysql.pl, modules.pl,
@@ -216,64 +216,64 @@
 		- debian infopackages shows dist
 		- news user cache now works properly
 		- "+" now works for all commands, not only for factoids
-	
+
 2001-04-07 23:59  dms
 
 	* src/Misc.pl: isStale is basically used by Debian.pl and we were using age in terms of
 	seconds but the actual function was assuming it was in days - fixed.
-	
+
 2001-04-07 20:07  dms
 
 	* src/: modules.pl, IRC/Schedulers.pl: - now backup news file just in case.
 	- Other changes we've not documented or small enough not to mention
-	
+
 2001-04-07 20:07  dms
 
 	* src/Modules/News.pl: - load file if we enabled option on the fly before re-run.
-	
+
 2001-04-07 20:06  dms
 
 	* src/CommandStubs.pl: - we now check if CODEREF exists.
-	
+
 2001-04-07 20:06  dms
 
 	* src/UserExtra.pl: - forgot Module for news.
-	
+
 2001-04-07 20:05  dms
 
 	* src/core.pl: - write opened files on shutdown/hup
-	
+
 2001-04-06 22:05  dms
 
 	* src/Modules/News.pl: When we did a symlink to all the set commands, the string was made
 	static (set to "Text") so it was broken.
 	also added link from Desc to Text
-	
+
 2001-04-06 21:56  dms
 
 	* src/Modules/News.pl: Just some more minor changes, to make some people happy, heh.
-	
+
 2001-04-03 20:06  dms
 
 	* src/: DynaConfig.pl, modules.pl, IRC/IrcHooks.pl,
 	IRC/Schedulers.pl, Modules/News.pl: More clean ups, forgotten what they were, heh.
-	
+
 2001-04-01 23:25  dms
 
 	* src/Modules/News.pl: forgot to add this file, heh.
-	
+
 2001-04-01 23:16  dms
 
 	* src/modules.pl: finally nailed this "random" bug noticed by asuffield.
-	
+
 2001-04-01 23:00  dms
 
 	* files/blootbot.help: added help for news
-	
+
 2001-04-01 23:00  dms
 
 	* src/: Misc.pl, IRC/IrcHooks.pl: Second round of News changes and bug fixes, kudos to greycat
-	
+
 2001-03-31 22:19  dms
 
 	* src/: CommandStubs.pl, DynaConfig.pl, Process.pl, UserExtra.pl,
@@ -285,178 +285,178 @@
 	  modules.pl          - added News.pl
 	  Modules/News.pl     - new feature.
 	  Process.pl	      - "blootbot: ok is <reply> :)" -- FIXED.
-	
+
 2001-02-28 20:17  dms
 
 	* src/IRC/Irc.pl: removed msg/say repeating code.
-	
+
 2001-02-28 20:17  dms
 
 	* src/Process.pl: don't backup #DEL# factoids. asuffield.
-	
+
 2001-02-28 20:17  dms
 
 	* src/Factoids/Question.pl: fix for endless loop. asuffield.
-	
+
 2001-02-28 20:12  dms
 
 	* src/IRC/IrcHooks.pl: msgtime updated in on_msg
-	
+
 2001-02-28 20:10  dms
 
 	* src/IRC/Schedulers.pl: make dead-connect detection better.
-	
+
 2001-02-23 20:26  dms
 
 	* src/CommandStubs.pl: strip trailing whitespaces, force use of quotes to enable trailing
 	whitespace. requested by asuffield and \broken?.
-	
+
 2001-02-23 20:25  dms
 
 	* src/Process.pl: now use "or" instead of "and" operator for "rename".
-	
+
 2001-02-23 20:24  dms
 
 	* src/IRC/Irc.pl: closedcc debug
-	
+
 2001-02-23 20:24  dms
 
 	* src/IRC/Schedulers.pl: downlink check update?
-	
+
 2001-02-20 21:01  dms
 
 	* src/Factoids/Question.pl: - recursive factoid linking added.
-	
+
 2001-02-20 21:01  dms
 
 	* src/IRC/IrcHooks.pl: - lobotomy check in hookMsg
-	
+
 2001-02-20 21:00  dms
 
 	* src/Factoids/Update.pl: - reformatted totally
 	- added preliminary append-to-linked-factoid support.
 	- all return calls now return appropriately.
-	
+
 2001-02-20 21:00  dms
 
 	* src/: Misc.pl, UserExtra.pl: - added mkcrypt, fixed up "crypt" cmd.
-	
+
 2001-02-20 20:59  dms
 
 	* src/: CommandStubs.pl, core.pl, modules.pl: minor updates, warn fixes, removed comments
-	
+
 2001-02-20 20:59  dms
 
 	* src/IRC/Schedulers.pl: - lobotomy cache flush.
 	- disable uptime if not loaded.
 	- minor output update.
-	
+
 2001-02-20 20:58  dms
 
 	* src/Process.pl: - lobotomy warning now cached
 	- use &mkcrypt()
-	
+
 2001-02-20 20:58  dms
 
 	* src/DynaConfig.pl: - preliminary check of masks in chan for matches.
 	- ckpasswd, clean up.
-	
+
 2001-02-20 20:58  dms
 
 	* src/Modules/UserDCC.pl: - changed "m" to "n". asu.
 	- flush lobotomy cache on "unlobotomy"
 	- now use &mkcrypt()
-	
+
 2001-02-17 21:42  dms
 
 	* src/IRC/Schedulers.pl: - minor output update.
-	
+
 2001-02-17 21:41  dms
 
 	* src/UserExtra.pl: - removed '' from returns
 	- preliminary stats for on/off-line time
-	
+
 2001-02-17 21:41  dms
 
 	* src/Modules/UserDCC.pl: - ".op" fixed. found by Rev
 	- ".-ban" now removes the ban from the chan.
-	
+
 2001-02-17 21:40  dms
 
 	* src/IRC/Irc.pl: - sub "op" fixed.
 	- added sub "unban"
-	
+
 2001-02-17 21:40  dms
 
 	* src/IRC/IrcHooks.pl: - added first time run checks.
 	- on/off-line time stats
 	- on_join ban now kicks with custom reason.
-	
+
 2001-02-17 21:40  dms
 
 	* src/Factoids/Reply.pl: literal update
-	
+
 2001-02-17 21:39  dms
 
 	* src/Process.pl: - typo in if statement for "forget" when users
 	  don't have +r flag. found by Rev
 	- added "pass" cmd.
 	- added "literal" factoid ask.
-	
+
 2001-02-17 21:36  dms
 
 	* src/core.pl: memusage support for open/free/net bsd added. patch from Kuma/Rev
-	
+
 2001-02-13 23:50  dms
 
 	* src/core.pl: update version of bot
-	
+
 2001-02-13 23:47  dms
 
 	* src/IRC/IrcHooks.pl: make nickserv work on more servers. requested by asuffield
-	
+
 2001-02-13 23:35  dms
 
 	* src/IRC/IrcHooks.pl: on-ban reason does not work... added debugging
-	
+
 2001-02-13 23:28  dms
 
 	* files/blootbot.help: updates from asuffield@OPN
-	
+
 2001-02-13 23:18  dms
 
 	* src/Modules/babel.pl: main:: fixes
-	
+
 2001-02-13 23:04  dms
 
 	* src/UserExtra.pl: - 'ascii' updates.
 	- hex now honours "allowConv"
 	- found by asuffield.
 	- redir of a redir fixed.
-	
+
 2001-02-13 22:30  dms
 
 	* src/IRC/IrcHooks.pl: added reason on ban.
-	
+
 2001-02-13 22:18  dms
 
 	* src/Process.pl: safe delete did not run delFactoid, hah! found by asuffield
-	
+
 2001-02-13 22:07  dms
 
 	* src/IRC/Irc.pl: ban fixes.
-	
+
 2001-02-13 22:06  dms
 
 	* src/Modules/UserDCC.pl: - moved read-only stuff from DynaConfig to here.
 	- added newpass
 	- .chpass didn't use arg[0] for user.
-	
+
 2001-02-13 22:03  dms
 
 	* src/DynaConfig.pl: - now prevent ".chanset +blah 10"
 	- recoded it a bit.
-	
+
 2001-02-13 22:02  dms
 
 	* src/IRC/IrcHooks.pl: - use "right way" to get keys from hash by checking if the hash ref
@@ -465,160 +465,160 @@
 	- anti-repeat should not apply to /msg
 	- option to do kick on repeat... preliminary support.
 	- casing fixes to DCC CHAT. (reported by Revenge@OPN)
-	
+
 2001-02-13 22:01  dms
 
 	* src/IRC/Schedulers.pl: errors from Schedulers (chanlimitcheck) are cached and shown only once.
-	
+
 2001-02-13 22:00  dms
 
 	* src/Modules/Factoids.pl: - added support to factstats (requested,requesters) of "total" value.
-	
+
 2001-02-13 21:59  dms
 
 	* src/Modules/babel.pl: debugging added
-	
+
 2001-02-13 21:58  dms
 
 	* src/Misc.pl: added debian-specific debug to isStale
-	
+
 2001-02-11 22:25  dms
 
 	* src/: CommandStubs.pl, Misc.pl, modules.pl, IRC/Schedulers.pl,
 	Modules/Debian.pl: remaining stuff... should fix factoids problem I hope
-	
+
 2001-02-10 00:47  dms
 
 	* src/Modules/babel.pl: typo
-	
+
 2001-02-10 00:29  dms
 
 	* src/core.pl: slight change to ChanConfList to make schedulers work again
-	
+
 2001-02-09 23:02  dms
 
 	* src/: IRC/IrcHooks.pl, Process.pl: fixed up ignore code. discovered by debian@OPN
-	
+
 2001-02-09 22:51  dms
 
 	* src/IRC/Irc.pl: woops, use while instead of foreach for ircloop
-	
+
 2001-02-09 22:48  dms
 
 	* src/: Files.pl, core.pl: use static value for ircservers file
-	
+
 2001-02-09 22:18  dms
 
 	* src/core.pl: don't write user/chan file on HUP/restart. confirmed by asuffield
-	
+
 2001-02-09 21:44  dms
 
 	* src/Modules/UserDCC.pl: we did a sort() when we should not have for '.sched'
-	
+
 2001-02-09 21:40  dms
 
 	* src/CommandStubs.pl: changed FlatArg to ArrayArgs to make more sense. by default, we use flat-args
-	
+
 2001-02-09 21:37  dms
 
 	* src/IRC/IrcHooks.pl: forgot to set nuh for on_join; fixed up ban check on join.
-	
+
 2001-02-09 21:23  dms
 
 	* src/Process.pl: moved nick lock checking to lock only. detected by irq@OPN
-	
+
 2001-02-09 21:18  dms
 
 	* src/IRC/Irc.pl: added debugging info to ircloop... if irc() does not return ever, we'll have to take another approach to do connect-next-server-if-cant-connect
-	
+
 2001-02-09 21:10  dms
 
 	* src/UserExtra.pl: substitute the right vars in getReply when used in tell. found by asuffield
-	
+
 2001-02-09 00:02  dms
 
 	* src/IRC/IrcHooks.pl: this should fix ignores on global channels. found by 'debian'@OPN
-	
+
 2001-02-08 23:51  dms
 
 	* src/IRC/Schedulers.pl: divide by zero fix. thought I fixed it 2 weeks ago
-	
+
 2001-02-08 23:50  dms
 
 	* src/IRC/IrcHooks.pl: - pointless regex in on_dcc_chat_open that I was going to deal with on
 	  failed WHOIS (nuh) lookups... now we just compare against "GETTING-NOW"
 	- on_quit debug info much cleaner now.
-	
+
 2001-02-08 22:09  dms
 
 	* src/CommandStubs.pl: we did not use flat args for forkers. found by asuffield.
-	
+
 2001-02-08 22:00  dms
 
 	* src/CommandStubs.pl: fix delayed task mechanism to verstats... we have to cache chan/nick/msgType.
-	
+
 2001-02-08 21:57  dms
 
 	* src/Shm.pl: possible fix for fork crashing and not detecting a crash from parent. warning included
-	
+
 2001-02-08 21:52  dms
 
 	* src/IRC/: IrcHooks.pl, Schedulers.pl: chan limit check code should now be disabled/re-enabled in relation to netsplits. discovered by asuffield
-	
+
 2001-02-07 22:12  dms
 
 	* src/Modules/UserDCC.pl: - list all schedulers and their respective time-of-next-run
-	
+
 2001-02-07 22:11  dms
 
 	* src/IRC/Schedulers.pl: - use CORE::system
-	
+
 2001-02-07 22:11  dms
 
 	* src/: Modules/Debian.pl, CommandStubs.pl: - finally (about three times) fixed search for "*bin*ssh*" for example,
 	  kudos to bod@OPN
 	- also make searchDesc return list of packages and searchDescFE to output it.
 	- use searchDescFE
-	
+
 2001-02-06 21:10  dms
 
 	* src/Modules/Debian.pl: Fixed by swapping dists hash around.
-	
+
 2001-02-06 20:42  dms
 
 	* src/Modules/Debian.pl: debugging added.
-	
+
 2001-02-06 20:42  dms
 
 	* src/Modules/Topic.pl:  ok from "topic -mod" => /msg only!
-	
+
 2001-02-06 20:42  dms
 
 	* src/IRC/Schedulers.pl: - added auto backup of user/chan files
 	- factoidCheck updates.
 	- nick-in-use timer update.
-	
+
 2001-02-06 20:41  dms
 
 	* src/: Process.pl, core.pl: - converted %joinverb to %cache
-	
+
 2001-02-06 20:41  dms
 
 	* src/UserExtra.pl: - added 'unique user count' to chanstats.
 	- wantnick updates
-	
+
 2001-02-06 20:27  dms
 
 	* src/IRC/IrcHooks.pl: - on_chat, forgot to set '$who'
 	- clean up aswell.
 	- converted %jointime to %cache
 	- we check limit on each on_join now.
-	
+
 2001-02-06 20:23  dms
 
 	* src/DynaConfig.pl: split off chanset from UserDCC to here to do multiple chans
 	- look at 1.19->1.20 to see changes
-	
+
 2001-02-06 20:22  dms
 
 	* src/Modules/UserDCC.pl: - Moved most of chanset to DynaConfig
@@ -632,149 +632,149 @@
 	- command to list which chans have option defined/set for.
 	- with respective values.
 	- ".chanset <value>"
-	
+
 2001-02-06 00:09  dms
 
 	* src/Process.pl: final cruft from old static configuration file fixed... found by irq
-	
+
 2001-02-06 00:04  dms
 
 	* src/CommandStubs.pl: ok, that failed. lets now set $chan aswell
-	
+
 2001-02-06 00:00  dms
 
 	* src/CommandStubs.pl: verstats was using dynamic chan var...
-	
+
 2001-02-05 23:45  dms
 
 	* src/IRC/IrcHooks.pl: dont overwrite nuh{} if it already exists.
-	
+
 2001-02-05 23:43  dms
 
 	* src/Factoids/: Norm.pl, Question.pl: - remove front/rear whitespaces
 	- trailing symbols should work now.
-	
+
 2001-02-05 23:30  dms
 
 	* src/IRC/IrcHooks.pl: - endofnames: chanserv ops should work now.
 	- store topic irrevelent of setting.
 	- call ->whois() if nuh is not found.
-	
+
 2001-02-05 23:29  dms
 
 	* src/Modules/UserDCC.pl: - prevent dupe uses of ".+chan"
 	- when adding new chan, set autojoin.
-	
+
 2001-02-05 23:29  dms
 
 	* src/IRC/Schedulers.pl: - ircCheck => 120 interval.
 	- dccStatus now only shows chan info where the dcc chat user is on
 	  _only_
 	- added checking of %dcc hash for nuh hash checking.
-	
+
 2001-02-05 22:32  dms
 
 	* src/IRC/Schedulers.pl:  defer leakCheck, increase interval.
-	
+
 2001-02-05 22:31  dms
 
 	* src/core.pl: comment out debugging
-	
+
 2001-02-05 22:31  dms
 
 	* src/IRC/IrcHooks.pl: - fixed when chan (msgType = private) is undefined.
-	
+
 2001-02-04 20:23  dms
 
 	* src/IRC/Irc.pl: reconnect if join fails
-	
+
 2001-02-04 20:17  dms
 
 	* src/IRC/Irc.pl: - output update
-	
+
 2001-02-04 20:16  dms
 
 	* src/IRC/IrcHooks.pl: - if in private, "is addressing" => "is /msg'ing".
 	- dccStatus fix ups.
 	- use ScheduleThis where possible.
-	
+
 2001-02-04 20:14  dms
 
 	* src/IRC/Schedulers.pl: typo for dccStatus fix :)
-	
+
 2001-02-04 20:14  dms
 
 	* src/Shm.pl: delForked: warn if name is source file.
-	
+
 2001-02-04 20:13  dms
 
 	* src/IRC/Schedulers.pl: - output update.
 	- prevent "unknown msg" for shm.
 	- typo for dcc hash. fixed.
 	- forgot about users,chops,bans define in dccStatus. fixed.
-	
+
 2001-02-04 20:13  dms
 
 	* src/CommandStubs.pl: if more than 1/4 users from channel gave version replies, verstats is active.
-	
+
 2001-02-04 20:12  dms
 
 	* src/core.pl: remove mem increase from DCC CHAT - annoying.
-	
+
 2001-02-04 00:01  dms
 
 	* src/: IRC/Schedulers.pl, Modules/Slashdot3.pl: more configuration crud and not-thinking-correctly design errors
-	
+
 2001-02-03 23:51  dms
 
 	* src/UserExtra.pl: added support for old Modules() for telling.
-	
+
 2001-02-03 23:48  dms
 
 	* src/Misc.pl: added IsParam back to hasParam together with isChanConf
-	
+
 2001-02-03 23:33  dms
 
 	* src/Factoids/Statement.pl: minor typo when fixing this before
-	
+
 2001-02-03 23:21  dms
 
 	* src/Modules/Debian.pl: validPackage or indirectly generateIndex should work now for the time being
-	
+
 2001-02-03 23:09  dms
 
 	* src/Modules/Debian.pl: woops forgot a few old config vars; converted to new format
-	
+
 2001-02-03 23:06  dms
 
 	* src/Modules/Debian.pl: converted to new gCCD
-	
+
 2001-02-03 22:46  dms
 
 	* src/Modules/UserDCC.pl: more fixups.
-	
+
 2001-02-03 22:35  dms
 
 	* src/Modules/UserDCC.pl: now use delete in place of undef
-	
+
 2001-02-03 22:23  dms
 
 	* src/IRC/IrcHooks.pl: looks like the final touches to fully exploit dynamic configuration have been made
-	
+
 2001-02-03 22:10  dms
 
 	* src/IRC/IrcHooks.pl: debugging info
-	
+
 2001-02-03 22:06  dms
 
 	* src/Process.pl: move identify code before outsider checking
-	
+
 2001-02-03 22:03  dms
 
 	* src/: IRC/Irc.pl, IRC/IrcHooks.pl, Misc.pl: - $nuh{} fix up.
 	- created on_dcc_open_chat for whois reply to get nuh.
 	- getRandomInt - allow decimal.
-	
+
 2001-02-03 20:52  dms
 
 	* src/: Shm.pl, IRC/Schedulers.pl: - time stamping added.
@@ -782,78 +782,78 @@
 	  However, older code will attempt to hijack and remove it anyway.
 	- check debian files with gzip -t.
 	- all schedulers should be deferred now.
-	
+
 2001-02-03 20:51  dms
 
 	* src/IRC/IrcHooks.pl: don't allow those without HOSTS in the user file to DCC CHAT.
-	
+
 2001-02-03 20:51  dms
 
 	* src/Modules/UserDCC.pl: fixed '.chanset' code.
-	
+
 2001-02-03 20:50  dms
 
 	* src/IRC/Irc.pl: added _default to chan mask.
-	
+
 2001-02-02 22:03  dms
 
 	* src/IRC/Schedulers.pl: I think this is the set of missed old->dynamic config changes that had to be done
-	
+
 2001-02-02 22:03  dms
 
 	* src/Modules/UserDCC.pl: compress config params as muc has possible per line
-	
+
 2001-02-02 21:42  dms
 
 	* src/core.pl: forgot to initialize counter for Moron
-	
+
 2001-02-02 21:42  dms
 
 	* src/Misc.pl: check if int is defined for fixPlural
-	
+
 2001-02-02 21:38  dms
 
 	* src/: DynaConfig.pl, Misc.pl, core.pl, modules.pl,
 	Factoids/Norm.pl, Factoids/Question.pl, Factoids/Reply.pl,
 	Factoids/Update.pl: tiny changes that I've missed
-	
+
 2001-02-02 21:36  dms
 
 	* src/IRC/: IrcHooks.pl, Schedulers.pl: temporary ignores can be removed automatically once expired
-	
+
 2001-02-02 21:21  dms
 
 	* src/Process.pl: typo for ckpasswd
-	
+
 2001-02-02 21:12  dms
 
 	* src/Shm.pl: - if shmRead fails, try openSHM.
-	
+
 2001-02-02 21:12  dms
 
 	* src/Process.pl: - fixup for question handling.
-	
+
 2001-02-02 21:12  dms
 
 	* src/UserExtra.pl: - tell: command redirection added.
-	
+
 2001-02-02 21:12  dms
 
 	* src/Modules/UserDCC.pl: - fix undefined for '.chanset'
 	- minor output update to '.bans'
-	
+
 2001-02-02 21:11  dms
 
 	* src/DynaConfig.pl: - undefining vars in wrong subs; fixed.
 	- fixes reading user/chan files finally, again.
-	
+
 2001-02-02 21:10  dms
 
 	* src/: CommandStubs.pl, Modules/babel.pl: - fixes for babelfish
 	- typo of IsChanConf for wwwsearch.
 	- parseCmdHooks return vals fixed.
 	- babel.pl: regex fixed -- works!!!
-	
+
 2001-02-02 21:09  dms
 
 	* src/: Modules/RootWarn.pl, Modules/Wingate.pl, IRC/Irc.pl,
@@ -864,180 +864,180 @@
 		- minor update.
 		- make getChanConfDefault(PARAM,VALUE,CHAN) instead for convenience.
 		- temp ignore removal checking loop fixed.
-	
+
 2001-02-01 22:21  dms
 
 	* src/core.pl: - write user/chan file in 'shutdown'
-	
+
 2001-02-01 22:18  dms
 
 	* src/Modules/UserDCC.pl: - wrong order in .+ignore
 	- ".chanset #chan" fixup.
-	
+
 2001-02-01 22:17  dms
 
 	* src/IRC/Irc.pl: - getJoinChans, don't add _default
 	- joinNextChan() - check nickServ_pass
-	
+
 2001-02-01 22:15  dms
 
 	* src/DynaConfig.pl: - prevent /^[+-]/ options being loaded.
 	- ignore/ban lists now saved properly.
 	- forgot about \+ :-)
 	- verifyUser does caching now!
-	
+
 2001-02-01 22:13  dms
 
 	* src/IRC/Schedulers.pl: - SC for uptimeCycle
 	- renamed *Cycle to *Loop
-	
+
 2001-02-01 22:11  dms
 
 	* src/IRC/IrcHooks.pl: - minor output (debug) removed.
 	- new config conversion for rootWarn
-	
+
 2001-02-01 22:06  dms
 
 	* src/Process.pl: now use pass auth for 'identify'.
-	
+
 2001-02-01 22:05  dms
 
 	* src/Modules/Debian.pl: regex support for 'query' in &searchDesc()
-	
+
 2001-01-31 22:53  dms
 
 	* src/CommandStubs.pl: nickometer: there could be multiple results with the same version
 	percentage - fixed. Also don't merge same percentages together like in
 	other list (formListReply) statements.
-	
+
 2001-01-31 22:31  dms
 
 	* src/CommandStubs.pl: nickometer and verstats: sort descendingly
 	nickometer: fix undefined warning
-	
+
 2001-01-31 21:31  dms
 
 	* src/Modules/Debian.pl: make $refresh global in this file... removed all duplicates of getting
 	debianRefreshInterval config var.
-	
+
 2001-01-31 21:28  dms
 
 	* src/IRC/: Irc.pl, IrcHooks.pl: make $nickserv global and set to zero in Irc.pl
-	
+
 2001-01-31 21:26  dms
 
 	* src/Misc.pl: check if $age is NULL in &isStale()
-	
+
 2001-01-31 21:18  dms
 
 	* src/core.pl: &ChanConfList() typos
-	
+
 2001-01-31 21:18  dms
 
 	* src/Process.pl: added 'identify <PASS> [nick]'
-	
+
 2001-01-31 21:18  dms
 
 	* src/IRC/Irc.pl: added retval to &ban()
-	
+
 2001-01-31 21:17  dms
 
 	* src/Modules/UserDCC.pl: minor fix for ignoreAdd()
-	
+
 2001-01-31 21:17  dms
 
 	* src/DynaConfig.pl: prevent repetion in verifyUser.
-	
+
 2001-01-31 21:17  dms
 
 	* src/Modules/Freshmeat.pl: - now use gCCD
-	
+
 2001-01-31 21:17  dms
 
 	* src/IRC/IrcHooks.pl: - ignore code cleaned up.
 	- ban on join added.
 	- added 'b' to &hookMode()'s stats keeping.
-	
+
 2001-01-31 21:16  dms
 
 	* src/IRC/Schedulers.pl: - forgot about interval for floodCycle.
 	- added nuh{} check to &leakCheck()
 	- added chanserv checking to &ircCheck()
-	
+
 2001-01-30 21:19  dms
 
 	* src/Modules/Debian.pl: support for new dynamic configuration infrastructure
-	
+
 2001-01-30 20:47  dms
 
 	* src/IRC/Schedulers.pl: - typo for already-run check. should work now.
-	
+
 2001-01-30 20:46  dms
 
 	* src/Modules/UserDCC.pl: - added '.sched'
-	
+
 2001-01-30 20:46  dms
 
 	* src/Misc.pl: - pSReply hack for &help().
-	
+
 2001-01-30 20:46  dms
 
 	* src/Process.pl: - typo for return val of &Modules()
-	
+
 2001-01-30 20:46  dms
 
 	* src/DynaConfig.pl: - added removal of possible duplicate configuration entries when bot
 	  exits.
-	
+
 2001-01-30 20:45  dms
 
 	* src/: Shm.pl, core.pl, modules.pl, Modules/Uptime.pl: - minor update (output and redundant vars)
-	
+
 2001-01-30 20:44  dms
 
 	* src/IRC/IrcHooks.pl: prevent dupes in verstats collection.
-	
+
 2001-01-30 20:44  dms
 
 	* src/CommandStubs.pl: - added 'unknown/cloaked' stats item to verstats.
 	- nickometer chan code cleanup.
-	
+
 2001-01-29 23:04  dms
 
 	* src/CommandStubs.pl: added 'verstats'
-	
+
 2001-01-29 23:03  dms
 
 	* src/Misc.pl: - strip ^chars update.
-	
+
 2001-01-29 23:03  dms
 
 	* src/IRC/Schedulers.pl: - fixed undefined stuff.
 	- put return's in wrong position; fixed.
-	
+
 2001-01-28 22:34  dms
 
 	* src/core.pl: removed obsoleted old dyn code
-	
+
 2001-01-28 22:03  dms
 
 	* files/sample/sample.config.proposed: - obsoleted... why was it even added in the first place.
-	
+
 2001-01-28 22:02  dms
 
 	* ChangeLog, ChangeLog.old: - finally generated ChangeLog from CVS
 	- moved old changelog to ChangeLog.old
-	
+
 2001-01-28 22:00  dms
 
 	* patches/: Connection.pm, Net::IRC.patch: - removed obsoleted files: it's now done in the bot code.
-	
+
 2001-01-28 21:35  dms
 
 	* files/: infobot.help, infobot.ignore, infobot.lang, infobot.lart,
 	infobot.randtext, infobot.users, sample.config, sample.countdown,
 	sample.insert: - obsoleted files removed
-	
+
 2001-01-28 21:32  dms
 
 	* src/: Misc.pl, Process.pl, Shm.pl, db_mysql.pl,
@@ -1050,45 +1050,45 @@
 	Modules/Wingate.pl, Modules/babel.pl, Modules/insult.pl,
 	Modules/nickometer.pl: - Remaining files that were changed due to removal of $noreply or
 	  indirectly caused by the change over to dynamic configuration
-	
+
 2001-01-28 21:15  dms
 
 	* src/IRC/Schedulers.pl: - added dccStatus
-	
+
 2001-01-28 21:14  dms
 
 	* src/UserExtra.pl: - if - is used before -about, don't tell us about what was told.
 	- ignorelist removed.
-	
+
 2001-01-28 21:14  dms
 
 	* src/modules.pl: - if core moduels fail to load, exit out properly.
-	
+
 2001-01-28 21:14  dms
 
 	* files/blootbot.help: - removed FIXME entries.
 	- added several new entries for UserDCC. still incomplete.
-	
+
 2001-01-28 21:13  dms
 
 	* files/blootbot.ignore: -REMOVED
-	
+
 2001-01-28 21:12  dms
 
 	* src/IRC/IrcHooks.pl: - when someone attempts dcc chat, if verbosity > 1,
 		show all info regarding that person.
-	
+
 2001-01-28 21:12  dms
 
 	* src/logger.pl: pre-config fix.
-	
+
 2001-01-28 21:11  dms
 
 	* src/Modules/UserDCC.pl: - added frontend to dynamic user/chan.
-	
+
 	- remove 99% of $noreply.               WORKS
 	- change 'main::' to '::'               WORKS
-	
+
 	- ".set" and ".unset" obsoleted.        WORKS
 	- ".save"                               WORKS
 	- ".chanset #chan +bool"        WORKS
@@ -1117,975 +1117,975 @@
 	- ".+chan <#chan>"                      WORKS
 	- ".-chan <#chan>"                      WORKS
 	- ".chaninfo"                           WORKS
-	
+
 2001-01-28 21:08  dms
 
 	* files/sample/: sample.chan, sample.config, sample.config.example,
 	sample.config.proposed, sample.countdown, sample.insert,
 	sample.users: - new directory for sample configuration
-	
+
 2001-01-28 21:04  dms
 
 	* files/: blootbot.chan, blootbot.users: - NEW style config file.
-	
+
 2001-01-28 21:02  dms
 
 	* src/core.pl: - NEW dynamic user/chan stuff.
 	- prevent doExit running twice.
 	- loadMyModulesNow after chanfile!
 	- added IsChanConf() and getChanConfList
-	
+
 2001-01-28 21:00  dms
 
 	* src/DynaConfig.pl: - NEW dynamic user/chan stuff.
-	
+
 2001-01-28 20:50  dms
 
 	* src/: User.pl, UserFile.pl: - REMOVED FILES.
-	
+
 2001-01-28 20:50  dms
 
 	* src/Files.pl: - removed userfile code.
 	- removed ignore code.
-	
+
 2001-01-28 20:49  dms
 
 	* src/CommandStubs.pl: - aCH: don't remake hook hash.
 	- pCH: warn if multiple matches are found.
 	- added nickometer for channel.
-	
+
 2001-01-18 21:46  dms
 
 	* src/Modules/Debian.pl: ca.d.o does not do non-US any more
-	
+
 2001-01-17 20:22  dms
 
 	* src/Modules/Factoids.pl: used \* instead of / for days, founded by fooz
-	
+
 2001-01-15 21:11  dms
 
 	* src/Factoids/Update.pl: added checking of NULL rhs just in case.
-	
+
 2001-01-15 21:10  dms
 
 	* src/Modules/Factoids.pl: - fix for null factoids in factinfo.
 	- added 'factstats nullfactoids'.
-	
+
 2001-01-14 21:04  dms
 
 	* src/Modules/Topic.pl: topic info now includes length
-	
+
 2001-01-10 22:57  dms
 
 	* src/IRC/Irc.pl: - cosmetic (useless) update.
-	
+
 2001-01-10 22:56  dms
 
 	* src/UserExtra.pl: - update to 'cpustats'.
-	
+
 2001-01-10 22:55  dms
 
 	* src/Misc.pl: - forgot [] around gettimeofday.
 	- select() added before first fork msg.
-	
+
 2001-01-10 22:55  dms
 
 	* src/Shm.pl: - minor mods to addForked wrt time.
 	- proper detection of dead forks.
-	
+
 2001-01-10 22:54  dms
 
 	* src/Modules/Debian.pl: quote typo@18,default==unstable
-	
+
 2001-01-10 22:54  dms
 
 	* src/modules.pl: - AUTOLOAD to ignore __
 	- use eval on 'require'.
-	
+
 2001-01-06 20:55  dms
 
 	* src/Factoids/Reply.pl: - added smart_replace, finally fixed SARs for sure.
 	  still need to move numeric range replacement into the loop.
-	
+
 2001-01-06 20:54  dms
 
 	* src/: Net.pl, Modules/Debian.pl, Modules/Factoids.pl,
 	Modules/Freshmeat.pl, Modules/Search.pl: - new time delta function
 	- Debian.pl: \Q\E in validPackage
-	
+
 2001-01-06 20:53  dms
 
 	* src/IRC/Irc.pl:  clearIRCVars update
-	
+
 2001-01-06 20:53  dms
 
 	* src/modules.pl: DNS.pl removed.
-	
+
 2001-01-06 20:52  dms
 
 	* src/Modules/DNS.pl: Removed this file.
-	
+
 2001-01-06 20:52  dms
 
 	* src/: CommandStubs.pl, UserExtra.pl: - more updates.
 	- UserExtra.pl: added cpustats
 	- CommandStubs: added UserFlag support
-	
+
 2001-01-06 20:51  dms
 
 	* src/: Misc.pl, Shm.pl, IRC/IrcHooks.pl: - forker (POSIX::_exit) fixes.
 	- Misc.pl: added timedelta(renamed from gettimeofday),timeget.
-	
+
 2001-01-03 21:44  dms
 
 	* src/Net.pl: - &system typo.
-	
+
 2001-01-03 21:43  dms
 
 	* src/modules.pl: - DESTROY code removed.
-	
+
 2001-01-03 21:42  dms
 
 	* src/Misc.pl: - topic minor fix.
 	- POSIX::_exit(0) added: fixes fork problem.
-	
+
 2001-01-03 21:42  dms
 
 	* src/Factoids/Update.pl: - allow SARing of factoids on _long_ factoids providing the new string
 	  is shorter than the subst string.
-	
+
 2001-01-03 21:37  dms
 
 	* files/blootbot.lang: - moron reply added.
-	
+
 2001-01-03 21:37  dms
 
 	* src/Factoids/Reply.pl: - Finally added proper recursive SARs
-	
+
 2001-01-03 21:36  dms
 
 	* src/Modules/Factoids.pl: - add 'days' to created_time output.
-	
+
 2001-01-03 21:35  dms
 
 	* src/Modules/Debian.pl: - "testing" changes (broken)
 	- make search packages case insensitive.
 	- non-US fixed... about time.
-	
+
 2001-01-03 21:34  dms
 
 	* src/Process.pl: - unified hook changes.
 	- ignore >64 questions.
 	- support moron language.
-	
+
 2001-01-03 21:33  dms
 
 	* src/UserExtra.pl: - start using hooks.
 	- added moron counter to 'status'.
-	
+
 2001-01-03 21:32  dms
 
 	* src/CommandStubs.pl: - unified for global command hooks
-	
+
 2001-01-03 21:31  dms
 
 	* src/IRC/: Irc.pl, IrcHooks.pl: - floodjoinCheck.
 	- note on endofmotd.
 	- Moved ircstats from Irc.pl to on_endofmotd#IrcHooks.pl
-	
+
 2000-12-29 22:46  dms
 
 	* src/Process.pl: for join, ignore whether on a channel if we have power
-	
+
 2000-12-29 22:05  dms
 
 	* src/IRC/IrcHooks.pl: lowercase chan in on_kick, found by xsdg!
-	
+
 2000-12-19 21:06  dms
 
 	* src/Factoids/Reply.pl: forgot about int() in randnick - found by lunartear
-	
+
 2000-12-18 21:40  dms
 
 	* src/core.pl: debug to restart
-	
+
 2000-12-18 21:38  dms
 
 	* src/Net.pl: Remove &ERROR() since it's done by WARN.
-	
+
 2000-12-18 21:35  dms
 
 	* src/Modules/Debian.pl: stop searching if found>100
-	
+
 2000-12-18 21:33  dms
 
 	* src/Process.pl: ignore long unparseable messages.
-	
+
 2000-12-16 20:32  dms
 
 	* src/core.pl: hrm
-	
+
 2000-12-16 20:31  dms
 
 	* src/modules.pl: minor fix to loadmymodules
-	
+
 2000-12-16 20:31  dms
 
 	* LICENSE: - new file for license.
-	
+
 2000-12-16 20:30  dms
 
 	* src/Files.pl: userlist display now verbosity>1
-	
+
 2000-12-16 20:30  dms
 
 	* src/IRC/IrcHooks.pl: - use dccsay
 	- show flags on dcc chat connection.
 	- set type on on_dcc*
-	
+
 2000-12-16 20:29  dms
 
 	* src/IRC/Irc.pl: - &dccsay() added.
 	- &dcc_close() added.
 	- use dccsay in performStrictReply()
-	
+
 2000-12-15 23:36  dms
 
 	* src/Misc.pl: very nice typo for regex, Angel indirectly found this :)
-	
+
 2000-12-15 22:39  dms
 
 	* src/User.pl: forgot to reset userHandle
-	
+
 2000-12-15 22:28  dms
 
 	* src/core.pl: forgot about / in tempDir
-	
+
 2000-12-15 22:25  dms
 
 	* src/Modules/UserDCC.pl: added '.mode' for Netsnipe
-	
+
 2000-12-12 23:12  dms
 
 	* src/core.pl: change ~ to ENV{HOME}
-	
+
 2000-12-11 20:26  dms
 
 	* src/IRC/Schedulers.pl: chanlimitcheck: removed netsplit check
-	
+
 2000-12-11 20:24  dms
 
 	* src/IRC/IrcHooks.pl: netsplit timer added
-	
+
 2000-12-10 20:55  dms
 
 	* src/Shm.pl: &showProc in delForked()
-	
+
 2000-12-10 20:54  dms
 
 	* src/IRC/IrcHooks.pl: userHandle now global var
-	
+
 2000-12-10 20:53  dms
 
 	* src/User.pl: verifyUser finally fixed
-	
+
 2000-12-10 20:52  dms
 
 	* src/core.pl: tempdir fix
-	
+
 2000-12-10 20:51  dms
 
 	* src/Modules/: Freshmeat.pl, Kernel.pl, Slashdot3.pl: temp dir unified
-	
+
 2000-12-10 20:49  dms
 
 	* src/Modules/Debian.pl: - 'find *bin*ssh*' should work.
 	- temp dir unified.
-	
+
 2000-12-10 20:48  dms
 
 	* src/Modules/Factoids.pl: - 'seefix' checks for self-redirects and removes if successful.
 	- 'deadredir' reject long vals.
 	- 'listfix' added.
-	
+
 2000-12-09 21:26  dms
 
 	* src/Modules/Topic.pl: removed/convert debug messages
-	
+
 2000-12-09 21:04  dms
 
 	* src/IRC/IrcHooks.pl: changed debug to status line
-	
+
 2000-12-09 21:01  dms
 
 	* src/IRC/Schedulers.pl: forgot to return for limitcheck + netsplit
-	
+
 2000-12-08 21:09  dms
 
 	* src/IRC/Schedulers.pl: renamed limitCheck to chanlimitCheck
-	
+
 2000-12-04 21:31  dms
 
 	* src/IRC/Schedulers.pl: Typos galore for logCycle, should be fixed
-	
+
 2000-12-03 21:52  dms
 
 	* src/IRC/Schedulers.pl: output cleanup
-	
+
 2000-12-03 21:51  dms
 
 	* src/Modules/Debian.pl: fallback on * properly
-	
+
 2000-12-03 21:50  dms
 
 	* src/Modules/W3Search.pl: Moved w3 regex here
-	
+
 2000-12-03 21:48  dms
 
 	* src/CommandStubs.pl: typo fixed
-	
+
 2000-12-03 21:47  dms
 
 	* src/CommandStubs.pl: Removed W3 regex
-	
+
 2000-12-03 21:46  dms
 
 	* src/Modules/Factoids.pl: Added 'factstats seefix'
-	
+
 2000-12-03 21:46  dms
 
 	* src/Misc.pl: validFactoid.
-	
+
 2000-11-24 22:26  dms
 
 	* src/Modules/Debian.pl: Contents for non-US is broken!
-	
+
 2000-11-24 22:02  dms
 
 	* src/Modules/Debian.pl: typo
-	
+
 2000-11-24 20:23  dms
 
 	* src/Misc.pl: - validFactoid.
 	- fixString
-	
+
 2000-11-24 20:17  dms
 
 	* src/Modules/Freshmeat.pl: - prevent dupe errors.
 	- support bz2/gz for appindex.
-	
+
 2000-11-24 20:10  dms
 
 	* src/Shm.pl: if name undefined, bail out
-	
+
 2000-11-24 20:07  dms
 
 	* src/modules.pl: use modulebase instead of modulefile for delForked()
-	
+
 2000-11-23 23:10  dms
 
 	* src/CommandStubs.pl: made freshmeat fork always
-	
+
 2000-11-23 22:53  dms
 
 	* src/Modules/Freshmeat.pl: changed core to www
-	
+
 2000-11-23 22:22  dms
 
 	* src/CommandStubs.pl: @args changed to flat
-	
+
 2000-11-23 22:21  dms
 
 	* src/: Misc.pl, Net.pl: debug messages removed
-	
+
 2000-11-23 22:21  dms
 
 	* src/Modules/Debian.pl: more cleanups. ^blah and blah$ workspico Debian.pl!
-	
+
 2000-11-19 22:56  dms
 
 	* src/Modules/Debian.pl: debug
-	
+
 2000-11-19 22:56  dms
 
 	* src/modules.pl: use AUTOLOAD to prevent crashes
-	
+
 2000-11-19 22:55  dms
 
 	* src/Net.pl: Reduced timeout by 10x
-	
+
 2000-11-19 22:54  dms
 
 	* src/UserExtra.pl: Fixed up tell to allow target == 'us'.
-	
+
 2000-11-19 22:49  dms
 
 	* src/IRC/IrcHooks.pl: Exit process if on_public hook is activated under fork
-	
+
 2000-11-01 21:59  dms
 
 	* src/UserExtra.pl: - fixed up tell.
 	- 'cycle' changed a bit.
-	
+
 2000-11-01 21:55  dms
 
 	* src/IRC/Irc.pl: debug msg for mixed-case chan
-	
+
 2000-11-01 21:54  dms
 
 	* src/IRC/Schedulers.pl: - make sure we reschedule everything unless it's a non-recoverable error.
 	- disable limit if split active in limitcheck.
 	- enabled 'unlink' in logcycle.
-	
+
 2000-10-04 00:08  dms
 
 	* src/CommandStubs.pl: - we shifted args before using args[0]. fixed.
 	- fixed broken 'convert' cmd.
-	
+
 2000-10-03 01:33  dms
 
 	* src/core.pl: version update
-	
+
 2000-10-03 01:29  dms
 
 	* src/modules.pl: minor change to reloadModule
-	
+
 2000-10-03 01:26  dms
 
 	* src/db_mysql.pl: added sth->finish in an attempt to prevent leaks
-	
+
 2000-10-03 01:26  dms
 
 	* src/CommandStubs.pl: alias to fm for freshmeat forgotten
-	
+
 2000-10-03 01:23  dms
 
 	* src/db_dbm.pl: minor update
-	
+
 2000-10-03 01:20  dms
 
 	* src/Modules/Freshmeat.pl: cleanup of comments
-	
+
 2000-10-03 01:19  dms
 
 	* src/IRC/Irc.pl: change timeout value for scheduler interval
-	
+
 2000-10-03 01:12  dms
 
 	* src/IRC/IrcHooks.pl: fixed - typo for join()
-	
+
 2000-09-29 23:39  dms
 
 	* src/CommandStubs.pl: tiny cleanup
-	
+
 2000-09-29 23:10  dms
 
 	* src/Modules/UserDCC.pl: Minor cleanup
-	
+
 2000-09-29 23:03  dms
 
 	* src/IRC/IrcHooks.pl: DCC fixed
-	
+
 2000-09-25 20:08  dms
 
 	* src/IRC/Irc.pl: fixed up performReply to be more intelligent
 	when doing random stuff.
-	
+
 2000-09-25 20:07  dms
 
 	* src/Factoids/Question.pl: notfound uses @query now; removed origQuery
-	
+
 2000-09-25 00:20  dms
 
 	* src/logger.pl: close log then statuspico logger.pl!
-	
+
 2000-09-24 19:53  dms
 
 	* src/CommandStubs.pl: more changes
-	
+
 2000-09-24 19:51  dms
 
 	* src/Modules/Dict.pl: moved a few lines from CommandStubs.pl here
-	
+
 2000-09-24 19:50  dms
 
 	* src/Factoids/Question.pl: added 'debianForFactoid'.
 	fixed question 'you suck'. found by cerb.
-	
+
 2000-09-24 19:49  dms
 
 	* src/core.pl: forgot 'next' in dir check
-	
+
 2000-09-23 22:18  dms
 
 	* scripts/setup_sql.pl: closed 114944 -- karma can't be a negative int
-	
+
 2000-09-23 22:15  dms
 
 	* src/core.pl: added check for dirs on startup
-	
+
 2000-09-23 22:12  dms
 
 	* src/Modules/Slashdot3.pl: moved temp dir check to core.pl
-	
+
 2000-09-23 20:46  dms
 
 	* src/Modules/Freshmeat.pl: removed some debug lines
-	
+
 2000-09-23 20:45  dms
 
 	* src/modules.pl: fixed up return vals for loadMyModule()
-	
+
 2000-09-23 20:45  dms
 
 	* src/Modules/RootWarn.pl: non-mysql stub
-	
+
 2000-09-23 20:44  dms
 
 	* src/CommandStubs.pl: more conversion to new code
-	
+
 2000-09-23 20:43  dms
 
 	* src/IRC/Schedulers.pl: one too many parens for seen stats; cleanup.
-	
+
 2000-09-23 20:30  dms
 
 	* src/logger.pl: repeat throttling added
-	
+
 2000-09-22 19:56  dms
 
 	* src/Modules/Debian.pl: minor update
-	
+
 2000-09-22 19:56  dms
 
 	* src/CommandStubs.pl: moved more functions to new hook scheme
-	
+
 2000-09-22 19:55  dms
 
 	* src/Shm.pl: forgot shmFlush() in closeSHM()
-	
+
 2000-09-22 18:51  dms
 
 	* files/sample.config: 'undelete' option
-	
+
 2000-09-22 18:50  dms
 
 	* src/IRC/Schedulers.pl: periodically check to delete deleted factoids
-	
+
 2000-09-22 18:49  dms
 
 	* src/Process.pl: added undelete command
-	
+
 2000-09-22 18:49  dms
 
 	* src/Files.pl: removed some verbosity.
-	
+
 2000-09-22 18:48  dms
 
 	* src/modules.pl: verbose on reload (time ago, delta time)
-	
+
 2000-09-18 21:37  dms
 
 	* src/IRC/Irc.pl: op (mode) does not work?
-	
+
 2000-09-18 20:01  dms
 
 	* src/Modules/Debian.pl: typo for searchDesc list element
-	
+
 2000-09-18 19:47  dms
 
 	* src/Misc.pl: minor text cleanup.
 	removed checkPing.
-	
+
 2000-09-18 19:47  dms
 
 	* src/CommandStubs.pl: minor cleanup.
 	Preliminary command hooks (event handlers) working!
-	
+
 2000-09-18 19:46  dms
 
 	* src/IRC/Schedulers.pl: Chanserv 2nd stage fail protection
 	Added seen stats.
-	
+
 2000-09-18 19:45  dms
 
 	* src/Modules/Debian.pl: Added NULL check for &search*();
 	Added stubs for archived revisions.
-	
+
 2000-09-18 19:44  dms
 
 	* src/Factoids/Question.pl: Trailing symbols (.!) ignored on question
 	Founded by Flugh
-	
+
 2000-09-18 19:43  dms
 
 	* src/db_mysql.pl: sqldebug clean up; forgot a return line for GetCol
-	
+
 2000-09-18 19:37  dms
 
 	* src/IRC/Irc.pl: chanserv update to &joinNextChan()
-	
+
 2000-09-18 19:36  dms
 
 	* src/IRC/IrcHooks.pl: minor update
-	
+
 2000-09-18 19:34  dms
 
 	* src/User.pl: removed repetitive debug line
-	
+
 2000-09-18 19:30  dms
 
 	* src/Process.pl: removed feedback addressing. Issue raised by Flugh
-	
+
 2000-09-16 22:12  dms
 
 	* src/CommandStubs.pl: added ddesc for desc search
-	
+
 2000-09-16 22:11  dms
 
 	* src/Modules/Debian.pl: added &searchDesc() if &searchContents() fails
-	
+
 2000-09-16 22:10  dms
 
 	* src/IRC/Schedulers.pl: added NULL irc channel check
-	
+
 2000-09-16 22:09  dms
 
 	* src/core.pl: removed loggingstatus
-	
+
 2000-09-16 21:57  dms
 
 	* src/logger.pl: &status() changes. removed loggingstatus in favour of fileno().
-	
+
 2000-09-16 21:23  dms
 
 	* scripts/setup_sql.pl: another attempt for a fix
-	
+
 2000-09-14 21:29  dms
 
 	* scripts/: setup_sql.pl, setup_tables.pl, setup_users.pl: script merge, doc update
-	
+
 2000-09-14 20:13  dms
 
 	* src/: Files.pl, UserFile.pl, Modules/UserDCC.pl: status() -> &status()
-	
+
 2000-09-14 20:12  dms
 
 	* src/IRC/IrcHooks.pl: minor text fixup for umode
-	
+
 2000-09-14 20:11  dms
 
 	* src/IRC/Schedulers.pl: Added miscCheck(), now does reloadAllModules()
-	
+
 2000-09-14 20:07  dms
 
 	* src/modules.pl: ability to reload extra modules automatically
-	
+
 2000-09-14 00:39  dms
 
 	* src/Modules/Debian.pl: another installed-size prob fix
-	
+
 2000-09-13 22:18  dms
 
 	* src/Factoids/Reply.pl: Removed FIXME
-	
+
 2000-09-13 22:07  dms
 
 	* src/Misc.pl: stat used wrong time, [8] instead of [9]
-	
+
 2000-09-13 22:03  dms
 
 	* src/Misc.pl: changed some text, more debugging
-	
+
 2000-09-13 22:02  dms
 
 	* src/Modules/Debian.pl: hopefully last time it will be fixed
-	
+
 2000-09-13 21:39  dms
 
 	* src/Modules/Freshmeat.pl: forgot about blootbot_pid
-	
+
 2000-09-13 21:38  dms
 
 	* src/Modules/Debian.pl: non-us fixed!
-	
+
 2000-09-13 21:36  dms
 
 	* src/modules.pl: removed two debugging lines or so
-	
+
 2000-09-13 21:19  dms
 
 	* src/Modules/Debian.pl: Removed fixNonUS; added a hack for no contents file for woody non-US i386 at least.
-	
+
 2000-09-13 21:03  dms
 
 	* src/core.pl: bot: spit out memory change messages in DCC CHAT. TODO: DCCBroadcast should allow userflag arg.
-	
+
 2000-09-12 23:33  dms
 
 	* src/Modules/Topic.pl: Another regex topic fix
-	
+
 2000-09-12 23:12  dms
 
 	* src/db_mysql.pl: Fixed up stub dbGetRowInfo
-	
+
 2000-09-10 22:40  dms
 
 	* src/logger.pl: was opening sql debug file for read, not write. typo
-	
+
 2000-09-10 01:09  dms
 
 	* src/IRC/Schedulers.pl: changed verb level from 2 to 1 for seenFlush
-	
+
 2000-09-10 00:36  dms
 
 	* src/IRC/Schedulers.pl: debug for seenflush
-	
+
 2000-09-10 00:30  dms
 
 	* files/sample.config: SQLDebug line
-	
+
 2000-09-10 00:28  dms
 
 	* src/modules.pl: forgot to set module age if successfully loaded. split reloadModules into reloadAllModules and reloadModule. &reloadModule() now called by loadMyModule()
-	
+
 2000-09-10 00:24  dms
 
 	* src/logger.pl: supressed subroutine redefined warning. Added sql debug support (open/close)
-	
+
 2000-09-10 00:19  dms
 
 	* src/db_mysql.pl: Added sql debug support (print)
-	
+
 2000-09-10 00:16  dms
 
 	* src/Modules/UserDCC.pl: fixed/added global factoid SAR
-	
+
 2000-09-09 22:41  dms
 
 	* src/Modules/Topic.pl: fixed regex line, founded by Flugh
-	
+
 2000-09-06 23:00  dms
 
 	* src/Factoids/Update.pl: minor change
-	
+
 2000-09-06 22:59  dms
 
 	* src/logger.pl: 'use strict' issue
-	
+
 2000-09-06 22:57  dms
 
 	* src/Modules/UserDCC.pl: global SAR. only avail to +n and DCC.
-	
+
 2000-09-06 22:56  dms
 
 	* src/core.pl: fixed due to changes. (re: Flugh)
-	
+
 2000-09-05 23:47  dms
 
 	* scripts/: dbm2mysql.pl, mysql2txt.pl, setup_tables.pl,
 	setup_users.pl, txt2mysql.pl: forgot to update these files in the root dir overhaul
-	
+
 2000-09-05 01:55  dms
 
 	* scripts/setup_users.pl: fixed up a bit
-	
+
 2000-09-05 01:28  dms
 
 	* src/logger.pl: stupid typo (carelessness) on my behalf
-	
+
 2000-09-01 22:21  dms
 
 	* src/UserExtra.pl: debug info for ircstats hash list
-	
+
 2000-09-01 22:19  dms
 
 	* src/IRC/IrcHooks.pl: added disconnect and connect stats, just debug info for now
-	
+
 2000-09-01 21:18  dms
 
 	* src/Modules/Topic.pl: prevent dupes to be added; added debugging info if bot is not permitted to add topics (+t/-o).
-	
+
 2000-09-01 20:58  dms
 
 	* src/IRC/Schedulers.pl: ircCheck now checks @joinchan for chans left to join, but should never happen.
-	
+
 2000-09-01 20:56  dms
 
 	* src/Modules/Debian.pl: debian: fixed broken files for woody's non-US
-	
+
 2000-08-31 22:45  dms
 
 	* src/CommandStubs.pl: lame warning fix for babel
-	
+
 2000-08-31 22:41  dms
 
 	* src/logger.pl: forgot a )
-	
+
 2000-08-30 21:33  dms
 
 	* src/Modules/Uptime.pl: Added catch just in case if forked
-	
+
 2000-08-30 21:14  dms
 
 	* src/Shm.pl: changes due to Debian.pl
-	
+
 2000-08-30 21:12  dms
 
 	* src/Modules/Debian.pl: minor changes, removed 'slink', changed 'stable' for 'potato'
-	
+
 2000-08-30 21:09  dms
 
 	* src/Factoids/Update.pl: added debugging info for '.,' and '.,' problems
-	
+
 2000-08-30 20:42  dms
 
 	* src/logger.pl: added $forkedtime, for debugging
-	
+
 2000-08-30 20:19  dms
 
 	* src/CommandStubs.pl: preliminary command hook support added
-	
+
 2000-08-20 22:17  dms
 
 	* src/Modules/UserDCC.pl: closed 17554 -- re-add part/leave to DCC CHAT only
-	
+
 2000-08-20 21:58  dms
 
 	* src/Modules/Debian.pl: we don't stop if debianDownload fails unless none of the files exist locally
-	
+
 2000-08-20 21:46  dms
 
 	* src/Modules/Debian.pl: shouldn't recursively call sP
-	
+
 2000-08-20 21:33  dms
 
 	* src/Misc.pl: double fork -> VERB(2), minor cosmetics
-	
+
 2000-08-20 21:28  dms
 
 	* src/IRC/IrcHooks.pl: if statement of seen swapped.   DCC CHAT close ignored if forked.
-	
+
 2000-08-20 21:25  dms
 
 	* src/Factoids/Reply.pl: added randnick
-	
+
 2000-08-20 21:24  dms
 
 	* src/Modules/Debian.pl: check for stality in sP()
-	
+
 2000-08-19 20:10  dms
 
 	* files/sample.config: closed 17225 -- result of fixed bug
-	
+
 2000-08-19 19:24  dms
 
 	* src/: User.pl, IRC/IrcHooks.pl: closed 17225 -- seen only stores addressed messages. Also moved seen code from User.pl to IrcHooks.pl
-	
+
 2000-08-19 18:44  dms
 
 	* src/Modules/Topic.pl: closed 17447 -- 'topic info' should give more info
-	
+
 2000-08-15 19:27  dms
 
 	* src/Misc.pl: warning (typo) fixed
-	
+
 2000-08-15 19:26  dms
 
 	* files/sample.config: deprecated weather option/feature removed
-	
+
 2000-08-15 19:24  dms
 
 	* src/IRC/Schedulers.pl: ircCheck(): added full path for ipcs,ipcrm
-	
+
 2000-08-15 19:21  dms
 
 	* src/IRC/IrcHooks.pl: on_disconnect schedules ircCheck*( for 1800s
-	
+
 2000-08-12 20:45  dms
 
 	* src/UserExtra.pl: don't prevent wantnick from working in any case
-	
+
 2000-08-12 20:43  dms
 
 	* src/IRC/Schedulers.pl: Added getNickInUse()
-	
+
 2000-08-12 20:42  dms
 
 	* src/IRC/IrcHooks.pl: on_nick_taken calls getNickInUse() now
-	
+
 2000-08-12 20:41  dms
 
 	* src/logger.pl: use getPath() for create logdir for openLog()
-	
+
 2000-08-12 20:38  dms
 
 	* src/Misc.pl: typo for file in loadHelp() ... added getPath() for openLog()
-	
+
 2000-08-11 21:28  dms
 
 	* src/Factoids/Update.pl: closed 17031 -- Fix up appending to factoids
-	
+
 2000-08-11 21:21  dms
 
 	* src/Factoids/: Reply.pl, Update.pl: closed 17187 -- <factoid> are also <info>' doesn't work...   also removed mailto:
-	
+
 2000-08-11 21:10  dms
 
 	* src/Modules/Math.pl: closed 17344 -- Maths.pl is borked in a way
-	
+
 2000-08-11 20:53  dms
 
 	* src/IRC/IrcHooks.pl: close 17091 completely... fix up on_nick IRC hook
-	
+
 2000-08-11 20:48  dms
 
 	* src/IRC/Schedulers.pl: closed 17091 -- chaninfo stats inconsistent after time
-	
+
 2000-08-11 20:11  dms
 
 	* src/modules.pl: Fixed problem with loadMyModules() caused by delForked()
-	
+
 2000-08-11 20:10  dms
 
 	* src/Modules/W3Search.pl: closed 17379 -- W3Search.pl gives duplicate output
-	
+
 2000-08-04 23:19  dms
 
 	* src/Factoids/Statement.pl: at -> mailto remnants from stock infobot removed
-	
+
 2000-08-03 22:19  dms
 
 	* src/logger.pl: status did not print output if config file was not loaded. Fixed by initializing VERBOSITY to 1
-	
+
 2000-08-03 22:11  gmlb
 
 	* INSTALL.patches: Readme update.
-	
+
 2000-08-03 21:53  dms
 
 	* src/Modules/Kernel.pl: forgot about blootbot -> bot
-	
+
 2000-08-03 01:04  gmlb
 
 	* INSTALL.mysql, INSTALL: Fixed some documentation typOs. (in the install docs)
-	
+
 2000-08-01 21:41  dms
 
 	* src/CommandStubs.pl: userinfo had wrong argument # set
-	
+
 2000-07-31 22:57  gmlb
 
-	* infobot: 
+	* infobot:
 	Removed old infobot. We are now using blootbot as the main script
-	
+
 2000-07-31 22:37  dms
 
 	* src/: IRC/Irc.pl, IRC/IrcHooks.pl, IRC/Schedulers.pl,
 	Modules/Countdown.pl, Modules/Factoids.pl, Modules/Freshmeat.pl,
 	Modules/Kernel.pl, Modules/Units.pl, Modules/Uptime.pl,
 	Modules/Wingate.pl, Modules/babel.pl: cvs commit borked, continuing
-	
+
 2000-07-31 22:31  dms
 
 	* AUTHORS, INSTALL, README, blootbot, doc/old/TODO,
@@ -2099,45 +2099,45 @@
 	src/Factoids/Statement.pl, src/Factoids/Update.pl: Changed $infobot_ to $bot_
 	Changed infobot to blootbot where needed
 	Renamed *infobot* to *blootbot*
-	
+
 2000-07-31 20:47  dms
 
 	* src/logger.pl: Added functionality to cycle all logs if exceeds specified size
-	
+
 2000-07-31 20:33  dms
 
 	* src/: CommandStubs.pl, UserExtra.pl, Modules/Topic.pl: changed NOREPLY to dollar noreply
-	
+
 2000-07-31 20:10  dms
 
 	* src/Modules/UserDCC.pl: send DCC message when using 'op'
-	
+
 2000-07-30 08:33  gmlb
 
 	* doc/README_TODO: Added README_TODO. It contains important info on the TODO list. READ!
-	
+
 2000-07-30 08:01  gmlb
 
 	* doc/: BUGS, Connection.pm, EXAMPLES, FAQ, Google.pm, TODO, USAGE,
 	mysql.txt, notes.txt, pgsql.txt: Removing old doucments in /doc. They are archived in /doc/old. The newest documents will be on the website. See /doc/README_NOW for more information.
-	
+
 2000-07-30 07:56  gmlb
 
 	* doc/old/: BUGS, Connection.pm, EXAMPLES, FAQ, Google.pm, TODO,
 	USAGE, mysql.txt, notes.txt, pgsql.txt: Moving documentation to /doc/old
-	
+
 2000-07-30 07:51  gmlb
 
 	* doc/README_NOW: Adding README_NOW. Please read it, as it contains very important DOC information
-	
+
 2000-07-30 07:02  blootbot
 
 	* AUTHORS: Updated personal info in AUTHORS file. Must talk to XK about title :)
-	
+
 2000-07-30 00:11  dms
 
 	* AUTHORS, patches/Connection.pm, patches/Google.pm: new/moved files
-	
+
 2000-07-30 00:09  dms
 
 	* INSTALL.patches, README, doc/USAGE, doc/modules.txt,
@@ -2154,19 +2154,19 @@
 	src/Modules/Topic.pl, src/Modules/Uptime.pl,
 	src/Modules/UserDCC.pl, src/Modules/UserInfo.pl,
 	src/Modules/Wingate.pl: changed email address
-	
+
 2000-07-28 23:26  dms
 
 	* files/infobot.config, files/sample.config, src/core.pl: loadConfig to spurt out correct message when infobot.config does not exist on fresh install
-	
+
 2000-07-28 23:11  dms
 
 	* MrInfo.uptime: delete stale files not needed for fresh installation
-	
+
 2000-07-28 00:59  blootbot
 
 	* ChangeLog: Added a line to ChangeLog. I hope to keep this more uptodate and start documentatio. -GmLB
-	
+
 2000-07-28 00:10  blootbot
 
 	* INSTALL, INSTALL.dbm, INSTALL.mysql, INSTALL.patches,
@@ -2205,9 +2205,9 @@
 	src/Modules/Factoids.pl, src/Modules/Math.pl,
 	src/Modules/UserDCC.pl, src/Modules/Wingate.pl,
 	src/Modules/babel.pl, src/Modules/insult.pl,
-	src/Modules/nickometer.pl: 
+	src/Modules/nickometer.pl:
 	Trying to add 1.0.0. I hope it works. --GmLB
-	
+
 2000-07-28 00:10  blootbot
 
 	* INSTALL, INSTALL.dbm, INSTALL.mysql, INSTALL.patches,
@@ -2247,4 +2247,4 @@
 	src/Modules/UserDCC.pl, src/Modules/Wingate.pl,
 	src/Modules/babel.pl, src/Modules/insult.pl,
 	src/Modules/nickometer.pl: Initial revision
-	
+
