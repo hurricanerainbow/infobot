@@ -127,7 +127,6 @@ sub on_endofmotd {
     }
 
     if ($firsttime) {
-	&DEBUG("on_EOM: calling sS in 60s.");
 	$conn->schedule(60, \&setupSchedulers, "");
 	$firsttime = 0;
     }
@@ -350,6 +349,8 @@ sub on_join {
     $chanstats{$chan}{'Join'}++;
     $userstats{lc $who}{'Join'} = time() if (&IsParam("seenStats"));
 
+    &joinfloodCheck($who, $chan, $event->userhost);
+
     # netjoin detection.
     my $netsplit = 0;
     if (exists $netsplit{lc $who}) {
@@ -408,6 +409,7 @@ sub on_kick {
 
     &status(">>> kick/$b_blue$chan$ob [$b$kickee!$uh$ob] by $b_cyan$kicker$ob $b_yellow($ob$reason$b_yellow)$ob");
 
+    $chan = lc $chan;	# forgot about this, found by xsdg, 20001229.
     $chanstats{$chan}{'Kick'}++;
 
     if ($kickee eq $ident) {
@@ -561,6 +563,12 @@ sub on_part {
     my $chan = lc( ($event->to)[0] );	# CASING!!!
     my $nick = $event->nick;
     my $userhost = $event->userhost;
+
+    if (!exists $floodjoin{$chan}{$nick}{Time}) {
+	&WARN("on_part: $nick/$chan not in floodjoin hash?");
+    } else {
+	delete $floodjoin{$chan}{$nick};
+    }
 
     $chanstats{$chan}{'Part'}++;
     &DeleteUserInfo($nick,$chan);
