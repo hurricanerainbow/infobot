@@ -281,13 +281,20 @@ sub newsFlush {
 	return if ($_[0] eq "2");	# defer.
     }
 
-    return unless (&IsChanConf("news") > 0);
+    if (&IsChanConf("news") > 0) {
+    } else {
+	&DEBUG("newsFlush: news disabled?");
+	return;
+    }
 
     my $delete	= 0;
     my $oldest	= time();
+    my %none;
     foreach $chan (keys %::news) {
 	my $i		= 0;
 	my $total	= scalar(keys %{ $::news{$chan} });
+
+	&DEBUG("newsFlush: chan => $chan");
 
 	foreach $item (keys %{ $::news{$chan} }) {
 	    my $t = $::news{$chan}{$item}{Expire};
@@ -308,17 +315,20 @@ sub newsFlush {
 
 	    # todo: show how old it was.
 	    delete $::news{$chan}{$item};
-	    &status("NEWS: deleted '$item'");
+	    &status("NEWS: (newsflush) deleted '$item'");
 	    $delete++;
 	    $i++;
 	}
 
-	&status("NEWS {$chan}: deleted [$i/$total] news entries.");
+	&status("NEWS (newsflush) {$chan}: deleted [$i/$total] news entries.");
+	$none{$chan} = 1 if ($total == $i);
     }
 
     # todo: flush users aswell.
     my $duser	= 0;
     foreach $chan (keys %::newsuser) {
+	next if (exists $none{$chan});
+
 	foreach (keys %{ $::newsuser{$chan} }) {
 	    my $t = $::newsuser{$chan}{$_};
 	    if (!defined $t or ($t > 2 and $t < 1000)) {
@@ -336,7 +346,7 @@ sub newsFlush {
     if ($delete or $duser) {
 	&DEBUG("newsF: Writing news.");
 	&News::writeNews();
-	&status("NEWS deleted: $delete news entries; $duser user cache.");
+	&status("NEWS (newsflush) deleted: $delete news entries; $duser user cache.");
     }
 }
 
