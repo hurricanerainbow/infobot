@@ -86,6 +86,8 @@ sub loadCoreModules {
 sub loadDBModules {
     &status("Loading DB modules...");
 
+    $moduleAge{"$bot_src_dir/modules.pl"} = time();
+
     if ($param{'DBType'} =~ /^mysql$/i) {
 	eval "use DBI";
 	if ($@) {
@@ -96,6 +98,7 @@ sub loadDBModules {
 
 	&status("  using MySQL support.");
 	require "$bot_src_dir/db_mysql.pl";
+	$moduleAge{"$bot_src_dir/db_mysql.pl"} = time();
 
     } elsif ($param{'DBType'} =~ /^pgsql$/i) {
 	eval "use Pg";

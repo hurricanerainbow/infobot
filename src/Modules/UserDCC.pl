@@ -1264,14 +1264,34 @@ sub userDCC {
 	if ($state) {			# adduser.
 	    if (scalar @args == 1) {
 		$args[1]	= &getHostMask($args[0]);
-		if (!defined $args[1]) {
-		    &ERROR("could not get hostmask?");
-		    return;
-		}
+		&pSReply("Attemping to guess $args[0]'s hostmask...");
+
+		# crude hack... crappy Net::IRC
+		$conn->schedule(5, sub {
+	# hopefully this is right.
+	my $nick = (keys %{ $cache{nuhInfo} })[0];
+	if (!defined $nick) {
+	    &pSReply("couldn't get nuhinfo... adding user without a hostmask.");
+	    &userAdd($nick);
+	    return;
+	}
+
+	my $mask = &makeHostMask( $cache{nuhInfo}{$nick}{NUH} );
+
+	if ( &userAdd($nick, $mask) ) {	# success.
+		&pSReply("Added $nick with flags $users{$nick}{FLAGS}");
+		my @hosts = keys %{ $users{$nick}{HOSTS} };
+		&pSReply("hosts: @hosts");
+	}
+});
+		return;
 	    }
 
+	    &DEBUG("args => @args");
 	    if ( &userAdd(@args) ) {	# success.
-		&pSReply("Added $args[0]...");
+		&pSReply("Added $args[0] with flags $users{$args[0]}{FLAGS}");
+		my @hosts = keys %{ $users{$args[0]}{HOSTS} };
+		&pSReply("hosts: @hosts");
 
 	    } else {			# failure.
 		&pSReply("User $args[0] already exists");
@@ -1315,6 +1335,19 @@ sub userDCC {
 	&pSReply( &formListReply(0, "Scheds to run: ", sort @list ) );
 	&pSReply( &formListReply(0, "Scheds running(should not happen?) ", sort @run ) );
 
+	return;
+    }
+
+    # quite a cool hack: reply in DCC CHAT.
+    $msgType = "chat";
+
+    my $done = 0;
+    $done++ if &parseCmdHook("main", $message);
+    $done++ if &parseCmdHook("extra", $message);
+    $done++ unless (&Modules());
+
+    if ($done) {
+	&DEBUG("running non DCC CHAT command inside DCC CHAT!");
 	return;
     }
 

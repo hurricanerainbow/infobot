@@ -229,6 +229,13 @@ sub msg {
 	return;
     }
 
+    if ($msgType =~ /chat/i) {
+	# todo: warn that we're using msg() to do DCC CHAT?
+	&dccsay($nick, $msg);
+	# todo: make dccsay deal with flood protection?
+	return;
+    }
+
     &status(">$nick< $msg");
 
     if (&whatInterface() =~ /IRC/) {
@@ -253,7 +260,12 @@ sub msg {
 	    $msgsize	= length $msg;
 	}
 
-	$conn->privmsg($nick, $msg);
+	if ($msgType =~ /private/i) {	# hack.
+	    $conn->privmsg($nick, $msg);
+
+	} else {
+	    &DEBUG("msg: msgType is unknown!");
+	}
     }
 }
 
@@ -853,7 +865,12 @@ sub joinfloodCheck {
 sub getHostMask {
     my($n) = @_;
 
-    &FIXME("getHostMask($n) called...");
+    if (exists $nuh{$n}) {
+	return &makeHostMask($nuh{$n});
+    } else {
+	$cache{on_who_Hack} = 1;
+	&rawout("WHO $n");
+    }
 }
 
 1;

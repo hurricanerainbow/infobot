@@ -1061,6 +1061,7 @@ sub on_who {
 	$cache{nuhInfo}{lc $args[5]}{Nick} = $args[5];
 	$cache{nuhInfo}{lc $args[5]}{User} = $args[2];
 	$cache{nuhInfo}{lc $args[5]}{Host} = $args[3];
+	$cache{nuhInfo}{lc $args[5]}{NUH}  = "$args[5]!$args[2]\@$args[3]";
 	return;
     }
 
