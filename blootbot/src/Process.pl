@@ -219,8 +219,7 @@ sub process {
 	}
 
 	my $er = &Modules();
-	if (!defined $er or $er ne $noreply) {
-	    &performStrictReply($er);
+	if (!defined $er) {
 	    return 'SOMETHING 1';
 	}
 
