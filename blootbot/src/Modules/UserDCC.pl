@@ -424,6 +424,29 @@ sub userDCC {
 	return;
     }
 
+    # reset.
+    if ($message =~ /^reset$/i) {
+	return unless (&hasFlag("n"));
+
+	&msg($who,"resetting...");
+	my @done;
+	foreach ( keys %channels, keys %chanconf ) {
+	    next if (grep /^\Q$_\E$/i, @done);
+
+	    &part($_);
+
+	    push(@done, $_);
+	    sleep 1;
+	}
+	&clearIRCVars();
+	&joinNextChan();
+
+	&status("USER reset $who");
+	&msg($who,"resetted");
+
+	return;
+    }
+
     # rehash.
     if ($message =~ /^rehash$/) {
 	return unless (&hasFlag("n"));

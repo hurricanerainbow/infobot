@@ -425,8 +425,8 @@ sub part {
 
 	&status("parting $chan");
 	if (!&validChan($chan)) {
-	    &status("part: not on $chan");
-	    next;
+	    &WARN("part: not on $chan; doing anyway");
+#	    next;
 	}
 
 	rawout("PART $chan");
@@ -580,6 +580,7 @@ sub joinNextChan {
 	}
 
 	# chanserv check: channel specific.
+	### what the hell is this for...
 	&chanServCheck($chan);
 
     } else {
@@ -791,7 +792,7 @@ sub joinfloodCheck {
 sub getHostMask {
     my($n) = @_;
 
-    &FIXME("getHostMask...");
+    &FIXME("getHostMask($n) called...");
 }
 
 1;
