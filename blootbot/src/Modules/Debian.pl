@@ -176,19 +176,19 @@ sub searchContents {
     $query =~ s/^\s+|\s+$//g;
 
     if (!&::validExec($query)) {
-	&::msg($::who, "search string looks fuzzy.");
+	&::msg($::who, 'search string looks fuzzy.');
 	return;
     }
 
-    if ($dist eq "incoming") {		# nothing yet.
-	&::DEBUG("sC: dist = 'incoming'. no contents yet.");
+    if ($dist eq 'incoming') {		# nothing yet.
+	&::DEBUG('sC: dist = "incoming". no contents yet.');
 	return;
     } else {
 	my %urls = &fixDist($dist, %urlcontents);
 	# download contents file.
-	&::DEBUG("deb: download 1.") if ($debug);
+	&::DEBUG('deb: download 1.') if ($debug);
 	if (!&DebianDownload($dist, %urls)) {
-	    &::WARN("Debian: could not download files.");
+	    &::WARN('Debian: could not download files.');
 	}
     }
 
