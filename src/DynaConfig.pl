@@ -824,7 +824,7 @@ sub rehashConfVars {
     delete $cache{confvars};
 }
 
-# following arrays are not used... forgot what I intended to use them for.
+# registered flags... not used yet.
 my @regFlagsChan = (
 	"autojoin",
 	"freshmeat",
@@ -838,21 +838,12 @@ my @regFlagsChan = (
 my @regFlagsUser = (
 	"m",		# modify factoid.
 	"r",		# remove factoid.
-	"s",		# search (deprecated)
 	"t",		# teach/add factoid.
 	"a",		# ask/request factoid.
 	"n",		# bot owner
 	"o",		# master of bot (automatic +amrt)
 	"O",		# dynamic ops (as on channel). (automatic +o)
-);	# todo...
+	"A",		# bot administration over /msg (def: DCC CHAT)
+);
 
 1;
-
-#####
-# Userflags
-#	+r	- ability to remove factoids
-#	+t	- ability to teach factoids
-#	+m	- ability to modify factoids
-#	+n	- bot owner
-#	+o	- authorised user of bot (like +m on eggdrop)
-#####
