@@ -316,6 +316,10 @@ sub IsFlag {
     my $flags = shift;
     my ($ret, $f, $o) = "";
 
+    if (!defined $userHandle) {
+	&DEBUG("Dyna: line 320: add verifyUser");
+    }
+
     foreach $f (split //, $users{$userHandle}{FLAGS}) {
 	foreach $o ( split //, $flags ) {
 	    next unless ($f eq $o);
@@ -354,8 +358,9 @@ sub verifyUser {
 
 	last if ($userHandle ne "");
 
-	if ($user =~ /^\Q$nick\E$/i) {
+	if ($user =~ /^\Q$nick\E$/i and !exists $cache{VUSERWARN}{$user}) {
 	    &status("vU: nick matched but host is not in list ($lnuh).");
+	    $cache{VUSERWARN}{$user} = 1;
 	}
     }
 
@@ -410,14 +415,17 @@ sub ignoreAdd {
 	$expire		= 0;
     }
 
+    my $exist	= 0;
+    $exist++ if (exists $ignore{$chan}{$mask});
+
     $ignore{$chan}{$mask} = [$expire, $count, $who, time(), $comment];
 
-    if (exists $ignore{$chan}{$mask}) {
-	return 0;
-    } else {
+    if ($exist) {
 	$utime_userfile = time();
 	$ucount_userfile++;
 
+	return 2;
+    } else {
 	return 1;
     }
 }
