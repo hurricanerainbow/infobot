@@ -115,7 +115,7 @@ sub on_chat {
 
     if ($message =~ s/^\.//) {	# dcc chat commands.
 	### TODO: make use of &Forker(); here?
-	&loadMyModule( $myModules{'UserDCC'} );
+	&loadMyModule('UserDCC');
 
 	&DCCBroadcast("#$who# $message","m");
 
@@ -577,16 +577,16 @@ sub on_join {
     );
 
     ### NEWS:
-    if (&IsChanConf("news") && &IsChanConf("newsKeepRead")) {
-	if (!&loadMyModule("news")) {	# just in case.
-	    &DEBUG("could not load news.");
+    if (&IsChanConf('news') && &IsChanConf('newsKeepRead')) {
+	if (!&loadMyModule('news')) {	# just in case.
+	    &DEBUG('could not load news.');
 	} else {
 	    &News::latest($chan);
 	}
     }
 
     ### botmail:
-    if (&IsChanConf("botmail")) {
+    if (&IsChanConf('botmail')) {
 	&botmail::check(lc $who);
     }
 

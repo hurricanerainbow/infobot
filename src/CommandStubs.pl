@@ -124,7 +124,7 @@ sub parseCmdHook {
 
 	} else {
 	    if (exists $hash{'Module'}) {
-		&loadMyModule($myModules{ $hash{'Module'} });
+		&loadMyModule($hash{'Module'});
 	    }
 
 	    # check if CODEREF exists.
@@ -351,7 +351,7 @@ sub Modules {
 
 	my $term = (lc $1 eq 'me') ? $who : $1;
 
-	&loadMyModule($myModules{'nickometer'});
+	&loadMyModule('nickometer');
 
 	if ($term =~ /^$mask{chan}$/) {
 	    &status("Doing nickometer for chan $term.");
@@ -449,7 +449,7 @@ sub Modules {
 	}
 
 	# now lets do it.
-	&loadMyModule($myModules{'Topic'});
+	&loadMyModule('Topic');
 	&Topic($chan, $thiscmd, join(' ', @args));
 	$cmdstats{'Topic'}++;
 	return;

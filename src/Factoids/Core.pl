@@ -496,8 +496,8 @@ sub FactoidStuff {
     if (defined $result and $result !~ /^0?$/) {	# question.
 	&status("question: <$who> $message");
 	$count{'Question'}++;
-    } elsif (&IsChanConf("Math") > 0 and $addressed) { # perl math.
-	&loadMyModule("Math");
+    } elsif (&IsChanConf('Math') > 0 and $addressed) { # perl math.
+	&loadMyModule('Math');
 	my $newresult = &perlMath();
 
 	if (defined $newresult and $newresult ne "") {
@@ -513,7 +513,7 @@ sub FactoidStuff {
     }
 
     # why would a friendly bot get passed here?
-    if (&IsParam("friendlyBots")) {
+    if (&IsParam('friendlyBots')) {
 	return if (grep lc($_) eq lc($who), split(/\s+/, $param{'friendlyBots'}));
     }
 
