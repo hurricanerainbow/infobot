@@ -1065,15 +1065,22 @@ sub on_crversion {
     } elsif ($ver =~ /epic|(Third Eye)/i) {
 	$ver{epic}{$nick}	= $ver;
 
+    } elsif ($ver =~ /ircII|PhoEniX/i) {
+	$ver{ircII}{$nick}	= $ver;
+
     } elsif ($ver =~ /mirc/i) {
 #	&DEBUG("verstats: mirc: $nick => '$ver'.");
 	$ver{mirc}{$nick}	= $ver;
 
+# ok... then we get to the lesser known/used clients.
     } elsif ($ver =~ /ircle/i) {
 	$ver{ircle}{$nick}	= $ver;
 
-    } elsif ($ver =~ /ircII|PhoEniX/i) {
-	$ver{ircII}{$nick}	= $ver;
+    } elsif ($ver =~ /chatzilla/i) {
+	$ver{chatzilla}{$nick}	= $ver;
+
+    } elsif ($ver =~ /pirch/i) {
+	$ver{pirch}{$nick}	= $ver;
 
     } elsif ($ver =~ /sirc /i) {
 	$ver{sirc}{$nick}	= $ver;

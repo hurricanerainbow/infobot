@@ -811,6 +811,8 @@ sub do_verstats {
 	    push(@vernicktodo, $_);
 	}
 
+	&DEBUG("verstats(30): we have ".scalar(@vernicktodo)." nicks to do");
+
 	&verstats_flush();
     } );
 
