@@ -238,13 +238,23 @@ sub on_dcc_open {
     $type ||= "???";
 
     if ($type eq 'SEND') {
+
 	&status("${b_green}DCC lGET$ob established with $b_cyan$nick$ob");
+
     } elsif ($type eq 'CHAT') {
+
 	&status("${b_green}DCC CHAT$ob established with $b_cyan$nick$ob $b_yellow($ob$nuh{$nick}$b_yellow)$ob");
+
 	&verifyUser($nick, $nuh{lc $nick});
+
+	if (!exists $users{$userHandle}{HOSTS}) {
+	    &pSReply("you have no hosts defined in my user file; rejecting.");
+	    ### TODO: $sock->close();
+	    return;
+	}
+
 	my $crypto	= $users{$userHandle}{PASS};
 	$dcc{'CHAT'}{$nick} = $sock;
-
 	foreach (keys %{ $users{$userHandle} }) {
 	    &VERB("   $_ => $users{$userHandle}{$_}",2);
 	}
@@ -255,12 +265,16 @@ sub on_dcc_open {
 	} else {
 	    &dccsay($nick,"Welcome to blootbot DCC CHAT interface, $userHandle.");
 	}
+
     } elsif ($type eq 'SEND') {
+
 	&DEBUG("Starting DCC receive.");
 	foreach ($event->args) {
 	    &DEBUG("  => '$_'.");
 	}
+
     } else {
+
 	&WARN("${b_green}DCC $type$ob (3)");
     }
 }
