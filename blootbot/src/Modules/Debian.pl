@@ -20,20 +20,12 @@ my %dists	= (
 	"testing"	=> "woody",	# new since 20001219.
 	"stable"	=> "potato",
 	"incoming"	=> "incoming",
-### the following don't work. too much effort to get 3 types of distros
-### to work harmoniously :-)
-	"slink"		=> "archive-2.1",
-	"hamm"		=> "archive-2.0",
-	"rex"		=> "archive-1.?",
-	"bo"		=> "archive-1.?",
 );
 
 my %urlcontents = (
 	"debian/Contents-##DIST-i386.gz" =>
 		"ftp://ftp.us.debian.org".
 		"/debian/dists/##DIST/Contents-i386.gz",
-### APPEARS TO BE FIXED?
-# => strip control chars just to be safe.
 	"debian/Contents-##DIST-i386-non-US.gz" =>
 		"ftp://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/Contents-i386.gz",
@@ -948,7 +940,7 @@ sub searchPackage {
 	}
 
 	if ($error) {
-	    &::ERROR("could not generate index!!!");
+	    &::ERROR("could not generate index ($file)!!!");
 	    return;
 	}
 
@@ -1002,6 +994,7 @@ sub getDistro {
     }
 
     if (exists $dists{$dist}) {
+	&::DEBUG("gD: returning dists{$dist} ($dists{$dist})");
 	return $dists{$dist};
     } else {
 	if (!grep /^\Q$dist\E$/i, %dists) {
@@ -1009,6 +1002,7 @@ sub getDistro {
 	    return;
 	}
 
+	&::DEBUG("gD: returning $dist (no change or conversion)");
 	return $dist;
     }
 }
