@@ -122,8 +122,7 @@ sub getReply {
 	if (!$real and $reply =~ s/^\s*<reply>\s*//i) {
 	    # 'are' fix.
 	    if ($reply =~ s/^are /$lhs are /i) {
-		&DEBUG("Reply.pl: el-cheapo 'are' fix executed.");
-		$mhs = "are";	# what's this for?
+		&VERB("Reply.pl: el-cheapo 'are' fix executed.",2);
 	    }
 
 	} elsif (!$real and $reply =~ s/^\s*<action>\s*(.*)/\cAACTION $1\cA/i) {

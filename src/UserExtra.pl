@@ -750,6 +750,10 @@ sub userCommands {
 	my $startString	= scalar(localtime $^T);
 	my $upString	= &Time2String(time() - $^T);
 	my $count	= &countKeys("factoids");
+	$count{'Commands'}	= 0;
+	foreach (keys %cmdstats) {
+	    $count{'Commands'} += $cmdstats{$_};
+	}
 
 	&pSReply(
 	"Since $startString, there have been".
@@ -761,6 +765,8 @@ sub userCommands {
 		&fixPlural("dunno",$count{'Dunno'}).
 	  " and \002$count{'Moron'}\002 ".
 		&fixPlural("moron",$count{'Moron'}).
+	  " and \002$count{'Commands'}\002 ".
+		&fixPlural("command",$count{'Commands'}).
 	  ".  I have been awake for $upString this session, and ".
 	  "currently reference \002$count\002 factoids.  ".
 	  "I'm using about \002$memusage\002 ".

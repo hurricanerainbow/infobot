@@ -90,7 +90,6 @@ sub Parse {
 	&latest($3 || $chan, 1);
 
     } elsif ($what =~ /^list$/i) {
-	&::DEBUG("list longcut called.");
 	&list();
 
     } elsif ($what =~ /^(expire|text|desc)(\s+(.*))?$/i) {
@@ -136,7 +135,7 @@ sub Parse {
 	}
 
     } else {
-	&::DEBUG("could not parse '$what'.");
+	&::DEBUG("could not parse '$what'");
 	&::notice($::who, "unknown command: $what");
     }
 }
@@ -187,8 +186,11 @@ sub readNews {
     close NEWS;
 
     my $cn = scalar(keys %::news);
-    &::status("News: Read $ci items for $cn chans, $cu users cache")
-		if ($ci or $cn or $cu);
+    &::status("News: Read ".
+	$ci. &::fixPlural(" item", $ci). " for ".
+	$cn. &::fixPlural(" chan", $cn). ", ".
+	$cu. &::fixPlural(" user", $cu), " cache"
+    ) if ($ci or $cn or $cu);
 }
 
 sub writeNews {
@@ -873,7 +875,7 @@ sub getNewsItem {
 	    &::DEBUG("gNI: part_string->full_string: $what->$items[0]");
 	    return $items[0];
 	} else {
-	    &::DEBUG("gNI: No match.");
+	    &::DEBUG("gNI: No match for '$what'");
 	    return;
 	}
     }

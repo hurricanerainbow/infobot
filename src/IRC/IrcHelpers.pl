@@ -319,6 +319,7 @@ sub chanServCheck {
 
     if ( &IsParam("nickServ_pass") and !$nickserv) {
 	&DEBUG("chanServ_ops($chan): nickserv enabled but not alive? (ircCheck)");
+	&rawout("WHO NickServ");
 	return 0;
     }
     return 0 if (exists $channels{$chan}{'o'}{$ident});
