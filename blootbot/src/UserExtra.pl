@@ -47,7 +47,7 @@ sub chaninfo {
 
     if ($chan eq "") {		# all channels.
 	my $i		= keys %channels;
-	my $reply	= "i am on \002$i\002 ".&fixPlural("channel",$i);
+	my $reply	= "I'm on \002$i\002 ".&fixPlural("channel",$i);
 	my $tucount	= 0;	# total user count.
 	my $uucount	= 0;	# unique user count.
 	my @array;
@@ -61,11 +61,10 @@ sub chaninfo {
 	    }
 	    next if (/^_default$/);
 
-	    my $str = sprintf("%s(%d)", $_, scalar(keys %{ $channels{$_}{''} }));
+	    my $str = sprintf("%s/%d", $_, scalar(keys %{ $channels{$_}{''} }));
 	    push(@array, $str);
 	}
 	&performStrictReply($reply.": ".join(', ', @array));
-	&ircCheck();
 
 	### total user count.
 	foreach $chan (keys %channels) {
@@ -82,7 +81,7 @@ sub chaninfo {
 		push(@nicks, $nick);
 	    }
 	}
-	&::DEBUG(join ":", @nicks);
+	#&::DEBUG(join ":", @nicks);
 
 	if (scalar @nicks != $uucount) {
 	    &DEBUG("nicks != uucount...");
@@ -95,6 +94,7 @@ sub chaninfo {
 	    ", distributed over \002$chans\002 ".
 	    &fixPlural("channel", $chans)."."
 	);
+	&ircCheck();
 
 	return;
     }
