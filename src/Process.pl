@@ -22,6 +22,15 @@ sub process {
 
     &shmFlush();		# hack.
 
+    # hack to support channel +o as "+o" in bot user file.
+    # requires +O in user file.
+    # is $who arg lowercase?
+    if (exists $channels{$chan}{o}{ $orig{who} } && &IsFlag("O") eq "O") {
+	&status("Gave $who/$chan +o (+O)\'ness");
+	$users{$userHandle}{FLAGS} =~ s/o//g;
+	$users{$userHandle}{FLAGS} .= "o";
+    }
+
     # check if we have our head intact.
     if ($lobotomized) {
 	if ($addressed and IsFlag("o") eq "o") {

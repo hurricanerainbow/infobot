@@ -29,6 +29,8 @@ sub uptimeGetInfo {
   my @results;
   my $file = $file{utm};
 
+  &::DEBUG("uGI: reading $file...");
+
   if (!open(IN, $file)) {
     &status("Writing uptime file for first time usage (nothing special).");
     open(OUT,">$file");

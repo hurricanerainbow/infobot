@@ -49,7 +49,7 @@ $SIG{'__WARN__'} = 'doWarn';
 $last{buflen}	= 0;
 $last{say}	= "";
 $last{msg}	= "";
-$userHandle	= "default";
+$userHandle	= "_default";
 $wingaterun	= time();
 $firsttime	= 1;
 $utime_userfile	= 0;
@@ -100,14 +100,20 @@ sub doExit {
 	&status("--- Start of quit.");
 	$ident ||= "blootbot";	# lame hack.
 
-	&closeDCC() if (&whatInterface() =~ /IRC/); 
 	&closePID();
 	&closeStats();
-	&seenFlush() if (&whatInterface() =~ /IRC/);
-	&quit($param{'quitMsg'}) if (&whatInterface() =~ /IRC/);
+	# shutdown IRC and related components.
+	if (&whatInterface() =~ /IRC/) {
+	    &closeDCC();
+	    &seenFlush();
+	    &quit($param{'quitMsg'});
+	}
 	&writeUserFile();
 	&writeChanFile();
-	&uptimeWriteFile()	if (&ChanConfList("uptime"));
+	if (&IsChanConf("uptime")) {
+	    &DEBUG("going to write uptime file info.");
+	}
+	&uptimeWriteFile()	if (&IsChanConf("uptime"));
 	&News::writeNews()	if (&ChanConfList("news"));
 	&closeDB();
 	&closeSHM($shm);
@@ -278,7 +284,7 @@ sub getChanConf {
     my($param,$c)	= @_;
 
     if (!defined $param) {
-	&WARN("param == NULL.");
+	&WARN("gCC: param == NULL.");
 	return 0;
     }
 
@@ -436,7 +442,7 @@ sub setupConfig {
     $param{'VERBOSITY'} = 1;
     &loadConfig($bot_config_dir."/blootbot.config");
 
-    foreach ("ircNick", "ircUser", "ircName", "DBType", "tempDir") {
+    foreach ( qw(ircNick ircUser ircName DBType tempDir) ) {
 	next if &IsParam($_);
 	&ERROR("Parameter $_ has not been defined.");
 	exit 1;

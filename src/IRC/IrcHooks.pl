@@ -192,10 +192,14 @@ sub on_endofmotd {
     # ok, we're free to do whatever we want now. go for it!
     $running = 1;
 
-    # unfortunately, Net::IRC does not implement this :(
-    # invalid command... what is it?
-#    &rawout("NOTIFY $ident");
-#    &DEBUG("adding self to NOTIFY list.");
+    $conn->ison($ident);
+    &DEBUG("adding self to NOTIFY/ISON.");
+
+    # Q, as on quakenet.org.
+    if (&IsParam("Q_pass")) {
+	&status("Authing to Q...");
+	&rawout("PRIVMSG Q\@CServe.quakenet.org :AUTH $param{'Q_user'} $param{'Q_pass'}");
+    }
 
     &joinNextChan();
 }
@@ -228,13 +232,8 @@ sub on_dcc {
 	my $get = ($event->args)[2];
 	open(DCCGET,">$get");
 
-	$self->new_get($nick,
-		($event->args)[2],
-		($event->args)[3],
-		($event->args)[4],
-		($event->args)[5],
-		\*DCCGET
-	);
+	$self->new_get($event, \*DCCGET);
+
     } elsif ($type eq 'GET') {	# SEND for us?
 	&status("DCC: Initializing SEND for $nick.");
 	$self->new_send($event->args);
@@ -242,6 +241,7 @@ sub on_dcc {
     } elsif ($type eq 'CHAT') {
 	&status("DCC: Initializing CHAT for $nick.");
 	$self->new_chat($event);
+#	$self->new_chat(1, $nick, $event->host);
 
     } else {
 	&WARN("${b_green}DCC $type$ob (1)");
@@ -397,7 +397,7 @@ sub on_endofnames {
 	&status("$b_blue$chan$ob: sync in ${delta_time}s.");
     }
 
-    &rawout("MODE $chan");
+    $conn->mode($chan);
 
     my $txt;
     my @array;
@@ -459,7 +459,7 @@ sub on_join {
     my $i		= scalar(keys %{ $channels{$chan} });
     my $j		= $cache{maxpeeps}{$chan} || 0;
 
-    if (time() > $sched{shmFlush}{TIME} + 3600) {
+    if (time() > ($sched{shmFlush}{TIME} || time()) + 3600) {
 	&DEBUG("looks like schedulers died somewhere... restarting...");
 	&setupSchedulers();
     }
@@ -551,7 +551,7 @@ sub on_join {
 
 	### TODO: move this to &joinchan()?
 	$cache{jointime}{$chan} = &timeget();
-	rawout("WHO $chan");
+	$conn->who($chan);
 
 	return;
     }
@@ -752,6 +752,7 @@ sub on_notice {
 
 	    $nickserv++;
 	}
+
     } elsif ($nick =~ /^ChanServ$/i) {		# chanserv.
 	&status("ChanServ: <== '$args'.");
 
@@ -934,7 +935,7 @@ sub on_quit {
 	    next unless ( exists $channels{$_}{'l'} );
 
 	    &DEBUG("on_quit: netsplit detected on $_; disabling chan limit.");
-	    &rawout("MODE $_ -l");
+	    $conn->mode($_, "-l");
 	}
 
 	$netsplit{lc $nick} = time();

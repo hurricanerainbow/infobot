@@ -443,7 +443,7 @@ sub countryStats {
 	return;
     }
 
-    &rawout("WHO $chan");
+    $conn->who($chan);
     $cache{countryStats}{chan}	= $chan;
     $cache{countryStats}{mtype}	= $msgType;
     $cache{countryStats}{who}	= $who;

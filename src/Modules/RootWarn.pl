@@ -18,7 +18,7 @@ sub rootWarn {
 	    &status("rootwarn: Detected root user; notifying user");
 	} else {
 	    &status("rootwarn: Detected root user; notifying nick and channel.");
-	    rawout("PRIVMSG $chan :ROO".("O" x int(rand 68))."T has landed!");
+	    &msg($chan, "ROO".("O" x int(rand 68))."T has landed!");
 	}
 
 	if ($_ = &getFactoid("root")) {

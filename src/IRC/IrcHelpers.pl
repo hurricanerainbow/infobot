@@ -314,7 +314,7 @@ sub chanLimitVerify {
     &status("clc: big change in limit for $chan ($delta);".
 		"going for it. (was: $l; now: ".($count+$plus).")");
 
-    &rawout("MODE $chan +l ".($count+$plus) );
+    $conn->mode($chan, "+l", $count+$plus);
     $cache{chanlimitChange}{$chan} = time();
 }
 
@@ -338,7 +338,7 @@ sub chanServCheck {
 
     if ( &IsParam("nickServ_pass") and !$nickserv) {
 	&DEBUG("chanServ_ops($chan): nickserv enabled but not alive? (ircCheck)");
-	&rawout("WHO NickServ");
+	$conn->who("NickServ");
 	return 0;
     }
     # check for first hash then for next hash.

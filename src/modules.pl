@@ -160,7 +160,9 @@ sub loadIRCModules {
     foreach ( &getPerlFiles("$bot_src_dir/$interface") ) {
 	my $mod = "$bot_src_dir/$interface/$_";
 
-	&status("Loading Modules \"$mod\"");
+	# hrm... use another config option besides DEBUG to display
+	# change in memory usage.
+	&status("Loading Modules \"$mod\"") if (!&IsParam("DEBUG"));
 	eval "require \"$mod\"";
 	if ($@) {
 	    &ERROR("require \"$mod\" => $@");
