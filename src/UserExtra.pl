@@ -579,7 +579,16 @@ sub userCommands {
 	# utime(13) + stime(14).
 	my $cpu_usage	= sprintf("%.01f", ($data[13]+$data[14]) / 100 );
 	my $time	= time() - $^T;
-	my $perc	= sprintf("%.01f", $cpu_usage*100/$time );
+	my $raw_perc	= $cpu_usage*100/$time;
+	my $perc;
+
+	if ($raw_perc > 1) {
+	    $perc	= sprintf("%.01f", $raw_perc);
+	} elsif ($raw_perc > 0.1) {
+	    $perc	= sprintf("%.02f", $raw_perc);
+	} else {			# <=0.1
+	    $perc	= sprintf("%.03f", $raw_perc);
+	}
 
 	&performStrictReply("Total CPU usage: $cpu_usage s ... Percentage CPU used: $perc %");
 	&DEBUG("15 => $data[15] (cutime)");
