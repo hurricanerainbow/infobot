@@ -379,11 +379,11 @@ sub chanlimitCheck {
 	}
 
 	if (exists $cache{ "chanlimitChange_$chan" }) {
-	    if (time() - $cache{ "chanlimitChange_$chan" } < 60) {
-		&DEBUG("not going to change chanlimit!");
+	    my $delta = time() - $cache{ "chanlimitChange_$chan" };
+	    if ($delta < $interval*60) {
+		&DEBUG("not going to change chanlimit! ($delta<$interval*60)");
 		return;
 	    }
-	    delete $cache{ "chanlimitChange_$chan" };
 	}
 
 	&rawout("MODE $chan +l $newlimit");
@@ -662,7 +662,7 @@ sub ircCheck {
 	&rawout("PRIVMSG ChanServ :OP $chan $ident");
     }
 
-    if (!$conn->connected or time - $msgtime > 3600) {
+    if (!$conn->connected or time() - $msgtime > 3600) {
 	# todo: shouldn't we use cache{connect} somewhere?
 	if (exists $cache{connect}) {
 	    &WARN("ircCheck: no msg for 3600 and disco'd! reconnecting!");
@@ -703,6 +703,10 @@ sub ircCheck {
 
 	&DEBUG("channels END");
     }
+
+    &DEBUG("ircstats...");
+    &DEBUG("  pubsleep: $pubsleep");
+    &DEBUG("  msgsleep: $msgsleep");
 
     ### USER FILE.
     if ($utime_userfile > $wtime_userfile and time() - $wtime_userfile > 3600) {

@@ -19,8 +19,8 @@ use vars qw(
 	$flag_quit $msgType
 	$utime_userfile	$wtime_userfile	$ucount_userfile
 	$utime_chanfile	$wtime_chanfile	$ucount_chanfile
-	$pubsize $pubcount $pubtime
-	$msgsize $msgcount $msgtime
+	$pubsize $pubcount $pubtime $pubsleep
+	$msgsize $msgcount $msgtime $msgsleep
 );
 
 # dynamic hash.
@@ -56,12 +56,12 @@ $utime_chanfile	= 0;
 $wtime_chanfile	= 0;
 $ucount_chanfile = 0;
 ### more variables...
-$msgtime	= 0;
+$msgtime	= time();
 $msgsize	= 0;
-$msgcount	= 0;
+$msgcount	= $msgsleep	= 0;
 $pubtime	= 0;
 $pubsize	= 0;
-$pubcount	= 0;
+$pubcount	= $pubsleep	= 0;
 ###
 $bot_version	= "blootbot cvs (20010214) -- $^O";
 $noreply	= "NOREPLY";
