@@ -85,6 +85,8 @@ sub dbGetCol {
     $query	.= " WHERE ".$where if ($where);
     my %retval;
 
+    &DEBUG("dbGetCol: query => '$query'.");
+
     my $sth = $dbh->prepare($query);
     &SQLDebug($query);
     if (!$sth->execute) {

@@ -690,15 +690,18 @@ sub set {
 
 sub latest {
     my($tchan, $flag) = @_;
+    &::DEBUG("news: latest(): who => $who, ::who => $::who");
 
     # hack hack hack.
     $chan	||= $tchan;
-    $who	||= $::who;
+    $who	= $::who;
+
+    &::DEBUG("news: latest(): who => $who, ::who => $::who");
 
     # todo: if chan = undefined, guess.
 #    if (!exists $::news{$chan}) {
     if (!exists $::channels{$chan}) {
-	&::notice($::who, "invalid chan $chan") if ($flag);
+	&::notice($who, "invalid chan $chan") if ($flag);
 	return;
     }
 
@@ -711,9 +714,9 @@ sub latest {
 
     if (defined $t and ($t == 0 or $t == -1)) {
 	if ($flag) {
-	    &::notice($::who, "if you want to read news, try /msg $::ident news or /msg $::ident news notify");
+	    &::notice($who, "if you want to read news, try /msg $::ident news or /msg $::ident news notify");
 	} else {
-	    &::DEBUG("news: not displaying any new news for $::who");
+	    &::DEBUG("news: not displaying any new news for $who");
 	    return;
 	}
     }
@@ -727,7 +730,7 @@ sub latest {
     if (!defined $t) {
 	&::DEBUG("news: something went really wrong.");
 	&::DEBUG("news: chan => $chan, ::chan => $::chan");
-#	&::notice($::who, "something went really wrong.");
+#	&::notice($who, "something went really wrong.");
 	return;
     }
 
@@ -751,7 +754,7 @@ sub latest {
 
     # !scalar @new, $flag
     if (!scalar @new and $flag) {
-	&::notice($::who, "no new news for $chan for $who.");
+	&::notice($who, "no new news for $chan for $who.");
 	# valid to set this?
 	$::newsuser{$chan}{$who} = time();
 	return;
@@ -765,19 +768,19 @@ sub latest {
 
 	my $reply = "There are unread news in $chan ($unread unread, $total total). /msg $::ident news $::chan latest";
 	$reply	 .= "  If you don't want further news notification, /msg $::ident news unnotify" if ($unread == $total);
-	&::notice($::who, $reply);
+	&::notice($who, $reply);
 
 	return;
     }
 
     # scalar @new, $flag
     if (scalar @new) {
-	&::notice($::who, "+==== New news for \002$chan\002 ($unread new; $total total):");
+	&::notice($who, "+==== New news for \002$chan\002 ($unread new; $total total):");
 
 	my $t = $::newsuser{$chan}{$who};
 	if (defined $t and $t > 1) {
 	    my $timestr = &::Time2String( time() - $t );
-	    &::notice($::who, "|= Last time read $timestr ago");
+	    &::notice($who, "|= Last time read $timestr ago");
 	}
 
 	my @sorted;
@@ -791,17 +794,17 @@ sub latest {
 	    next unless (defined $news);
 
 	    my $age = time() - $::news{$chan}{$news}{Time};
-	    &::notice($::who, sprintf("\002[\002%2d\002]\002 %s",
+	    &::notice($who, sprintf("\002[\002%2d\002]\002 %s",
 		$i, $news) );
 #		$i, $_, &::Time2String($age) ) );
 	}
 
-	&::notice($::who, "|= to read, do 'news read <#>' or 'news read <keyword>'");
+	&::notice($who, "|= to read, do 'news read <#>' or 'news read <keyword>'");
 
 	# lame hack to prevent dupes if we just ignore it.
 	my $x = $::newsuser{$chan}{$who};
 	if (defined $x and ($x == 0 or $x == -1)) {
-	    &::DEBUG("news: not updating time for $::who. (2)");
+	    &::DEBUG("news: not updating time for $who. (2)");
 	} else {
 	    $::newsuser{$chan}{$who} = time();
 	}

@@ -287,7 +287,7 @@ sub tell {
 
     # this one catches most of them
     if ($args =~ /^(\S+) (-?)about (.*)$/i) {
-	$target		= lc $1;
+	$target		= $1;
 	$tell_obj	= $3;
 	$dont_tell_me	= ($2) ? 1 : 0;
 
@@ -295,19 +295,19 @@ sub tell {
 	$query		= $tell_obj;
     } elsif ($args =~ /^(\S+) where (\S+) can (\S+) (.*)$/i) {
 	# i'm sure this could all be nicely collapsed
-	$target		= lc $1;
+	$target		= $1;
 	$tell_obj	= $4;
 	$query		= $tell_obj;
 
     } elsif ($args =~ /^(\S+) (what|where) (.*?) (is|are)[.?!]*$/i) {
-	$target		= lc $1;
+	$target		= $1;
 	$qWord		= $2;
 	$tell_obj	= $3;
 	$verb		= $4;
 	$query		= "$qWord $verb $tell_obj";
 
     } elsif ($args =~ /^(.*?) to (\S+)$/i) {
-	$target		= lc $3;
+	$target		= $3;
 	$tell_obj	= $2;
 	$query		= $tell_obj;
     }
@@ -330,7 +330,7 @@ sub tell {
 #    }
 
     # self.
-    if ($target eq $ident) {	# lc?
+    if ($target =~  /^\Q$ident\E$/i) {
 	&msg($who, "Isn't that a bit silly?");
 	return;
     }
