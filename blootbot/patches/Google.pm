@@ -11,7 +11,7 @@ package WWW::Search::Google;
 
 =head1 NAME
 
-WWW::Search::Google - class for searching Google 
+WWW::Search::Google - class for searching Google
 
 
 =head1 SYNOPSIS
@@ -58,7 +58,7 @@ page in C<{_next_url}>.
 C<native_retrieve_some> is called (from C<WWW::Search::retrieve_some>)
 whenever more hits are needed.  It calls C<WWW::Search::http_request>
 to fetch the page specified by C<{_next_url}>.
-It then parses this page, appending any search hits it finds to 
+It then parses this page, appending any search hits it finds to
 C<{cache}>.  If it finds a ``next'' button in the text,
 it sets C<{_next_url}> to point to the page for the next
 set of results, otherwise it sets it to undef to indicate we''re done.
@@ -66,7 +66,7 @@ set of results, otherwise it sets it to undef to indicate we''re done.
 
 =head1 TESTING
 
-This module adheres to the C<WWW::Search> test suite mechanism. 
+This module adheres to the C<WWW::Search> test suite mechanism.
 
 =head1 AUTHOR
 
@@ -75,7 +75,7 @@ This backend is written and maintained/supported by Jim Smyser.
 
 =head1 BUGS
 
-Google is not an easy search engine to parse in that it is capable 
+Google is not an easy search engine to parse in that it is capable
 of altering it's output ever so slightly on different search terms.
 There may be new slight results output the author has not yet seen that
 will pop at any given time for certain searches. So, if you think you see
@@ -94,11 +94,11 @@ Minor code correction for empty returned titles
 Forgot to add new next url regex in 2.19!
 
 2.19
-Regex work on some search results url's that has changed. Number found 
+Regex work on some search results url's that has changed. Number found
 return should be right now.
 
 2.17
-Insert url as a title when no title is found. 
+Insert url as a title when no title is found.
 
 2.13
 New regexp to parse newly found results format with certain search terms.
@@ -118,7 +118,7 @@ Added Kingpin's new hash_to_cgi_string() 10/12/99
 Fixed missing links / regexp crap.
 
 2.05
-Matching overhaul to get the code parsing right due to multiple 
+Matching overhaul to get the code parsing right due to multiple
 tags being used by google on the hit lines. 9/25/99
 
 2.02
@@ -139,10 +139,10 @@ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 =cut
 #'
-          
-          
+
+
 #####################################################################
-          
+
 require Exporter;
 @EXPORT = qw();
 @EXPORT_OK = qw();
@@ -156,12 +156,12 @@ $TEST_CASES = <<"ENDTESTCASES";
 &test('Google', '$MAINTAINER', 'one_page', '+LS'.'AM +rep'.'lication', \$TEST_RANGE, 2,99);
 &test('Google', '$MAINTAINER', 'multi', 'dir'.'ty ha'.'rr'.'y bimbo', \$TEST_GREATER_THAN, 101);
 ENDTESTCASES
-          
+
 use Carp ();
 use WWW::Search(qw(generic_option strip_tags));
 require WWW::SearchResult;
-          
-          
+
+
 sub undef_to_emptystring {
 return defined($_[0]) ? $_[0] : "";
 }
@@ -172,12 +172,12 @@ sub native_setup_search
      $self->user_agent('user');
      $self->{_next_to_retrieve} = 0;
      $self->{'_num_hits'} = 100;
-         if (!defined($self->{_options})) {
-         $self->{_options} = {
-         'search_url' => 'http://www.google.com/search',
-         'num' => $self->{'_num_hits'},
-         };
-         };
+	 if (!defined($self->{_options})) {
+	 $self->{_options} = {
+	 'search_url' => 'http://www.google.com/search',
+	 'num' => $self->{'_num_hits'},
+	 };
+	 };
      my($options_ref) = $self->{_options};
      if (defined($native_options_ref)) {
      # Copy in new options.
@@ -195,7 +195,7 @@ sub native_setup_search
      $self->{_debug} = $options_ref->{'search_debug'};
      $self->{_debug} = 2 if ($options_ref->{'search_parse_debug'});
      $self->{_debug} = 0 if (!defined($self->{_debug}));
-               
+
      # Finally figure out the url.
      $self->{_base_url} =
      $self->{_next_url} =
@@ -203,7 +203,7 @@ sub native_setup_search
      "?" . $options .
      "q=" . $native_query;
      }
-          
+
 # private
 sub begin_new_hit {
      my($self) = shift;
@@ -236,13 +236,13 @@ sub native_retrieve_some {
      foreach ($self->split_lines($response->content())) {
      next if m@^$@; # short circuit for blank lines
 
-  if ($state == $HEADER && m/about <b>([\d,]+)<\/b>/) 
+  if ($state == $HEADER && m/about <b>([\d,]+)<\/b>/)
      {
      my($n) = $1;
      $self->approximate_result_count($n);
      print STDERR "Found Total: $n\n" ;
      $state = $HITS;
-     } 
+     }
   if ($state == $HITS &&
      m|<p><a href=([^\>]*)\>(.*?)</a\><br\>|i) {
      my ($url, $title) = ($1,$2);
@@ -255,7 +255,7 @@ sub native_retrieve_some {
      $title = "No Title" if ($title =~ /^\s+/);
      $hit->title(strip_tags($title));
      $state = $HITS;
-     } 
+     }
   elsif ($state == $HITS &&
      m|<a href=(.*)\>(.*?)</a><font size=-1><br><font color=green><.*?>|i) {
      my ($url, $title) = ($1,$2);
@@ -268,7 +268,7 @@ sub native_retrieve_some {
      $title = "No Title" if ($title =~ /^\s+/);
      $hit->title(strip_tags($title));
      $state = $HITS;
-     } 
+     }
   elsif ($state == $HITS &&
      m@^<p><a href=/url\?sa=U&start=\d+&q=([^<]+)\&.*?>(.*)</a><font size=-1><br>(.*)@i ||
      m@^<p><a href=([^<]+)>(.*)</a>.*?<font size=-1><br>(.*)@i)
@@ -289,8 +289,8 @@ sub native_retrieve_some {
      $mDesc =  $mDesc . '<br>' if not $mDesc =~ m@<br>@;
      $hit->description($mDesc) if (defined($hit));
      $state = $HITS;
-     } 
-  elsif ($state == $HITS && m@^(\.\.(.+))@i) 
+     }
+  elsif ($state == $HITS && m@^(\.\.(.+))@i)
      {
      print STDERR "**Parsing Description Line**\n" if ($self->{_debug});
      $raw .= $_;
@@ -301,16 +301,16 @@ sub native_retrieve_some {
      $hit->description($sDesc) if $sDesc =~ m@^\.@;
      $sDesc = '';
      $state = $HITS;
-     } 
-  elsif ($state == $HITS && m@<div class=nav>@i) 
+     }
+  elsif ($state == $HITS && m@<div class=nav>@i)
      {
      ($hit, $raw) = $self->begin_new_hit($hit, $raw);
      print STDERR "**Found Last Line**\n" if ($self->{_debug});
      # end of hits
      $state = $TRAILER;
-     } 
-  elsif ($state == $TRAILER && 
-     m|<a href=([^<]+)><IMG SRC=/nav_next.gif.*?>.*?|i) 
+     }
+  elsif ($state == $TRAILER &&
+     m|<a href=([^<]+)><IMG SRC=/nav_next.gif.*?>.*?|i)
      {
      my($relative_url) = $1;
      print STDERR "**Fetching >>Next<< Page**\n" if ($self->{_debug});

@@ -61,15 +61,15 @@
     if ($message =~ /^wantNick$/i) {
 &addCmdHook("main", 'chan(stats|info)', ('CODEREF' => 'chaninfo', ) );
 &addCmdHook("main", 'cmd(stats|info)', ('CODEREF' => 'cmdstats', ) );
-&addCmdHook("main", 'factinfo', ('CODEREF' => 'factinfo', 
-&addCmdHook("main", 'factstats?', ('CODEREF' => 'factstats', 
-&addCmdHook("main", 'help', ('CODEREF' => 'help', 
+&addCmdHook("main", 'factinfo', ('CODEREF' => 'factinfo',
+&addCmdHook("main", 'factstats?', ('CODEREF' => 'factstats',
+&addCmdHook("main", 'help', ('CODEREF' => 'help',
 &addCmdHook("main", 'karma', ('CODEREF' => 'karma', ) );
-&addCmdHook("main", 'i?spell', ('CODEREF' => 'ispell', 
-&addCmdHook("main", 'd?nslookup', ('CODEREF' => 'DNS', 
-&addCmdHook("main", 'tell|explain', ('CODEREF' => 'tell', 
-&addCmdHook("main", 'news', ('CODEREF' => 'News::Parse', 
-&addCmdHook("main", 'countrystats', ('CODEREF' => 'countryStats', 
+&addCmdHook("main", 'i?spell', ('CODEREF' => 'ispell',
+&addCmdHook("main", 'd?nslookup', ('CODEREF' => 'DNS',
+&addCmdHook("main", 'tell|explain', ('CODEREF' => 'tell',
+&addCmdHook("main", 'news', ('CODEREF' => 'News::Parse',
+&addCmdHook("main", 'countrystats', ('CODEREF' => 'countryStats',
 # Modules/UserDCC.pl
     if ($message =~ /^(exit|quit)$/i) {
     if ($message =~ /^who$/) {

@@ -16,15 +16,15 @@ sub HTTPDtype {
     return unless &::loadPerlModule("Net::HTTP::NB");
     return unless &::loadPerlModule("IO::Select");
 
-        my $s = Net::HTTP::NB->new(Host => $HOST) || return;
-        $s->write_request(HEAD => "/");
+	my $s = Net::HTTP::NB->new(Host => $HOST) || return;
+	$s->write_request(HEAD => "/");
 
-        my $sel = IO::Select->new($s);
-        $line = "Header timeout" unless $sel->can_read(10);
-        ($code, $mess, %h) = $s->read_response_headers;
+	my $sel = IO::Select->new($s);
+	$line = "Header timeout" unless $sel->can_read(10);
+	($code, $mess, %h) = $s->read_response_headers;
 
-        $line = (length($h{Server}) > 0) ? $h{Server} :
-          "Couldn't fetch headers from $HOST";
+	$line = (length($h{Server}) > 0) ? $h{Server} :
+	  "Couldn't fetch headers from $HOST";
 
     &::pSReply($line||"Unknown Error Condition");
 

@@ -3,11 +3,11 @@ v1.0.0 (20000725): bug fixes mainly.
 	- Fixed warning in Modules/Uptime.pl for clean install.
 	- More fixes for scripts/*mysql*.pl from GmLB.
 	- Added command 'hex'.
-	- GmLB fixed mysql2txt.pl and txt2mysql.pl. You can now import and 
+	- GmLB fixed mysql2txt.pl and txt2mysql.pl. You can now import and
 	  export to inforbot 'factpacks'.-
 
 v1.0.0RC3 (20000720): bug fixes mainly.
-	- Debian.pl's infoPackages() now checks for incoming 
+	- Debian.pl's infoPackages() now checks for incoming
 	  automatically and shows the new file.
 	- irq/dan found the bot wouldn't run if a stale (invalid) pid
 	  file exists. Fixed.
@@ -215,7 +215,7 @@ v1.0.0pre3 (20000319):
 	- Fixed Freshmeat.pl not to show duplicate packages found by
 	  'name' and 'oneliner' search. Made showPackage() function.
 	- Debian modules now does multi distro. (woody's non-us appears to
-	  be different structure so does not work :(, very crude hack... 
+	  be different structure so does not work :(, very crude hack...
 	  may not even work).
 	- Added subfactoid randomising. eg: '(one|two|three)'.
 	- 'dauthor' now works!
@@ -317,7 +317,7 @@ v0.99pre12 (20000125):
 
 v0.99pre11 (20000123):
 	- Fixes here and there...
-	- Debian find now searches Package names. Fallback automatically 
+	- Debian find now searches Package names. Fallback automatically
 	  to contents file search.
 	- Fixed typo related to log cycling.
 	- Added netsplit detection code.
@@ -601,7 +601,7 @@ v0.17.0 (19991126):
 		- Ability to turn off minVolunteerLength.
 		- More changes to prevent chatter in unaddressed manner.
 	- We remove any ansi or control chars when piping to the log file.
-	  RevHippie++. 
+	  RevHippie++.
 	- Added 'thanks' language.
 	- Typo in Freshmeat.pl; Fixed.
 	- Added $rootwarnmode = passive || aggressive to satisfy lilo@OPN.

@@ -96,7 +96,7 @@ sub timeget {
     } else {			# the real thing.
 	return [gettimeofday()];
     }
-}    
+}
 
 sub timedelta {
     my($start_time) = shift;

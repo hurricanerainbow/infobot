@@ -57,7 +57,7 @@ sub queryText {
 	}
 
 	my $request = new HTTP::Request('GET', "$searchpath");
-	my $response = $ua->request($request); 
+	my $response = $ua->request($request);
 
 	if (!$response->is_success) {
 		return "Something failed in connecting to the ZFI web server. Try again later.";

@@ -825,7 +825,7 @@ sub closeDCC {
 
     foreach $type (keys %dcc) {
 	next if ($type ne uc($type));
- 
+
 	my $nick;
 	foreach $nick (keys %{ $dcc{$type} }) {
 	    next unless (defined $nick);

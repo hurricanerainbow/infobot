@@ -172,7 +172,7 @@ sub CmdFactStats {
 	return &formListReply(0, $prefix, @list);
 
     } elsif ($type =~ /^vandalism$/i) {
-        &status("factstats(vandalism): starting...");
+	&status("factstats(vandalism): starting...");
 	my $start_time	= &timeget();
 	my %data	= &sqlSelectColHash("factoids",
 		"factoid_key,factoid_value", undef,
@@ -181,7 +181,7 @@ sub CmdFactStats {
 	my @list;
 
 	my $delta_time	= &timedelta($start_time);
-        &status(sprintf("factstats(vandalism): %.02f sec to retreive all factoids.", $delta_time)) if ($delta_time > 0);
+	&status(sprintf("factstats(vandalism): %.02f sec to retreive all factoids.", $delta_time)) if ($delta_time > 0);
 	$start_time	= &timeget();
 
 	# parse the factoids.
@@ -193,7 +193,7 @@ sub CmdFactStats {
 	}
 
 	$delta_time	= &timedelta($start_time);
-        &status(sprintf("factstats(vandalism): %.02f sec to complete.", $delta_time)) if ($delta_time > 0);
+	&status(sprintf("factstats(vandalism): %.02f sec to complete.", $delta_time)) if ($delta_time > 0);
 
 	# bail out on no results.
 	if (scalar @list == 0) {
@@ -205,7 +205,7 @@ sub CmdFactStats {
 	return &formListReply(1, $prefix, @list);
 
     } elsif ($type =~ /^total$/i) {
-        &status("factstats(total): starting...");
+	&status("factstats(total): starting...");
 	my $start_time	= &timeget();
 	my @list;
 	my $str;
@@ -257,7 +257,7 @@ sub CmdFactStats {
 	### end of "job".
 
 	my $delta_time	= &timedelta($start_time);
-        &status(sprintf("factstats(broken): %.02f sec to retreive all factoids.", $delta_time)) if ($delta_time > 0);
+	&status(sprintf("factstats(broken): %.02f sec to retreive all factoids.", $delta_time)) if ($delta_time > 0);
 	$start_time	= &timeget();
 
 	# bail out on no results.
@@ -303,9 +303,9 @@ sub CmdFactStats {
 	return &formListReply(1, $prefix, @newlist);
 
     } elsif ($type =~ /^dup(licate|e)$/i) {
-        &status("factstats(dupe): starting...");
+	&status("factstats(dupe): starting...");
 	my $start_time	= &timeget();
-	my %hash	= &sqlSelectColHash("factoids", 
+	my %hash	= &sqlSelectColHash("factoids",
 		"factoid_key,factoid_value", undef,
 		"WHERE factoid_value IS NOT NULL", 1
 	);
@@ -339,7 +339,7 @@ sub CmdFactStats {
 
 	&status("factstats(dupe): (good) dupe refs: $refs.");
 	my $delta_time	= &timedelta($start_time);
-        &status(sprintf("factstats(dupe): %.02f sec to complete", $delta_time)) if ($delta_time > 0);
+	&status(sprintf("factstats(dupe): %.02f sec to complete", $delta_time)) if ($delta_time > 0);
 
 	# bail out on no results.
 	if (scalar @list == 0) {
@@ -424,7 +424,7 @@ sub CmdFactStats {
 	return &formListReply(1, $prefix, @list);
 
     } elsif ($type =~ /^locked$/i) {
-	my %hash = &sqlSelectColhash("factoids", 
+	my %hash = &sqlSelectColhash("factoids",
 		"factoid_key,locked_by", undef,
 		"WHERE locked_by IS NOT NULL"
 	);
@@ -507,7 +507,7 @@ sub CmdFactStats {
 	}
 
 	my $delta_time = sprintf("%.02fs", &timedelta($start_time) );
-        &status("factstats(partdupe): $delta_time sec to complete.") if ($delta_time > 0);
+	&status("factstats(partdupe): $delta_time sec to complete.") if ($delta_time > 0);
 
 	# bail out on no results.
 	if (scalar @list == 0) {

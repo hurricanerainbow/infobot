@@ -277,7 +277,7 @@ sub exchange {
     my ($message) = @_;
     &::DEBUG("exchange(@_)");
 
-    return "Exchange.pl needs LWP::UserAgent and HTTP::Request::Common" 
+    return "Exchange.pl needs LWP::UserAgent and HTTP::Request::Common"
 	if ($no_exchange);
 
     my ($From, $To, $Amount, $Country);
@@ -293,8 +293,9 @@ sub exchange {
     }
 
     my $ua = new LWP::UserAgent;
-    #$ua->agent("Mozilla/5.0 " . $ua->agent);        # Let's pretend
-    $ua->agent("Mozilla/5.0");        # Let's pretend
+    # Let's pretend
+    #$ua->agent("Mozilla/5.0 " . $ua->agent);
+    $ua->agent("Mozilla/5.0");
     $ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
     $ua->timeout(10);
 
@@ -316,7 +317,7 @@ sub exchange {
 
     if ($Country) {
 	# Country lookup
-	# crysflame++ for the space fix. 
+	# crysflame++ for the space fix.
 	$retval = '';
 	foreach my $Found (grep /$Country/i, keys %CurrLookup){
 	    $Found =~ s/,/ uses/g;
@@ -355,9 +356,11 @@ sub exchange {
 	    # Falsify where we came from
 	    $req->referer($Referer);
 
-	    my $res = $ua->request($req);                   # Submit request
+	    # Submit request
+	    my $res = $ua->request($req);
 
-	    if ($res->is_success) {                         # Went through ok
+	    if ($res->is_success) {
+		# Went through ok
 		my $html = $res->as_string;
 		# parse each one to avoid undefined warnings
 		my ($When) = ($html =~ m/ as of (\d{4}\.\d\d.\d\d\s\d\d:\d\d:\d\d\s\S+)/gi);
@@ -372,7 +375,8 @@ sub exchange {
 		} else {
 		    return "i got some error trying that";
 		}
-	    } else {                                        # Oh dear.
+	    } else {
+		# Oh dear.
 		return "EXCHANGE: ". $res->status_line;
 	    }
 	} else {

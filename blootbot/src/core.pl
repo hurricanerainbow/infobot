@@ -31,7 +31,7 @@ use vars qw(@joinchan @ircServers @wingateBad @wingateNow @wingateCache
 );
 
 ### hash. MUST BE REDUCED IN SIZE!!!
-# 
+#
 use vars qw(%count %netsplit %netsplitservers %flood %dcc %orig
 	    %nuh %talkWho %seen %floodwarn %param %dbh %ircPort
 	    %topic %moduleAge %last %time %mask %file
@@ -225,7 +225,7 @@ sub IsChanConf {
 	return 0;
     }
 
-    # should we use IsParam() externally where needed or hack it in 
+    # should we use IsParam() externally where needed or hack it in
     # here just in case? fix it later.
     if (&IsParam($param)) {
 	&DEBUG("ICC: found '$param' option in main config file.");
@@ -308,7 +308,7 @@ sub getChanConf {
 	return 0;
     }
 
-    # this looks evil... 
+    # this looks evil...
     if (0 and !defined $chan) {
 	&DEBUG("gCC: ok !chan... doing _default instead.");
     }

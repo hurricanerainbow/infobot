@@ -1012,7 +1012,7 @@ sub factoidCheck {
     my $time	= time();
 
     foreach (@list) {
-	my $age = &getFactInfo($_, "modified_time");	
+	my $age = &getFactInfo($_, "modified_time");
 
 	if (!defined $age or $age !~ /^\d+$/) {
 	    if (scalar @list > 50) {

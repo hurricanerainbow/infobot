@@ -6,9 +6,9 @@
 =      ===       ===     ====     ======  =====      ====     ======  ====
 ==========================================================================
 
-                    ======================================
-                                USER COMMANDS
-                    ======================================
+		    ======================================
+				USER COMMANDS
+		    ======================================
 
 Command: 4op
 =============
@@ -215,7 +215,7 @@ Usage:
 Example:
 	> blootbot: chanstats
 	<blootbot> i am on 2 channels: #blootbot #debian
-	<blootbot> i've cached 5 users distributed over 2 channels.	
+	<blootbot> i've cached 5 users distributed over 2 channels.
 
 	> blootbot: chanstats #blootbot
 	<blootbot> On #blootbot, there have been 1 Join, 1 Op and 20
@@ -366,9 +366,9 @@ Example:
 
 
 
-                    ======================================
-                               MODULE COMMANDS
-                    ======================================
+		    ======================================
+			       MODULE COMMANDS
+		    ======================================
 
 Command: babelfish
 =============
@@ -623,9 +623,9 @@ Example: DOES NOT WORK
 
 
 
-                    ======================================
-                        MISCELLANEOUS/FACTOID COMMANDS
-                    ======================================
+		    ======================================
+			MISCELLANEOUS/FACTOID COMMANDS
+		    ======================================
 
 Command: forget
 =============

@@ -36,8 +36,8 @@ sub Quote {
 	my ($ticker, $recent, $date, $time, $change, $open,
 	    $high, $low, $volume) = split(',',$result);
 
-        # add some commas
-        # "+ 0" removes trailing cr/lf/etc.
+	# add some commas
+	# "+ 0" removes trailing cr/lf/etc.
 	my $newvol = commify($volume + 0);
 
 	$reply .= ' ;; ' if $reply;

@@ -542,7 +542,7 @@ sub mod {
 	if ($flags eq "") {
 	    $done++ if (!$done and $mod_news  =~ s/\Q$op\E/$np/);
 	    $done++ if (!$done and $mod_nnews =~ s/\Q$op\E/$np/);
-        } elsif ($flags eq "g") {
+	} elsif ($flags eq "g") {
 	    $done++ if ($mod_news  =~ s/\Q$op\E/$np/g);
 	    $done++ if ($mod_nnews =~ s/\Q$op\E/$np/g);
 	}
@@ -799,7 +799,7 @@ sub latest {
     if (!$flag) {
 	return unless ($unread);
 
-	# just a temporary measure not to flood ourself off the 
+	# just a temporary measure not to flood ourself off the
 	# network with news until we get global notice() and msg()
 	# throttling.
 	if (time() - ($::cache{newsTime} || 0) < 5) {
@@ -831,7 +831,7 @@ sub latest {
 	    $i   = &newsS2N($_);
 	    $sorted[$i] = $_;
 	}
-	
+
 	for ($i=0; $i<=scalar(@sorted); $i++) {
 	    my $news = $sorted[$i];
 	    next unless (defined $news);

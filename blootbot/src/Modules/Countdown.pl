@@ -50,7 +50,7 @@ sub Countdown {
 	    $monname = (&sqlRawReturn("SELECT MONTHNAME('$sqldate')"))[0];
 
 	} elsif ($param{'DBType'} =~ /^pgsql$/i) {
-	    $to_days = (&sqlRawReturn("SELECT date_trunc('day', 
+	    $to_days = (&sqlRawReturn("SELECT date_trunc('day',
 				'now'::timestamp - '$sqldate')"))[0];
 	    $dayname = qw(Sun Mon Tue Wed Thu Fri Sat)[(&sqlRawReturn("SELECT extract(dow from timestamp '$sqldate')"))[0]];
 	    $monname = qw(BAD Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)[(&sqlRawReturn("SELECT extract(month from timestamp '$sqldate')"))[0]];

@@ -158,7 +158,7 @@ sub loadIRCModules {
 	    &ERROR("require \"$mod\" => $@");
 	    &shutdown();
 	    exit 1;
-        }
+	}
 
 	$moduleAge{$mod} = (stat $mod)[9];
 	&showProc(" ($_)") if (&IsParam("DEBUG"));
@@ -204,7 +204,7 @@ sub reloadAllModules {
 
     # obscure usage of map and regex :)
     foreach (map { s/.*?\/?src/src/; $_ } keys %moduleAge) {
-        $retval .= &reloadModule($_);
+	$retval .= &reloadModule($_);
     }
 
     &VERB("Module: reloading done.",2);
@@ -304,7 +304,7 @@ sub loadMyModule {
     my ($tmp) = @_;
     if (!defined $tmp) {
 	&WARN("loadMyModule: module is NULL.");
-	return 0; 
+	return 0;
     }
 
     my ($modulename, $modulebase);
@@ -388,8 +388,8 @@ sub getPerlFiles {
     my($dir) = @_;
 
     if (!opendir(DIR, $dir)) {
-        &ERROR("Cannot open source directory ($dir): $!");
-        exit 1;
+	&ERROR("Cannot open source directory ($dir): $!");
+	exit 1;
     }
 
     my @mods;

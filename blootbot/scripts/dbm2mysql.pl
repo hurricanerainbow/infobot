@@ -53,7 +53,7 @@ foreach $factoid (keys %db) {
 	}
     } else {
 	# infobot dbm to blootbot sql support.
-        &sqlReplace("factoids", {
+	&sqlReplace("factoids", {
 		factoid_key	=> $_,
 		factoid_value	=> $db{$_},
 	} );

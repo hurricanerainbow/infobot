@@ -235,7 +235,8 @@ sub shmFlush {
 
     my $time;
     my $shmmsg = &shmRead($shm);
-    $shmmsg =~ s/\0//g;         # remove padded \0's.
+    # remove padded \0's.
+    $shmmsg =~ s/\0//g;
     return if (length($shmmsg) == 0);
     if ($shmmsg =~ s/^(\S+):(\d+):(\d+): //) {
 	my $n	= $1;

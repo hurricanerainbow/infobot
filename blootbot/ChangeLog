@@ -199,7 +199,7 @@
 	      and opt-out (news unnotify)
 	irchooks: splitted into IrcHelpers.pl so we can reload it on the fly.
 	factoids: added debugging for short factoids that may be botched up
-	          references
+	      references
 
 2001-04-12 21:12  dms
 

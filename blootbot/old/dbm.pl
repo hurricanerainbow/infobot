@@ -346,7 +346,7 @@ sub searchTable {
 
     if (!scalar &dbGetColInfo($table)) {
 	return;
-    }   
+    }
 
     my @results;
     foreach (keys %{$table}) {
@@ -391,7 +391,7 @@ sub getFactInfo {
     }
 
     &ERROR("gFI: should never happen.");
-}   
+}
 
 #####
 # Usage: &getFactoid($faqtoid);

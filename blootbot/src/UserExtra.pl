@@ -225,7 +225,7 @@ sub factstats {
 sub karma {
     my $target	= lc( shift || $who );
     my $karma	= &sqlSelect("stats", "counter",
-	{ nick => $target, type => "karma" }) || 0; 
+	{ nick => $target, type => "karma" }) || 0;
 
     if ($karma != 0) {
 	&pSReply("$target has karma of $karma");
@@ -330,7 +330,7 @@ sub tell {
     $target	= $talkchannel  if ($target =~ /^us$/i);
     $target	= $who		if ($target =~ /^(me|myself)$/i);
 
-    &status("tell: target = $target, query = $query");  
+    &status("tell: target = $target, query = $query");
 
     # "intrusive".
 #    if ($target !~ /^$mask{chan}$/ and !&IsNickInAnyChan($target)) {
@@ -416,7 +416,7 @@ sub DNS {
 	    $result = $match." is ".$x unless ($x =~ /^\s*$/);
 	} else {
 	    $result = "I can't seem to find that address in DNS";
-        }
+	}
 
     } else {
 

@@ -48,7 +48,7 @@ sub queryText {
 
 	$ua->timeout(10);
 	my $request = new HTTP::Request('GET', "http://weather.noaa.gov/weather/current/$station.html");
-	my $response = $ua->request($request); 
+	my $response = $ua->request($request);
 
 	if (!$response->is_success) {
 	    if ($response->code == 404) {
