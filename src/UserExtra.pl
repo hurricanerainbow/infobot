@@ -793,7 +793,6 @@ sub userCommands {
 	my $startString	= scalar(gmtime $^T);
 	my $upString	= &Time2String(time() - $^T);
 	my $factoids	= &countKeys("factoids");
-	my $botmail	= &countKeys("botmail");
 
 	$count{'Commands'}	= 0;
 	foreach (keys %cmdstats) {
@@ -814,7 +813,6 @@ sub userCommands {
 		&fixPlural("command",$count{'Commands'}).
 	  ".  I have been awake for $upString this session, and ".
 	  "currently reference \002$factoids\002 factoids.  ".
-	  "I have \002$botmail\002 ". &fixPlural("message", $botmail). ".  ".
 	  "I'm using about \002$memusage\002 ".
 	  "kB of memory."
 	);
