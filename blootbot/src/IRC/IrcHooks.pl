@@ -58,7 +58,7 @@ sub on_chat {
 	$msgType	= 'chat';
     }
 
-    if (!exists $dcc{'CHAT'}{$nick}) {
+    if (!exists $dcc{'CHATvrfy'}{$nick}) {
 	$userHandle	= &verifyUser($who, $nuh);
 	my $crypto	= $userList{$userHandle}{'pass'};
 	my $success	= 0;
@@ -77,15 +77,19 @@ sub on_chat {
 	} else {
 	    &status("DCC CHAT: incorrect pass; closing connection.");
 	    &DEBUG("chat: sock => '$sock'.");
-###	    $sock->close();
+	    $sock->close();
+	    delete $dcc{'CHAT'}{$nick};
 	    &DEBUG("chat: after closing sock. FIXME");
 	    ### BUG: close seizes bot. why?
 	}
 
 	if ($success) {
 	    &status("DCC CHAT: user $nick is here!");
-	    $dcc{'CHAT'}{$nick} = $sock;
 	    &DCCBroadcast("$nick ($uh) has joined the chat arena.");
+	    $dcc{'CHATvrfy'}{$nick} = 1;
+	    if ($userHandle ne "default") {
+		&dccsay($nick,"Flags: $userList{$userHandle}{'flags'}");
+	    }
 	}
 
 	return;
@@ -149,6 +153,7 @@ sub on_dcc {
 
     # pity Net::IRC doesn't store nuh. Here's a hack :)
     $self->whois($nick);
+    $type ||= "???";
 
     if ($type eq 'SEND') {	# GET for us.
 	# incoming DCC SEND. we're receiving a file.
@@ -169,7 +174,7 @@ sub on_dcc {
 	&DEBUG("starting chat.");
 	$self->new_chat($event);
     } else {
-	&status("${b_green}DCC $type$ob unknown ...");
+	&WARN("${b_green}DCC $type$ob (1)");
     }
 }
 
@@ -194,7 +199,7 @@ sub on_dcc_close {
 	&status("${b_green}DCC CHAT$ob close from $b_cyan$nick$ob");
 	delete $dcc{'CHAT'}{$nick};
     } else {
-	&status("${b_green}DCC$ob UNKNOWN close from $b_cyan$nick$ob");
+	&status("${b_green}DCC$ob UNKNOWN close from $b_cyan$nick$ob (2)");
     }
 }
 
@@ -205,16 +210,20 @@ sub on_dcc_open {
     my $sock = ($event->to)[0];
     $msgType = 'chat';
 
+    $type ||= "???";
+
     if ($type eq 'SEND') {
 	&status("${b_green}DCC lGET$ob established with $b_cyan$nick$ob");
     } elsif ($type eq 'CHAT') {
-	&status("${b_green}DCC CHAT$ob established with $b_cyan$nick$ob ($nuh{$nick})");
+	&status("${b_green}DCC CHAT$ob established with $b_cyan$nick$ob $b_yellow($ob$nuh{$nick}$b_yellow)$ob");
 	$userHandle     = &verifyUser($nick, $nuh{lc $nick});
 	my $crypto	= $userList{$userHandle}{'pass'};
+	$dcc{'CHAT'}{$nick} = $sock;
+
 	if (defined $crypto) {
-	    $self->privmsg($sock,"Enter Password, $userHandle.");
+	    &dccsay($nick,"Enter Password, $userHandle.");
 	} else {
-	    $self->privmsg($sock,"Welcome to blootbot DCC CHAT interface, $userHandle.");
+	    &dccsay($nick,"Welcome to blootbot DCC CHAT interface, $userHandle.");
 	}
     } elsif ($type eq 'SEND') {
 	&DEBUG("Starting DCC receive.");
@@ -222,7 +231,7 @@ sub on_dcc_open {
 	    &DEBUG("  => '$_'.");
 	}
     } else {
-	&status("${b_green}DCC $type$ob unknown ...");
+	&WARN("${b_green}DCC $type$ob (3)");
     }
 }
 
