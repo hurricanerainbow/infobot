@@ -149,6 +149,9 @@ sub DebianDownload {
 	}
     }
 
+    # ok... lets just run this.
+    &::miscCheck();
+
     if ($good) {
 	&generateIndex($dist);
 	return 1;
