@@ -32,7 +32,7 @@ my %urlcontents = (
 ### APPEARS TO BE FIXED?
 # => strip control chars just to be safe.
 	"debian/Contents-##DIST-i386-non-US.gz" =>
-		"ftp://ftp.ca.debian.org".
+		"ftp://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/Contents-i386.gz",
 );
 
@@ -48,13 +48,13 @@ my %urlpackages = (
 		"/debian/dists/##DIST/non-free/binary-i386/Packages.gz",
 
 	"debian/Packages-##DIST-non-US-main-i386.gz" =>
-		"ftp://ftp.ca.debian.org".
+		"ftp://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/main/binary-i386/Packages.gz",
 	"debian/Packages-##DIST-non-US-contrib-i386.gz" =>
-		"ftp://ftp.ca.debian.org".
+		"ftp://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/contrib/binary-i386/Packages.gz",
 	"debian/Packages-##DIST-non-US-non-free-i386.gz" =>
-		"ftp://ftp.ca.debian.org".
+		"ftp://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/non-free/binary-i386/Packages.gz",
 );
 
