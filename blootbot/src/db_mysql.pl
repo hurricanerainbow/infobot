@@ -18,6 +18,7 @@ sub openDB {
 	&status("Opened MySQL connection to $param{'SQLHost'}");
     } else {
 	&ERROR("cannot connect to $param{'SQLHost'}.");
+	&ERROR("since mysql is not available, shutting down bot!");
 	&shutdown();
 	&closePID();
 	exit 1;

@@ -674,8 +674,10 @@ sub FactoidStuff {
 
     if (length $message > 64) {
 	&status("unparseable-moron: $message");
-	&performReply( &getRandom(keys %{ $lang{'moron'} }) );
+#	&performReply( &getRandom(keys %{ $lang{'moron'} }) );
 	$count{'Moron'}++;
+
+	&performReply("You are moron #".$count{'Moron'}."!");
 	return;
     }
 

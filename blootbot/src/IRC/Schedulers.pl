@@ -347,9 +347,8 @@ sub newsFlush {
     }
 
     if ($delete or $duser) {
-	&DEBUG("newsF: Writing news.");
 	&News::writeNews();
-	&status("NEWS (newsflush) deleted: $delete news entries; $duser user cache.");
+	&status("NewsFlush: deleted: $delete news entries; $duser user cache.");
     }
 }
 
@@ -428,14 +427,17 @@ sub netsplitCheck {
     $cache{'netsplitCache'}++;
     &DEBUG("running netsplitCheck... $cache{netsplitCache}");
 
+    if (!scalar %netsplit and scalar %netsplitservers) {
+	&DEBUG("nsc: FIRST!!! ok hash netsplit is NULL; purging hash netsplitservers");
+	undef %netsplitservers;
+    }
+
     foreach $s1 (keys %netsplitservers) {
-	&DEBUG("nsC: s1 => $s1");
 
 	foreach $s2 (keys %{ $netsplitservers{$s1} }) {
 	    my $delta = time() - $netsplitservers{$s1}{$s2};
-	    &DEBUG("nss{$s1}{$s2} = $delta");
 
-	    if (time() - $netsplitservers{$s1}{$s2} > 3600) {
+	    if ($delta > 3600) {
 		&status("netsplit between $s1 and $s2 appears to be stale.");
 		delete $netsplitservers{$s1}{$s2};
 		&chanlimitCheck();
@@ -448,23 +450,26 @@ sub netsplitCheck {
 
     # %netsplit hash checker.
     my $count	= scalar keys %netsplit;
+    my(@delete);
     foreach (keys %netsplit) {
 	if (&IsNickInAnyChan($_)) {
 	    &DEBUG("netsplitC: $_ is in some chan; removing from netsplit list.");
 	    delete $netsplit{$_};
 	    next;
 	}
-	next unless (time() - $netsplit{$_} > 60*10);
+	# todo: change time value?
+	next unless (time() - $netsplit{$_} > 60*30);
 
-	&DEBUG("netsplitC: $_ didn't come back from netsplit; removing from netsplit list.");
+	push(@delete, $_);
 	delete $netsplit{$_};
     }
 
+    &DEBUG("removed from netsplit list (".scalar(@delete)."): @delete") if (@delete);
     &DEBUG("nsC: netsplitservers: ".scalar(keys %netsplitservers) );
     &DEBUG("nsC: netsplit: ".scalar(keys %netsplit) );
 
     if (!scalar %netsplit and scalar %netsplitservers) {
-	&DEBUG("ok hash netsplit is NULL; purging hash netsplitservers");
+	&DEBUG("nsc: ok hash netsplit is NULL; purging hash netsplitservers");
 	undef %netsplitservers;
     }
 
@@ -583,7 +588,7 @@ sub seenFlush {
 	&DEBUG("seenFlush: NO VALID FACTOID SUPPORT?");
     }
 
-    &status("Flushed $flushed seen entries.")		if ($flushed);
+    &status("Seen: Flushed $flushed entries.")	if ($flushed);
     &VERB(sprintf("  new seen: %03.01f%% (%d/%d)",
 	$stats{'new'}*100/($stats{'count_old'} || 1),
 	$stats{'new'}, ( $stats{'count_old'} || 1) ), 2) if ($stats{'new'});

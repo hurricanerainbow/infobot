@@ -23,7 +23,7 @@ sub Parse {
 
     if (!keys %::news) {
 	if (!exists $::cache{newsFirst}) {
-	    &::DEBUG("looks like we enabled news option just then; loading up news file just in case.");
+	    &::DEBUG("news: looks like we enabled news option just then; loading up news file just in case.");
 	    $::cache{newsFirst} = 1;
 	}
 
@@ -58,7 +58,7 @@ sub Parse {
 	}
 
 	$chan	= $chans[0];
-	&::VERB("Guessed $::who being on chan $chan",2);
+	&::DEBUG("Guessed $::who being on chan $chan",2);
 	$::chan	= $chan;	# hack for IsChanConf().
     }
 
@@ -114,7 +114,7 @@ sub Parse {
 
 	# todo: don't notify even if "news" is called.
 	if (!&::IsChanConf("newsNotifyAll")) {
-	    &::DEBUG("chan => $chan, ::chan => $::chan.");
+	    &::DEBUG("news: chan => $chan, ::chan => $::chan.");
 	    &::notice($::who, "not available for this channel or disabled altogether.");
 	    return;
 	}
@@ -139,7 +139,7 @@ sub Parse {
 	}
 
     } else {
-	&::DEBUG("could not parse '$what'");
+	&::DEBUG("news: could not parse '$what'");
 	&::notice($::who, "unknown command: $what");
     }
 }
@@ -166,7 +166,7 @@ sub readNews {
 
 	if (/^[\s\t]+(\S+):[\s\t]+(.*)$/) {
 	    if (!defined $item) {
-		&::DEBUG("!defined item, never happen!");
+		&::DEBUG("news: !defined item, never happen!");
 		next;
 	    }
 
@@ -333,7 +333,7 @@ sub del {
 	    }
 
 	    $what	= $found[0];
-	    &::DEBUG("del: str: guessed what => $what");
+	    &::DEBUG("news: del: str: guessed what => $what");
 	}
     }
 
@@ -365,26 +365,27 @@ sub list {
 	my $x = $::newsuser{$chan}{$::who};
 
 	if (defined $x and ($x == 0 or $x == -1)) {
-	    &::DEBUG("not updating time for $::who.");
+	    &::DEBUG("news: not updating time for $::who.");
 	} else {
 	    if (!scalar keys %{ $::news{$chan} }) {
-		&DEBUG("news: should not add $chan/$::who to cache!");
+		&::DEBUG("news: should not add $chan/$::who to cache!");
 	    }
 
 	    $::newsuser{$chan}{$::who} = time();
 	}
     }
 
+    # &notice() breaks OPN :( - using msg() instead!
     my $count = scalar keys %{ $::news{$chan} };
-    &::notice($::who, "|==== News for \002$chan\002: ($count items)");
+    &::msg($::who, "|==== News for \002$chan\002: ($count items)");
     my $newest	= 0;
     foreach (keys %{ $::news{$chan} }) {
 	my $t	= $::news{$chan}{$_}{Time};
 	$newest = $t if ($t > $newest);
     }
     my $timestr = &::Time2String(time() - $newest);
-    &::notice($::who, "|= Last updated $timestr ago.");
-    &::notice($::who, " \037Num\037 \037Item ".(" "x40)." \037");
+    &::msg($::who, "|= Last updated $timestr ago.");
+    &::msg($::who, " \037Num\037 \037Item ".(" "x40)." \037");
 
     my $i = 1;
     foreach ( &getNewsAll() ) {
@@ -392,18 +393,18 @@ sub list {
 	my $setby	= $::news{$chan}{$subtopic}{Author};
 
 	if (!defined $subtopic) {
-	    &::DEBUG("warn: subtopic == undef.");
+	    &::DEBUG("news: warn: subtopic == undef.");
 	    next;
 	}
 
 	# todo: show request stats aswell.
-	&::notice($::who, sprintf("\002[\002%2d\002]\002 %s",
+	&::msg($::who, sprintf("\002[\002%2d\002]\002 %s",
 				$i, $subtopic));
 	$i++;
     }
 
-    &::notice($::who, "|= End of News.");
-    &::notice($::who, "use 'news read <#>' or 'news read <keyword>'");
+    &::msg($::who, "|= End of News.");
+    &::msg($::who, "use 'news read <#>' or 'news read <keyword>'");
 }
 
 sub read {
@@ -479,7 +480,7 @@ sub mod {
     my $news = &getNewsItem($item);
 
     if (!defined $news) {
-	&::DEBUG("error: mod: news == undefined.");
+	&::DEBUG("news: error: mod: news == undefined.");
 	return;
     }
     my $nnews = $::news{$chan}{$news}{Text};
@@ -550,14 +551,14 @@ sub set {
     $args =~ /^(\S+)\s+(\S+)\s+(.*)$/;
     my($item, $what, $value) = ($1,$2,$3);
 
-    &::DEBUG("set called.");
+    &::DEBUG("news: set called.");
 
     if ($item eq "") {
 	&::help("news set");
 	return;
     }
 
-    &::DEBUG("item => '$item'.");
+    &::DEBUG("news: set: item => '$item'.");
     my $news = &getNewsItem($item);
 
     if (!defined $news) {
@@ -567,7 +568,7 @@ sub set {
 
     # list all values for chan.
     if (!defined $what) {
-	&::DEBUG("set: 1");
+	&::DEBUG("news: set: 1");
 	return;
     }
 
@@ -587,7 +588,7 @@ sub set {
 
     # show (read) what.
     if (!defined $value) {
-	&::DEBUG("set: 2");
+	&::DEBUG("news: set: 2");
 	return;
     }
 
@@ -623,21 +624,21 @@ sub set {
 	}
 
 	if (!$time or ($value and $value !~ /^never$/i)) {
-	    &::DEBUG("set: Expire... need to parse.");
+	    &::DEBUG("news: set: Expire... need to parse.");
 	    return;
 	}
 
 	if ($time == -1) {
 	    &::notice($::who, "Set never expire for \002$item\002." );
 	} elsif ($time < -1) {
-	    &::DEBUG("time should never be negative ($time).");
+	    &::DEBUG("news: time should never be negative ($time).");
 	    return;
 	} else {
 	    &::notice($::who, "Set expire for \002$item\002, to ".
 		localtime($time) ." [".&::Time2String($time - time())."]" );
 
 	    if (time() > $time) {
-		&::DEBUG("hrm... time() > $time, should expire.");
+		&::DEBUG("news: hrm... time() > $time, should expire.");
 	    }
 	}
 
@@ -648,12 +649,12 @@ sub set {
     }
 
     my $auth = 0;
-    &::DEBUG("who => '$::who'");
+    &::DEBUG("news: who => '$::who'");
     my $author = $::news{$chan}{$news}{Author};
     $auth++ if ($::who eq $author);
     $auth++ if (&::IsFlag("o"));
     if (!defined $author) {
-	&::DEBUG("news{$chan}{$news}{Author} is not defined! auth'd anyway");
+	&::DEBUG("news: news{$chan}{$news}{Author} is not defined! auth'd anyway");
 	$::news{$chan}{$news}{Author} = $::who;
 	$author = $::who;
 	$auth++;
@@ -668,7 +669,7 @@ sub set {
     # todo: clean this up.
     my $old = $::news{$chan}{$news}{$what};
     if (defined $old) {
-	&::DEBUG("old => $old.");
+	&::DEBUG("news: old => $old.");
     }
     $::news{$chan}{$news}{$what} = $value;
     &::notice($::who, "Setting [$chan]/{$news}/<$what> to '$value'.");
@@ -680,7 +681,8 @@ sub latest {
     $chan ||= $tchan;	# hack hack hack.
 
     # todo: if chan = undefined, guess.
-    if (!exists $::news{$chan}) {
+#    if (!exists $::news{$chan}) {
+    if (!exists $::channels{$chan}) {
 	&::notice($::who, "invalid chan $chan") if ($flag);
 	return;
     }
@@ -690,19 +692,20 @@ sub latest {
 	if ($flag) {
 	    &::notice($::who, "if you want to read news, try /msg $::ident news or /msg $::ident news notify");
 	} else {
-	    &::DEBUG("not displaying any new news for $::who");
+	    &::DEBUG("news: not displaying any new news for $::who");
 	    return;
 	}
     }
 
+    $::chan	= $chan;
     my $x = &::IsChanConf("newsNotifyAll");
     if (&::IsChanConf("newsNotifyAll") and !defined $t) {
 	$t = 1;
     }
 
     if (!defined $t) {
-	&::DEBUG("something went really wrong.");
-	&::DEBUG("chan => $chan, ::chan => $::chan");
+	&::DEBUG("news: something went really wrong.");
+	&::DEBUG("news: chan => $chan, ::chan => $::chan");
 	&::notice($::who, "something went really wrong.");
 	return;
     }
@@ -775,7 +778,7 @@ sub latest {
 	# lame hack to prevent dupes if we just ignore it.
 	my $x = $::newsuser{$chan}{$::who};
 	if (defined $x and ($x == 0 or $x == -1)) {
-	    &::DEBUG("not updating time for $::who. (2)");
+	    &::DEBUG("news: not updating time for $::who. (2)");
 	} else {
 	    $::newsuser{$chan}{$::who} = time();
 	}
@@ -811,7 +814,7 @@ sub newsS2N {
 	my $t = $::news{$chan}{$_}{Time};
 
 	if (!defined $t or $t !~ /^\d+$/) {
-	    &::DEBUG("warn: t is undefined for news{$chan}{$_}{Time}; removing item.");
+	    &::DEBUG("news: warn: t is undefined for news{$chan}{$_}{Time}; removing item.");
 	    delete $::news{$chan}{$_};
 	    next;
 	}
@@ -836,7 +839,7 @@ sub getNewsItem {
 	my $t = $::news{$chan}{$_}{Time};
 
 	if (!defined $t or $t !~ /^\d+$/) {
-	    &::DEBUG("warn: t is undefined for news{$chan}{$_}{Time}; removing item.");
+	    &::DEBUG("news: warn: t is undefined for news{$chan}{$_}{Time}; removing item.");
 	    delete $::news{$chan}{$_};
 	    next;
 	}
@@ -869,21 +872,21 @@ sub getNewsItem {
 	}
 
 	if (defined $no and !@items) {
-	    &::DEBUG("string->number resolution: $what->$no.");
+	    &::DEBUG("news: string->number resolution: $what->$no.");
 	    return $no;
 	}
 
 	if (scalar @items > 1) {
-	    &::DEBUG("Multiple matches, not guessing.");
+	    &::DEBUG("news: Multiple matches, not guessing.");
 	    &::notice($::who, "Multiple matches, not guessing.");
 	    return;
 	}
 
 	if (@items) {
-	    &::DEBUG("gNI: part_string->full_string: $what->$items[0]");
+	    &::DEBUG("news: gNI: part_string->full_string: $what->$items[0]");
 	    return $items[0];
 	} else {
-	    &::DEBUG("gNI: No match for '$what'");
+	    &::DEBUG("news: gNI: No match for '$what'");
 	    return;
 	}
     }
@@ -896,20 +899,21 @@ sub do_set {
     my($what,$value) = @_;
 
     if (!defined $chan) {
-	&::DEBUG("do_set: chan not defined.");
+	&::DEBUG("news: do_set: chan not defined.");
 	return;
     }
 
     if (!defined $what or $what =~ /^\s*$/) {
-	&::DEBUG("what $what is not defined.");
-	return;
-    }
-    if (!defined $value or $value =~ /^\s*$/) {
-	&::DEBUG("value $value is not defined.");
+	&::DEBUG("news: what $what is not defined.");
 	return;
     }
 
-    &::DEBUG("do_set: TODO...");
+    if (!defined $value or $value =~ /^\s*$/) {
+	&::DEBUG("news: value $value is not defined.");
+	return;
+    }
+
+    &::DEBUG("news: do_set: TODO...");
 }
 
 sub stats {
@@ -940,8 +944,8 @@ sub stats {
 	$j++;
     }
     &::DEBUG("news: stats: average latest time read: total time: $i");
-    &::DEBUG("... count: $j");
-    &::DEBUG("   average: ".sprintf("%.02f", $i/($j||1))." sec/user");
+    &::DEBUG("news: ... count: $j");
+    &::DEBUG("news:   average: ".sprintf("%.02f", $i/($j||1))." sec/user");
     $i = $j = 0;
 }
 

@@ -62,15 +62,28 @@ sub update {
 	}
     }
 
+    # factoid arguments handler.
     if (&IsChanConf("factoidArguments") and $lhs =~ /\$/) {
 	&status("Update: Factoid Arguments found.");
 	&status("Update: orig lhs => '$lhs'.");
 	&status("Update: orig rhs => '$rhs'.");
-	$lhs =~ s/^/CMD: /;
+
 	my @list;
+	my $count = 0;
+	$lhs =~ s/^/CMD: /;
 	while ($lhs =~ s/\$(\S+)/(.*?)/) {
 	    push(@list, "\$$1");
+	    $count++;
+	    last if ($count >= 10);
 	}
+
+	if ($count >= 10) {
+	    &msg($who, "error: could not SAR properly.");
+	    &DEBUG("error: lhs => '$lhs'.");
+	    &DEBUG("error: rhs => '$rhs'.");
+	    return;
+	}
+
 	my $z = join(',',@list);
 	$rhs =~ s/^/($z): /;
 
