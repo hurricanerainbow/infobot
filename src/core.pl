@@ -336,6 +336,7 @@ sub startup {
     $count{'Question'}	= 0;
     $count{'Update'}	= 0;
     $count{'Dunno'}	= 0;
+    $count{'Moron'}	= 0;
 }
 
 sub shutdown {
