@@ -6,8 +6,12 @@
 require "src/core.pl";
 require "src/Misc.pl";
 require "src/logger.pl";
+require "src/modules.pl";
+$bot_src_dir = "./src";
 
 &loadConfig("files/blootbot.config");
+&loadDBModules();
+
 my $dbname = $param{'DBName'};
 my $query;
 
@@ -61,15 +65,15 @@ if ($param{'DBType'} =~ /mysql/i) {
     print "Step 1: Adding user information.\n";
 
     # open the db.
-    &openDB();
+    &openDB("mysql");
 
     # Step 2.
-    if (!&sqlGet("user","user",$param{'mysqlUser'},"user")) {
-	print "  Adding user $param{'mysqlUser'} $dbname/user table...\n";
+    if (!&dbGet("user","user",$param{'SQLUser'},"user")) {
+	print "  Adding user $param{'SQLUser'} $dbname/user table...\n";
 
 	$query = "INSERT INTO user VALUES ".
-		"('localhost', '$param{'mysqlUser'}', ".
-		"password('$param{'mysqlPass'}'), ";
+		"('localhost', '$param{'SQLUser'}', ".
+		"password('$param{'SQLPass'}'), ";
 
 	if ($mysqlversion) {
 	    $query .= "'Y','Y','Y','Y','N','N','N','N','N','N','N','N','N','N')";
@@ -81,12 +85,12 @@ if ($param{'DBType'} =~ /mysql/i) {
     }
 
     # Step 3. what's this for?
-    if (!&sqlGet("db","db",$param{'mysqlUser'},"db")) {
+    if (!&dbGet("db","db",$param{'SQLUser'},"db")) {
 	print "  Adding 'db' entry\n";
 
 	$query = "INSERT INTO db VALUES ".
 		"('localhost', '$dbname', ".
-		"'$param{'mysqlUser'}', ";
+		"'$param{'SQLUser'}', ";
 
 	if ($mysqlversion) {
 	    $query .= "'Y','Y','Y','Y','Y','N','N','N','N','N')";
@@ -99,8 +103,8 @@ if ($param{'DBType'} =~ /mysql/i) {
 
     # grant.
     print "  Granting user access to table.\n";
-    $query = "GRANT SELECT,INSERT,UPDATE,DELETE ON $dbname TO $param{'mysqlUser'}";
-    &dbRaw($query);
+    $query = "GRANT SELECT,INSERT,UPDATE,DELETE ON $dbname TO $param{'SQLUser'}";
+    &dbRaw("??", $query);
 
     # flush.
     print "Flushing privileges...\n";
@@ -113,7 +117,7 @@ if ($param{'DBType'} =~ /mysql/i) {
     &dbRaw("create(db $param{'DBName'})", $query);
 } elsif ($param{'DBType'} =~ /pg|postgres/i) {
     use Pg;
-    &openDB();
+#    &openDB();
 
     print "FIXME\n";
 }
