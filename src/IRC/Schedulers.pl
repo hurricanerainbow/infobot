@@ -686,8 +686,8 @@ sub ircCheck {
     }
 
     # debug. needed for testing
-    &TODO("conn->connected = " . $conn->connected());
-    &TODO("time()-msgtime = " . time() - $msgtime);
+    &TODO("conn->connected = " . scalar($conn->connected()));
+    &TODO("time()-msgtime = " . scalar(time() - $msgtime));
 
     if (!$conn->connected or time() - $msgtime > 3600) {
 	# todo: shouldn't we use cache{connect} somewhere?
