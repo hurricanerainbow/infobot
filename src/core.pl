@@ -127,7 +127,7 @@ sub doExit {
 	}
 	&writeUserFile();
 	&writeChanFile();
-	&uptimeWriteFile()	if (&IsChanConf('Uptime'));
+	&uptimeWriteFile()	if (&IsParam('Uptime'));
 	&sqlCloseDB();
 	&closeSHM($shm);
 
@@ -229,10 +229,10 @@ sub IsChanConf {
 	return 0;
     }
 
-    # should we use IsParam() externally where needed or hack it in
-    # here just in case? fix it later.
+    # these should get moved to your .chan file instead of the .config
+    # .config items overide any .chan entries
     if (&IsParam($param)) {
-	&DEBUG("ICC: found '$param' option in main config file.");
+	&WARN("ICC: found '$param' option in main config file.");
 	return 1;
     }
 
