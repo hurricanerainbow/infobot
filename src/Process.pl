@@ -129,6 +129,17 @@ sub process {
 	    return;
 	}
 
+	my $crypt = $users{$do_nick}{PASS};
+	if (!defined $crypt) {
+	    &pSReply("user $do_nick has no passwd set.");
+	    return;
+	}
+
+	if (!&ckpass($array[0], $crypt)) {
+	    &pSReply("invalid passwd for $do_nick.");
+	    return;
+	}
+
 	my $mask = "*!$user@".&makeHostMask($host);
 	### TODO: prevent adding multiple dupe masks?
 	### TODO: make &addHostMask() CMD?
