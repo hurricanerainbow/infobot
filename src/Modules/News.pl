@@ -751,9 +751,9 @@ sub latest {
     }
 
     if (!defined $t) {
+#	&::msg($who, "News is disabled for $chan");
 	&::DEBUG("news: something went really wrong.");
-	&::DEBUG("news: chan => $chan, ::chan => $::chan");
-#	&::notice($who, "something went really wrong.");
+	&::DEBUG("news: chan => $chan.");
 	return;
     }
 
@@ -786,7 +786,7 @@ sub latest {
     # scalar @new, !$flag
     my $unread	= scalar @new;
     my $total	= scalar keys %{ $::news{$chan} };
-    if (!$flag) {
+    if (!$flag || &::IsChanConf("newsTellUnread")) {
 	return unless ($unread);
 
 	# just a temporary measure not to flood ourself off the 
@@ -897,6 +897,8 @@ sub newsS2N {
 sub getNewsItem {
     my($what)	= @_;
     my $item	= 0;
+
+    $what =~ s/^\#//;	# '#1' for example.
 
     my %time;
     foreach (keys %{ $::news{$chan} }) {
