@@ -89,7 +89,7 @@ sub DebianDownload {
 	$file =~ s/##DIST/$dist/g;
 	my $update = 0;
 
-	if ( -f $file) {
+	if ( -f $file ) {
 	    my $last_refresh = (stat $file)[9];
 	    $update++ if (time() - $last_refresh > $refresh);
 	} else {
@@ -222,7 +222,7 @@ sub searchContents {
 	s/##DIST/$dist/g;
 
 	next unless ( -f "$debian_dir/$_" );
-	push(@files, "$debian_dir/$_" );
+	push(@files, "$debian_dir/$_");
     }
 
     if (!scalar @files) {
@@ -239,26 +239,27 @@ sub searchContents {
     $regex	=~ s/\?/./g;
 
     open(IN,"zegrep -h '$grepRE' $files |");
+    # wonderful abuse of last and next and unless ;)
     while (<IN>) {
-	if (/^\.?\/?(.*?)[\t\s]+(\S+)\n$/) {
-	    my ($file,$package) = ("/".$1,$2);
-	    if ($query =~ /[\/\*\\]/) {
-		next unless (eval { $file =~ /$regex/ });
-		return unless &checkEval($@);
-	    } else {
-		my ($basename) = $file =~ /^.*\/(.*)$/;
-		next unless (eval { $basename =~ /$regex/ });
-		return unless &checkEval($@);
-	    }
-	    next if ($query !~ /\.\d\.gz/ and $file =~ /\/man\//);
-	    next if ($front and eval { $file !~ /^\/$query/ });
-	    return unless &checkEval($@);
-
-	    $contents{$package}{$file} = 1;
-	    $found++;
-	}
-
 	last if ($found > 100);
+
+	next unless if (/^\.?\/?(.*?)[\t\s]+(\S+)\n$/);
+
+	my ($file,$package) = ("/".$1,$2);
+	if ($query =~ /[\/\*\\]/) {
+	    next unless (eval { $file =~ /$regex/ });
+	    return unless &checkEval($@);
+	} else {
+	    my ($basename) = $file =~ /^.*\/(.*)$/;
+	    next unless (eval { $basename =~ /$regex/ });
+	    return unless &checkEval($@);
+	}
+	next if ($query !~ /\.\d\.gz/ and $file =~ /\/man\//);
+	next if ($front and eval { $file !~ /^\/$query/ });
+	return unless &checkEval($@);
+
+	$contents{$package}{$file} = 1;
+	$found++;
     }
     close IN;
 
@@ -277,7 +278,7 @@ sub searchContents {
 	}
 
 	my $file = "$::param{tempDir}/$::who.txt";
-	if (!open(OUT,">$file")) {
+	if (!open OUT, ">$file") {
 	    &::ERROR("Debian: cannot write file for dcc send.");
 	    return;
 	}
@@ -497,8 +498,10 @@ sub searchDesc {
 		&::WARN("sD: package == NULL?");
 		next;
 	    }
+
 	    $desc{$package} = $desc;
 	    $package = "";
+
 	} else {
 	    &::WARN("debian: invalid line: '$_'. (2)");
 	}
@@ -526,11 +529,11 @@ sub generateIncoming {
     ### STATIC URL.
     my %ftp = &::ftpList("llug.sep.bnl.gov", "/pub/debian/Incoming/");
 
-    if (!open(PKG,">$pkgfile")) {
+    if (!open PKG, ">$pkgfile") {
 	&::ERROR("cannot write to pkg $pkgfile.");
 	return 0;
     }
-    if (!open(IDX,">$idxfile")) {
+    if (!open IDX, ">$idxfile") {
 	&::ERROR("cannot write to idx $idxfile.");
 	return 0;
     }
@@ -788,7 +791,7 @@ sub infoStats {
 	    next;
 	}
 
-	open(IN,"zcat $file 2>&1 |");
+	open(IN, "zcat $file 2>&1 |");
 
 	if (! -e $file) {
 	    &::DEBUG("deb: iS: $file does not exist.");
@@ -877,7 +880,7 @@ sub generateIndex {
 	&DebianDownload($dist, &fixDist($dist, %urlpackages) );
 
 	&::status("Debian: generating index for '$dist'.");
-	if (!open(OUT,">$idx")) {
+	if (!open OUT, ">$idx") {
 	    &::ERROR("cannot write to $idx.");
 	    return 0;
 	}
@@ -921,7 +924,7 @@ sub validPackage {
     &::DEBUG("deb: validPackage($package, $dist) called.") if ($debug);
 
     my $error = 0;
-    while (!open(IN, $debian_dir. "/Packages-$dist.idx")) {
+    while (!open IN, $debian_dir."/Packages-$dist.idx") {
 	if ($error) {
 	    &::ERROR("Packages-$dist.idx does not exist (#1).");
 	    return;
@@ -956,16 +959,12 @@ sub searchPackage {
     my $file = $debian_dir."/Packages-$dist.idx";
     my @files;
     my $error	= 0;
-    my $warn	= 0;
-
-    if ($query =~ tr/A-Z/a-z/) {
-	$warn++;
-    }
+    my $warn	= ($query =~ tr/A-Z/a-z/) ? 1 : 0;
 
     &::status("Debian: Search package matching '$query' in '$dist'.");
-    unlink $file if ( -z $file);
+    unlink $file if ( -z $file );
 
-    while (!open(IN, $file)) {
+    while (!open IN, $file) {
 	if ($dist eq "incoming") {
 	    &::DEBUG("deb: sP: dist == incoming; calling gI().");
 	    &generateIncoming();
@@ -1065,11 +1064,12 @@ sub fixDist {
 	### TODO: what should we do if the sar wasn't done.
 	$new{$debian_dir."/".$key} = $val;
     }
+
     return %new;
 }
 
 sub DebianFind {
-    ### H-H-H-HACK HACK HACK :)
+    # HACK! HACK! HACK!
     my ($str) = @_;
     my ($dist, $query) = &getDistroFromStr($str);
     my @results = sort &searchPackage($str);
@@ -1093,10 +1093,12 @@ sub debianCheck {
     ### TODO: remove the following loop (check if dir exists before)
     while (1) {
 	last if (opendir(DEBIAN, $debian_dir));
+
 	if ($error) {
 	    &::ERROR("dC: cannot opendir debian.");
 	    return;
 	}
+
 	mkdir $debian_dir, 0755;
 	$error++;
     }

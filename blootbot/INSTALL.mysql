@@ -1,8 +1,8 @@
 INSTALL.mysql
 ----------------
 
-- Debian: (apt-get install mysql-server)
-- Debian: (apt-get install libdbd-mysql-perl)
+- Install a MySQL server and the DBI Perl modules.
+	- Debian: (apt-get install mysql-server libdbd-mysql-perl)
 
 - run 'mysqladmin -u root -p create <DB NAME>'
 - run 'setup/setup.pl'
@@ -17,11 +17,15 @@ INSTALL.mysql
 	  to mysql.
 
 ADDITIONAL NOTES:
- HOW TO ADD NEW USER MANUALLY
-    CREATE DATABASE @DBNAME@
-    INSERT INTO user VALUES ('localhost','@USER@',password('@PASS@'),
-	'Y','Y','Y','Y','N','N','N','N','N','N','N','N','N','N');
-    INSERT INTO db VALUES ('localhost','@DBNAME@','@USER@',
-	'Y','Y','Y','Y','Y','N','N','N','N','N');
-    GRANT SELECT,INSERT,UPDATE,DELETE ON @DBNAME@ TO @USER@
-    FLUSH PRIVILEGES
+-----------------
+ You can add a new user manually by connecting to MySQL and performing these
+ commands:
+
+  $ mysql -u root -p
+
+  mysql> CREATE DATABASE blootbot;
+  mysql> GRANT USAGE ON *.* TO 'user'@'localhost' IDENTIFIED BY 'yourpassword';
+  mysql> GRANT ALL PRIVILEGES ON blootbot.* TO 'user'@'localhost';
+
+for the mysql that are on apt the bot (#debian@OPN), they are available 
+at http://emu.res.cmu.edu/~apt/blootbot/apt.sql.bz2

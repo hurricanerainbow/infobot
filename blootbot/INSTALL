@@ -1,11 +1,12 @@
 Method of installation.
 -----------------------
 
-- Move blootbot.config to blootbot.config.used
-- Copy sample.config to blootbot.config
+- Move files/sample/sample.config to files/blootbot.config
 - Edit files/blootbot.config, modify to taste.
+- Edit files/blootbot.chan to set which channels to join.
 - Edit files/ircII.server to modify list of IRC servers to connect.
-- Depends on:
+
+- Install the following Perl modules:
 	- Net::IRC perl module
 		- Debian: (apt-get install libnet-irc-perl)
 	- WWW::Search
@@ -15,7 +16,7 @@ Method of installation.
 	- HTML::Parser
 		- Debian: (apt-get install libhtml-parser-perl)
 
-- Choice of database
+- Choose your database:
 	- MySQL (see INSTALL.mysql)
 	- PgSQL (see INSTALL.pgsql, DOES NOT WORK YET)
 	- Berkeley DBM (see INSTALL.dbm)
