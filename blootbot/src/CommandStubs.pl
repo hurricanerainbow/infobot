@@ -70,7 +70,9 @@ sub parseCmdHook {
 
 	    ### TODO: check if CODEREF exists.
 
-	    &{$hash{'CODEREF'}}(@args);
+### ANY PROBLEMS WITH THIS? if so, add option to do either.
+###	    &{$hash{'CODEREF'}}(@args);
+	    &{$hash{'CODEREF'}}(join ' ', @args);
 	}
 
 	### CMDSTATS.
@@ -142,6 +144,7 @@ sub parseCmdHook {
 &addCmdHook('uptime', ('CODEREF' => 'uptime', 'Identifier' => 'uptime',
 	'Cmdstats' => 'Uptime') );
 &addCmdHook('nullski', ('CODEREF' => 'nullski', ) );
+&addCmdHook('crash', ('CODEREF' => 'crash' ) );
 sub nullski { my ($arg) = @_; foreach (`$arg`) { &msg($who,$_); } }
 &addCmdHook('(fm|freshmeat)', ('CODEREF' => 'Freshmeat::Freshmeat',
 	'Identifier' => 'freshmeat', 'Cmdstats' => 'Freshmeat',
