@@ -358,7 +358,7 @@ sub getRandomInt {
 
     srand();
 
-    if ($str =~ /^(\d+)$/) {
+    if ($str =~ /^(\d+(\.\d+)?)$/) {
 	my $i = $1;
 	my $fuzzy = int(rand 5);
 	if ($i < 10) {

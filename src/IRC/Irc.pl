@@ -654,9 +654,12 @@ sub closeDCC {
     foreach $type (keys %dcc) {
 	next if ($type ne uc($type));
  
-	foreach (keys %{$dcc{$type}}) {
-	    &DEBUG("closing DCC $type to $_ (FIXME).");
-	    $dcc{$type}{$_}->close();
+	foreach $nick (keys %{$dcc{$type}}) {
+	    next unless (defined $nick);
+	    &DEBUG("closing DCC $type to $nick (FIXME).");
+	    next unless (defined $dcc{$type}{$nick});
+
+	    $dcc{$type}{$nick}->close();
 	}
     }
 }

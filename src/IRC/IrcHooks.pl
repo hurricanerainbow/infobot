@@ -67,7 +67,7 @@ sub on_chat {
 	### TODO: prevent users without CRYPT chatting.
 	if (!defined $crypto) {
 	    &DEBUG("chat: no pass required.");
-	    $success++;
+###	    $success++;
 
 	} elsif (&ckpasswd($msg, $crypto)) {
 	    # stolen from eggdrop.
@@ -101,10 +101,6 @@ sub on_chat {
 
 	return;
     }
-
-### REMOVE IF OK.
-#    &DEBUG("IrcHooks.pl: line 104: userHandle => $userHandle");
-#    $userHandle = &verifyUser($who, $nuh);
 
     &status("$b_red=$b_cyan$who$b_red=$ob $message");
 
@@ -176,6 +172,7 @@ sub on_dcc {
 
     # pity Net::IRC doesn't store nuh. Here's a hack :)
     $self->whois($nick);
+    $nuh{lc $nick}	= "GETTING-NOW";	# trying.
     $type ||= "???";
 
     if ($type eq 'SEND') {	# GET for us.
@@ -233,49 +230,67 @@ sub on_dcc_open {
     my $type = uc( ($event->args)[0] );
     my $nick = $event->nick();
     my $sock = ($event->to)[0];
+
     $msgType = 'chat';
-
     $type ||= "???";
+    ### BUG: who is set to bot's nick?
 
+    # lets do it.
     if ($type eq 'SEND') {
-
 	&status("${b_green}DCC lGET$ob established with $b_cyan$nick$ob");
 
     } elsif ($type eq 'CHAT') {
-
-	&status("${b_green}DCC CHAT$ob established with $b_cyan$nick$ob $b_yellow($ob$nuh{$nick}$b_yellow)$ob");
-
-	&verifyUser($nick, $nuh{lc $nick});
-
-	if (!exists $users{$userHandle}{HOSTS}) {
-	    &pSReply("you have no hosts defined in my user file; rejecting.");
-	    ### TODO: $sock->close();
-	    return;
-	}
-
-	my $crypto	= $users{$userHandle}{PASS};
-	$dcc{'CHAT'}{$nick} = $sock;
-	foreach (keys %{ $users{$userHandle} }) {
-	    &VERB("   $_ => $users{$userHandle}{$_}",2);
-	}
-
-	if (defined $crypto) {
-###	    &dccsay($nick,"Enter your password, $userHandle.");
-	    &dccsay($nick,"Enter your password.");
+	# very cheap hack.
+	### TODO: run ScheduleThis inside on_dcc_open_chat recursively
+	###	1,3,5,10 seconds then fail.
+	if ($nuh{$nick} eq "GETTING-NOW") {
+	    &ScheduleThis(3/60, "on_dcc_open_chat", $nick, $sock);
 	} else {
-	    &dccsay($nick,"Welcome to blootbot DCC CHAT interface, $userHandle.");
+	    on_dcc_open_chat(undef, $nick, $sock);
 	}
 
     } elsif ($type eq 'SEND') {
-
 	&DEBUG("Starting DCC receive.");
 	foreach ($event->args) {
 	    &DEBUG("  => '$_'.");
 	}
 
     } else {
-
 	&WARN("${b_green}DCC $type$ob (3)");
+
+    }
+}
+
+# really custom sub to get NUH since Net::IRC doesn't appear to support
+# it.
+sub on_dcc_open_chat {
+    my(undef, $nick,$sock) = @_;
+
+    if ($nuh{$nick} =~ /^(\S+)(\d+)$/) {
+	my $i = $2;
+	$i++;
+	$nuh{$nick} = $1.$i;
+	&DEBUG("getting nuh for $nick failed. FIXME.");
+	return;
+    }
+
+    &status("${b_green}DCC CHAT$ob established with $b_cyan$nick$ob $b_yellow($ob$nuh{$nick}$b_yellow)$ob");
+
+    &verifyUser($nick, $nuh{lc $nick});
+
+    if (!exists $users{$userHandle}{HOSTS}) {
+	&pSReply("you have no hosts defined in my user file; rejecting.");
+	### TODO: $sock->close();
+	return;
+    }
+
+    my $crypto	= $users{$userHandle}{PASS};
+    $dcc{'CHAT'}{$nick} = $sock;
+
+    if (defined $crypto) {
+	&dccsay($nick,"Enter your password.");
+    } else {
+	&dccsay($nick,"Welcome to blootbot DCC CHAT interface, $userHandle.");
     }
 }
 
@@ -862,6 +877,8 @@ sub on_who {
 sub on_whoisuser {
     my ($self, $event) = @_;
     my @args	= $event->args;
+
+    &DEBUG("on_whoisuser: @args");
 
     $nuh{lc $args[1]} = $args[1]."!".$args[2]."\@".$args[3];
 }
