@@ -640,9 +640,9 @@ sub getJoinChans {
     }
 
     if (scalar @skip) {
-	&status("channels not auto-joining: @skip");
+	&status("gJC: channels not auto-joining: @skip");
     } else {
-	&status("auto-joining all chans.");
+	&status("gJC: auto-joining all chans.");
     }
 
     return @chans;
