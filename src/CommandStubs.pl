@@ -196,11 +196,7 @@ sub Modules {
     if (&IsParam("wwwsearch") and $message =~ /^(?:search\s+)?(\S+)\s+for\s+['"]?(.*?)['"]?\s*\?*$/i) {
 	return $noreply unless (&hasParam("wwwsearch"));
 
-	&DEBUG("wwwsearch: 1 => $1");
-	&DEBUG("wwwsearch: 2 => $2");
-	&DEBUG("wwwsearch: 3 => $3");
-
-	&Forker("wwwsearch", sub { &W3Search::W3Search($1,$2,$3); } );
+	&Forker("wwwsearch", sub { &W3Search::W3Search($1,$2); } );
 
 	$cmdstats{'WWWSearch'}++;
 	return $noreply;
