@@ -817,10 +817,13 @@ sub userCommands {
 	  "kB of memory."
 	);
 
+	return;
+
 	# todo: use dbGetColNiceHash().
-	my %hash = &dbGetCol("stats", "nick,counter", "type='cmdstats'".
-#			" ORDER BY counter DESC LIMIT 3", 1);
-			" ORDER BY counter DESC", 1);
+	my %hash = &sqlSelectColHash("stats", "nick,counter",
+		{ type => "cmdstats" }, 1);
+# does ORDER matter when used with a hash?
+#			" ORDER BY counter DESC", 1);
 
 if (0) {
 	foreach (keys %hash) {
