@@ -395,7 +395,7 @@ sub IsHostMatch {
     # auth if 1) user and host match 2) user and nick match.
     # this may change in the future.
 
-    if ($this{'user'} =~ /^\Q$local{'user'}$/i) {
+    if ($this{'user'} =~ /^\Q$local{'user'}\E$/i) {
 	return 2 if ($this{'host'} eq $local{'host'});
 	return 1 if ($this{'nick'} eq $local{'nick'});
     }
@@ -609,6 +609,7 @@ sub Forker {
 	&shmWrite($shm,"SET FORKPID $label $$");
     }
 
+    ### TODO: use AUTOLOAD
     if (!&loadMyModule($myModules{$label})) {
 	&DEBUG("Forker: failed?");
 	return;
