@@ -216,7 +216,7 @@ sub parseCmdHook {
 	'Forker' => 1, 'Cmdstats' => 'Dict') );
 &addCmdHook("extra", 'slashdot', ('CODEREF' => 'Slashdot::Slashdot',
 	'Identifier' => 'slashdot', 'Forker' => 1,
-	'Cmdstats' => 'Slashdot') );
+	'Cmdstats' => 'slashdot') );
 &addCmdHook("extra", 'Plug', ('CODEREF' => 'Plug::Plug',
 	'Identifier' => 'Plug', 'Forker' => 1,
 	'Cmdstats' => 'Plug') );
