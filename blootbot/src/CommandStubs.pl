@@ -21,7 +21,6 @@ $w3search_regex   = "google";
 # addCmdHook("SECTION", 'TEXT_HOOK',
 #	(CODEREF	=> 'Blah',
 #	Forker		=> 1,
-#	CheckModule	=> 1,			# ???
 #	Module		=> 'blah.pl'		# preload module.
 #	Identifier	=> 'config_label',	# change to Config?
 #	Help		=> 'help_label',
@@ -261,6 +260,9 @@ sub parseCmdHook {
 &addCmdHook("extra", 'rss', ('CODEREF' => 'Rss::Rss',
 	'Identifier' => 'rss', 'Cmdstats' => 'rss',
 	'Forker' => 1, 'Help' => 'rss') );
+&addCmdHook("extra", 'wiki(pedia)?', ('CODEREF' => 'wikipedia::wikipedia',
+	'Identifier' => 'wikipedia', 'Cmdstats' => 'wikipedia',
+	'Forker' => 1, 'Help' => 'wikipedia') );
 ###
 ### END OF ADDING HOOKS.
 ###

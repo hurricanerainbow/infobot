@@ -391,6 +391,11 @@ uptime: U: ##
 
 wantnick: If someone's taken my nick (I hope not) and I'm using some temporary nick, I can change back to my original nick if it's not taken (again).
 
+wikipedia: D: Frontend to the Wikipedia at http://www.wikipedia.org/wiki/ Note that utf8 is used for non-ascii characters.
+wikipedia: U: wikipedia <topic>
+wikipedia: U: wiki <topic>
+wikipedia: E: wiki irc
+
 -host: D: FIXME:
 -host: U: ## [user] <mask>
 -host: E: ## *!*@owns.org
