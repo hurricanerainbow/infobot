@@ -997,6 +997,11 @@ sub on_who {
 	return;
     }
 
+    if ($args[5] =~ /^nickserv$/i and !$nickserv) {
+	&DEBUG("ok... we did a who for nickserv.");
+	&rawout("PRIVMSG NickServ :IDENTIFY $param{'nickServ_pass'}");
+    }
+
     $nuh{lc $args[5]} = $args[5]."!".$args[2]."\@".$args[3];
 }
 

@@ -112,7 +112,7 @@ sub doQuestion {
 	}
 
 	if ($i != 0) {
-	    &DEBUG("Question: '$query[0]' did not exist; '$query[$i]' ($i) did");
+	    &VERB("Question.pl: '$query[0]' did not exist; '$query[$i]' ($i) did",2);
 	}
 
 	return $result;
