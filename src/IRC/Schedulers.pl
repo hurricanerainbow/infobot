@@ -34,6 +34,7 @@ sub setupSchedulers {
     &miscCheck2(2);	# mandatory
     &shmFlush(1);	# mandatory
     &slashdotLoop(2);
+    &plugLoop(2);
     &freshmeatLoop(2);
     &kernelLoop(2);
     &wingateWriteFile(2);
@@ -918,6 +919,29 @@ sub slashdotLoop {
 
 	    &::status("sending slashdot update to $_.");
 	    &notice($_, "Slashdot: $line");
+	}
+    } );
+}
+
+sub plugLoop {
+
+    if (@_) {
+	&ScheduleThis(60, "plugLoop");
+	return if ($_[0] eq "2");
+    }
+
+    my @chans = &ChanConfList("plugAnnounce");
+    return unless (scalar @chans);
+
+    &Forker("plug", sub {
+	my $line = &Plug::plugAnnounce();
+	return unless (defined $line);
+
+	foreach (@chans) {
+	    next unless (&::validChan($_));
+
+	    &::status("sending plug update to $_.");
+	    &notice($_, "Plug: $line");
 	}
     } );
 }
