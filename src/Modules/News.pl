@@ -688,6 +688,12 @@ sub latest {
 	next if (!defined $t);
 	next if ($t > $::news{$chan}{$_}{Time});
 
+	# don't list new items if they don't have Text.
+	if (!exists $::news{$chan}{$_}{Text}) {
+	    &::WARN("news: news{$chan}{$_}{Text} undef.");
+	    next;
+	}
+
 	push(@new, $_);
     }
 
