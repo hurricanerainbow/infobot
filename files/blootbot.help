@@ -6,7 +6,7 @@ main: I learn mainly by observing declarative statements such as "x is at http:/
 
 action: This is used to override the usual response. "x is <action> does the hokey-pokey". When asked about x, the bot does this "* blootbot does the hokey-pokey"
 
-alternation: The || symbol in an entry causes an blootbot to choose one of the replies at random. "X is Y||Z" will produce "X is Y" or "X is Z" randomly. 
+alternation: The || symbol in an entry causes an blootbot to choose one of the replies at random. "X is Y||Z" will produce "X is Y" or "X is Z" randomly.
 
 author: oznoid (mailto:lenzo@ri.cmu.edu) is my original author.
 
@@ -32,9 +32,21 @@ dollar variables: $who         - nick of factoid requester
 corrections: If I come back with "...but x is at http://xx.xx.xx" or something like that, and you want to change the entry, use "no, x is at http://sdfsdfsdf".  The "No," tells me to supercede the existing value.
 corrections: you can append stuff to a factoid with "also". "x is also at ..."
 
+math: D: math expresions can be evaluated. This uses Perl syntax.
+math: E: 1+1
+math: + - add
+math: - - subtract
+math: * - multiply
+math: / - division
+math: ** - to the power
+math: pi - pi
+math: & - and
+math: | = or
+math: ^ - xor
+
 redirection: If a factoid x contains simply "<reply> see y", then when asked for x, I will deliver factoidor command result y instead.
 
-reply: There is a special tag, <reply>, that is used to override the usual response.  Usually, a response is "X is Y", but it can be made "Y" by making the entry "X is <reply> Y".  
+reply: There is a special tag, <reply>, that is used to override the usual response.  Usually, a response is "X is Y", but it can be made "Y" by making the entry "X is <reply> Y".
 
 # now the commands...
 addressing: It is a good idea if I stay in REQUIRE mode so that I won't yell out random crap if I listen in too hard.  Currently there is no way to turn this off on-the-fly. (REQUIRE mode requires me to be addressed by name if I am to respond)
