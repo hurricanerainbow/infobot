@@ -112,8 +112,15 @@ sub irc {
 
     if ($param{'ircNick2'}) {
 	# prep for real multiple nick/server connects
-	# FIXME: all locations should get nick/server out of self, not config
+	# FIXME: all code should get nick/server out of self, not config
 	$args{'Nick'} = $param{'ircNick2'};
+	my $conn = $irc->newconn(%args);
+    }
+
+    if ($param{'ircNick3'}) {
+	# prep for real multiple nick/server connects
+	# FIXME: all code should get nick/server out of self, not config
+	$args{'Nick'} = $param{'ircNick3'};
 	my $conn = $irc->newconn(%args);
     }
 
