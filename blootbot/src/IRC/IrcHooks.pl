@@ -418,23 +418,24 @@ sub on_join {
     &status(">>> join/$b_blue$chan$ob $b_cyan$who$ob $b_yellow($ob$user\@$host$b_yellow)$ob$netsplitstr");
 
     $channels{$chan}{''}{$who}++;
-    $nuh{lc $who} = $who."!".$user."\@".$host unless (exists $nuh{lc $who});
+    $nuh	  = $who."!".$user."\@".$host;
+    $nuh{lc $who} = $nuh unless (exists $nuh{lc $who});
 
-    ### on-join ban. (TODO: kick)
-    if (exists $bans{$chan}) {
-	### TODO: need to do $chan and _default
-	foreach (keys %{ $bans{$chan} }) {
-	    s/\*/\\S*/g;
-	    next unless /^\Q$nuh\E$/i;
+    ### on-join bans.
+    my @bans	= keys %{ $bans{$chan} };
+    push(@bans, keys %{ $bans{"*"} });
+    foreach (@bans) {
+	s/\*/\\S*/g;
+	next unless /^\Q$nuh\E$/i;
 
-	    foreach (keys %{ $channels{$chan}{'b'} }) {
-		&DEBUG(" bans_on_chan($chan) => $_");
-	    }
-
-	    ### TODO: check $channels{$chan}{'b'} if ban already exists.
-	    &ban( "*!*@".&makeHostMask($host), $chan);
-	    last;
+	### TODO: check $channels{$chan}{'b'} if ban already exists.
+	foreach (keys %{ $channels{$chan}{'b'} }) {
+	    &DEBUG(" bans_on_chan($chan) => $_");
 	}
+
+	### TODO: kick
+	&ban( "*!*@".&makeHostMask($host), $chan);
+	last;
     }
 
     ### ROOTWARN:
