@@ -1,14 +1,11 @@
 Method of installation.
 -----------------------
 
-- Copy files/sample/sample.config to files/blootbot.config
-- Copy files/sample/sample.chan to files/blootbot.chan
-- Copy files/sample/sample.servers to files/blootbot.servers
-- Copy files/sample/sample.users to files/blootbot.users
+- Copy files/sample/* to files/
 
 - Edit files/blootbot.config, modify to taste.
-- Edit files/blootbot.chan to set which channels to join.
 - Edit files/blootbot.servers to modify list of IRC servers to connect.
+- Edit files/blootbot.chan to set which channels to join.
 
 - Install the following Perl modules:
         - Net::IRC perl module
