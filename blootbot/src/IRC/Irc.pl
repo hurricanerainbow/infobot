@@ -104,7 +104,7 @@ sub irc {
 	$conn->add_handler('cping',	\&on_ping);
 	$conn->add_handler('crping',	\&on_ping_reply);
 	$conn->add_handler('cversion',	\&on_version);
-
+	$conn->add_handler('crversion',	\&on_crversion);
 	$conn->add_handler('dcc_open',	\&on_dcc_open);
 	$conn->add_handler('dcc_close',	\&on_dcc_close);
 	$conn->add_handler('chat',	\&on_chat);
@@ -132,6 +132,7 @@ sub irc {
 	$conn->add_global_handler(376, \&on_endofmotd); # on_connect.
 	$conn->add_global_handler(433, \&on_nick_taken);
 	$conn->add_global_handler(439, \&on_targettoofast);
+
     # end of handler stuff.
 
     $irc->start;
@@ -427,6 +428,7 @@ sub kick {
 sub ban {
     my ($mask,$chan) = @_;
     my (@chans) = ($chan eq "") ? (keys %channels) : lc($chan);
+    my $ban	= 0;
 
     if ($chan ne "" and &validChan($chan) == 0) {
 	&ERROR("ban: invalid channel $chan.");
@@ -448,7 +450,10 @@ sub ban {
 
 	&status("Banning $mask from $chan.");
 	&rawout("MODE $chan +b $mask");
+	$ban++;
     }
+
+    return $ban;
 }
 
 sub quit {
@@ -487,20 +492,21 @@ sub joinNextChan {
 	if (my $i = scalar @joinchan) {
 	    &status("joinNextChan: $i chans to join.");
 	}
-    } else {
-	return unless (&IsParam("chanServ_ops"));
-	if (!$nickserv) {
-	    &DEBUG("jNC: nickserv/chanserv not up?");
-	}
+	return;
+    }
 
-	my @chans = split(/[\s\t]+/, $param{'chanServ_ops'});
-	foreach $chan (keys %channels) {
-	    next unless (grep /^$chan$/i, @chans);
+    if ($nickserv < 1) {
+	&WARN("jNC: nickserv/chanserv not up.") if (!$nickserv);
+	$nickserv--;
+    }
 
-	    if (!exists $channels{$chan}{'o'}{$ident}) {
-		&status("ChanServ ==> Requesting ops for $chan.");
-		&rawout("PRIVMSG ChanServ :OP $chan $ident");
-            }
+    my %chan = &getChanConfList("chanServ");
+    foreach $chan (keys %chan) {
+	next unless ($chan{$chan} > 0);
+	    
+	if (!exists $channels{$chan}{'o'}{$ident}) {
+	    &status("ChanServ ==> Requesting ops for $chan.");
+	    &rawout("PRIVMSG ChanServ :OP $chan $ident");
 	}
     }
 }
