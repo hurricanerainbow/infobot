@@ -88,6 +88,16 @@ sub translate {
     my $translated;
     if ($res->is_success) {		# success.
 	my $html = $res->content;
+	my $textarea	= 0;
+	foreach (split "\n", $html) {
+	    $textarea	= 1	if (/<textarea/i);
+	    next unless ($textarea);
+
+	    &DEBUG("   '$_'");
+
+	    $textarea	= 0	if (/<\/textarea/i);
+	}
+
 	$html	=~ s/\cM//g;
 	$html	=~ s/\n\s*\n/\n/g;
 	$html	=~ s/\n/ /g;	# ...
