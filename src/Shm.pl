@@ -128,8 +128,9 @@ sub addForked {
 
 	&DEBUG("PID => $forked{$name}{PID}");
 
-	if (-d "/proc/$forked{$name}{PID}") {
+	if ( -d "/proc/$forked{$name}{PID}") {
 	    &status("fork: still running; good. BAIL OUT.");
+	    return 0;
 	} else {
 	    &WARN("Found dead fork; removing and resetting.");
 	    $continue = 1;
@@ -146,6 +147,7 @@ sub addForked {
     }
 
     $forked{$name}{Time}	= time();
+    $forked{$name}{PID}		= $$;
     $forkedtime			= time();
     $count{'Fork'}++;
     return 1;

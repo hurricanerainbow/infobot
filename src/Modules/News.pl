@@ -36,7 +36,7 @@ sub Parse {
 
     if (defined $what and $what =~ s/^($::mask{chan})\s*//) {
 	# todo: check if the channel exists aswell.
-	$chan = $1;
+	$chan	= lc $1;
 
 	if (!&::IsNickInChan($::who, $chan)) {
 	    &::notice($::who, "sorry but you're not on $chan.");

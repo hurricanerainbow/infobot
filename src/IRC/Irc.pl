@@ -308,7 +308,6 @@ sub notice {
     $conn->notice($target, $txt);
 }
 
-
 sub DCCBroadcast {
     my ($txt,$flag) = @_;
 

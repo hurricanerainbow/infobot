@@ -56,7 +56,7 @@ sub CmdFactInfo {
 	    if (time() - $time > 60*60*24*7) {
 		my $days = int( (time() - $time)/60/60/24 );
 		$string .= " at \037". scalar(localtime $time). "\037" .
-				" ($days days) ";
+				" ($days days)";
 	    } else {
 		$string .= " ".&Time2String(time() - $time)." ago";
 	    }
