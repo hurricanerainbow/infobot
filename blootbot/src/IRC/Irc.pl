@@ -283,11 +283,11 @@ sub notice {
 	$notcount++;
 	$notsize += length $txt;
 
-	if ( ($notcount % 4) == 0 and $notcount) {
+	if ( ($notcount % 3) == 0 and $notcount) {
 	    sleep 1;
-	} elsif ($notsize > 1500) {
+	} elsif ($notsize > 1000) {
 	    sleep 1;
-	    $notsize -= 1500;
+	    $notsize -= 1000;
 	}
 
     } else {

@@ -635,7 +635,7 @@ sub userCommands {
 
 	my $connectivity = 100 * ($total_time - $ircstats{'OffTime'}) /
 				$total_time;
-	my $p = sprintf("%.02f", $connectivity);
+	my $p = sprintf("%.03f", $connectivity);
 	$p =~ s/(\.\d*)0+$/$1/;
 	if ($p =~ s/\.0$//) {
 	    # this should not happen... but why...
