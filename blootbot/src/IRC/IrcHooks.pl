@@ -356,7 +356,7 @@ sub on_endofnames {
 
     # sync time should be done in on_endofwho like in BitchX
     if (exists $cache{jointime}{$chan}) {
-	my $delta_time = sprintf("%.03f", &gettimeofday() - $cache{jointime}{$chan});
+	my $delta_time = sprintf("%.03f", &timeget() - $cache{jointime}{$chan});
 	$delta_time    = 0	if ($delta_time < 0);
 
 	&status("$b_blue$chan$ob: sync in ${delta_time}s.");
@@ -495,7 +495,7 @@ sub on_join {
 	}
 
 	### TODO: move this to &joinchan()?
-	$cache{jointime}{$chan} = &gettimeofday();
+	$cache{jointime}{$chan} = &timeget();
 	rawout("WHO $chan");
 
 	return;
@@ -684,6 +684,15 @@ sub on_notice {
 
 	# password accepted.
 	if ($args =~ /^Password a/i) {
+	    my $done	= 0;
+
+	    foreach ( &ChanConfList("chanServ_ops") ) {
+		next unless &chanServCheck($_);
+		next if ($done);
+		&DEBUG("nickserv activated or restarted; doing chanserv check.");
+		$done++;
+	    }
+
 	    $nickserv++;
 	}
     } elsif ($nick =~ /^ChanServ$/i) {		# chanserv.

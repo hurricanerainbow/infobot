@@ -108,13 +108,14 @@ sub randPackage {
 
     if (scalar @fm) {		#1: perfect match of name.
 	my $retval;
-	$retval  = "$fm[0] \002(\002$fm[11]\002)\002, ";
-	$retval .= "section $fm[3], ";
-	$retval .= "is $fm[4]. ";
-	$retval .= "Stable: \002$fm[1]\002, ";
-	$retval .= "Development: \002$fm[2]\002. ";
-	$retval .= $fm[5] || $fm[6];		 # fallback to 'download'.
-	$retval .= " deb: ".$fm[8] if ($fm[8] ne ""); # 'deb'.
+	$retval  = "$fm[0] \002(\002$fm[5]\002)\002, ";
+#	$retval .= "section $fm[3], ";
+	$retval .= "is $fm[2]. ";
+	$retval .= "Version: \002$fm[1]\002, ";
+#	$retval .= "Development: \002$fm[2]\002. ";
+	$retval .= $fm[4];
+### ???
+#	$retval .= " deb: ".$fm[3] if ($fm[3] ne ""); # 'deb'.
 
 	return $retval;
     } else {
@@ -188,11 +189,55 @@ sub downloadIndex {
     @cols	= &::dbGetColInfo("freshmeat");
 
     $locktime	= time();
-    # todo: prevent severe memory usage whilst opening this file!!!
-    $p->parse(*IN, ProtocolEncoding => 'ISO-8859-1');
+
+    # this mess is to not dump IN to memory.
+    $_ = <IN>;
+    $_ = <IN>;
+    $_ = <IN>;
+
+    my $str;
+    while (<IN>) {
+	chop;
+
+	$str .= $_;
+
+	next unless (/<\/project>/);
+
+	# XML::Parser's parse() doesn't like the following.
+	# but parsefile() does... why!
+	for ($str) {
+		s/&reg;/_/g;
+		s/&ocirc;//g;
+		s/&quot;//g;
+		s/&eacute;/e/g;
+		s/&agrave;/a/g;
+		s/&iacute;/i/g;
+		s/&shy;/_/g;	# ???
+		s/&acute;/a/g;
+		s/&raquo;/_/g;	# ???
+		s/&laquo;/_/g;	# ???
+		s/&copy;/[C]/g;
+		s/&deg;/deg/g;
+		s/&AElig;/A/g;
+		s/\cN//g;		# fucking openbsd morons.
+		s/&nbsp;/-/g;
+		s/&ouml;/o/g;
+		s/&para;//g;	# ???
+		s/&atilde;//g;
+		s/\cM/ /g;		# stupid windows morons
+		s/&sup2;/square/g;
+		s/&uuml;/?/g;
+		s/&micro;/u/g;
+		s/&aelig;/a/g;
+		s/&oslash;/o/g;
+		s/&eth;/e/g;
+	}
+
+	$p->parse($str, ProtocolEncoding => 'ISO-8859-1');
+	$str = "";
+    }
     close IN;
 
-    &::DEBUG("FM: data ".scalar(@data) );
     &::dbRaw("UNLOCK", "UNLOCK TABLES");
 
     my $delta_time = &::timedelta($start_time);
@@ -256,11 +301,12 @@ sub freshmeatAnnounce {
     return "Freshmeat update: ".join(" \002::\002 ", @new);
 }
 
-sub xml_text {
-    my($expat,$text) = @_;
-    return if ($text =~ /^\s+$/);
 
-    $string = $text;
+sub xml_text {
+    my ($e,$t) = @_;
+    return if ($t =~ /^\s*$/);
+
+    $string = $t;
 }
 
 sub xml_end {
@@ -268,7 +314,7 @@ sub xml_end {
 
     $pkg{$text} = $string;
 
-    if ($expat->depth == 1) {
+    if ($expat->depth == 0) {
 	for (my $j=0; $j<scalar @cols; $j++) {
 	    $data[$j] = $pkg{ $cols[$j] };
 	}
@@ -283,6 +329,9 @@ sub xml_end {
 	    &::status("FM: unlocking and locking ($i): ". 
 		&::Time2String( time() - $locktime ) );
 	    $locktime = time();
+
+	    # I think the following leaks 120k of memory each time it's
+	    # called... the wonders of libmysql-perl leaking!
 
 	    &::dbRaw("UNLOCK", "UNLOCK TABLES");
 	    ### another lame hack to "prevent" errors.

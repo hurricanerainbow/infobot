@@ -301,7 +301,7 @@ sub chanServCheck {
 
     if (!defined $chan or $chan =~ /^$/) {
 	&WARN("chanServCheck: chan == NULL.");
-	return;
+	return 0;
     }
 
     if ($chan =~ tr/A-Z/a-z/) {
@@ -309,19 +309,20 @@ sub chanServCheck {
     }
 
     if (! &IsChanConf("chanServ_ops") ) {
-	return;
+	return 0;
     }
 
     &DEBUG("chanServCheck($chan) called.");
 
     if ( &IsParam("nickServ_pass") and !$nickserv) {
 	&DEBUG("chanServ_ops($chan): nickserv enabled but not alive? (ircCheck)");
-	return;
+	return 0;
     }
-    return if (exists $channels{$chan}{'o'}{$ident});
+    return 0 if (exists $channels{$chan}{'o'}{$ident});
 
     &status("ChanServ ==> Requesting ops for $chan. (chanServCheck)");
     &rawout("PRIVMSG ChanServ :OP $chan $ident");
+    return 1;
 }
 
 1;
