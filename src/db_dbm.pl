@@ -329,7 +329,7 @@ sub randKey {
 
     my $rand = int(rand(&countKeys($table) - 1));
     my @keys = keys %{$table};
-    &dbGet($table, '$select', "@format[0]=@keys[$rand]");
+    &dbGet($table, '$select', "$format[0]=$keys[$rand]");
 }
 
 #####
