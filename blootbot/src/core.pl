@@ -128,16 +128,11 @@ sub IsParam {
 # Return: array of channels
 sub ChanConfList {
     my $param	= $_[0];
+    return unless (defined $param);
     my %chan	= &getChanConfList($param);
 
-    return unless (defined $param);
-
     ### TODO: -option is included aswell though.
-    if ($chan{_default}) {
-	return keys %channels;
-    } else {
-	return keys %chan;
-    }
+    return keys %chan;
 }
 
 #####
