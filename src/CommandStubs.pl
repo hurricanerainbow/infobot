@@ -21,6 +21,11 @@ $babel::lang_regex = "";	# lame fix.
 sub addCmdHook {
     my ($hashname, $ident, %hash) = @_;
 
+    if (exists ${"hooks_$hashname"}{$ident}) {
+###	&WARN("aCH: cmd hooks \%$hashname{$ident} already exists.");
+	return;
+    }
+
     &VERB("aCH: added $ident",2);	# use $hash{'Identifier'}?
     ### hrm... prevent warnings?
     ${"hooks_$hashname"}{$ident} = \%hash;
@@ -33,19 +38,24 @@ sub parseCmdHook {
     my @args	= split(' ', $3 || '');
     my $flatarg	= $3;
     my $cmd	= $1;	# command name is whitespaceless.
+    my $done	= 0;
 
     &shmFlush();
 
-### DOES NOT WORK?
-#    if (!exists %{"hooks_$hashname"}) {
-#	&WARN("cmd hooks \%$hashname does not exist.");
-#	return 0;
-#    }
+    if (!defined %{"hooks_$hashname"}) {
+	&WARN("cmd hooks \%$hashname does not exist.");
+	return 0;
+    }
 
     foreach (keys %{"hooks_$hashname"}) {
 	my $ident = $_;
 
 	next unless ($cmd =~ /^$ident$/i);
+
+	if ($done) {
+	    &WARN("pCH: Multiple hook match: $ident");
+	    next;
+	}
 
 	&DEBUG("pCH(hooks_$hashname): $cmd matched $ident");
 	my %hash = %{ ${"hooks_$hashname"}{$ident} };
@@ -73,12 +83,12 @@ sub parseCmdHook {
 
 	### IDENTIFIER.
 	if (exists $hash{'Identifier'}) {
-	    return $noreply unless (&hasParam($hash{'Identifier'}));
+	    return unless (&hasParam($hash{'Identifier'}));
 	}
 
 	### USER FLAGS.
 	if (exists $hash{'UserFlag'}) {
-	    return $noreply unless (&hasFlag($hash{'UserFlag'}));
+	    return unless (&hasFlag($hash{'UserFlag'}));
 	}
 
 	### FORKER,IDENTIFIER,CODEREF.
@@ -105,14 +115,15 @@ sub parseCmdHook {
 
 	### CMDSTATS.
 	if (exists $hash{'Cmdstats'}) {
-	    ${"hooks_$hashname"}{$hash{'Cmdstats'}}++;
+	    $cmdstats{ $hash{'Cmdstats'} }++;
 	}
 
 	&DEBUG("pCH: ended.");
 
-	return 1;
+	$done = 1;
     }
 
+    return 1 if ($done);
     return 0;
 }
 
@@ -209,7 +220,7 @@ sub Modules {
 	&Forker("babelfish", sub { &babel::babelfish(lc $1, lc $2, $3); } );
 
 	$cmdstats{'BabelFish'}++;
-	return $noreply;
+	return;
     }
 
     if (&IsParam("debian")) {
@@ -224,55 +235,87 @@ sub Modules {
 		&help($1);
 	    }
 
-	    return $noreply;
+	    return;
 	}
     }
 
     # google searching. Simon++
     if (&IsParam("wwwsearch") and $message =~ /^(?:search\s+)?(\S+)\s+for\s+['"]?(.*?)['"]?\s*\?*$/i) {
-	return $noreply unless (&hasParam("wwwsearch"));
+	return unless (&hasParam("wwwsearch"));
 
 	&Forker("wwwsearch", sub { &W3Search::W3Search($1,$2); } );
 
 	$cmdstats{'WWWSearch'}++;
-	return $noreply;
+	return;
     }
 
     # list{keys|values}. xk++. Idea taken from #linuxwarez@EFNET
     if ($message =~ /^list(\S+)( (.*))?$/i) {
-	return $noreply unless (&hasParam("search"));
+	return unless (&hasParam("search"));
 
 	my $thiscmd	= lc($1);
 	my $args	= $3;
 
 	$thiscmd =~ s/^vals$/values/;
-	return $noreply if ($thiscmd ne "keys" && $thiscmd ne "values");
+	return if ($thiscmd ne "keys" && $thiscmd ne "values");
 
 	# Usage:
 	if (!defined $args) {
 	    &help("list". $thiscmd);
-	    return $noreply;
+	    return;
 	}
 
 	if (length $args == 1) {
 	    &msg($who,"search string is too short.");
-	    return $noreply;
+	    return;
 	}
 
 	&Forker("search", sub { &Search::Search($thiscmd, $args); } );
 
 	$cmdstats{'Factoid Search'}++;
-	return $noreply;
+	return;
     }
 
     # Nickometer. Adam Spiers++
     if ($message =~ /^(?:lame|nick)ometer(?: for)? (\S+)/i) {
-	return $noreply unless (&hasParam("nickometer"));
+	return unless (&hasParam("nickometer"));
 
 	my $term = (lc $1 eq 'me') ? $who : $1;
-	$term =~ s/\?+\s*//;
 
 	&loadMyModule($myModules{'nickometer'});
+
+	if ($term =~ /^$mask{chan}$/) {
+	    &DEBUG("nickometer: term == chan.");
+
+	    if (!&validChan($term)) {
+		&msg($who, "error: channel is invalid.");
+		return;
+	    }
+
+	    # step 1.
+	    my %nickometer;
+	    foreach (keys %{ $channels{lc $term}{''} }) {
+		if (!defined $_) {
+		    &WARN("nickometer: _ is undefined.");
+		    next;
+		}
+
+		my $value = &nickometer($_);
+		$nickometer{$value}{$_} = 1;
+	    }
+	    # step 2.
+	    ### TODO: compact with map?
+	    my @list;
+	    foreach (sort {$a <=> $b} keys %nickometer) {
+		my $str = join(", ", sort keys %{$nickometer{$_}});
+		push(@list, "$str ($_)");
+	    }
+
+	    &pSReply( &formListReply(0, "Nickometer list for $term ", @list) );
+
+	    return;
+	}
+
 	my $percentage = &nickometer($term);
 
 	if ($percentage =~ /NaN/) {
@@ -289,20 +332,20 @@ sub Modules {
 	    &msg($who, "the 'lame nick-o-meter' reading for $term is $percentage, $who");
 	}
 
-	return $noreply;
+	return;
     }
 
     # Topic management. xk++
     # may want to add a flag(??) for topic in the near future. -xk
     if ($message =~ /^topic(\s+(.*))?$/i) {
-	return $noreply unless (&hasParam("topic"));
+	return unless (&hasParam("topic"));
 
 	my $chan	= $talkchannel;
 	my @args	= split(/ /, $2);
 
 	if (!scalar @args) {
 	    &msg($who,"Try 'help topic'");
-	    return $noreply;
+	    return;
 	}
 
 	$chan		= lc(shift @args) if ($msgType eq 'private');
@@ -312,37 +355,37 @@ sub Modules {
 	if ($msgType eq 'public' && $thiscmd =~ /^#/) {
 	    &msg($who, "error: channel argument is not required.");
 	    &msg($who, "\002Usage\002: topic <CMD>");
-	    return $noreply;
+	    return;
 	}
 
 	# topic over private:
 	if ($msgType eq 'private' && $chan !~ /^#/) {
 	    &msg($who, "error: channel argument is required.");
 	    &msg($who, "\002Usage\002: topic #channel <CMD>");
-	    return $noreply;
+	    return;
 	}
 
 	if (&validChan($chan) == 0) {
 	    &msg($who,"error: invalid channel \002$chan\002");
-	    return $noreply;
+	    return;
 	}
 
 	# for semi-outsiders.
 	if (!&IsNickInChan($who,$chan)) {
 	    &msg($who, "Failed. You ($who) are not in $chan, hey?");
-	    return $noreply;
+	    return;
 	}
 
 	# now lets do it.
 	&loadMyModule($myModules{'topic'});
 	&Topic($chan, $thiscmd, join(' ', @args));
 	$cmdstats{'Topic'}++;
-	return $noreply;
+	return;
     }
 
     # wingate.
     if ($message =~ /^wingate$/i) {
-	return $noreply unless (&hasParam("wingate"));
+	return unless (&hasParam("wingate"));
 
 	my $reply = "Wingate statistics: scanned \002"
 			.scalar(keys %wingate)."\002 hosts";
@@ -354,11 +397,11 @@ sub Modules {
 
 	&performStrictReply("$reply.");
 
-	return $noreply;
+	return;
     }
 
     # do nothing and let the other routines have a go
-    return '';
+    return "CONTINUE";
 }
 
 # Freshmeat. xk++
@@ -368,7 +411,7 @@ sub freshmeat {
     if (!defined $query) {
 	&help("freshmeat");
 	&msg($who, "I have \002".&countKeys("freshmeat")."\002 entries.");
-	return $noreply;
+	return;
     }
 
     &Freshmeat::Freshmeat($query);
@@ -401,7 +444,7 @@ sub seen {
 	&msg($who,"there ". &fixPlural("is",$i) ." \002$i\002 ".
 		"seen ". &fixPlural("entry",$i) ." that I know of.");
 
-	return $noreply;
+	return;
     }
 
     my @seen;
@@ -422,7 +465,7 @@ sub seen {
 	    &DEBUG("seen: _ => '$_'.");
 	}
 	&performReply("i haven't seen '$person'");
-	return $noreply;
+	return;
     }
 
     # valid seen.
@@ -454,7 +497,7 @@ sub seen {
     }
 
     &performStrictReply($reply);
-    return $noreply;
+    return;
 }
 
 # User Information Services. requested by Flugh.
@@ -465,7 +508,7 @@ sub userinfo {
 	$arg = $2;
 	if (!defined $arg) {
 	    &help("userinfo set");
-	    return $noreply;
+	    return;
 	}
 
 	&UserInfoSet(split /\s+/, $arg, 2);
@@ -473,7 +516,7 @@ sub userinfo {
 	$arg = $2;
 	if (!defined $arg) {
 	    &help("userinfo unset");
-	    return $noreply;
+	    return;
 	}
 
 	&UserInfoSet($arg, "");
@@ -527,12 +570,12 @@ sub convert {
     if (!$to or !$from) {
 	&msg($who, "Invalid format!");
 	&help("convert");
-	return $noreply;
+	return;
     }
 
     &Units::convertUnits($from, $to);
 
-    return $noreply;
+    return;
 }
 
 sub lart {
@@ -548,7 +591,7 @@ sub lart {
 	} else {
 	    &msg($who, "error: invalid format or missing arguments.");
 	    &help("lart");
-	    return $noreply;
+	    return;
 	}
     }
 
@@ -604,7 +647,7 @@ sub DebianNew {
     }
     close IDX1;
 
-    &main::performStrictReply( &main::formListReply(0, "New debian packages:", @new) );
+    &::performStrictReply( &::formListReply(0, "New debian packages:", @new) );
 }
 
 1;
