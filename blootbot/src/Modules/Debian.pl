@@ -11,10 +11,10 @@ use strict;
 
 # format: "alias=real".
 my $announce	= 0;
-my $defaultdist	= "woody";
+my $defaultdist	= "unstable";
 my %dists	= (
 	"unstable"	=> "sid",
-	"testing"	=> "woody,	# new since 20001219.
+	"testing"	=> "woody",	# new since 20001219.
 	"stable"	=> "potato",
 	"incoming"	=> "incoming",
 ### the following don't work. too much effort to get 3 types of distros
