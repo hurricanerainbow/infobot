@@ -296,7 +296,8 @@ sub loadMyModule {
 	if ($$ == $bot_pid) {	# parent.
 	    &shutdown() if (defined $shm and defined $dbh);
 	} else {			# child.
-	    &delForked($modulename);
+	    &DEBUG("b4 delfork 1");
+	    &delForked($modulebase);
 	}
 
 	exit 1;
@@ -308,7 +309,8 @@ sub loadMyModule {
 	if ($bot_pid == $$) {	# parent.
 	    &shutdown() if (defined $shm and defined $dbh);
 	} else {			# child.
-	    &delForked($modulename);
+	    &DEBUG("b4 delfork 2");
+	    &delForked($modulebase);
 	    exit 1;
 	}
 
