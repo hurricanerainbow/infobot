@@ -6,48 +6,26 @@
 if (&IsParam("useStrict")) { use strict; }
 
 sub IsFlag {
-    my $flags = $_[0];
+    my $flags = shift;
     my ($ret, $f, $o) = "";
-    my @ind = split //, $flags;
-
-    $userHandle ||= "default";
-
-    if ($userHandle ne "default") {
-	&DEBUG("isFlag: userHandle == '$userHandle'.");
-    }
 
     foreach $f (split //, $userList{$userHandle}{'flags'}) {
-	foreach $o (@ind) {
+	foreach $o ( split //, $flags ) {
 	    next unless ($f eq $o);
 
 	    $ret = $f;
 	    last;
 	}
     }
+
     $ret;
 }
 
 sub verifyUser {
     my ($nick, $lnuh) = @_;
-#    my ($n,$u,$h) = ($lnuh =~ /^(\S+)!(\S+)\@(\S+)$/);
     my ($user,$m);
-    $userHandle = "default";
 
-    ### FIXME: THIS NEEDS TO BE FIXED TO RECOGNISE HOSTMASKS!!!
-    my $userinlist = "";
     foreach $user (keys %userList) {
-	### Hack for time being.
-	if (0) {
-	    if ($user =~ /^\Q$nick\E$/i) {
-		&DEBUG("vU: setting uH => '$user'.");
-		$userHandle = $user;
-		last;
-	    }
-	    next;
-	} else {
-	    $userinlist = $user if ($user =~ /^\Q$nick\E$/);
-	}
-
 	foreach $m (keys %{$userList{$user}{'mask'}}) {
 	    $m =~ s/\?/./g;
 	    $m =~ s/\*/.*?/g;
@@ -55,21 +33,22 @@ sub verifyUser {
 
 	    next unless ($lnuh =~ /^$m$/i);
 
+	    if ($user !~ /^\Q$nick\E$/i) {
+		&status("vU: host matched but diff nick ($nick != $user).");
+	    }
+
 	    $userHandle = $user;
-	    $userinlist = "";
 	    last;
 	}
+
 	last if ($userHandle ne "");
+
+	if ($user =~ /^\Q$nick\E$/i) {
+	    &status("vU: nick matched but host is not in list ($lnuh).");
+	}
     }
 
-    if ($userinlist and $userHandle eq "") {
-	&DEBUG("vUser: user is in list but wrong host.");
-	$userHandle = $userinlist;
-    }
-
-#    $talkWho{$talkchannel} = $orig{who};
-#    $talkWho = $orig{who};
-### FIXME HERE.
+    $userHandle ||= "default";
     $talkWho{$talkchannel} = $who if (defined $talkchannel);
     $talkWho = $who;
 
