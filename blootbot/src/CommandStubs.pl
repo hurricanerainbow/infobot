@@ -277,6 +277,9 @@ sub parseCmdHook {
 &addCmdHook("extra", 'wtf', ('CODEREF' => 'wtf::query',
 	'Identifier' => 'wtf', 'Cmdstats' => 'wtf',
 	'Forker' => 1, 'Help' => 'wtf') );
+&addCmdHook("extra", '[ia]?spell', ('CODEREF' => 'spell::query',
+	'Identifier' => 'spell', 'Cmdstats' => 'spell',
+	'Forker' => 1, 'Help' => 'spell') );
 ###
 ### END OF ADDING HOOKS.
 ###

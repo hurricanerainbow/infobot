@@ -26,8 +26,6 @@ use vars qw(%channels %chanstats %cmdstats %count %ircstats %param
 &addCmdHook("main", 'help', ('CODEREF' => 'help',
 	'Cmdstats' => 'Help', ) );
 &addCmdHook("main", 'karma', ('CODEREF' => 'karma', ) );
-&addCmdHook("main", 'i?spell', ('CODEREF' => 'ispell',
-	Help => 'spell', Identifier => 'spell', ) );
 &addCmdHook("main", 'd?nslookup', ('CODEREF' => 'DNS',
 	Help => 'nslookup', Identifier => 'allowDNS',
 	Forker => "NULL", ) );
@@ -234,63 +232,6 @@ sub karma {
     } else {
 	&pSReply("$target has neutral karma");
     }
-}
-
-sub ispell {
-    my $query = shift;
-    my $binary;
-    my @binaries = (
-	'/usr/bin/aspell',
-	'/usr/bin/ispell',
-	'/usr/bin/spell'
-    );
-
-    foreach (@binaries) {
-	if (-x $_) {
-	    $binary=$_;
-	    last;
-	}
-    }
-
-    if (!$binary) {
-	&msg($who, "no binary found.");
-	return;
-    }
-
-    if (!&validExec($query)) {
-	&msg($who,"argument appears to be fuzzy.");
-	return;
-    }
-
-    my $reply = "I can't find alternate spellings for '$query'";
-
-    foreach (`/bin/echo '$query' | $binary -a -S`) {
-	chop;
-	last if !length;		# end of query.
-
-	if (/^\@/) {		# intro line.
-	    next;
-	} elsif (/^\*/) {		# possibly correct.
-	    $reply = "'$query' may be spelled correctly";
-	    last;
-	} elsif (/^\&/) {		# possible correction(s).
-	    s/^\& (\S+) \d+ \d+: //;
-	    my @array = split(/,? /);
-
-	    $reply = "possible spellings for $query: @array";
-	    last;
-	} elsif (/^\+/) {
-	    &DEBUG("spell: '+' found => '$_'.");
-	    last;
-	} elsif (/^# (.*?) 0$/) {
-	    # none found.
-	    last;
-	} else {
-	    &DEBUG("spell: unknown: '$_'.");
-	}
-    }
-
-    &pSReply($reply);
 }
 
 sub nslookup {
