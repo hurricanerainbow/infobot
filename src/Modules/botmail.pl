@@ -89,7 +89,7 @@ sub add {
 	"dstwho=".&::dbQuote(lc $recipient)
     );
 
-    if (scalar (keys %hash) <= 1) {
+    if (scalar (keys %hash) > 1) {
 	&::msg($::who, "$recipient already has a message queued from you");
 	return;
     }
