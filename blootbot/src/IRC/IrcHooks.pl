@@ -218,9 +218,9 @@ sub on_disconnect {
     $nickserv = 0;
 
     &clearIRCVars();
-
     if (!$self->connect()) {
-	&WARN("not connected? help me. ircCheck() should reconnect me");
+	&WARN("not connected? help me. gonna call ircCheck() in 1800s");
+	$conn->schedule(1800, \&ircCheck(), "");
     }
 }
 
