@@ -822,7 +822,7 @@ sub userCommands {
 	# todo: use dbGetColNiceHash().
 	my %hash = &sqlSelectColHash("stats", "nick,counter",
 		{ type => "cmdstats" }, 1);
-# does ORDER matter when used with a hash?
+# ORDER won't be retained in a hash
 #			" ORDER BY counter DESC", 1);
 
 if (0) {
