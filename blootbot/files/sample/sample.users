@@ -1,11 +1,16 @@
-#v1: sample configuration file.
+#v1: blootbot -- blootbot -- written Wed Oct 30 03:12:44 2002
 
 _default
---FLAGS		+mrt
+--FLAGS		mrt
 --HOSTS		*!*@*
 
+local
+--FLAGS		mrsteon
+--HOSTS		local!local@local
+--PASS		5K/rmJPzwxJhU
+
 xk
---FLAGS		+mrsteon
---PASS		AAH2sny6Y3Y7Y
---HOSTS		*!xk@*.home.org
---HOSTS		*!root@*.home.org
+--FLAGS		mrsteon
+--HOSTS		*!xk@superbox.home.org
+--PASS		5K/rmJPzwxJhU
+
