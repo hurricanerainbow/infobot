@@ -581,13 +581,17 @@ sub userDCC {
 	    &DEBUG("showing channel conf.");
 
 	    foreach $chan (@chans) {
-		&pSReply("chan: $chan (will also use _default)");
+		if ($chan eq '_default') {
+		    &pSReply("Default channel settings");
+		} else {
+		    &pSReply("chan: $chan (see _default also)");
+		}
 		my @items;
 		my $str = "";
 		foreach (sort keys %{ $chanconf{$chan} }) {
 		    my $newstr = join(', ', @items);
 		    ### TODO: make length use channel line limit?
-		    if (length $newstr > 400) {
+		    if (length $newstr > 370) {
 			&pSReply(" $str");
 			@items = ();
 		    }
