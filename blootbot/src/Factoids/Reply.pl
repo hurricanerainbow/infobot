@@ -18,7 +18,7 @@ use vars qw(%lang %lastWho);
 sub getReply {
     my($message) = @_;
     my($lhs,$mhs,$rhs);
-    my($reply);
+    my($reply, $count, $fauthor, $result, $factoid, $search, @searches);
     $orig{message} = $message;
 
     if (!defined $message or $message =~ /^\s*$/) {
@@ -29,26 +29,24 @@ sub getReply {
     $message =~ tr/A-Z/a-z/;
     $message =~ s/^cmd:/CMD:/;
 
-    my ($count, $fauthor, $result, $factoid);
-
-    if (!$literal and &IsChanConf("channelFactoids")) {
-	# check for factoids specific to this channel
-	($count, $fauthor, $result) = &sqlSelect("factoids",
-	    "requested_count,created_by,factoid_value",
-	    { factoid_key => "$chan $message" }
-	);
+    if (!$literal and &IsChanConf("factoidSearch")) {
+	@searches = split(/\s+/, &getChanConf("factoidSearch"));
+    } else {
+	@searches = ('_default');
     }
 
-    if ($result) {
-	# got channel specific reply above
-	$factoid="$chan $message"
-    } else {
-	# no channel specific factoid was requested / found
+    # check for factoids with each prefix
+    foreach $search (@searches) {
+	if ($search eq '_default') {
+	    $factoid = $message;
+	} else {
+	    $factoid = "$search $message";
+	}
 	($count, $fauthor, $result) = &sqlSelect("factoids",
 	    "requested_count,created_by,factoid_value",
-	    { factoid_key => $message }
+	    { factoid_key => $factoid }
 	);
-	$factoid=$message if ($result);
+	last if ($result);
     }
 
     if ($result) {
