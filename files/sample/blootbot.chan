@@ -1,4 +1,4 @@
-#v1: blootbot -- blootbot -- written Thu Dec  9 21:27:25 2004
+#v1: blootbot -- infobot -- written Thu Feb 17 02:56:42 2005
 
 #botpark
     +RootWarn
@@ -79,6 +79,7 @@ _default
     +slashdot
     +spell
     +tell
+    +wtf
     +zfi
     +zsi
 
