@@ -1,0 +1,31 @@
+--- WWW/Search/Google.pm.orig	Wed May 24 16:55:47 2000
++++ WWW/Search/Google.pm	Wed May 24 16:56:19 2000
+@@ -240,7 +240,7 @@
+   if ($state eq $HITS) {
+       print "\n**state == HITS**\n" if 2 <= $self->{_debug};
+   }
+-  if ($state eq $HITS && m@^<p><a href=([^<]+)>(.*)</a>$@i)      
++  if ($state eq $HITS && m@^<p><a href=([^<]+)>(.*)</a>@i)
+       {
+       print "**Found HIT**\n" if 2 <= $self->{_debug};
+       my ($url, $title) = ($1,$2);
+@@ -252,6 +252,7 @@
+       # some queries *can* create internal junk in the url link
+       # remove them! 
+       $url =~ s/\/url\?sa=U&start=\d+&q=//g;
++      $url =~ s/\&exp\=OneBoxNews\s//g;		# new junk.
+       $hits_found++;
+       $hit->add_url($url);
+       $hit->title($title);
+@@ -275,9 +276,8 @@
+       print "**Found Second Description**\n" if 2 <= $self->{_debug};
+       $sDesc = $1; 
+       $sDesc ||= '';
+-      $sDesc =~ s/<.*?>//g; 
+-      $sDesc = $mDesc . $sDesc;
+-      $hit->description($sDesc);
++      $sDesc = $mDesc . $sDesc if (defined $mDesc);
++      $hit->description($sDesc) if (defined $hit and $sDesc ne '');
+       $sDesc ='';
+       $state = $HITS;
+       } 
