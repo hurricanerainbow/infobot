@@ -892,7 +892,7 @@ sub userDCC {
 	    $user	= &getUser($args[0]);
 	    $mask	= $args[1];
 	} else {				# <mask>
-	    # who or verifyUser. FIXME!!!
+	    # who or verifyUser. FIXME (don't remember why)
 	    $user	= &getUser($who);
 	    $mask	= $args[0];
 	}

@@ -5,7 +5,7 @@
 #     Created: 20000624
 #
 
-if (&IsParam("useStrict")) { use strict; }
+#use strict;
 use vars qw($AUTOLOAD);
 
 ###
@@ -48,6 +48,8 @@ if ($@) {
 	"babelfish"	=> "babel.pl",
 );
 ### THIS IS NOT LOADED ON RELOAD :(
+my @myModulesLoadNow;
+my @myModulesReloadNot;
 BEGIN {
     @myModulesLoadNow	= ('topic', 'uptime', 'news', 'rootWarn');
     @myModulesReloadNot	= ('IRC/Irc.pl','IRC/Schedulers.pl');
@@ -237,7 +239,7 @@ sub reloadModule {
     }
 
     if (grep /$mod/, @myModulesReloadNot) {
-	&DEBUG("rM: SHOULD NOT RELOAD $mod!!!");
+	&DEBUG("rM: should not reload $mod");
 	return;
     }
 
@@ -280,8 +282,8 @@ sub reloadModule {
 ### OPTIONAL MODULES.
 ###
 
-local %perlModulesLoaded  = ();
-local %perlModulesMissing = ();
+my %perlModulesLoaded  = ();
+my %perlModulesMissing = ();
 
 sub loadPerlModule {
     return 0 if (exists $perlModulesMissing{$_[0]});
@@ -308,7 +310,7 @@ sub loadMyModule {
 	return 0; 
     }
 
-    my ($modulebase, $modulefile);
+    my ($modulename, $modulebase);
     if (exists $myModules{$tmp}) {
 	($modulename, $modulebase) = ($tmp, $myModules{$tmp});
     } else {
@@ -318,7 +320,7 @@ sub loadMyModule {
 	    $modulename = $tmp;
 	}
     }
-    $modulefile = "$bot_src_dir/Modules/$modulebase";
+    my $modulefile = "$bot_src_dir/Modules/$modulebase";
 
     # call reloadModule() which checks age of file and reload.
     if (grep /\/$modulebase$/, keys %INC) {

@@ -5,8 +5,7 @@
 #      Created: 20000107
 #
 
-if (&IsParam("useStrict")) { use strict; }
-
+#use strict;
 use vars qw($message $arg $qWord $verb $lobotomized);
 use vars qw(%channels %chanstats %cmdstats);
 

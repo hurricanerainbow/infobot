@@ -56,7 +56,7 @@ sub Countdown {
 	    $monname = qw(BAD Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)[(&dbRawReturn("SELECT extract(month from timestamp '$sqldate')"))[0]];
 
 	} elsif ($param{'DBType'} =~ /^dbm$/i) {
-	    &DEBUG("Countdown: FIXME!!!");
+	    &FIXME("Countdown: no dbm support");
 #	    $to_days = 
 #	    $dayname = 
 #	    $monname = 

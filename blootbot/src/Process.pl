@@ -6,7 +6,7 @@
 # process the incoming message
 #
 
-if (&IsParam("useStrict")) { use strict; }
+#use strict;
 
 sub process {
     $learnok	= 0;	# Able to learn?

@@ -15,7 +15,7 @@
 #	Text	- Actual text.
 ###
 
-use vars qw($who);
+use vars qw($who $chan);
 
 package News;
 
@@ -106,7 +106,7 @@ sub Parse {
 	&set("$arg1 $1 $arg2");
 
     } elsif ($what =~ /^help(\s+(.*))?$/i) {
-	&::help("news$1");
+	&::help("news $2");
 
     } elsif ($what =~ /^newsflush$/i) {
 	&::msg($who, "newsflush called... check out the logs!");

@@ -5,7 +5,7 @@
 #  Created: 19991221
 #
 
-if (&IsParam("useStrict")) { use strict; }
+#use strict;
 
 # File: Language support.
 sub loadLang {
