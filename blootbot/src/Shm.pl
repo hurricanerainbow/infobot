@@ -154,6 +154,10 @@ sub delForked {
 	POSIX::_exit(0);
     }
 
+    if ($name =~ /\.pl/) {
+	&WARN("dF: name is name of source file ($name). FIX IT!");
+    }
+
     &showProc();	# just for informational purposes.
 
     if (exists $forked{$name}) {
