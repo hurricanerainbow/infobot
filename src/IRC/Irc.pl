@@ -720,7 +720,7 @@ sub validChan {
     # todo: use $c instead?
     my ($chan) = @_;
 
-    if (!defined $chan or $chan =~ /^\s*$/ or $chan =~ /^_default$/) {
+    if (!defined $chan or $chan =~ /^\s*$/) {
 	return 0;
     }
 
@@ -731,7 +731,7 @@ sub validChan {
 
     # it's possible that this check creates the hash if empty.
     if (defined $channels{$chan} or exists $channels{$chan}) {
-	if ($chan eq "_default") {
+	if ($chan =~ /^_?default$/) {
 #	    &WARN("validC: chan cannot be _default! returning 0!");
 	    return 0;
 	}
