@@ -215,7 +215,7 @@ sub getChanConf {
     $chan	||= "_default";
     my @c	= grep /^$chan$/i, keys %chanconf;
 
-    if ($c[0] ne $chan) {
+    if (@c and $c[0] ne $chan) {
 	&WARN("c ne chan ($c[0] ne $chan)");
     }
 
@@ -253,8 +253,6 @@ sub showProc {
 	    }
 
 	    &status($str);
-	    &DCCBroadcast($str) if (&whatInterface() =~ /IRC/ &&
-		grep(/Irc.pl/, keys %moduleAge));
 	}
 	$memusageOld = $memusage;
     } else {
