@@ -893,24 +893,13 @@ sub on_public {
 	    next unless (defined $t);
 	    next unless ($time - $t > 10);
 
-	    my %hash = (
-		nick	=> $who,
-		type	=> $x,
+	    &sqlReplace("stats", {
+		nick => $who,
+		type => $x,
 		channel => $c,
-
 		time	=> $time,
 		counter => $v,
-	    );
-		
-	    if (0) {
-		&sqlReplace("stats", \%hash);
-	    } else {
-		&sqlReplace("stats", {
-			nick => $who,
-			type => $x,
-			-counter => "counter+1",
-		} );
-	    }
+	    } );
 	}
     }
 

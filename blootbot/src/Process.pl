@@ -322,11 +322,12 @@ sub process {
 	    $karma--;
 	}
 
-	&sqlSet("stats", 
-		{ nick => $term, type => "karma" },	# WHERE
-#		{ counter => $karma }			# WHAT
-		{ -counter => "counter+1" }
-	);
+	&sqlReplace("stats", {
+	    nick	=> $term,
+	    type	=> "karma",
+	    'time'	=> time(),
+	    counter	=> $karma,
+	} );
 
 	return;
     }
