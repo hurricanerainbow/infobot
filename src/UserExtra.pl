@@ -61,7 +61,7 @@ sub chaninfo {
 	    }
 	    next if (/^_default$/);
 
-	    my $str = sprintf("%s (%d)", $_, scalar(keys %{ $channels{$_}{''} }));
+	    my $str = sprintf("%s(%d)", $_, scalar(keys %{ $channels{$_}{''} }));
 	    push(@array, $str);
 	}
 	&performStrictReply($reply.": ".join(', ', @array));
