@@ -3,7 +3,15 @@
 # WARN: this file does not reload on HUP.
 #
 
-#use strict;
+# use strict;	# TODO
+
+use vars qw($who $msgType $conn $chan $message $ident $talkchannel
+	$bot_version $babel_lang_regex $bot_data_dir);
+use vars qw(@vernick @vernicktodo);
+use vars qw(%channels %cache %mask %userstats %myModules %cmdstats
+	%hooks_extra %lang %ver);
+# FIX THE FOLLOWING:
+use vars qw($total $x $type $i $good);
 
 $babel_lang_regex = "fr|sp|es|po|pt|it|ge|de|gr|en|zh|ja|jp|ko|kr|ru";
 
@@ -405,7 +413,6 @@ sub Modules {
 	my $args	= $3 || "";
 
 	$thiscmd	=~ s/^vals$/values/;
-#	$args		=~ s/\s+$//g;
 	return if ($thiscmd ne "keys" && $thiscmd ne "values");
 
 	# Usage:
@@ -480,7 +487,7 @@ sub Modules {
 	    $percentage = "off the scale";
 	} else {
 	    $percentage = sprintf("%0.4f", $percentage);
-	    $percentage =~ s/\.?0+$//;
+	    $percentage =~ s/(\.\d+)0+$/$1/;
 	    $percentage .= '%';
 	}
 
@@ -696,8 +703,8 @@ sub cookie {
     ### TODO: convert this to a Forker function!
     if ($arg) {
 	my @list = &searchTable("factoids", "factoid_key", "factoid_value", $arg);
-	$key  = &getRandom(@list);
-	$value  = &getFactInfo($key, "factoid_value");
+	$key	= &getRandom(@list);
+	$value	= &getFactInfo($key, "factoid_value");
     } else {
 	($key,$value) = &randKey("factoids","factoid_key,factoid_value");
     }
@@ -826,7 +833,7 @@ sub do_verstats {
 	return;
     }
 
-    &msg($who, "Sending CTCP VERSION to #$chan...");
+    &msg($who, "Sending CTCP VERSION to $chan; results in 60s.");
     $conn->ctcp("VERSION", $chan);
     $cache{verstats}{chan}	= $chan;
     $cache{verstats}{who}	= $who;
@@ -880,6 +887,8 @@ sub do_verstats {
 	    }
 	}
 
+	# hack. this is one major downside to scheduling.
+	$chan = $c;
 	&pSReply( &formListReply(0, "IRC Client versions for $c ", @list) );
 
 	# clean up not-needed data structures.
@@ -948,23 +957,29 @@ sub textstats_main {
     } else {
 	my %hash = &dbGetCol("stats", "type,counter",
 		"$where AND nick=".&dbQuote($arg) );
+	# this is totally fucked... needs to be fixed... and cleaned up.
+	my $total;
+	my $good;
+	my $ii;
+	my $x;
 
 	foreach (keys %hash) {
 	    &DEBUG("_stats: hash{$_} => $hash{$_}");
 	    # ranking.
 	    my @array = &dbGet("stats", "nick",
 		$where." ORDER BY counter", 1);
-	    my $good = 0;
-	    my $i = 0;
-	    for($i=0; $i<scalar @array; $i++) {
+	    $good = 0;
+	    $ii = 0;
+	    for(my $i=0; $i<scalar @array; $i++) {
 		next unless ($array[0] =~ /^\Q$who\E$/);
 		$good++;
 		last;
 	    }
-	    $i++;
+	    $ii++;
 
-	    my $total = scalar(@array);
+	    $total = scalar(@array);
 	    &DEBUG("   i => $i, good => $good, total => $total");
+	    $x .= " ".$total."blah blah";
 	}
 
 	return;
@@ -976,8 +991,8 @@ sub textstats_main {
 
 	my $xtra = "";
 	if ($total and $good) {
-	    my $pct = sprintf("%.01f", 100*(1+$total-$i)/$total);
-	    $xtra = ", ranked $i\002/\002$total (percentile: \002$pct\002 %)";
+	    my $pct = sprintf("%.01f", 100*(1+$total-$ii)/$total);
+	    $xtra = ", ranked $ii\002/\002$total (percentile: \002$pct\002 %)";
 	}
 
 	my $pct1 = sprintf("%.01f", 100*$x/$sum);
