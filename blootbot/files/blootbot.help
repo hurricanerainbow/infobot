@@ -4,6 +4,10 @@
 
 main: I learn mainly by observing declarative statements such as "x is at http://www.xxx.com", and then reply when people ask things like "where can i find x?"
 
+literal: used to get a raw factoid contents
+literal: U: ## <factoid>
+literal: E: ## blootbot
+
 author: oznoid (mailto:lenzo@ri.cmu.edu) is my original author.
 
 corrections: If I come back with "...but x is at http://xx.xx.xx" or something like that, and you want to change the entry, use "no, x is at http://sdfsdfsdf".  The "No," tells me to supercede the existing value.
