@@ -52,7 +52,6 @@ if ($@) {
 	"Uptime"	=> "Uptime.pl",
 	"UserInfo"	=> "UserInfo.pl",
 	"Weather"	=> "Weather.pl",
-	"whatis"	=> "WhatIs.pl",
 	"wikipedia"	=> "wikipedia.pl",
 	"wingate"	=> "Wingate.pl",
 	"wwwsearch"	=> "W3Search.pl",
