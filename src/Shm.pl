@@ -108,7 +108,8 @@ sub addForked {
 	    return 0;
 	}
     } else {
-	$forked{$name} = time();
+	$forked{$name}	= time();
+	$forkedtime	= time();
 	$count{'Fork'}++;
 	return 1;
     }
