@@ -48,6 +48,7 @@ sub BZFlag::list {
 
 	my $req = HTTP::Request->new('GET', 'http://list.bzflag.org:5156/');
 	my $res = $ua->request($req);
+  my %servers;
 	for my $line (split("\n",$res->content)) {
 		my ($serverport, $version, $flags, $ip, $comments) = split(" ",$line,5);
 		# not "(A4)18" to handle old dumb perl
@@ -59,10 +60,13 @@ sub BZFlag::list {
 				unpack("A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4", $flags);
 		my $playerSize = hex($rogueSize) + hex($redSize) + hex($greenSize)
 				+ hex($blueSize) + hex($purpleSize);
-		if ($playerSize > 0) {
-			$response .= "$serverport($playerSize) ";
-		}
+	  $servers{$serverport} = $playerSize;
 	}
+  foreach my $key (sort {$servers{$b} <=> $servers{$a}} (keys(%servers))) {
+		if ($servers{$key} > 0) {
+			$response .= "$key($servers{$key}) ";
+		}
+  }
 	&::performStrictReply($response);
 	return;
 }
