@@ -25,3 +25,4 @@
 # or
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
 DEFAULT $CVSROOT/CVSROOT/syncmail -u %{sVv} blootbot-cvs@lists.sourceforge.net
+ALL $CVSROOT/CVSROOT/ciabot_cvs.pl %{,,,s} $USER
