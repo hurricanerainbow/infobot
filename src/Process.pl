@@ -343,6 +343,15 @@ sub process {
 	    return 'SOMETHING 1';
 	}
 
+	# allow administration of bot via messages (default is DCC CHAT only)
+	if (&IsFlag("A")) {
+	    &loadMyModule( $myModules{'ircdcc'} );
+	    $er = &userDCC();
+	    if (!defined $er) {
+		return 'SOMETHING 2';
+	    }
+	}
+
 	if (0 and $addrchar) {
 	    &msg($who, "I don't trust people to use the core commands while addressing me in a short-cut way.");
 	    return;
