@@ -185,6 +185,7 @@ sub Topic {
 
     my @prev = &topicDecipher($chan);
     my $new  = "$args ($orig{who})";
+    $topic{$chan}{'What'} = "Added '$args'.";
     if (scalar @prev) {
       $new = &topicCipher(@prev, sprintf("%s||%s", $args, $who));
     }
@@ -233,6 +234,8 @@ sub Topic {
 	    &msg($who, "error: Invalid sub-argument ($_).");
 	    return $noreply;
 	}
+
+	$topic{$chan}{'What'} = "Deleted ".join("/",@delete);
 
 	foreach (@delete) {
 	  if ($_ > $topiccount || $_ < 1) {
@@ -291,6 +294,8 @@ sub Topic {
     if ($args =~ /\|\|/) {
 	&msg($who, "warning: adding double pipes manually == evil. be warned.");
     }
+
+    $topic{$chan}{'What'} = "SAR $args";
 
     # SAR patch. mu++
     if ($args =~ m|^\s*s([/,#])(.+?)\1(.*?)\1([a-z]*);?\s*$|) {
@@ -351,6 +356,8 @@ sub Topic {
 	  return $noreply;
 	}
 
+	$topic{$chan}{'What'} = "Move $from to $to";
+
 	if ($action =~ /^(swap)$/i) {
 	  my $tmp			= $subtopics[$to   - 1];
 	  $subtopics[$to   - 1]		= $subtopics[$from - 1];
@@ -397,6 +404,8 @@ sub Topic {
     my @subtopics  = &topicDecipher($chan);
     my @newtopics;
 
+    $topic{$chan}{'What'} = "shuffled";
+
     foreach (&makeRandom(scalar @subtopics)) {
 	push(@newtopics, $subtopics[$_]);
     }
@@ -428,6 +437,8 @@ sub Topic {
 	return $noreply;
     }
 
+    $topic{$chan}{'What'} = "Restore topic $args";
+
     # following needs to be verified.
     if ($args =~ /^last$/i) {
 	if (${$topic{$chan}{'History'}}[0] eq $topic{$chan}{'Current'}) {
@@ -454,6 +465,7 @@ sub Topic {
   } elsif ($cmd =~ /^rehash$/i) {
     ### CMD: REHASH.
     $_ = "Rehashing topic...";
+    $topic{$chan}{'What'} = "Rehash";
     &topicNew($chan, $topic{$chan}{'Current'}, $_, 1);
 
   } elsif ($cmd =~ /^info$/i) {
@@ -463,6 +475,8 @@ sub Topic {
 	$reply = "topic on \002$chan\002 was last set by ".
 		$topic{$chan}{'Who'}. ".  This was done ".
 		&Time2String(time() - $topic{$chan}{'Time'}) ." ago.";
+	my $change = $topic{$chan}{'What'};
+	$reply .= "Change => $change" if (defined $change);
     }
 
     &performStrictReply($reply);
