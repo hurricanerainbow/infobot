@@ -1,0 +1,9 @@
+CREATE TABLE rootwarn (
+	nick VARCHAR(20) NOT NULL,
+	attempt SMALLINT UNSIGNED,
+	time INT NOT NULL,
+	host VARCHAR(80) NOT NULL,
+	channel VARCHAR(20) NOT NULL,
+
+	PRIMARY KEY (nick)
+);
