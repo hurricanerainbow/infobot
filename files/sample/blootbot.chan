@@ -46,6 +46,8 @@ _default
     +nickometer
     +perlMath
     +quote
+    randomFactoidInterval 60
+    randomQuoteInterval 60
     +search
     +seen
     seenFlushInterval 60
