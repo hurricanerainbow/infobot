@@ -98,7 +98,7 @@ sub CmdFactInfo {
 
 	    my $requested_by = $factinfo{'requested_by'};
 	    $requested_by =~ /\!/;
-	    $string .= "last by $`";
+	    $string .= ", last by $`";
 
 	    my $requested_time = $factinfo{'requested_time'};
 	    if ($requested_time) {
