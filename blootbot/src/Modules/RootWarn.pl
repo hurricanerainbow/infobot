@@ -10,9 +10,10 @@ use strict;
 sub rootWarn {
     my ($nick,$user,$host,$chan) = @_;
     my $attempt = &dbGet("rootwarn", "nick", lc($nick), "attempt") || 0;
+    my $warnmode	= &getChanConf("rootWarnMode");
 
     if ($attempt == 0) {	# first timer.
-	if (&IsParam("rootWarnMode") && $param{'rootWarnMode'} =~ /aggressive/i) {
+	if ($warnmode =~ /aggressive/i) {
 	    &status(">>> Detected root user; notifying nick and channel.");
 	    rawout("PRIVMSG $chan :R".("O" x int(rand 80 + 2))."T has landed!");
 	} else {
@@ -34,13 +35,11 @@ sub rootWarn {
 	}
 
     } else {			# >3rd time occurrance.
-	if (&IsParam("rootWarnMode")) {
-	    if ($param{'rootWarnMode'} =~ /aggressive/i) {
-		if ($channels{$chan}{'o'}{$ident}) {
-		    &status("RootWarn: $nick... sigh... bye bye.");
-		    rawout("MODE $chan +b *!root\@$host");	# ban
-		    &kick($chan,$nick,"bye bye");
-		}
+	if ($warnmode =~ /aggressive/i) {
+	    if ($channels{$chan}{'o'}{$ident}) {
+		&status("RootWarn: $nick... sigh... bye bye.");
+		rawout("MODE $chan +b *!root\@$host");	# ban
+		&kick($chan,$nick,"bye bye");
 	    }
 	}
     }

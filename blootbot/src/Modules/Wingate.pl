@@ -72,12 +72,13 @@ sub Wingate {
 	if ($wingate) {
 	    &::status("Wingate: RUNNING ON $host BY $::who.");
 
-	    if (&::IsParam("wingateBan")) {
+	    if (&::IsChanConf("wingateBan") > 0) {
 		&::ban("*!*\@$host", "");
 	    }
 
-	    if (&::IsParam("wingateKick")) {
-		&::kick($::who, "", $::param{'wingateKick'});
+	    my $reason	= &::getChanConf("wingateKick");
+	    if ($reason) {
+		&::kick($::who, "", $reason);
 	    }
 
 	    push(@::wingateBad, "$host\*");
