@@ -13,7 +13,7 @@
 ##		- null for confused.
 ##
 
-if (&IsParam("useStrict")) { use strict; }
+# use strict;	# TODO
 
 sub doStatement {
     my($in) = @_;

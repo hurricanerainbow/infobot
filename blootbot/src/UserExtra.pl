@@ -5,9 +5,11 @@
 #      Created: 20000107
 #
 
-#use strict;
-use vars qw($message $arg $qWord $verb $lobotomized);
-use vars qw(%channels %chanstats %cmdstats);
+use strict;
+use vars qw($message $arg $qWord $verb $lobotomized $who $result $chan
+	$conn $msgType $query $talkchannel $ident $memusage);
+use vars qw(%channels %chanstats %cmdstats %count %ircstats %param
+	%cache %mask %userstats %hooks_main);
 
 ###
 ### Start of command hooks for UserExtra.
@@ -18,7 +20,7 @@ use vars qw(%channels %chanstats %cmdstats);
 &addCmdHook("main", 'factinfo', ('CODEREF' => 'factinfo', 
 	'Cmdstats' => 'Factoid Info', Module => 'factoids', ) );
 &addCmdHook("main", 'factstats?', ('CODEREF' => 'factstats', 
-	'Cmdstats' => 'Factoid Statistics', Help => "factstats", 
+	'Cmdstats' => 'Factoid Stats', Help => "factstats", 
 	Forker => 1, 'Identifier' => 'factoids', ) );
 &addCmdHook("main", 'help', ('CODEREF' => 'help', 
 	'Cmdstats' => 'Help', ) );

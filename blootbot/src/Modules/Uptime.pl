@@ -5,7 +5,7 @@
 #   Created: 19990925.
 #
 
-# use strict;
+# use strict;	# TODO
 
 my $uptimerecords	= 3;
 

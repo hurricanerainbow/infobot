@@ -6,7 +6,13 @@
 # process the incoming message
 #
 
-#use strict;
+use strict;
+
+use vars qw($who $msgType $addressed $message $ident $user $host $chan
+	$learnok $talkok $force_public_reply $noreply $addrchar
+	$literal $addressedother $userHandle $lobotomized);
+use vars qw(%channels %users %param %cache %chanconf %mask %orig %lang
+	);
 
 sub process {
     $learnok	= 0;	# Able to learn?
@@ -292,6 +298,9 @@ sub process {
     # karma. set...
     if ($message =~ /^(\S+)(--|\+\+)\s*$/ and $addressed) {
 	return '' unless (&hasParam("karma"));
+	# well... since it is policy to do bot functions before factoids
+	# karma gets hit if, for example, "g++" is issued.
+	# only way to request it is to put a question mark at the end.
 
 	my($term,$inc) = (lc $1,$2);
 
@@ -305,8 +314,8 @@ sub process {
 	    return;
 	}
 
-	my $karma = &dbGet("stats", "counter", "nick=".&dbQuote($term).
-			" AND type='karma'") || 0;
+	my $karma = &dbGet("stats", "counter",
+		"nick=".&dbQuote($term)." AND type='karma'") || 0;
 	if ($inc eq '++') {
 	    $karma++;
 	} else {
@@ -314,8 +323,9 @@ sub process {
 	}
 
 	&dbSet("stats", 
-		{ nick => $term, type => "karma" },
-		{ counter => $karma }
+		{ nick => $term, type => "karma" },	# WHERE
+#		{ counter => $karma }			# WHAT
+		{ -counter => "counter+1" }
 	);
 
 	return;

@@ -26,6 +26,8 @@ package zsi;
 
 my $no_zsi;
 
+use strict;
+
 BEGIN {
 	$no_zsi = 0;
 	eval "use LWP::UserAgent";
@@ -43,7 +45,7 @@ sub queryText {
 	my $res_return = 5;
 
 	my $ua = new LWP::UserAgent;
-  $ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
+	$ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
 
 	$ua->timeout(10);
 
@@ -95,7 +97,7 @@ sub queryText {
 sub query {
 	my ($args) = @_;
 	&::performStrictReply(&queryText($args));
-  return;
+	return;
 }
 
 1;

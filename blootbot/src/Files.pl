@@ -5,7 +5,11 @@
 #  Created: 19991221
 #
 
-#use strict;
+use strict;
+
+use vars qw(%lang %ircPort);
+use vars qw(@ircServers);
+use vars qw($bot_config_dir);
 
 # File: Language support.
 sub loadLang {

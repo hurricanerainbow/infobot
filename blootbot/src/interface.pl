@@ -1,10 +1,9 @@
 #
 # interface.pl:
-#
 #       Author:
 #
 
-#use strict;
+# use strict;	# TODO
 
 sub whatInterface {
     if (!&IsParam("Interface") or $param{'Interface'} =~ /IRC/) {

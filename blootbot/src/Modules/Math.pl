@@ -2,7 +2,9 @@
 # infobot copyright (C) kevin lenzo 1997-98
 #
 
-if (&IsParam("useStrict")) { use strict; }
+use strict;
+
+use vars qw($message);
 
 my %digits = (
 	"first",   "1",

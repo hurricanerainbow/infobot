@@ -5,7 +5,11 @@
 #   Created: 20010906
 #
 
-if (&IsParam("useStrict")) { use strict; }
+# use strict;	# TODO
+
+use vars qw(%param %cache %lang %cmdstats %bots);
+use vars qw($message $who $addressed $chan $h $nuh $ident $msgType
+	$correction_plausable);
 
 # Usage: &validFactoid($lhs,$rhs);
 sub validFactoid {

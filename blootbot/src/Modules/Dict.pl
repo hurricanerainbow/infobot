@@ -10,16 +10,18 @@ package Dict;
 use IO::Socket;
 use strict;
 
+#use vars qw(PF_INET);
+
 my $server	= "dict.org";	# need a specific host||ip.
-my $port	= 2628;
-my $proto	= getprotobyname('tcp');
 
 ###local $SIG{ALRM} = sub { die "alarm\n" };
 
 sub Dict {
     my ($query) = @_;
-###    return unless &::loadPerlModule("IO::Socket");
-    my $socket = new IO::Socket;
+#    return unless &::loadPerlModule("IO::Socket");
+    my $socket	= new IO::Socket;
+    my $port	= 2628;
+    my $proto	= getprotobyname('tcp');
     my @results;
 
     for ($query) {
@@ -29,6 +31,7 @@ sub Dict {
     }
 
     # connect.
+# TODO: make strict-safe constants... so we can defer IO::Socket load.
     socket($socket, PF_INET, SOCK_STREAM, $proto) or return "error: socket: $!";
     eval {
 	alarm 10;

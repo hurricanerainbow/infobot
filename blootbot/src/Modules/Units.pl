@@ -5,6 +5,8 @@
 
 package Units;
 
+# use strict;	# TODO
+
 #$DEBUG_p = 1;
 #$DEBUG_o = 1;
 #$DEBUG_l = 1;

@@ -4,7 +4,7 @@
 #   Version: 1997
 #
 
-if (&IsParam("useStrict")) { use strict; }
+# use strict;	# TODO
 
 sub normquery {
 	my ($in) = @_;

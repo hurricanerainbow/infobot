@@ -6,7 +6,7 @@
 #   Created: 1997
 #
 
-if (&IsParam("useStrict")) { use strict; }
+# use strict;	# TODO
 
 sub update {
     my($lhs, $mhs, $rhs) = @_;
