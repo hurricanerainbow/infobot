@@ -644,22 +644,13 @@ sub closeStats {
 
 	$i	+= $cmdstats{$type};
 
-	my %hash = (
-		nick => $type,
-		type => "cmdstats",
-		counter => $i
-	);		
-	$hash{time} = time() if ($z);
 
-	if (0) {
-	    &sqlReplace("stats", %hash);
-	} else {
-	    &sqlReplace("stats", {
-		nick		=> $type,
-		type		=> "cmdstats",
-		-counter	=> "counter+1",
-	    } );
-	}
+	&sqlReplace("stats", {
+	    nick	=> $type,
+	    type	=> "cmdstats",
+	    'time'	=> time(),
+	    counter	=> $i,
+	} );
     }
 }
 

@@ -246,19 +246,11 @@ sub factoidArgs {
 	}
 
 	# update stats.
-	if (0) {	# old.
-	    my $count = &getFactInfo($q, "requested_count") || 0;
-	    $count++;
-	    &setFactInfo($q, "requested_by", $nuh);
-	    &setFactInfo($q, "requested_time", time());
-	    &setFactInfo($q, "requested_count", $count);
-	} else {
-	    &sqlUpdate("factoids", { factoid_key => $q }, {
-		requested_by		=> $nuh,
-		requested_time		=> time(),
-		-requested_count	=> "requested_count+1",
-	    } );
-	}
+	&sqlUpdate("factoids", { factoid_key => $q }, {
+	    requested_by	=> $nuh,
+	    requested_time	=> time(),
+	    -requested_count	=> "requested_count+1",
+	} );
 
 	# end of update stats.
 
