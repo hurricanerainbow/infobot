@@ -125,8 +125,8 @@ sub userDCC {
 
     # dump variables ][.
     if ($message =~ /^symdump$/i) {
-	return unless (&hasFlag("o"));
-	return unless (&IsParam("symdump"));
+	return unless (&hasFlag('o'));
+	return unless (&IsParam('DumpVars2'));
 
 	&status("Dumping all variables...");
 	&symdumpAllFile();
