@@ -191,7 +191,7 @@ sub CmdFactStats {
 	my $prefix = "broken factoid ";
 	return &formListReply(1, $prefix, @list);
 
-    } elsif ($type =~ /^deadredir?$/i) {
+    } elsif ($type =~ /^deadredir$/i) {
 	my @list = &searchTable("factoids", "factoid_key",
 			"factoid_value", "^<REPLY> see ");
 	my %redir;
@@ -478,6 +478,44 @@ sub CmdFactStats {
 	my $prefix = "rank of top factoid requesters: ";
 	return &formListReply(0, $prefix, @list);
 
+    } elsif ($type =~ /^seefix$/i) {
+	my @list = &searchTable("factoids", "factoid_key",
+			"factoid_value", "^see ");
+	my %redir;
+	my $f;
+	my $fixed = 0;
+
+	for (@list) {
+	    my $factoid = $_;
+	    my $val = &getFactInfo($factoid, "factoid_value");
+	    if ($val =~ /^see( also)? (.*?)\.?$/i) {
+		my $redirf = lc $2;
+		my $redir = &getFactInfo($redirf, "factoid_value");
+
+		if (defined $redir) {	# good.
+		    &setFactInfo($factoid,"factoid_value","<REPLY> see $redir");
+		    $fixed++;
+		} else {
+		    $redir{$redirf}{$factoid} = 1;
+		}
+	    }
+	}
+
+	my @newlist;
+	foreach $f (keys %redir) {
+	    my @sublist = keys %{$redir{$f}};
+	    for (@sublist) {
+		s/([\,\;]+)/\037$1\037/g;
+	    }
+
+	    push(@newlist, join(', ', @sublist)." => $f");
+	}
+
+	# parse the results.
+	&performReply("Fixed $fixed factoids.");
+	my $prefix = "Loose link (dead) redirections in factoids ";
+	return &formListReply(1, $prefix, @newlist);
+
     } elsif ($type =~ /^(2|too)long$/i) {
 	my @list;
 
@@ -524,7 +562,7 @@ sub CmdListAuth {
     my @list = &searchTable("factoids","factoid_key", "created_by", "^$query!");
 
     my $prefix = "factoid author list by '$query' ";
-    return &formListReply(1, $prefix, @list);
+    &performStrictReply( &formListReply(1, $prefix, @list) );
 }
 
 1;
