@@ -5,6 +5,10 @@
 package W3Search;
 
 use strict;
+use vars qw(@W3Search_engines $W3Search_regex);
+@W3Search_engines = qw(AltaVista Dejanews Excite Gopher HotBot Infoseek
+		Lycos Magellan PLweb SFgate Simple Verity Google);
+$W3Search_regex = join '|', @W3Search_engines;
 
 my $maxshow	= 3;
 
@@ -14,7 +18,11 @@ sub W3Search {
 
     return unless &main::loadPerlModule("WWW::Search");
 
-    my @matches = grep { lc($_) eq lc($where) ? $_ : undef } @main::W3Search_engines;
+    if (defined $type) {
+	&main::DEBUG("W3S: type => $type");
+    }
+
+    my @matches = grep { lc($_) eq lc($where) ? $_ : undef } @W3Search_engines;
     if (@matches) {
 	$where = shift @matches;
     } else {
