@@ -19,8 +19,10 @@ sub openDB {
     } else {
 	&ERROR("cannot connect to $param{'SQLHost'}.");
 	&ERROR("since mysql is not available, shutting down bot!");
-	&shutdown();
 	&closePID();
+	&closeSHM($shm);
+	&closeLog();
+
 	exit 1;
     }
 }
@@ -30,6 +32,7 @@ sub closeDB {
 
     &status("Closed MySQL connection to $param{'SQLHost'}.");
     $dbh->disconnect();
+
     return 1;
 }
 
@@ -125,6 +128,36 @@ sub dbGetCol {
     return %retval;
 }
 
+#####
+# Usage: &dbGetColNiceHash($table, $select, $where);
+sub dbGetColNiceHash {
+    my ($table, $select, $where) = @_;
+    $select	||= "*";
+    my $query	= "SELECT $select FROM $table";
+    $query	.= " WHERE ".$where if ($where);
+    my %retval;
+
+    &DEBUG("dbGetColNiceHash: query => '$query'.");
+
+    my $sth = $dbh->prepare($query);
+    &SQLDebug($query);
+    if (!$sth->execute) {
+	&ERROR("GetColNiceHash: execute: '$query'");
+#	&ERROR("GetCol => $DBI::errstr");
+	$sth->finish;
+	return;
+    }
+
+    # todo: get column names, do $hash{$primkey}{blah} = ...
+    while (my @row = $sth->fetchrow_array) {
+	# reverse it to make it easier to count.
+    }
+
+    $sth->finish;
+
+    return %retval;
+}
+
 ####
 # Usage: &dbGetColInfo($table);
 sub dbGetColInfo {
@@ -153,6 +186,7 @@ sub dbGetColInfo {
 
 #####
 # Usage: &dbSet($table, $primhash_ref, $hash_ref);
+#  Note: dbSet does dbQuote.
 sub dbSet {
     my ($table, $phref, $href) = @_;
     my $where = join(' AND ', map {
@@ -200,6 +234,7 @@ sub dbSet {
 
 #####
 # Usage: &dbUpdate($table, $primkey, $primval, %hash);
+#  Note: dbUpdate does dbQuote.
 sub dbUpdate {
     my ($table, $primkey, $primval, %hash) = @_;
     my (@array);
@@ -217,6 +252,7 @@ sub dbUpdate {
 
 #####
 # Usage: &dbInsert($table, $primkey, %hash);
+#  Note: dbInsert does dbQuote.
 sub dbInsert {
     my ($table, $primkey, %hash, $delay) = @_;
     my (@keys, @vals);
@@ -241,6 +277,7 @@ sub dbInsert {
 
 #####
 # Usage: &dbReplace($table, %hash);
+#  Note: dbReplace does optional dbQuote.
 sub dbReplace {
     my ($table, %hash) = @_;
     my (@keys, @vals);
@@ -268,13 +305,21 @@ sub dbReplace {
 }
 
 #####
-# Usage: &dbSetRow($table, @values);
+# Usage: &dbSetRow($table, $vref, $delay);
+#  Note: dbSetRow does dbQuote.
 sub dbSetRow ($@$) {
-    my ($table, @values, $delay) = @_;
+    my ($table, $vref, $delay) = @_;
     my $p	= ($delay) ? " DELAYED " : "";
 
-    foreach (@values) {
-	$_ = &dbQuote($_);
+    # see 'perldoc perlreftut'
+    my @values;
+    foreach (@{ $vref }) {
+	push(@values, &dbQuote($_) );
+    }
+
+    if (!scalar @values) {
+	&WARN("dbSetRow: values array == NULL.");
+	return;
     }
 
     return &dbRaw("SetRow", "INSERT $p INTO $table VALUES (".
@@ -283,6 +328,7 @@ sub dbSetRow ($@$) {
 
 #####
 # Usage: &dbDel($table, $primkey, $primval, [$key]);
+#  Note: dbDel does dbQuote
 sub dbDel {
     my ($table, $primkey, $primval, $key) = @_;
 
@@ -354,26 +400,6 @@ sub sumKey {
     return (&dbRawReturn("SELECT sum($col) FROM $table"))[0];
 }
 
-##### NOT USED.
-# Usage: &getKeys($table,$primkey);
-sub getKeys {
-    my ($table,$primkey) = @_;
-    my @retval;
-
-    my $query	= "SELECT $primkey FROM $table";
-    my $sth	= $dbh->prepare($query);
-
-    &SQLDebug($query);
-    &WARN("ERROR: getKeys($query)") unless $sth->execute;
-
-    while (my @row = $sth->fetchrow_array) {
-	push(@retval, $row[0]);
-    }
-    $sth->finish;
-
-    return @retval;
-}
-
 #####
 # Usage: &randKey($table, $select);
 sub randKey {
@@ -396,7 +422,9 @@ sub deleteTable {
     &dbRaw("deleteTable($_[0])", "DELETE FROM $_[0]");
 }
 
+#####
 # Usage: &searchTable($table, $select, $key, $str);
+#  Note: searchTable does dbQuote.
 sub searchTable {
     my($table, $select, $key, $str) = @_;
     my $origStr = $str;
@@ -420,7 +448,10 @@ sub searchTable {
 		&dbQuote($str);
     my $sth = $dbh->prepare($query);
     &SQLDebug($query);
-    &WARN("Search($query)") unless $sth->execute;
+    if (!$sth->execute) {
+	&WARN("Search($query)");
+	return;
+    }
 
     while (my @row = $sth->fetchrow_array) {
 	push(@results, $row[0]);
@@ -436,8 +467,9 @@ sub searchTable {
 
 #####
 # Usage: &getFactInfo($faqtoid, type);
+#  Note: getFactInfo does dbQuote
 sub getFactInfo {
-    return &dbGet("factoids", $_[1], "factoid_key='$_[0]'");
+    return &dbGet("factoids", $_[1], "factoid_key=".&dbQuote($_[0]) );
 }
 
 #####
@@ -460,7 +492,7 @@ sub delFactoid {
 sub SQLDebug {
     return unless (&IsParam("SQLDebug"));
 
-    return if (!fileno SQLDEBUG);
+    return unless (fileno SQLDEBUG);
 
     print SQLDEBUG $_[0]."\n";
 }
@@ -476,7 +508,7 @@ sub dbCreateTable {
 	&DEBUG("dbCT: file => $file");
 	next unless ( -f $file );
 
-	&DEBUG("found!!!");
+	&DEBUG("dbCT: found!!!");
 
 	open(IN, $file);
 	while (<IN>) {
@@ -491,14 +523,14 @@ sub dbCreateTable {
     if (!$found) {
 	return 0;
     } else {
-	&dbRaw("create($table)", $data);
+	&dbRaw("createTable($table)", $data);
 	return 1;
     }
 }
 
 sub checkTables {
     my $database_exists = 0;
-    foreach (&dbRawReturn("SHOW DATABASES")) {
+    foreach ( &dbRawReturn("SHOW DATABASES") ) {
 	$database_exists++ if ($_ eq $param{'DBName'});
     }
 

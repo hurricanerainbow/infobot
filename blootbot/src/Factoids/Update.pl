@@ -55,7 +55,7 @@ sub update {
     # freshmeat
     if (&IsChanConf("freshmeatForFactoid")) {
 	# todo: "name" is invalid for fm ][
-	if (&dbGet("freshmeat", "name", "name='$lhs'")) {
+	if ( &dbGet("freshmeat", "name", "name=".&dbQuote($lhs)) ) {
 	    &msg($who, "permission denied. (freshmeat)");
 	    &status("alert: $who wanted to teach me something that freshmeat already has info on.");
 	    return 1;

@@ -453,7 +453,7 @@ sub isStale {
     return 1 unless ( -f $file);
     if ($file =~ /idx/) {
 	my $age2 = time() - (stat($file))[9];
-	&DEBUG("stale: $age2. (". &Time2String($age2) .")");
+	&VERB("stale: $age2. (". &Time2String($age2) .")",2);
     }
     $age *= 60*60*24 if ($age >= 0 and $age < 30);
 
@@ -697,6 +697,21 @@ sub mkcrypt {
     my $salt = join '',('.','/',0..9,'A'..'Z','a'..'z')[rand 64, rand 64];
 
     return crypt($str, $salt);
+}
+
+sub closeStats {
+    return unless (&getChanConfList("ircTextCounters"));
+
+    foreach (keys %cmdstats) {
+	my $type	= $_;
+	my $i = &dbGet("stats", "counter", "nick=".&dbQuote($type).
+			" AND type='cmdstats'");
+	$i	+= $cmdstats{$type};
+
+	&dbReplace("stats",
+		(nick => $type, type => "cmdstats", counter => $i)
+	);
+    }
 }
 
 1;

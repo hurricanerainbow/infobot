@@ -349,7 +349,7 @@ sub writeChanFile {
 	}
 
 	foreach (keys %opts) {
-	    next unless ($opts{$_} > 1);
+	    next unless ($opts{$_} > 2);
 	    &DEBUG("  opts{$_} => $opts{$_}");
 	}
 
@@ -771,6 +771,35 @@ sub chanSet {
     }
 
     return;
+}
+
+sub rehashConfVars {
+    # this is an attempt to fix where an option is loaded but the module
+    # has not loaded. it also can be used for other things.
+
+    foreach (keys %{ $cache{confvars} }) {
+	my $i = $cache{confvars}{$_};
+	&DEBUG("rehashConfVars: _ => $_");
+
+	if (/^news$/ and $i) {
+	    &loadMyModule("news");
+	    delete $cache{confvars}{$_};
+	}
+
+	if (/^uptime$/ and $i) {
+	    &loadMyModule("uptime");
+	    delete $cache{confvars}{$_};
+	}
+
+	if (/^rootwarn$/i and $i) {
+	    &loadMyModule($_);
+	    delete $cache{confvars}{$_};
+	}
+    }
+
+    &DEBUG("end of rehashConfVars");
+
+    delete $cache{confvars};
 }
 
 my @regFlagsChan = (

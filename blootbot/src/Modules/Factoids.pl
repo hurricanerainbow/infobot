@@ -174,14 +174,14 @@ sub CmdFactStats {
 	my $prefix = "factoid statistics by author: ";
 	return &formListReply(0, $prefix, @list);
 
-    } elsif ($type =~ /^broken$/i) {
-        &status("factstats(broken): starting...");
+    } elsif ($type =~ /^vandalism$/i) {
+        &status("factstats(vandalism): starting...");
 	my $start_time	= &timeget();
 	my %data	= &dbGetCol("factoids", "factoid_key,factoid_value", "factoid_value IS NOT NULL");
 	my @list;
 
 	my $delta_time	= &timedelta($start_time);
-        &status(sprintf("factstats(broken): %.02f sec to retreive all factoids.", $delta_time)) if ($delta_time > 0);
+        &status(sprintf("factstats(vandalismbroken): %.02f sec to retreive all factoids.", $delta_time)) if ($delta_time > 0);
 	$start_time	= &timeget();
 
 	# parse the factoids.
@@ -193,15 +193,15 @@ sub CmdFactStats {
 	}
 
 	$delta_time	= &timedelta($start_time);
-        &status(sprintf("factstats(broken): %.02f sec to complete.", $delta_time)) if ($delta_time > 0);
+        &status(sprintf("factstats(vandalism): %.02f sec to complete.", $delta_time)) if ($delta_time > 0);
 
 	# bail out on no results.
 	if (scalar @list == 0) {
-	    return 'no broken factoids... wooohoo.';
+	    return 'no vandalised factoids... wooohoo.';
 	}
 
 	# parse the results.
-	my $prefix = "broken factoid ";
+	my $prefix = "Vandalised factoid ";
 	return &formListReply(1, $prefix, @list);
 
     } elsif ($type =~ /^total$/i) {
@@ -588,7 +588,7 @@ sub CmdFactStats {
 	my @list;
 	my $total	= 0;
 	my $users	= 0;
-	foreach $rate (sort { $a <=> $b } keys %hash) {
+	foreach $rate (sort { $b <=> $a } keys %hash) {
 	    my $f	= join(", ", sort keys %{ $hash{$rate} });
 	    my $str	= "$f - ".&Time2String($rate);
 	    $str	=~ s/\002//g;

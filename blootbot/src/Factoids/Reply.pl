@@ -48,7 +48,7 @@ sub getReply {
 	$result =~ s/^\s*//;
     }
 
-    my $fauthor = &dbGet("factoids", "created_by", "factoid_key='$message'");
+    my $fauthor = &dbGet("factoids", "created_by", "factoid_key=".&dbQuote($message) );
     $result	= &SARit($result);
 
     $reply	= $result;
@@ -291,7 +291,6 @@ sub substVars {
 	$reply =~ s/\$rand/$rand/g;
     }
 
-    $reply	=~ s/\$factoid/$lhs/g;
     $reply	=~ s/\$ident/$ident/g;
 
     if ($reply =~ /\$startTime/) {
