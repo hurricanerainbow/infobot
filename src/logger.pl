@@ -223,7 +223,7 @@ sub status {
 
     for ($input) {
 	s/\n+$//;
-	s/\002|037//g;	# bold,video,underline => remove.
+	s/\002|\037//g;	# bold,video,underline => remove.
     }
 
     # does this work?
