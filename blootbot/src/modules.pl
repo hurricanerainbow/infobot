@@ -64,7 +64,9 @@ sub loadCoreModules {
 	### TODO: use eval and exit gracefully?
 	eval "require \"$mod\"";
 	if ($@) {
-	    &WARN("lCM => $@");
+	    &ERROR("lCM => $@");
+	    &shutdown();
+	    exit 1;
 	}
 
 	$moduleAge{$mod} = (stat $mod)[9];
@@ -129,6 +131,7 @@ sub loadFactoidsModules {
 	eval "require \"$mod\"";
 	if ($@) {
 	    &WARN("lFM: $@");
+	    exit 1;
 	}
 
 	$moduleAge{$mod} = (stat $mod)[9];
@@ -176,11 +179,23 @@ sub loadMyModulesNow {
     &status("Loading MyModules...");
     foreach (@myModulesLoadNow) {
 	$total++;
-
-	if (!exists $param{$_}) {
-	    &DEBUG("myModule: $myModules{$_} not loaded.");
+	if (!defined $_) {
+	    &WARN("mMLN: null element.");
 	    next;
 	}
+
+	&DEBUG("_ => $_");
+
+	if (!&IsParam($_) and !&IsChanConf($_)) {
+	    if (exists $myModules{$_}) {
+		&DEBUG("myModule: $myModules{$_} (1) not loaded.");
+	    } else {
+		&DEBUG("myModule: $_ (2) not loaded.");
+	    }
+
+	    next;
+	}
+
 	&loadMyModule($myModules{$_});
 	$loaded++;
     }
