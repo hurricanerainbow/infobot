@@ -15,6 +15,7 @@ my $defaultdist	= "sid";
 my $refresh = &::getChanConfDefault("debianRefreshInterval",7)
 			* 60 * 60 * 24;
 my $debug	= 0;
+my $debian_dir	= "$::bot_state_dir/debian";
 
 ### ... old
 #my %dists	= (
@@ -33,32 +34,32 @@ my %dists	= (
 );
 
 my %urlcontents = (
-	"debian/Contents-##DIST-i386.gz" =>
+	"Contents-##DIST-i386.gz" =>
 		"ftp://ftp.us.debian.org".
 		"/debian/dists/##DIST/Contents-i386.gz",
-	"debian/Contents-##DIST-i386-non-US.gz" =>
+	"Contents-##DIST-i386-non-US.gz" =>
 		"ftp://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/Contents-i386.gz",
 );
 
 my %urlpackages = (
-	"debian/Packages-##DIST-main-i386.gz" =>
+	"Packages-##DIST-main-i386.gz" =>
 		"ftp://ftp.us.debian.org".
 		"/debian/dists/##DIST/main/binary-i386/Packages.gz",
-	"debian/Packages-##DIST-contrib-i386.gz" =>
+	"Packages-##DIST-contrib-i386.gz" =>
 		"ftp://ftp.us.debian.org".
 		"/debian/dists/##DIST/contrib/binary-i386/Packages.gz",
-	"debian/Packages-##DIST-non-free-i386.gz" =>
+	"Packages-##DIST-non-free-i386.gz" =>
 		"ftp://ftp.us.debian.org".
 		"/debian/dists/##DIST/non-free/binary-i386/Packages.gz",
 
-	"debian/Packages-##DIST-non-US-main-i386.gz" =>
+	"Packages-##DIST-non-US-main-i386.gz" =>
 		"ftp://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/main/binary-i386/Packages.gz",
-	"debian/Packages-##DIST-non-US-contrib-i386.gz" =>
+	"Packages-##DIST-non-US-contrib-i386.gz" =>
 		"ftp://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/contrib/binary-i386/Packages.gz",
-	"debian/Packages-##DIST-non-US-non-free-i386.gz" =>
+	"Packages-##DIST-non-US-non-free-i386.gz" =>
 		"ftp://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/non-free/binary-i386/Packages.gz",
 );
@@ -74,9 +75,9 @@ sub DebianDownload {
     my $bad	= 0;
     my $good	= 0;
 
-    if (! -d "debian/") {
+    if (! -d $debian_dir) {
 	&::status("Debian: creating debian dir.");
-	mkdir("debian/",0755);
+	mkdir($debian_dir, 0755);
     }
 
     # fe dists.
@@ -1058,7 +1059,7 @@ sub fixDist {
 	$key =~ s/##DIST/$dist/;
 	$val =~	s/##DIST/$dist/;
 	### TODO: what should we do if the sar wasn't done.
-	$new{$key} = $val;
+	$new{$debian_dir."/".$key} = $val;
     }
     return %new;
 }

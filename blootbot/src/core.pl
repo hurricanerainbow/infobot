@@ -10,13 +10,13 @@ use strict;
 # dynamic scalar. MUST BE REDUCED IN SIZE!!!
 ### TODO: reorder.
 use vars qw(
+	$bot_misc_dir $bot_pid $bot_base_dir $bot_src_dir
 	$answer $correction_plausible $talkchannel $bot_release
 	$statcount $memusage $user $memusageOld $bot_version $dbh
-	$shm $host $msg $bot_misc_dir $bot_pid $bot_base_dir $noreply
-	$bot_src_dir $conn $irc $learnok $nick $ident $no_syscall
+	$shm $host $msg $noreply $conn $irc $learnok $nick $ident
 	$force_public_reply $addrchar $userHandle $addressedother
 	$floodwho $chan $msgtime $server $firsttime $wingaterun
-	$flag_quit $msgType
+	$flag_quit $msgType $no_syscall
 	$utime_userfile	$wtime_userfile	$ucount_userfile
 	$utime_chanfile	$wtime_chanfile	$ucount_chanfile
 	$pubsize $pubcount $pubtime
@@ -388,7 +388,7 @@ sub setup {
     }
 
     # read.
-    &loadLang($bot_misc_dir.		"/blootbot.lang");
+    &loadLang($bot_data_dir. "/blootbot.lang");
     &loadIRCServers();
     &readUserFile();
     &readChanFile();
@@ -416,7 +416,7 @@ sub setup {
 
 sub setupConfig {
     $param{'VERBOSITY'} = 1;
-    &loadConfig($bot_misc_dir."/blootbot.config");
+    &loadConfig($bot_config_dir."/blootbot.config");
 
     foreach ("ircNick", "ircUser", "ircName", "DBType", "tempDir") {
 	next if &IsParam($_);
@@ -439,8 +439,8 @@ sub setupConfig {
     }
 
     # static scalar variables.
-    $file{utm}	= "$bot_base_dir/$param{'ircUser'}.uptime";
-    $file{PID}	= "$bot_base_dir/$param{'ircUser'}.pid";
+    $file{utm}	= "$bot_state_dir/$param{'ircUser'}.uptime";
+    $file{PID}	= "$bot_run_dir/$param{'ircUser'}.pid";
 }
 
 sub startup {
@@ -492,7 +492,7 @@ sub restart {
 
 	&DCCBroadcast("-HUP called.","m");
 	&shutdown();
-	&loadConfig($bot_misc_dir."/blootbot.config");
+	&loadConfig($bot_config_dir."/blootbot.config");
 	&reloadAllModules() if (&IsParam("DEBUG"));
 	&setup();
 

@@ -89,7 +89,7 @@ sub randomQuote {
 	return if ($_[0] eq "2");	# defer.
     }
 
-    my $line = &getRandomLineFromFile($bot_misc_dir. "/blootbot.randtext");
+    my $line = &getRandomLineFromFile($bot_data_dir. "/blootbot.randtext");
     if (!defined $line) {
 	&ERROR("random Quote: weird error?");
 	return;
@@ -817,8 +817,8 @@ sub miscCheck {
     }
 
     # make backup of important files.
-    &mkBackup( $bot_misc_dir."/blootbot.chan", 60*60*24*3);
-    &mkBackup( $bot_misc_dir."/blootbot.users", 60*60*24*3);
+    &mkBackup( $bot_state_dir."/blootbot.chan", 60*60*24*3);
+    &mkBackup( $bot_state_dir."/blootbot.users", 60*60*24*3);
     &mkBackup( $bot_base_dir."/blootbot-news.txt", 60*60*24*1);
 
     # flush cache{lobotomy}
@@ -853,14 +853,19 @@ sub miscCheck2 {
     my ($day,$month,$year) = (localtime(time()))[3,4,5];
     my $date = sprintf("%04d%02d%02d",$year+1900,$month+1,$day);
 
-    opendir(DIR,"$bot_base_dir/log");
+    if (!opendir(DIR,"$bot_log_dir")) {
+	&ERROR("misccheck2: log dir $bot_log_dir does not exist.");
+	closedir DIR;
+	return -1;
+    }
+
     while (my $f = readdir(DIR)) {
-	next unless ( -f "$bot_base_dir/log/$f");
+	next unless ( -f "$bot_log_dir/$f");
 	next if ($f =~ /gz|bz2/);
 	next unless ($f =~ /(\d{8})/);
 	next if ($date eq $1);
 
-	&compress("$bot_base_dir/log/$f");
+	&compress("$bot_log_dir/$f");
     }
     closedir DIR;
 }

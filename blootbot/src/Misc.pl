@@ -9,7 +9,7 @@ if (&IsParam("useStrict")) { use strict; }
 
 sub help {
     my $topic = shift;
-    my $file  = $bot_misc_dir."/blootbot.help";
+    my $file  = $bot_data_dir."/blootbot.help";
     my %help  = ();
 
     # crude hack for pSReply() to work as expected.

@@ -49,7 +49,7 @@ BEGIN {
 ################################################################
 
 { my $defs_read = 0;
-  $defs_read += read_defs("$::bot_misc_dir/unittab");
+  $defs_read += read_defs("$::bot_data_dir/unittab");
 
   unless ($defs_read) {
     &::ERROR("Could not read any of the initialization files UNITTAB");
