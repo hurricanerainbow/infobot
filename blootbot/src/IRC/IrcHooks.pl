@@ -41,25 +41,22 @@ sub on_chat {
     my $sock = ($event->to)[0];
     my $nick = $event->nick();
 
-    $userHandle		= "";	# reset.
-
-    # who is set to bot's name, why?
-
-    if (!exists $nuh{$who}) {
-	&DEBUG("chat: nuh{$who} (nick => $nick) doesn't exist; trying WHOIS .");
-	$self->whois($who);
+    if (!exists $nuh{$nick}) {
+	&DEBUG("chat: nuh{$nick} doesn't exist; trying WHOIS .");
 	$self->whois($nick);
 	return;
-    } else {
-	$message	= $msg;
-	$who		= lc $nick;
-	$orig{who}	= $nick;
-	$orig{message}	= $msg;
-	$nuh		= $nuh{$who};
-	$uh		= (split /\!/, $nuh)[1];
-	$addressed	= 1;
-	$msgType	= 'chat';
     }
+
+    ### set vars that would have been set in hookMsg.
+    $userHandle		= "";	# reset.
+    $who		= lc $nick;
+    $message		= $msg;
+    $orig{who}		= $nick;
+    $orig{message}	= $msg;
+    $nuh		= $nuh{$who};
+    $uh			= (split /\!/, $nuh)[1];
+    $addressed		= 1;
+    $msgType		= 'chat';
 
     if (!exists $dcc{'CHATvrfy'}{$nick}) {
 	$userHandle	= &verifyUser($who, $nuh);
@@ -323,8 +320,8 @@ sub on_endofnames {
     my ($self, $event) = @_;
     my $chan = ($event->args)[1];
 
-    if (exists $jointime{$chan}) {
-	my $delta_time = sprintf("%.03f", &gettimeofday() - $jointime{$chan});
+    if (exists $cache{jointime}{$chan}) {
+	my $delta_time = sprintf("%.03f", &gettimeofday() - $cache{jointime}{$chan});
 	$delta_time    = 0	if ($delta_time < 0);
 
 	&status("$b_blue$chan$ob: sync in ${delta_time}s.");
@@ -450,15 +447,32 @@ sub on_join {
 		    $user =~ /^r(oo|ew|00)t$/i &&
 		    $channels{$chan}{'o'}{$ident});
 
+    ### chanlimit check.
+    my $l = $channels{$chan}{'l'};
+    if (defined $l and &IsChanConf("chanlimitcheck")) {
+	my $plus = &getChanConfDefault("chanlimitcheckPlus", 5, $chan);
+	my $nowl = scalar(keys %{ $channels{$chan}{''} });
+
+	if ($plus <= 3) {
+	    &WARN("clc: stupid to have plus at $plus, fix it!");
+	}
+
+	### check if we have ops.
+	if ($nowl > $l - 3 and $plus > 3) {
+	    &WARN("clc: nowl($nowl) > l($l) - 3");
+	    &rawout("MODE $chan +l ".($nowl+$plus) );
+	}
+    }
+
     # used to determine sync time.
     if ($who =~ /^$ident$/i) {
-	if (defined( my $whojoin = $joinverb{$chan} )) {
+	if (defined( my $whojoin = $cache{join}{$chan} )) {
 	    &msg($chan, "Okay, I'm here. (courtesy of $whojoin)");
-	    delete $joinverb{$chan};
+	    delete $cache{join}{$chan};
 	}
 
 	### TODO: move this to &joinchan()?
-	$jointime{$chan} = &gettimeofday();
+	$cache{jointime}{$chan} = &gettimeofday();
 	rawout("WHO $chan");
     } else {
 	### TODO: this may go wild on a netjoin :)
