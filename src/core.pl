@@ -321,7 +321,7 @@ sub getChanConfDefault {
 
     if (exists $param{$what}) {
 	if (!exists $cache{config}{$what}) {
-	    &status("conf: backward-compat: found param{$what} ($param{$what}) for $chan instead.");
+	    &status("Config ($chan): backward-compatible option: found param{$what} ($param{$what}) instead");
 	    $cache{config}{$what} = 1;
 	}
 
@@ -331,7 +331,7 @@ sub getChanConfDefault {
     return $val if (defined $val);
 
     $param{$what}	= $default;
-    &status("conf: $chan auto-setting param{$what} = $default");
+    &status("Config ($chan): auto-setting param{$what} = $default");
     $cache{config}{$what} = 1;
     return $default;
 }
@@ -487,15 +487,18 @@ sub startup {
 }
 
 sub shutdown {
+    my ($sig) = @_;
     # reverse order of &setup().
     &status("--- shutdown called.");
 
     $ident ||=	"blootbot";	# hack.
 
-    # opened files must be written to on shutdown/hup/whatever
-    # unless they're write-only, like uptime.
-    &writeUserFile();
-    &writeChanFile();
+    if ($sig eq "HUP") {
+	&status("::: not writing user/chan file w/ SIGHUP");
+    } else {
+	&writeUserFile();
+	&writeChanFile();
+    }
 
     &sqlCloseDB();
     &closeSHM($shm);	# aswell. TODO: use this in &doExit?
@@ -522,7 +525,7 @@ sub restart {
 	&ircCheck();	# heh, evil!
 
 	&DCCBroadcast("-HUP called.","m");
-	&shutdown();
+	&shutdown($sig);
 	&loadConfig($bot_config_dir."/blootbot.config");
 	&reloadAllModules() if (&IsParam("DEBUG"));
 	&setup();
