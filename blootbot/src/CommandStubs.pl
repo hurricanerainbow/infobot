@@ -256,6 +256,9 @@ sub parseCmdHook {
 &addCmdHook("extra", 'HTTPDtype', ('CODEREF' => 'HTTPDtype::HTTPDtype',
 	'Identifier' => 'HTTPDtype', 'Cmdstats' => 'HTTPDtype',
 	'Forker' => 1) );
+&addCmdHook("extra", 'scramble', ('CODEREF' => 'scramble::scramble',
+	'Identifier' => 'scramble', 'Cmdstats' => 'scramble',
+	'Forker' => 1) );
 &addCmdHook("extra", 'Rss', ('CODEREF' => 'Rss::Rss',
 	'Identifier' => 'Rss', 'Cmdstats' => 'Rss',
 	'Forker' => 1, 'Help' => 'rss') );
