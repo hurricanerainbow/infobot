@@ -664,7 +664,7 @@ sub invite {
 # Usage: &joinNextChan();
 sub joinNextChan {
     my @join = getJoinChans(1);
-    my $mynick = "UNDEFINED";
+    my $mynick = "UNDEF";
 
     $mynick = $conn->nick() if $conn;
     if (scalar @join) {
