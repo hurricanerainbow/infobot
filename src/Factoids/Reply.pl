@@ -28,8 +28,11 @@ sub getReply {
 
     $message =~ tr/A-Z/a-z/;
 
-    my ($count, $fauthor, $result) = &dbGet("factoids", 
-	"requested_count,created_by,factoid_value", "factoid_key=".&dbQuote($message) );
+    my ($count, $fauthor, $result) = &sqlSelect("factoids", 
+	"requested_count,created_by,factoid_value",
+	{ factoid_key => $message }
+    );
+
     if ($result) {
 	$lhs = $message;
 	$mhs = "is";
@@ -61,7 +64,7 @@ sub getReply {
 	### FIXME: old mysql doesn't support
 	### "requested_count=requested_count+1".
 	$count++;
-	&dbSet("factoids", {'factoid_key' => $lhs}, {
+	&sqlSet("factoids", {'factoid_key' => $lhs}, {
 		requested_by	=> $nuh,
 		requested_time	=> time(),
 		requested_count	=> $count
