@@ -47,6 +47,41 @@ sub BZFlag::list {
 
 	$ua->timeout(5);
 
+	my $req = HTTP::Request->new('GET', 'http://db.bzflag.org/db/?action=LIST');
+	my $res = $ua->request($req);
+  my %servers;
+  my $totalServers = 0;
+  my $totalPlayers = 0;
+	for my $line (split("\n",$res->content)) {
+		my ($serverport, $version, $flags, $ip, $comments) = split(" ",$line,5);
+		# not "(A4)18" to handle old dumb perl
+		my ($style, $maxShots, $shakeWins, $shakeTimeout, $maxPlayerScore, $maxTeamScore, $maxTime,
+				$maxPlayers, $rogueSize, $rogueMax, $redSize, $redMax, $greenSize, $greenMax,
+				$blueSize, $blueMax, $purpleSize, $purpleMax, $observerSize, $observerMax) =
+				unpack("A4A4A4A4A4A4A4A2A2A2A2A2A2A2A2A2A2A2A2A2", $flags);
+		my $playerSize = hex($rogueSize) + hex($redSize) + hex($greenSize)
+				+ hex($blueSize) + hex($purpleSize) + hex($observerSize);
+	  $servers{$serverport} = $playerSize;
+	  $totalServers += 1;
+	  $totalPlayers += $playerSize;
+	}
+  $response .= "s=$totalServers p=$totalPlayers";
+  foreach my $key (sort {$servers{$b} <=> $servers{$a}} (keys(%servers))) {
+		if ($servers{$key} > 0) {
+			$response .= " $key($servers{$key})";
+		}
+  }
+	&::performStrictReply($response);
+	return;
+}
+
+sub BZFlag::list17 {
+	my ($response);
+	my $ua = new LWP::UserAgent;
+	$ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
+
+	$ua->timeout(5);
+
 	my $req = HTTP::Request->new('GET', 'http://list.bzflag.org:5156/');
 	my $res = $ua->request($req);
   my %servers;
