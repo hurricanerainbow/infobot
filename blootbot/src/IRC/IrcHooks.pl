@@ -122,7 +122,6 @@ sub on_endofmotd {
 	close IN;
     }
 
-    ### TODO: move this to end of &joinNextChan()?
     if ($firsttime) {
 	&DEBUG("on_EOM: calling sS in 60s.");
 	$conn->schedule(60, \&setupSchedulers, "");
@@ -268,12 +267,14 @@ sub on_endofnames {
 
 	my @chans = split(/[\s\t]+/, $param{'chanServ_ops'});
 
+	### TODO: since this function has a chan arg, why don't we use
+	###	  that instead of doing the following?
 	foreach $chan (keys %channels) {
 	    next unless (grep /^$chan$/i, @chans);
 
 	    if (!exists $channels{$chan}{'o'}{$ident}) {
 		&status("ChanServ ==> Requesting ops for $chan.");
-		rawout("PRIVMSG ChanServ :OP $chan $ident");
+		&rawout("PRIVMSG ChanServ :OP $chan $ident");
 	    }
 	}
     }
