@@ -390,13 +390,23 @@ sub FactoidStuff {
 	my $result = &getFactoid($faqtoid);
 
 	if (defined $result) {
-	    my $author = &getFactInfo($faqtoid, "created_by");
+	    my $author	= &getFactInfo($faqtoid, "created_by");
+	    my $count	= &getFactInfo($faqtoid, "requested_count") || 0;
+	    my $limit	= &getChanConfDefault("factoidPreventForgetLimit", 
+				0, $chan);
+
 	    if (IsFlag("r") ne "r") {
 		&msg($who, "you don't have access to remove factoids");
 		return;
 	    }
 
 	    return 'locked factoid' if (&IsLocked($faqtoid) == 1);
+
+	    # factoidPreventForgetLimit:
+	    if ($limit and $count > $limit and (&IsFlag("o") ne "o")) {
+		&msg($who, "will not delete '$faqtoid', count > limit ($count > $limit)");
+		return;
+	    }
 
 	    if (&IsParam("factoidDeleteDelay")) {
 		if ($faqtoid =~ / #DEL#$/ and !&IsFlag("o")) {
