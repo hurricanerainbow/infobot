@@ -107,6 +107,37 @@ sub process {
 	return if ($retval eq $noreply);
     }
 
+    # 'identify'
+    if ($msgType =~ /private/ and $message =~ s/^identify//) {
+	$message =~ s/^\s+|\s+$//g;
+	my @array = split / /, $message;
+
+	if ($who =~ /^_default$/i) {
+	    &pSReply("you are too eleet.");
+	    return;
+	}
+
+	if (!scalar @array or scalar @array > 2) {
+	    &help("identify");
+	    return;
+	}
+
+	my $do_nick = $array[1] || $who;
+
+	if (!exists $users{$do_nick}) {
+	    &pSReply("nick $do_nick is not in user list.");
+	    return;
+	}
+
+	my $mask = "*!$user@".&makeHostMask($host);
+	### TODO: prevent adding multiple dupe masks?
+	### TODO: make &addHostMask() CMD?
+	&pSReply("Added $mask for $do_nick...");
+	$users{$do_nick}{HOSTS}{$mask} = 1;
+
+	return;
+    }
+
     ###
     # once useless messages have been parsed out, we match them.
     ###
