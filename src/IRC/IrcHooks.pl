@@ -5,7 +5,7 @@
 #        NOTE: Based on code by Kevin Lenzo & Patrick Cole  (c) 1997
 #
 
-if (&IsParam("useStrict")) { use strict; }
+# use strict;	# TODO
 
 # GENERIC. TO COPY.
 sub on_generic {
@@ -470,7 +470,7 @@ sub on_join {
     my $i		= scalar(keys %{ $channels{$chan} });
     my $j		= $cache{maxpeeps}{$chan} || 0;
 
-    if (time() > ($sched{shmFlush}{TIME} || time()) + 3600) {
+    if (!&IsParam("noSHM") && time() > ($sched{shmFlush}{TIME} || time()) + 3600) {
 	&DEBUG("looks like schedulers died somewhere... restarting...");
 	&setupSchedulers();
     }
@@ -582,9 +582,6 @@ sub on_join {
 	}
     }
 
-    ### chanlimit check.
-#    &chanLimitVerify($chan);
-
     ### wingate:
     &wingateCheck();
 }
@@ -618,7 +615,8 @@ sub on_mode {
     my $nick	= $event->nick();
     $chan	= ($event->to)[0];
 
-    $args[0] =~ s/\s$//;
+    # last element is empty... so nuke it.
+    pop @args while ($args[$#args] eq "");
 
     if ($nick eq $chan) {	# UMODE
 	&status(">>> mode $b_yellow\[$ob$b@args$b_yellow\]$ob by $b_cyan$nick$ob");
