@@ -280,6 +280,11 @@ sub Modules {
 	$itc =~ s/([^\w\s])/\\$1/g;
 	my $z = join '|', split ' ', $itc;
 
+	if ($msgType eq "privmsg" and $message =~ / ($mask{chan})$/) {
+	    &DEBUG("ircTC: privmsg detected; chan = $1");
+	    $chan = $1;
+	}
+
 	if ($message =~ /^_stats(\s+(\S+))$/i) {
 	    &textstats_main($2);
 	    return;

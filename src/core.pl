@@ -11,6 +11,7 @@ use strict;
 ### TODO: reorder.
 use vars qw(
 	$bot_misc_dir $bot_pid $bot_base_dir $bot_src_dir
+	$bot_data_dir $bot_config_dir $bot_state_dir $bot_run_dir
 	$answer $correction_plausible $talkchannel $bot_release
 	$statcount $memusage $user $memusageOld $bot_version $dbh
 	$shm $host $msg $noreply $conn $irc $learnok $nick $ident
@@ -510,8 +511,7 @@ sub loadConfig {
 
     if (!open(FILE, $file)) {
 	&ERROR("FAILED loadConfig ($file): $!");
-	&status("Please copy files/sample.config to files/blootbot.config");
-	&status("  and edit files/blootbot.config, modify to tastes.");
+	&status("Please read the INSTALL file on how to install and setup this file.");
 	exit 0;
     }
 

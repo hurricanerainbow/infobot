@@ -50,11 +50,7 @@ cases. preliminary pgsql support has been added but someone with pgperl
 knowledge needs to fix it up or at least unify the module with mysql.
 
 INSTALLATION
-  - Read INSTALL and INSTALL.patches
-  - Copy files/sample.config to files/blootbot.config
-  - Edit files/blootbot.config
-  - ./blootbot
-
+  - Read the included INSTALL file 
 
 NOTICE
 	Be warned that this bot consumes quite a lot of memory upon start

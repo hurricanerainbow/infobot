@@ -1169,7 +1169,8 @@ sub on_chanfull {
     my ($self, $event) = @_;
     my @args	= $event->args;
 
-    &DEBUG("on_chanfull: args => @args");
+    &status(">>> chanfull/$b_blue$args[1]$ob");
+
     &joinNextChan();
 }
 
@@ -1177,15 +1178,18 @@ sub on_inviteonly {
     my ($self, $event) = @_;
     my @args	= $event->args;
 
-    &DEBUG("on_inviteonly: args => @args");
+    &status(">>> inviteonly/$b_cyan$args[1]$ob");
+
     &joinNextChan();
 }
 
 sub on_banned {
     my ($self, $event) = @_;
     my @args	= $event->args;
+    my $chan	= $args[1];
 
-    &DEBUG("on_banned: args => @args");
+    &status(">>> banned/$b_blue$chan$ob $b_cyan$args[0]$ob");
+
     &joinNextChan();
 }
 

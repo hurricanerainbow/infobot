@@ -181,6 +181,7 @@ topic: End of help.
 part: D: Leave a channel (DCC only)
 part: U: ## <#channel>
 part: E: ## #debian
+part: NOTE: /kick is an alternative
 
 seen: D: Report last seen time for somebody
 seen: U: ## <nick>
@@ -221,10 +222,10 @@ unlock: E: ## abuse
 dollar variables: D: To be used in factoids
 dollar variables: $date        - ...
 dollar variables: $time        - ...
-dollar variables: $who         - nick that caused the factoid to be retrieved
-dollar variables: $username    - the username, not the nick
-dollar variables: $host        - ...
-dollar variables: $channel     - ...
+dollar variables: $who         - nick of factoid requester
+dollar variables: $username    - username of factoid requester
+dollar variables: $host        - hostname of factoid requester
+dollar variables: $channel     - channel from which the factoid was requested
 dollar variables: $lastspeaker - ...
 dollar variables: $factoid     - ...
 
@@ -306,10 +307,7 @@ nickometer: E: ## unknown_lamer
 nickometer: E: ## #debian-bots
 
 news: D: News functin
-news: U: ## [chan] add
-news: U: ## [chan] del
-news: U: ## [chan] mod
-news: U: ## [chan] set
+news: U: ## [chan] <add,del,mod,set,latest,read,help>
 
 news add: D: Add news items
 news add: U: news [chan] add <title>
@@ -341,3 +339,8 @@ news mod: D: Modify a news item (todo: modify Text aswell)
 news mod: E: news [chan] mod <item> s/<from>/<to>/[g]
 news mod: E: news mod 1 s/test/Test/
 news mod: E: news mod test s/test/Test/g
+
+tell: D: Tell someone about a factoid or command
+tell: U: tell <who> -?about <what>
+tell: E: tell me about blootbot
+tell: E: tell someone -about testing
