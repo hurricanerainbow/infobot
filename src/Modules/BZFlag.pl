@@ -49,6 +49,8 @@ sub BZFlag::list {
 	my $req = HTTP::Request->new('GET', 'http://list.bzflag.org:5156/');
 	my $res = $ua->request($req);
   my %servers;
+  my $totalServers = 0;
+  my $totalPlayers = 0;
 	for my $line (split("\n",$res->content)) {
 		my ($serverport, $version, $flags, $ip, $comments) = split(" ",$line,5);
 		# not "(A4)18" to handle old dumb perl
@@ -61,10 +63,13 @@ sub BZFlag::list {
 		my $playerSize = hex($rogueSize) + hex($redSize) + hex($greenSize)
 				+ hex($blueSize) + hex($purpleSize);
 	  $servers{$serverport} = $playerSize;
+	  $totalServers += 1;
+	  $totalPlayers += $playerSize;
 	}
+  $response .= "s=$totalServers p=$totalPlayers";
   foreach my $key (sort {$servers{$b} <=> $servers{$a}} (keys(%servers))) {
 		if ($servers{$key} > 0) {
-			$response .= "$key($servers{$key}) ";
+			$response .= " $key($servers{$key})";
 		}
   }
 	&::performStrictReply($response);
@@ -104,7 +109,7 @@ sub BZFlag::querytext {
 
 	# get hello
 	my $buffer;
-	return 'read error' unless sysread(S1, $buffer, 10) == 10;
+	return 'read error' unless read(S1, $buffer, 10) == 10;
 
 	# parse reply
 	my ($magic,$major,$minor,$revision);
@@ -132,7 +137,7 @@ sub BZFlag::querytext {
 	print S pack("n2", 0, 0x7167);
 
 	# get reply
-	return 'server read error' unless sysread(S, $buffer, 40) == 40;
+	return 'server read error' unless read(S, $buffer, 40) == 40;
 	my ($infolen,$infocode,$style,$maxPlayers,$maxShots,
 		$rogueSize,$redSize,$greenSize,$blueSize,$purpleSize,
 		$rogueMax,$redMax,$greenMax,$blueMax,$purpleMax,
@@ -144,13 +149,13 @@ sub BZFlag::querytext {
 	print S pack("n2", 0, 0x7170);
 
 	# get number of teams and players we'll be receiving
-	return 'count read error' unless sysread(S, $buffer, 8) == 8;
+	return 'count read error' unless read(S, $buffer, 8) == 8;
 	my ($countlen,$countcode,$numTeams,$numPlayers) = unpack("n4", $buffer);
 	return 'bad count data' unless $countcode == 0x7170;
 
 	# get the teams
 	for (1..$numTeams) {
-		return 'team read error' unless sysread(S, $buffer, 14) == 14;
+		return 'team read error' unless read(S, $buffer, 14) == 14;
 		my ($teamlen,$teamcode,$team,$size,$aSize,$won,$lost) = unpack("n7", $buffer);
 		return 'bad team data' unless $teamcode == 0x7475;
 		if ($size > 0) {
@@ -161,7 +166,7 @@ sub BZFlag::querytext {
 
 	# get the players
 	for (1..$numPlayers) {
-		last unless sysread(S, $buffer, 180) == 180;
+		last unless read(S, $buffer, 180) == 180;
 		my ($playerlen,$playercode,$pAddr,$pPort,$pNum,$type,$team,$won,$lost,$sign,$email) =
 				unpack("n2Nn2 n4A32A128", $buffer);
 		return 'bad player data' unless $playercode == 0x6170;
