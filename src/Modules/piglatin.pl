@@ -13,11 +13,15 @@ sub piglatin
   my $suffix = 'ay';
 
   # FIXME: does not handle:
-  #  punctuation and hyphens
+  #  non-trailing punctuation and hyphens
   #  y as vowel "style" -> "ylestay"
   #  contractions
   for my $word (split /\s+/, $text) {
-    my $pigword;
+    my ($pigword, $postfix);
+    #($word,$postfix) = $word =~ s/^([a-z]*)([,.!\?;:'"])?$//i;
+    if ($word =~ s/([,.!\?;:'"])$//i) {
+      $postfix = $1;
+    }
     if ($word =~ /^(qu)(.*)/ ) {
       $pigword = "$2$1$suffix";
     } elsif ($word =~ /^(Qu)(.)(.*)/ ) {
@@ -30,7 +34,7 @@ sub piglatin
       $pigword = $word . 'w' . $suffix;
     }
     $piglatin .= ' ' if $piglatin;
-    $piglatin .= $pigword;
+    $piglatin .= $pigword . $postfix;
   }
   &::performStrictReply($piglatin||'failed');
 }
