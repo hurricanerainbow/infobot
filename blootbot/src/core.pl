@@ -7,7 +7,7 @@
 
 use strict;
 
-# dynamic scalar. MUST BE REDUCED IN SIZE!!!
+# scalar. MUST BE REDUCED IN SIZE!!!
 ### TODO: reorder.
 use vars qw(
 	$bot_misc_dir $bot_pid $bot_base_dir $bot_src_dir
@@ -26,11 +26,11 @@ use vars qw(
 	$running
 );
 
-# dynamic hash.
+# array.
 use vars qw(@joinchan @ircServers @wingateBad @wingateNow @wingateCache
 );
 
-### dynamic hash. MUST BE REDUCED IN SIZE!!!
+### hash. MUST BE REDUCED IN SIZE!!!
 # 
 use vars qw(%count %netsplit %netsplitservers %flood %dcc %orig
 	    %nuh %talkWho %seen %floodwarn %param %dbh %ircPort
@@ -99,6 +99,8 @@ sub doExit {
 
 	&status("--- Start of quit.");
 	$ident ||= "blootbot";	# lame hack.
+
+	&status("Memory Usage: $memusage kB");
 
 	&closePID();
 	&closeStats();
@@ -375,7 +377,7 @@ sub showProc {
 	close IN;
 
     } elsif ($^O eq "netbsd") {
-	$memusage = (stat "/proc/$$/mem")[7]/1024;
+	$memusage = int( (stat "/proc/$$/mem")[7]/1024 );
 
     } elsif ($^O =~ /^(free|open)bsd$/) {
 	my @info  = split /\s+/, `/bin/ps -l -p $$`;
@@ -425,7 +427,8 @@ sub setup {
 
     $shm = &openSHM();
     &openSQLDebug()	if (&IsParam("SQLDebug"));
-    &openDB($param{'DBName'}, $param{'SQLUser'}, $param{'SQLPass'});
+    &openDB($param{'DBName'}, $param{'DBType'}, $param{'SQLUser'},
+	$param{'SQLPass'});
     &checkTables();
 
     &status("Setup: ". &countKeys("factoids") ." factoids.");
@@ -509,7 +512,9 @@ sub restart {
 	&status("--- $sig called.");
 
 	### crappy bug in Net::IRC?
-	if (!$conn->connected and time - $msgtime > 900) {
+	my $delta = time() - $msgtime;
+	&DEBUG("restart: dtime = $delta");
+	if (!$conn->connected or time() - $msgtime > 900) {
 	    &status("reconnecting because of uncaught disconnect \@ ".scalar(localtime) );
 ###	    $irc->start;
 	    &clearIRCVars();
