@@ -656,6 +656,7 @@ sub lart {
     my ($target) = &fixString($_[0]);
     my $extra 	= 0;
     my $chan	= $talkchannel;
+    my ($for);
 
     if ($msgType eq 'private') {
 	if ($target =~ /^($mask{chan})\s+(.*)$/) {
