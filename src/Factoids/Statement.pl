@@ -6,7 +6,7 @@
 ##  doStatement --
 ##
 ##	decide if $in is a statement, and if so,
-##		- update the dbm
+##		- update the db
 ##		- return feedback statement
 ##
 ##	otherwise return

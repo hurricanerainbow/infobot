@@ -305,20 +305,8 @@ sub seenFlushOld {
 	    }
 	    $sth->finish;
 	}
-    } elsif ($param{'DBType'} =~ /^dbm/i) {
-	my $time = time();
-
-	foreach (keys %seen) {
-	    my $t2 = &sqlSelect("seen", "time", { nick => $_ }) || 0;
-	    my $delta_time = $time - $t2;
-	    next unless ($delta_time > $max_time);
-
-	    &DEBUG("seenFlushOld: ".&Time2String($delta_time) );
-	    delete $seen{$_};
-	    $delete++;
-	}
     } else {
-	&FIXME("seenFlushOld: for PG/NO-DB.");
+	&FIXME("seenFlushOld: for bad DBType:" . $param{'DBType'} . ".");
     }
     &VERB("SEEN deleted $delete seen entries.",2);
 
@@ -588,7 +576,7 @@ sub seenFlush {
     $stats{'new'}	= 0;
     $stats{'old'}	= 0;
 
-    if ($param{'DBType'} =~ /^(mysql|pgsql|sqlite|dbm)$/i) {
+    if ($param{'DBType'} =~ /^(mysql|pgsql|sqlite)$/i) {
 	foreach $nick (keys %seencache) {
 	    my $retval = &sqlReplace("seen", {
 			nick	=> lc $seencache{$nick}{'nick'},
