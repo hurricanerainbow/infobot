@@ -5,14 +5,23 @@ INSTALL.mysql
 - Debian: (apt-get install libdbd-mysql-perl)
 
 - run 'mysqladmin -u root -p create <DB NAME>'
-- run 'scripts/setup_users.pl'
+- run 'setup/setup.pl'
 = Possible problems
 	- if connection to localhost is (short) refused, run
 		'/etc/init.d/mysql stop'.
 		'/etc/init.d/mysql start'.
 	- if connection for user is refused, reload grant tables with
 		'mysqladmin -u root -p reload'
-- run 'scripts/setup_tables.pl'
 * [OPTIONAL]
 	- run 'scripts/dbm2mysql.pl old-db' to convert dbm database file
 	  to mysql.
+
+ADDITIONAL NOTES:
+ HOW TO ADD NEW USER MANUALLY
+    CREATE DATABASE @DBNAME@
+    INSERT INTO user VALUES ('localhost','@USER@',password('@PASS@'),
+	'Y','Y','Y','Y','N','N','N','N','N','N','N','N','N','N');
+    INSERT INTO db VALUES ('localhost','@DBNAME@','@USER@',
+	'Y','Y','Y','Y','Y','N','N','N','N','N');
+    GRANT SELECT,INSERT,UPDATE,DELETE ON @DBNAME@ TO @USER@
+    FLUSH PRIVILEGES
