@@ -111,8 +111,6 @@ sub parseCmdHook {
 
 	### FORKER,IDENTIFIER,CODEREF.
 	if (($$ == $bot_pid) && exists $hash{'Forker'}) {
-	    $hash{'Identifier'} .= "-" if ($hash{'Forker'} eq "NULL");
-
 	    if (exists $hash{'ArrayArgs'}) {
 		&Forker($hash{'Identifier'}, sub { \&{ $hash{'CODEREF'} }(@args) } );
 	    } else {
@@ -845,154 +843,63 @@ sub nullski {
 ###
 ### START ADDING HOOKS.
 ###
+&addCmdHook('(babel(fish)?|x|xlate|translate)', ('CODEREF' => 'babelfish::babelfish', 'Identifier' => 'babelfish', 'Cmdstats' => 'babelfish', 'Forker' => 1, 'Help' => 'babelfish', 'Module' => 'babelfish') );
+&addCmdHook('(botmail|message)', ('CODEREF' => 'botmail::parse', 'Identifier' => 'botmail', 'Cmdstats' => 'botmail') );
+&addCmdHook('bzflist17', ('CODEREF' => 'BZFlag::list17', 'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag', 'Forker' => 1) );
+&addCmdHook('bzflist', ('CODEREF' => 'BZFlag::list', 'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag', 'Forker' => 1) );
+&addCmdHook('bzfquery', ('CODEREF' => 'BZFlag::query', 'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag', 'Forker' => 1) );
 &addCmdHook('chan(stats|info)', ('CODEREF' => 'chaninfo', ) );
 &addCmdHook('cmd(stats|info)', ('CODEREF' => 'cmdstats', ) );
-&addCmdHook('sched(stats|info)', ('CODEREF' => 'scheduleList', ) );
-&addCmdHook('factinfo', ('CODEREF' => 'factinfo',
-	'Cmdstats' => 'Factoid Info', Module => 'Factoids', ) );
-&addCmdHook('factstats?', ('CODEREF' => 'factstats',
-	'Cmdstats' => 'Factoid Stats', Help => "factstats",
-	Forker => 1, 'Identifier' => 'Factoids', ) );
-&addCmdHook('help', ('CODEREF' => 'help',
-	'Cmdstats' => 'Help', ) );
+&addCmdHook('convert', ('CODEREF' => 'convert', 'Forker' => 1, 'Identifier' => 'Units', 'Help' => 'convert') );
+&addCmdHook('(cookie|random)', ('CODEREF' => 'cookie', 'Forker' => 1, 'Identifier' => 'Factoids') );
+&addCmdHook('countdown', ('CODEREF' => 'countdown', 'Module' => 'countdown', 'Identifier' => 'countdown', 'Cmdstats' => 'countdown') );
+&addCmdHook('countrystats', ('CODEREF' => 'countryStats') );
+&addCmdHook('dauthor', ('CODEREF' => 'Debian::searchAuthor', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Author Search', 'Help' => "dauthor" ) );
+&addCmdHook('d?bugs', ('CODEREF' => 'DebianExtra::Parse', 'Forker' => 1, 'Identifier' => 'DebianExtra', 'Cmdstats' => 'Debian Bugs') );
+&addCmdHook('d?contents', ('CODEREF' => 'Debian::searchContents', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Contents Search', 'Help' => "contents" ) );
+&addCmdHook('d?find', ('CODEREF' => 'Debian::DebianFind', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Search', 'Help' => "find" ) );
+&addCmdHook('Dict', ('CODEREF' => 'Dict::Dict', 'Identifier' => 'Dict', 'Help' => 'dict', 'Forker' => 1, 'Cmdstats' => 'Dict') );
+&addCmdHook('dincoming', ('CODEREF' => 'Debian::generateIncoming', 'Forker' => 1, 'Identifier' => 'Debian' ) );
+&addCmdHook('dnew', ('CODEREF' => 'DebianNew', 'Identifier' => 'Debian' ) );
+&addCmdHook('dns|d?nslookup', ('CODEREF' => 'dns::query', 'Identifier' => 'dns', 'Cmdstats' => 'dns', 'Forker' => 1, 'Help' => 'dns') );
+&addCmdHook('(d|search)desc', ('CODEREF' => 'Debian::searchDescFE', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Desc Search', 'Help' => "ddesc" ) );
+&addCmdHook('dstats', ('CODEREF' => 'Debian::infoStats', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Statistics' ) );
+&addCmdHook('(ex)?change', ('CODEREF' => 'Exchange::query', 'Identifier' => 'Exchange', 'Cmdstats' => 'Exchange', 'Forker' => 1) );
+&addCmdHook('factinfo', ('CODEREF' => 'factinfo', 'Cmdstats' => 'Factoid Info', Module => 'Factoids', ) );
+&addCmdHook('factstats?', ('CODEREF' => 'factstats', 'Cmdstats' => 'Factoid Stats', Help => "factstats", Forker => 1, 'Identifier' => 'Factoids', ) );
+&addCmdHook('help', ('CODEREF' => 'help', 'Cmdstats' => 'Help', ) );
+&addCmdHook('HTTPDtype', ('CODEREF' => 'HTTPDtype::HTTPDtype', 'Identifier' => 'HTTPDtype', 'Cmdstats' => 'HTTPDtype', 'Forker' => 1) );
+&addCmdHook('[ia]?spell', ('CODEREF' => 'spell::query', 'Identifier' => 'spell', 'Cmdstats' => 'spell', 'Forker' => 1, 'Help' => 'spell') );
+&addCmdHook('insult', ('CODEREF' => 'Insult::Insult', 'Forker' => 1, 'Identifier' => 'insult', 'Help' => "insult" ) );
 &addCmdHook('karma', ('CODEREF' => 'karma', ) );
-&addCmdHook('tell|explain', ('CODEREF' => 'tell',
-	Help => 'tell', Identifier => 'allowTelling',
-	Cmdstats => 'Tell') );
-&addCmdHook('News', ('CODEREF' => 'News::Parse',
-	Module => 'News', 'Cmdstats' => 'News' ) );
-&addCmdHook('countrystats', ('CODEREF' => 'countryStats',
-#	Forker => "NULL",
- ) );
-
-&addCmdHook('d?bugs', ('CODEREF' => 'DebianExtra::Parse',
-	'Forker' => 1, 'Identifier' => 'DebianExtra',
-	'Cmdstats' => 'Debian Bugs') );
-&addCmdHook('dauthor', ('CODEREF' => 'Debian::searchAuthor',
-	'Forker' => 1, 'Identifier' => 'Debian',
-	'Cmdstats' => 'Debian Author Search', 'Help' => "dauthor" ) );
-&addCmdHook('(d|search)desc', ('CODEREF' => 'Debian::searchDescFE',
-	'Forker' => 1, 'Identifier' => 'Debian',
-	'Cmdstats' => 'Debian Desc Search', 'Help' => "ddesc" ) );
-&addCmdHook('dnew', ('CODEREF' => 'DebianNew',
-	'Identifier' => 'Debian' ) );
-&addCmdHook('dincoming', ('CODEREF' => 'Debian::generateIncoming',
-	'Forker' => 1, 'Identifier' => 'Debian' ) );
-&addCmdHook('dstats', ('CODEREF' => 'Debian::infoStats',
-	'Forker' => 1, 'Identifier' => 'Debian',
-	'Cmdstats' => 'Debian Statistics' ) );
-&addCmdHook('d?contents', ('CODEREF' => 'Debian::searchContents',
-	'Forker' => 1, 'Identifier' => 'Debian',
-	'Cmdstats' => 'Debian Contents Search', 'Help' => "contents" ) );
-&addCmdHook('d?find', ('CODEREF' => 'Debian::DebianFind',
-	'Forker' => 1, 'Identifier' => 'Debian',
-	'Cmdstats' => 'Debian Search', 'Help' => "find" ) );
-&addCmdHook('insult', ('CODEREF' => 'Insult::Insult',
-	'Forker' => 1, 'Identifier' => 'insult', 'Help' => "insult" ) );
-&addCmdHook('kernel', ('CODEREF' => 'Kernel::Kernel',
-	'Forker' => 1, 'Identifier' => 'Kernel',
-	'Cmdstats' => 'Kernel', 'NoArgs' => 1) );
-&addCmdHook('listauth', ('CODEREF' => 'CmdListAuth',
-	'Identifier' => 'Search', Module => 'Factoids',
-	'Help' => 'listauth') );
-&addCmdHook('quote', ('CODEREF' => 'Quote::Quote',
-	'Forker' => 1, 'Identifier' => 'Quote',
-	'Help' => 'quote', 'Cmdstats' => 'Quote') );
-&addCmdHook('countdown', ('CODEREF' => 'countdown',
-	'Module' => 'countdown', 'Identifier' => 'countdown',
-	'Cmdstats' => 'countdown') );
-&addCmdHook('lart', ('CODEREF' => 'lart',
-	'Identifier' => 'lart', 'Help' => 'lart') );
-&addCmdHook('convert', ('CODEREF' => 'convert',
-	'Forker' => 1, 'Identifier' => 'Units',
-	'Help' => 'convert') );
-&addCmdHook('(cookie|random)', ('CODEREF' => 'cookie',
-	'Forker' => 1, 'Identifier' => 'Factoids') );
-&addCmdHook('u(ser)?info', ('CODEREF' => 'userinfo',
-	'Identifier' => 'UserInfo', 'Help' => 'userinfo',
-	'Module' => 'UserInfo') );
-&addCmdHook('RootWarn', ('CODEREF' => 'CmdrootWarn',
-	'Identifier' => 'RootWarn', 'Module' => 'RootWarn') );
-&addCmdHook('seen', ('CODEREF' => 'seen', 'Identifier' =>
-	'seen') );
-&addCmdHook('Dict', ('CODEREF' => 'Dict::Dict',
-	'Identifier' => 'Dict', 'Help' => 'dict',
-	'Forker' => 1, 'Cmdstats' => 'Dict') );
-&addCmdHook('slashdot', ('CODEREF' => 'Slashdot::Slashdot',
-	'Identifier' => 'slashdot', 'Forker' => 1,
-	'Cmdstats' => 'slashdot') );
-&addCmdHook('Plug', ('CODEREF' => 'Plug::Plug',
-	'Identifier' => 'Plug', 'Forker' => 1,
-	'Cmdstats' => 'Plug') );
-&addCmdHook('Uptime', ('CODEREF' => 'uptime', 'Identifier' => 'Uptime',
-	'Cmdstats' => 'Uptime') );
+&addCmdHook('kernel', ('CODEREF' => 'Kernel::Kernel', 'Forker' => 1, 'Identifier' => 'Kernel', 'Cmdstats' => 'Kernel', 'NoArgs' => 1) );
+&addCmdHook('lart', ('CODEREF' => 'lart', 'Identifier' => 'lart', 'Help' => 'lart') );
+&addCmdHook('listauth', ('CODEREF' => 'CmdListAuth', 'Identifier' => 'Search', Module => 'Factoids', 'Help' => 'listauth') );
+&addCmdHook('md5(sum)?', ('CODEREF' => 'md5::md5', 'Identifier' => 'md5', 'Cmdstats' => 'md5', 'Forker' => 1, 'Module' => 'md5') );
+&addCmdHook('metar', ('CODEREF' => 'Weather::Metar', 'Identifier' => 'Weather', 'Help' => 'weather', 'Cmdstats' => 'Weather', 'Forker' => 1) );
+&addCmdHook('News', ('CODEREF' => 'News::Parse', Module => 'News', 'Cmdstats' => 'News' ) );
+&addCmdHook('(?:nick|lame)ometer(?: for)?', ('CODEREF' => 'nickometer::query', 'Identifier' => 'nickometer', 'Cmdstats' => 'nickometer', 'Forker' => 1) );
 &addCmdHook('nullski', ('CODEREF' => 'nullski', ) );
+&addCmdHook('page', ('CODEREF' => 'pager::page', 'Identifier' => 'pager', 'Cmdstats' => 'pager', 'Forker' => 1, 'Help' => 'page') );
+&addCmdHook('piglatin', ('CODEREF' => 'piglatin::piglatin', 'Identifier' => 'piglatin', 'Cmdstats' => 'piglatin', 'Forker' => 1) );
+&addCmdHook('Plug', ('CODEREF' => 'Plug::Plug', 'Identifier' => 'Plug', 'Forker' => 1, 'Cmdstats' => 'Plug') );
+&addCmdHook('quote', ('CODEREF' => 'Quote::Quote', 'Forker' => 1, 'Identifier' => 'Quote', 'Help' => 'quote', 'Cmdstats' => 'Quote') );
+&addCmdHook('RootWarn', ('CODEREF' => 'CmdrootWarn', 'Identifier' => 'RootWarn', 'Module' => 'RootWarn') );
+&addCmdHook('Rss', ('CODEREF' => 'Rss::Rss', 'Identifier' => 'Rss', 'Cmdstats' => 'Rss', 'Forker' => 1, 'Help' => 'rss') );
+&addCmdHook('sched(stats|info)', ('CODEREF' => 'scheduleList', ) );
+&addCmdHook('scramble', ('CODEREF' => 'scramble::scramble', 'Identifier' => 'scramble', 'Cmdstats' => 'scramble', 'Forker' => 1, 'Module' => 'scramble') );
+&addCmdHook('seen', ('CODEREF' => 'seen', 'Identifier' => 'seen') );
+&addCmdHook('slashdot', ('CODEREF' => 'Slashdot::Slashdot', 'Identifier' => 'slashdot', 'Forker' => 1, 'Cmdstats' => 'slashdot') );
+&addCmdHook('tell|explain', ('CODEREF' => 'tell', Help => 'tell', Identifier => 'allowTelling', Cmdstats => 'Tell') );
+&addCmdHook('Uptime', ('CODEREF' => 'uptime', 'Identifier' => 'Uptime', 'Cmdstats' => 'Uptime') );
+&addCmdHook('u(ser)?info', ('CODEREF' => 'userinfo', 'Identifier' => 'UserInfo', 'Help' => 'userinfo', 'Module' => 'UserInfo') );
 &addCmdHook('verstats', ('CODEREF' => 'do_verstats' ) );
-&addCmdHook('Weather', ('CODEREF' => 'Weather::Weather',
-	'Identifier' => 'Weather', 'Help' => 'weather',
-	'Cmdstats' => 'Weather', 'Forker' => 1) );
-&addCmdHook('metar', ('CODEREF' => 'Weather::Metar',
-	'Identifier' => 'Weather', 'Help' => 'weather',
-	'Cmdstats' => 'Weather', 'Forker' => 1) );
-&addCmdHook('bzflist', ('CODEREF' => 'BZFlag::list',
-	'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag',
-	'Forker' => 1) );
-&addCmdHook('bzflist17', ('CODEREF' => 'BZFlag::list17',
-	'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag',
-	'Forker' => 1) );
-&addCmdHook('bzfquery', ('CODEREF' => 'BZFlag::query',
-	'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag',
-	'Forker' => 1) );
-&addCmdHook('zfi', ('CODEREF' => 'zfi::query',
-	'Identifier' => 'zfi', 'Cmdstats' => 'zfi',
-	'Forker' => 1) );
-&addCmdHook('(zippy|yow)', ('CODEREF' => 'zippy::get',
-	'Identifier' => 'Zippy', 'Cmdstats' => 'Zippy',
-	'Forker' => 1) );
-&addCmdHook('zsi', ('CODEREF' => 'zsi::query',
-	'Identifier' => 'zsi', 'Cmdstats' => 'zsi',
-	'Forker' => 1) );
-&addCmdHook('(ex)?change', ('CODEREF' => 'Exchange::query',
-	'Identifier' => 'Exchange', 'Cmdstats' => 'Exchange',
-	'Forker' => 1) );
-&addCmdHook('(botmail|message)', ('CODEREF' => 'botmail::parse',
-	'Identifier' => 'botmail', 'Cmdstats' => 'botmail') );
-&addCmdHook('HTTPDtype', ('CODEREF' => 'HTTPDtype::HTTPDtype',
-	'Identifier' => 'HTTPDtype', 'Cmdstats' => 'HTTPDtype',
-	'Forker' => 1) );
-&addCmdHook('scramble', ('CODEREF' => 'scramble::scramble',
-	'Identifier' => 'scramble', 'Cmdstats' => 'scramble',
-	'Forker' => 1, 'Module' => 'scramble') );
-&addCmdHook('md5(sum)?', ('CODEREF' => 'md5::md5',
-	'Identifier' => 'md5', 'Cmdstats' => 'md5',
-	'Forker' => 1) );
-&addCmdHook('Rss', ('CODEREF' => 'Rss::Rss',
-	'Identifier' => 'Rss', 'Cmdstats' => 'Rss',
-	'Forker' => 1, 'Help' => 'rss') );
-&addCmdHook('wiki(pedia)?', ('CODEREF' => 'wikipedia::wikipedia',
-	'Identifier' => 'wikipedia', 'Cmdstats' => 'wikipedia',
-	'Forker' => 1, 'Help' => 'wikipedia') );
-&addCmdHook('page', ('CODEREF' => 'pager::page',
-	'Identifier' => 'pager', 'Cmdstats' => 'pager',
-	'Forker' => 1, 'Help' => 'page') );
-&addCmdHook('(babel(fish)?|x|xlate|translate)', ('CODEREF' => 'babelfish::babelfish',
-	'Identifier' => 'babelfish', 'Cmdstats' => 'babelfish',
-	'Forker' => 1, 'Help' => 'babelfish', 'Module' => 'babelfish') );
-&addCmdHook('wtf', ('CODEREF' => 'wtf::query',
-	'Identifier' => 'wtf', 'Cmdstats' => 'wtf',
-	'Forker' => 1, 'Help' => 'wtf') );
-&addCmdHook('[ia]?spell', ('CODEREF' => 'spell::query',
-	'Identifier' => 'spell', 'Cmdstats' => 'spell',
-	'Forker' => 1, 'Help' => 'spell') );
-&addCmdHook('dns|d?nslookup', ('CODEREF' => 'dns::query',
-	'Identifier' => 'dns', 'Cmdstats' => 'dns',
-	'Forker' => 1, 'Help' => 'dns') );
-&addCmdHook('piglatin', ('CODEREF' => 'piglatin::piglatin',
-	'Identifier' => 'piglatin', 'Cmdstats' => 'piglatin',
-	'Forker' => 1) );
-&addCmdHook('(?:lame|nick)ometer(?: for)?', ('CODEREF' => 'nickometer::query',
-	'Identifier' => 'nickometer', 'Cmdstats' => 'nickometer',
-	'Forker' => 1) );
+&addCmdHook('Weather', ('CODEREF' => 'Weather::Weather', 'Identifier' => 'Weather', 'Help' => 'weather', 'Cmdstats' => 'Weather', 'Forker' => 1) );
+&addCmdHook('wiki(pedia)?', ('CODEREF' => 'wikipedia::wikipedia', 'Identifier' => 'wikipedia', 'Cmdstats' => 'wikipedia', 'Forker' => 1, 'Help' => 'wikipedia') );
+&addCmdHook('wtf', ('CODEREF' => 'wtf::query', 'Identifier' => 'wtf', 'Cmdstats' => 'wtf', 'Forker' => 1, 'Help' => 'wtf') );
+&addCmdHook('zfi', ('CODEREF' => 'zfi::query', 'Identifier' => 'zfi', 'Cmdstats' => 'zfi', 'Forker' => 1) );
+&addCmdHook('(zippy|yow)', ('CODEREF' => 'zippy::get', 'Identifier' => 'Zippy', 'Cmdstats' => 'Zippy', 'Forker' => 1) );
+&addCmdHook('zsi', ('CODEREF' => 'zsi::query', 'Identifier' => 'zsi', 'Cmdstats' => 'zsi', 'Forker' => 1) );
 ###
 ### END OF ADDING HOOKS.
 ###
