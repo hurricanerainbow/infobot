@@ -28,7 +28,7 @@ if ($@) {
 	"countdown"	=> "countdown.pl",
 	"debian"	=> "Debian.pl",
 	"debianExtra"	=> "DebianExtra.pl",
-	"dict"		=> "Dict.pl",
+	"Dict"		=> "Dict.pl",
 	"dumpvars"	=> "DumpVars.pl",
 	"exchange"	=> "Exchange.pl",
 	"factoids"	=> "Factoids.pl",

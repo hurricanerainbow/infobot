@@ -212,8 +212,8 @@ sub parseCmdHook {
 	'Identifier' => 'rootWarn', 'Module' => 'rootwarn') );
 &addCmdHook("extra", 'seen', ('CODEREF' => 'seen', 'Identifier' =>
 	'seen') );
-&addCmdHook("extra", 'dict', ('CODEREF' => 'Dict::Dict',
-	'Identifier' => 'dict', 'Help' => 'dict',
+&addCmdHook("extra", 'Dict', ('CODEREF' => 'Dict::Dict',
+	'Identifier' => 'Dict', 'Help' => 'dict',
 	'Forker' => 1, 'Cmdstats' => 'Dict') );
 &addCmdHook("extra", 'slashdot', ('CODEREF' => 'Slashdot::Slashdot',
 	'Identifier' => 'slashdot', 'Forker' => 1,
