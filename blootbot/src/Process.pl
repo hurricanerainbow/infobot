@@ -591,6 +591,7 @@ sub FactoidStuff {
     for ($question) {
 	# fix the string.
 	s/^hey([, ]+)where/where/i;
+	s/\s+\?$/?/;
 	s/whois/who is/ig;
 	s/where can i find/where is/i;
 	s/how about/where is/i;
