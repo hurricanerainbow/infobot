@@ -31,7 +31,7 @@ sub Dict {
     # connect.
     socket($socket, PF_INET, SOCK_STREAM, $proto) or return "error: socket: $!";
     eval {
-	alarm 15;
+	alarm 10;
 	connect($socket, sockaddr_in($port, inet_aton($server))) or return "error: connect: $!";
 	alarm 0;
     };
@@ -56,6 +56,10 @@ sub Dict {
 	close $socket;
 
 	my $total = scalar @results;
+
+	if ($total == 0) {
+	    $num = undef;
+	}
 
 	if (defined $num and ($num > $total or $num < 1)) {
 	    &::msg($::who, "error: choice in definition is out of range.");
