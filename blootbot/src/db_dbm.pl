@@ -58,7 +58,8 @@ use vars qw(@factoids_format @rootwarn_format @seen_format);
 @stats_format = (
 	"nick",
 	"type",
-	"counter"
+	"counter",
+	"time"
 );
 
 my @dbm	= ("factoids","freshmeat","rootwarn","seen","stats");
@@ -108,7 +109,6 @@ sub dbGet {
     my @retval;
     my $i;
     &DEBUG("dbGet($table, $select, $where);");
-    # TODO: support change that's done for db_mysql!
     return unless $key;
 
     if (!scalar @{ "${table}_format" }) {
@@ -152,7 +152,7 @@ sub dbGet {
 # Usage: &dbGetCol($table, $select, $where, [$type]);
 sub dbGetCol {
     my ($table, $select, $where, $type) = @_;
-    &DEBUG("STUB: &dbGetCol($table, $select, $where, $type);");
+    &FIXME("STUB: &dbGetCol($table, $select, $where, $type);");
 }
 
 #####
@@ -205,17 +205,6 @@ sub dbInsert {
 	$array[$i]='' unless $array[$i];
 	delete $hash{$col};
 	&DEBUG("dbI: setting $table->$primkey\{$col\} => '$array[$i]'.");
-
-#	$array[$i] ||= '';
-#	foreach (keys %hash) {
-#	    my $col = ${ "${table}_format" }[$i];
-#	    next unless ($col eq $_);
-#	    next unless $hash{$_};
-#
-#	    &DEBUG("dbI: setting $table->$primkey\{$col\} => '$hash{$_}'.");
-#	    $array[$i] = $hash{$_};
-#	    delete $hash{$_};
-#	}
     }
 
     if (scalar keys %hash) {
@@ -312,53 +301,14 @@ sub dbSet {
     }
     &dbReplace($table, $key, %hash);
     return 1;
-
-    my $p = join(' AND ', map {
-		$_."=".&dbQuote($href->{$_})
-	} keys %{$href}
-    );
-    &WARN("dbSet not implemented yet $where $p"); return 0;
-
-    # Usage: &dbSet($table, $primkey, $primval, $key, $val);
-    my ($table, $primkey, $primval, $key, $val) = @_;
-    my $found = 0;
-    &DEBUG("dbSet($table, $primkey, $primval, $key, $val);");
-
-    my $info = ${$table}{lc $primval};	# case insensitive.
-    my @array = ($info) ? split(/$;/, $info) : ();
-
-    # new entry.
-    if (!defined ${$table}{lc $primval}) {
-	# we assume primary key as first one. bad!
-	$array[0] = $primval;		# case sensitive.
-    }
-
-    for (0 .. $#{ "${table}_format" }) {
-	$array[$_] ||= '';	# from undefined to ''.
-	next unless (${ "${table}_format" }[$_] eq $key);
-	&DEBUG("dbSet: Setting array[$_]($key) to '$val'.");
-	$array[$_] = $val;
-	$found++;
-	last;
-    }
-
-    if (!$found) {
-	&msg($who,"error: invalid element name \002$type\002.");
-	return 0;
-    }
-
-    &DEBUG("setting $primval => '".join('|', @array)."'.");
-    ${$table}{lc $primval}	= join $;, @array;
-
-    return 1;
 }
 
 sub dbRaw {
-    &DEBUG("STUB: &dbRaw(@_);");
+    &FIXME("STUB: &dbRaw(@_);");
 }
 
 sub dbRawReturn {
-    &DEBUG("STUB: &dbRawReturn(@_);");
+    &FIXME("STUB: &dbRawReturn(@_);");
 }
 
 
@@ -372,16 +322,17 @@ sub countKeys {
 }
 
 sub getKeys {
-    &DEBUG("STUB: &getKeys(@_); -- REDUNDANT");
+    &FIXME("STUB: &getKeys(@_); -- REDUNDANT");
 }
 
 sub randKey {
-    &DEBUG("STUB: &randKey(@_);");
+    &FIXME("STUB: &randKey(@_);");
 }
 
 ##### $select is misleading???
 # Usage: &searchTable($table, $returnkey, $primkey, $str);
 sub searchTable {
+    &FIXME("STUB: searchTable($table, $primkey, $key, $str)");
     return;
     my ($table, $primkey, $key, $str) = @_;
     &DEBUG("searchTable($table, $primkey, $key, $str)");
@@ -477,14 +428,7 @@ sub delFactoid {
 }
 
 sub checkTables {
-#     &openDB();
-#     &closeDB();
-#    foreach ("factoids", "freshmeat", "rootwarn", "seen", "stats") {
-#    foreach (@dbm) {
-#	next if (exists $table{$_});
-#	&status("  creating new table $_...");
-#	&dbCreateTable($_);
-#    }
+# nothing - DB_FIle will create them on openDB()
 }
 
 1;
