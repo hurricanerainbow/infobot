@@ -192,6 +192,12 @@ sub reloadModule {
     my ($mod)	= @_;
     my $file	= (grep /\/$mod/, keys %INC)[0];
 
+    # don't reload if it's not our module.
+    if ($mod =~ /::/ or $mod !~ /pl$/) {
+	&VERB("Not reloading $mod.",3);
+	return;
+    }
+
     if (!defined $file) {
 	&WARN("rM: Cannot reload $mod since it was not loaded anyway.");
 	return;
