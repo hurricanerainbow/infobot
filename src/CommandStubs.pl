@@ -183,8 +183,8 @@ sub parseCmdHook {
 &addCmdHook("extra", 'd?find', ('CODEREF' => 'Debian::DebianFind',
 	'Forker' => 1, 'Identifier' => 'debian',
 	'Cmdstats' => 'Debian Search', 'Help' => "find" ) );
-&addCmdHook("extra", 'insult', ('CODEREF' => 'Insult::Insult',
-	'Forker' => 1, 'Identifier' => 'insult', 'Help' => "insult" ) );
+#&addCmdHook("extra", 'insult', ('CODEREF' => 'Insult::Insult',
+#	'Forker' => 1, 'Identifier' => 'insult', 'Help' => "insult" ) );
 &addCmdHook("extra", 'kernel', ('CODEREF' => 'Kernel::Kernel',
 	'Forker' => 1, 'Identifier' => 'kernel',
 	'Cmdstats' => 'Kernel', 'NoArgs' => 1) );
