@@ -5,7 +5,8 @@
 #     Created: 20000624
 #
 
-#use strict;
+# use strict;	# TODO
+
 use vars qw($AUTOLOAD);
 
 ###
@@ -66,7 +67,7 @@ BEGIN {
 sub loadCoreModules {
     my @mods = &getPerlFiles($bot_src_dir);
 
-    &status("Loading ".scalar(@mods)." CORE modules...");
+    &status("Loading CORE modules...");
 
     foreach (sort @mods) {
 	my $mod = "$bot_src_dir/$_";
@@ -84,8 +85,8 @@ sub loadCoreModules {
 }
 
 sub loadDBModules {
-    my $f = "$bot_src_dir/modules.pl";
-    $moduleAge{$f} = (stat $f)[9];
+    my $f;
+    # todo: use function to load module.
 
     if ($param{'DBType'} =~ /^mysql$/i) {
 	eval "use DBI";
@@ -94,28 +95,49 @@ sub loadDBModules {
 	    exit 1;
 	}
 	&status("Loading MySQL support.");
-	$f = "$bot_src_dir/db_mysql.pl";
+	$f = "$bot_src_dir/dbi.pl";
 	require $f;
 	$moduleAge{$f} = (stat $f)[9];
-	&showProc(" (DBI // mysql)");
+
+	&showProc(" (DBI::mysql)");
+
     } elsif ($param{'DBType'} =~ /^pgsql$/i) {
-#	eval "use Pg";
 	eval "use DBI";
 	if ($@) {
 	    &ERROR("libpgperl is not installed!");
 	    exit 1;
 	}
 	&status("Loading pgsql support.");
-	require "$bot_src_dir/db_pgsql.pl";
-	&showProc(" (pgsql)");
-    } elsif ($param{'DBType'} =~ /^sqlite$|^dbm$/i) {
-	&status("Loading " . $param{'DBType'} . " support.");
-	$f="$bot_src_dir/db_" . $param{'DBType'} . ".pl";
-	$moduleAge{$f} = (stat $f)[9];
+	$f = "$bot_src_dir/dbi.pl";
 	require $f;
-	&showProc(" $bot_src_dir/db_" . $param{'DBType'} . ".pl");
+	$moduleAge{$f} = (stat $f)[9];
+
+	&showProc(" (DBI::pgsql)");
+
+    } elsif ($param{'DBType'} =~ /^sqlite$/i) {
+	eval "use DBI";
+	if ($@) {
+	    &ERROR("libdbd-sqlite-perl is not installed!");
+	    exit 1;
+	}
+	&status("Loading SQLite support.");
+#	$f = "$bot_src_dir/dbi.pl";
+	$f = "$bot_src_dir/db_sqlite.pl";
+	require $f;
+	$moduleAge{$f} = (stat $f)[9];
+
+	&showProc(" (DBI::SQLite)");
+
+    } elsif ($param{'DBType'} =~ /^dbm$/i) {
+	&status("Loading dbm support.");
+	$f = "$bot_src_dir/dbm.pl";
+	require $f;
+	$moduleAge{$f} = (stat $f)[9];
+
+	&showProc(" (dbm.pl)");
+
     } else {
-	&status("DB support DISABLED.");
+	&WARN("DB support DISABLED.");
 	return;
     }
 }
