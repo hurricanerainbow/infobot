@@ -499,6 +499,7 @@ sub userDCC {
 	}
 
 	my $update	= 0;
+	### TODO: $what can be undefined. fix it!
 	if ($what =~ /^\+(\S+)/) {
 	    my $was	= $chanconf{$chan}{$1};
 	    $was	= ($was) ? "; was '$was'" : "";
@@ -543,8 +544,16 @@ sub userDCC {
 	    foreach $chan ($chan, "_default") {
 		&pSReply("chan: $chan");
 		### TODO: merge 2 or 3 per line.
+		my @items;
+		my $str = "";
 		foreach (sort keys %{ $chanconf{$chan} }) {
-		    &pSReply("    $_ => $chanconf{$chan}{$_}");
+		    my $newstr = join(', ', @items);
+		    if (length $newstr > 60) {
+			&pSReply("    $str");
+			@items = ();
+		    }
+		    $str = $newstr;
+		    push(@items, "$_ => $chanconf{$chan}{$_}");
 		}
 	    }
 
