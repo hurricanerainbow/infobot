@@ -491,7 +491,7 @@ sub on_join {
 	if (scalar @new) {
 	    &msg($who, "+==== New news for $chan (".scalar(@new)."):");
 	    # todo: show how many sec/min/etc ago?
-	    my $timestr = &Time2String( $::newsuser{$chan}{$who} );
+	    my $timestr = &Time2String( time() - $::newsuser{$chan}{$who} );
 	    &msg($who, "|= Last time read $timestr ago");
 
 	    foreach (@new) {
@@ -500,6 +500,7 @@ sub on_join {
 		&msg($who, sprintf("\002[\002%2d\002]\002 %s (%s)",
 			$i, $_, &Time2String($age) ) );
 	    }
+	    &msg($who, "to read, do 'news read <#>' or 'news read <keyword>'");
 
 	    # lame hack to prevent dupes if we just ignore it.
 	    $::newsuser{$chan}{$who} = time();
