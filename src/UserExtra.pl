@@ -294,7 +294,7 @@ sub tell {
     $target	= $talkchannel  if ($target =~ /^us$/i);
     $target	= $who		if ($target =~ /^(me|myself)$/i);
 
-    &status("target: $target query: $query");  
+    &status("tell: target = $target, query = $query");  
 
     # "intrusive".
     if ($target !~ /^$mask{chan}$/ and !&IsNickInAnyChan($target)) {
@@ -312,20 +312,43 @@ sub tell {
 
     # ...
     my $result = &doQuestion($tell_obj);
-    &DEBUG("result => $result.");
-#    return if ($result eq);
+    # ^ returns '0' if nothing was found.
 
     # no such factoid.
-    if ($result eq "") {
-	&msg($who, "i dunno what is '$tell_obj'.");
+    if ($result =~ /^0?$/) {
+	my $oldwho	= $who;
+	my $oldmtype	= $msgType;
+	$who		= $target;
+	$msgType	= "private";
+
+	# support command redirection.
+	# recursive cmdHooks aswell :)
+	my $done = 0;
+	$done++ if &parseCmdHook("main", $tell_obj);
+	$done++ if &parseCmdHook("extra", $tell_obj);
+
+	&DEBUG("setting old values of who and msgType.");
+	$who		= $oldwho;
+	$msgType	= $oldmtype;
+
+	if ($done) {
+	    &msg($who, "told $target about CMD '$tell_obj'");
+	} else {
+	    &msg($who, "i dunno what is '$tell_obj'.");
+	}
+
 	return;
     }
 
     # success.
     &status("tell: <$who> telling $target about $tell_obj.");
     if ($who ne $target) {
-	&msg($who, "told $target about $tell_obj ($result)")
-						unless ($dont_tell_me);
+	if ($dont_tell_me) {
+	    &msg($who, "told $target about $tell_obj.");
+	} else {
+	    &msg($who, "told $target about $tell_obj ($result)");
+	}
+
 	$reply = "$who wants you to know: $result";
     } else {
 	$reply = "telling yourself: $result";
