@@ -149,10 +149,7 @@ sub FactoidStuff {
 	    my $author	= &getFactInfo($faqtoid, "created_by");
 	    my $count	= &getFactInfo($faqtoid, "requested_count") || 0;
 	    my $limit	= &getChanConfDefault("factoidPreventForgetLimit", 
-				0, $chan);
-
-	    &DEBUG("forget: limit = $limit");
-	    &DEBUG("forget: count = $count");
+				100, $chan);
 
 	    if (IsFlag("r") ne "r") {
 		&msg($who, "you don't have access to remove factoids");
@@ -167,13 +164,34 @@ sub FactoidStuff {
 		return;
 	    }
 
+	    # prevent/minimize abuse.
+	    my $faqauth = &getFactInfo($faqtoid, "created_by");
+	    if (&IsFlag("o") ne "o" and &IsHostMatch($faqauth) != 2) {
+		$cache{forget}{$h}++;
+
+		# warn.
+		if ($cache{forget}{$h} > 3) {
+		    &msg($who, "Stop abusing forget!");
+		}
+
+		# ignore.
+		# todo: make forget limit configurable.
+		# todo: make forget ignore time configurable.
+		if ($cache{forget}{$h} > 5) {
+		    &ignoreAdd($mask{nuh}, "*", 3*24*60*60, "abuse of forget");
+		    &msg($who, "forget: Suck it!");
+		}
+	    }
+
+	    # lets do it!
+
 	    if (&IsParam("factoidDeleteDelay") or &IsChanConf("factoidDeleteDelay")) {
 		if ($faqtoid =~ / #DEL#$/ and !&IsFlag("o")) {
 		    &msg($who, "cannot delete it ($faqtoid).");
 		    return;
 		}
 
-		&status("forgot (safe delete): <$who> '$faqtoid' =is=> '$result'");
+		&status("forgot (safe delete): '$faqtoid' - ". scalar(localtime));
 		### TODO: check if the "backup" exists and overwrite it
 		my $check = &getFactoid("$faqtoid #DEL#");
 
@@ -181,8 +199,7 @@ sub FactoidStuff {
 		    if ($faqtoid !~ / #DEL#$/) {
 			my $new = $faqtoid." #DEL#";
 
-			my $backup = &getFactoid($faqtoid);
-			# this looks weird but does it work?
+			my $backup = &getFactoid($new);
 			if ($backup) {
 			    &DEBUG("forget: not overwriting backup: $faqtoid");
 			} else {
@@ -199,15 +216,15 @@ sub FactoidStuff {
 		} else {
 		    &status("forget: not overwriting backup!");
 		}
-
-	    } else {
-		&status("forget: <$who> '$faqtoid' =is=> '$result'");
 	    }
+
+	    &status("forget: <$who> '$faqtoid' =is=> '$result'");
 	    &delFactoid($faqtoid);
 
 	    &performReply("i forgot $faqtoid");
 
 	    $count{'Update'}++;
+
 	} else {
 	    &performReply("i didn't have anything called '$faqtoid'");
 	}
@@ -238,12 +255,12 @@ sub FactoidStuff {
 	my $check  = &getFactoid($faqtoid);
 
 	if (!defined $result) {
-	    &performReply("i didn't have anything ('$faqtoid') to undelete.");
+	    &performReply("that factoid was not backedup :/");
 	    return;
 	}
 
 	if (defined $check) {
-	    &performReply("cannot undeleted '$faqtoid' because it already exists?");
+	    &performReply("cannot undeleted '$faqtoid' because it already exists!");
 	    return;
 	}
 
@@ -350,10 +367,20 @@ sub FactoidStuff {
 	    my $was = $result;
 
 	    if (($flags eq "g" && $result =~ s/\Q$op/$np/gi) || $result =~ s/\Q$op/$np/i) {
+		# excessive length.
 		if (length $result > $param{'maxDataSize'}) {
 		    &performReply("that's too long");
 		    return;
 		}
+		# min length.
+		my $faqauth = &getFactInfo($faqtoid, "created_by");
+		if ((length $result)*2 < length $was and
+			&IsFlag("o") ne "o" and
+			&IsHostMask($faqauth) != 2
+		) {
+		    &performReply("too drastic change of factoid.");
+		}
+
 		&setFactInfo($faqtoid, "factoid_value", $result);
 		&status("update: '$faqtoid' =is=> '$result'; was '$was'");
 		&performReply("OK");
