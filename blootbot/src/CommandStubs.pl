@@ -13,6 +13,7 @@ $babel::lang_regex = "";	# lame fix.
 ### PROPOSED COMMAND HOOK IMPLEMENTATION.
 # addCmdHook('TEXT_HOOK', $code_ref,
 #	(Forker		=> 1,
+#	CheckModule	=> 1,
 #	Identifier	=> 'config_label',
 #	Help		=> 'help_label',
 #	Cmdstats	=> 'text_label',)
@@ -20,7 +21,8 @@ $babel::lang_regex = "";	# lame fix.
 ### EXAMPLE
 # addCmdHook('d?find', (
 #	CODEREF => \&debianFind(),
-#	Forker => 1,
+#	CheckModule => 1,
+#	Forker => 1,		# if simple function.
 #	Identifier => "debian",
 #	Help => "dfind",
 #	Cmdstats => "Debian Search",) );
@@ -37,16 +39,43 @@ sub addCmdHook {
 
 # RUN IF ADDRESSED.
 sub parseCmdHook {
+    my @args = split(' ', $message);
+
     foreach (keys %cmdhooks) {
-	&DEBUG("cmdhooks{$_} => ...");
-	my %hash = \%{ $cmdhooks{$_} };
+	my $ident = $_;
+	&DEBUG("cmdhooks{$ident} => ...");
+
+	next unless ($args[0] =~ /^$ident$/i);
+
+	&DEBUG("pCH: MATCHED!");
+	my %hash = %{ $cmdhooks{$ident} };
+
+	### DEBUG.
 	foreach (keys %hash) {
-	    &DEBUG("   '$_' => '$hash{$_}'.");
+	    &DEBUG(" $ident->$_ => '$hash{$_}'.");
+	}
+
+	### IDENTIFIER.
+	if (exists $hash{'Identifier'}) {
+	    return $noreply unless (&hasParam($hash{'Identifier'}));
+	}
+
+	### FORKER,IDENTIFIER,CODEREF.
+	if (exists $hash{'Forker'}) {
+	    &Forker($hash{'Identifier'}, \&{$hash{'CODEREF'}});
+	}
+
+	### CMDSTATS.
+	if (exists $hash{'Cmdstats'}) {
+	    $cmdstats{$hash{'Cmdstats'}}++;
 	}
     }
 
     &DEBUG("pCH: ended.");
 }
+
+&addCmdHook('d?bugs', ('CODEREF' => 'debianBugs',
+	'Forker' => 1, 'Identifier' => 'debianExtra', 'Cmdstats' => 1) );
 
 sub Modules {
     if (!defined $message) {
@@ -375,10 +404,7 @@ sub Modules {
 	    return $noreply;
 	}
 
-	### chews up to 4megs => use forker :)
 	&Forker("search", sub { &Search::Search($thiscmd, $args); } );
-#	&loadMyModule($myModules{'search'});
-#	&Search::Search($thiscmd, $args);
 
 	$cmdstats{'Factoid Search'}++;
 	return $noreply;
