@@ -276,7 +276,12 @@ sub searchContents {
     &main::status(sprintf("Debian: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
 
     my $prefix = "Debian Search of '$query' ";
-    &main::performStrictReply( &main::formListReply(0, $prefix, @list) );
+    if (scalar @list) {	# @list.
+	&main::performStrictReply( &main::formListReply(0, $prefix, @list) );
+    } else {		# !@list.
+	&main::DEBUG("ok, !\@list, searching desc for '$query'.");
+	&searchDesc($query);
+    }
 }
 
 ####
@@ -368,6 +373,76 @@ sub searchAuthor {
     my $email	= join(', ', keys %{$maint{$list[0]}});
     my $prefix	= "Debian Packages by $list[0] \002<\002$email\002>\002 ";
     &main::performStrictReply( &main::formListReply(0, $prefix, @pkg) );
+}
+
+####
+# Usage: &searchDesc($query);
+sub searchDesc {
+    my ($dist, $query)	= &getDistroFromStr($_[0]);
+    &main::DEBUG("searchDesc: dist => '$dist', query => '$query'.");
+    $query =~ s/^\s+|\s+$//g;
+
+    # start of search.
+    my $start_time = &main::gettimeofday();
+    &main::status("Debian: starting desc search.");
+
+    my $files;
+    my ($bad,$good) = (0,0);
+    my %urls = %urlpackages;
+
+    foreach (keys %urlpackages) {
+	s/##DIST/$dist/g;
+
+	if (! -f $_) {
+	    $bad++;
+	    next;
+	}
+
+	$good++;
+	$files .= " ".$_;
+    }
+
+    &main::DEBUG("good = $good, bad = $bad...");
+
+    if ($good == 0 and $bad != 0) {
+	my %urls = &fixDist($dist, %urlpackages);
+	&main::DEBUG("deb: download 2c.");
+	if (!&DebianDownload($dist, %urls)) {
+	    &main::ERROR("Debian(sD): could not download files.");
+	    return;
+	}
+    }
+
+    my (%desc, $package);
+    open(IN,"zegrep -h '^Package|^Description' $files |");
+    while (<IN>) {
+	if (/^Package: (\S+)$/) {
+	    $package = $1;
+	} elsif (/^Description: (.*)$/) {
+	    my $desc = $1;
+	    next unless ($desc =~ /\Q$query\E/i);
+	    $desc{$package} = $desc;
+	} else {
+	    &main::WARN("invalid line: '$_'.");
+	}
+    }
+    close IN;
+
+    my @list = keys %desc;
+    if (!scalar @list) {
+	my $prefix = "Debian Desc Search of '$query' ";
+	&main::performStrictReply( &main::formListReply(0, $prefix, ) );
+    } elsif (scalar @list == 1) {	# list = 1.
+	&main::DEBUG("list == 1; showing package info of '$query'.");
+	&infoPackages("info", $query);
+    } else {				# list > 1.
+	my $prefix = "Debian Desc Search of '$query' ";
+	&main::performStrictReply( &main::formListReply(0, $prefix, @list) );
+    }
+
+    # show how long it took.
+    my $delta_time = &main::gettimeofday() - $start_time;
+    &main::status(sprintf("Debian: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
 }
 
 ####
