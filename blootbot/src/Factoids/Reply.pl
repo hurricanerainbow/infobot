@@ -61,18 +61,17 @@ sub getReply {
 	### "requested_count=requested_count+1".
 	my $count = &getFactInfo($lhs,"requested_count") || 0;
 	$count++;
-	### BROKEN!!!
-	if (1) {	# old code.
+	### BROKEN!!! - Tim Riker <Tim@Rikers.org> says it's fixed now
+	if (0) {	# old code.
 	    &setFactInfo($lhs,"requested_by", $nuh);
 	    &setFactInfo($lhs,"requested_time", time());
 	    &setFactInfo($lhs,"requested_count", $count);
 	} else {
-	    &dbReplace("factoids", "factoid_key", (
-		factoid_key	=> $lhs,
+	    &dbSet("factoids", {'factoid_key' => $lhs}, {
 		requested_by	=> $nuh,
 		requested_time	=> time(),
 		requested_count	=> $count
-	    ) );
+	    } );
 	}
 
 	# todo: rename $real to something else!
