@@ -398,8 +398,15 @@ sub ircCheck {
 	&FIXME("ircCheck: current channels * 2 <= config channels. FIXME.");
     }
 
+    my @ipcs;
+    if ( -x "/usr/bin/ipcs") {
+	@ipcs = `/usr/bin/ipcs`;
+    } else {
+	&WARN("ircCheck: no 'ipcs' binary.");
+    }
+
     # shmid stale remove.
-    foreach (`ipcs`) {
+    foreach (@ipcs) {
 	chop;
 
 	# key, shmid, owner, perms, bytes, nattch
@@ -409,7 +416,7 @@ sub ircCheck {
 	next unless ($shmid != $shm and $size == 2000);
 
 	&status("SHM: nuking shmid $shmid");
-	system("ipcrm shm $shmid >/dev/null");
+	system("/usr/bin/ipcrm shm $shmid >/dev/null");
     }
 
     if (!$conn->connected and time - $msgtime > 3600) {
