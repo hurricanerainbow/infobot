@@ -352,6 +352,11 @@ sub chanlimitCheck {
 	delete $sched{"chanlimitCheck"}{RUNNING};
     }
 
+    if (scalar keys %netsplitservers) {
+	&WARN("clC: netsplit active (2); skipping. (netsplit => $netsplit)");
+	return;
+    }
+
     foreach $chan ( &ChanConfList("chanlimitcheck") ) {
 	next unless (&validChan($chan));
 

@@ -548,9 +548,9 @@ sub on_kick {
 sub on_mode {
     my ($self, $event)	= @_;
     my ($user, $host)	= split(/\@/, $event->userhost);
-    my @args = $event->args();
-    my $nick = $event->nick();
-    my $chan = ($event->to)[0];
+    my @args	= $event->args();
+    my $nick	= $event->nick();
+    $chan	= ($event->to)[0];
 
     $args[0] =~ s/\s$//;
 
@@ -558,16 +558,17 @@ sub on_mode {
 	&status(">>> mode $b_yellow\[$ob$b@args$b_yellow\]$ob by $b_cyan$nick$ob");
     } else {			# MODE
 	&status(">>> mode/$b_blue$chan$ob $b_yellow\[$ob$b@args$b_yellow\]$ob by $b_cyan$nick$ob");
-	&hookMode($chan, @args);
+	&hookMode($nick, @args);
     }
 }
 
 sub on_modeis {
     my ($self, $event) = @_;
     my $nick = $event->nick();
-    my ($myself,$chan,@args) = $event->args();
+    my ($myself, undef,@args) = $event->args();
+    $chan	= ($event->args())[1];
 
-    &hookMode(lc $chan, @args);		# CASING.
+    &hookMode($nick, @args);
 }
 
 sub on_msg {
@@ -959,6 +960,7 @@ sub on_crversion {
     } elsif ($ver =~ /epic/i) {
 	$ver{epic}{$nick}	= $ver;
     } elsif ($ver =~ /mirc/i) {
+	&DEBUG("verstats: mirc: $nick => '$ver'.");
 	$ver{mirc}{$nick}	= $ver;
     } elsif ($ver =~ /ircle/i) {
 	$ver{ircle}{$nick}	= $ver;
@@ -973,6 +975,7 @@ sub on_crversion {
     } elsif ($ver =~ /xircon/i) {
 	$ver{xircon}{$nick}	= $ver;
     } else {
+	&DEBUG("verstats: other: $nick => '$ver'.");
 	$ver{other}{$nick}	= $ver;
     }
 }

@@ -13,12 +13,14 @@ if (&IsParam("useStrict")) { use strict; }
 #######################################################################
 
 #####
-# Usage: &hookMode($chan, $modes, @targets);
+# Usage: &hookMode($nick, $modes, @targets);
 sub hookMode {
-    my ($chan, $modes, @targets) = @_;
+    my ($nick, $modes, @targets) = @_;
     my $parity	= 0;
 
-    $chan = lc $chan;		# !!!.
+    if ($chan =~ tr/A-Z/a-z/) {
+	&VERB("hookMode: cased $chan.",2);
+    }
 
     my $mode;
     foreach $mode (split(//, $modes)) {
@@ -43,6 +45,11 @@ sub hookMode {
 
 	    # modes w/ target affecting nick => cache it.
 	    if ($mode =~ /[bov]/) {
+		if ($mode eq "o" and $nick eq "ChanServ" and $target =~ /^\Q$ident$\E/i) {
+		    &DEBUG("hookmode: chanserv deopped us! asking");
+		    &chanServCheck($chan);
+		}
+
 		$channels{$chan}{$mode}{$target}++	if  $parity;
 		delete $channels{$chan}{$mode}{$target}	if !$parity;
 	    }
@@ -253,6 +260,11 @@ sub hookMsg {
 sub chanLimitVerify {
     my($chan)	= @_;
     my $l	= $channels{$chan}{'l'};
+
+    if (scalar keys %netsplitservers) {
+	&WARN("clV: netsplit active (1); skipping. (netsplit => $netsplit)");
+	return;
+    }
 
     # only change it if it's not set.
     if (defined $l and &IsChanConf("chanlimitcheck")) {
