@@ -496,8 +496,8 @@ sub FactoidStuff {
     if (defined $result and $result !~ /^0?$/) {	# question.
 	&status("question: <$who> $message");
 	$count{'Question'}++;
-    } elsif (&IsChanConf("perlMath") > 0 and $addressed) { # perl math.
-	&loadMyModule("perlMath");
+    } elsif (&IsChanConf("Math") > 0 and $addressed) { # perl math.
+	&loadMyModule("Math");
 	my $newresult = &perlMath();
 
 	if (defined $newresult and $newresult ne "") {

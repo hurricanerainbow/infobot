@@ -1,4 +1,4 @@
-#v1: blootbot -- infobot -- written Tue Nov 23 04:13:22 2004
+#v1: blootbot -- infobot -- written Tue Nov 23 04:23:45 2004
 
 #botpark
     +autojoin
@@ -24,6 +24,7 @@ _default
     +Factoids
     +HTTPDtype
     +Kernel
+    +Math
     +allowConv
     +allowDNS
     +allowTelling
@@ -46,7 +47,6 @@ _default
     +log
     +nickometer
     +page
-    +perlMath
     +plug
     +quote
     randomFactoidInterval 60
