@@ -7,8 +7,10 @@
 
 if (&IsParam("useStrict")) { use strict; }
 
+use POSIX qw(_exit);
+
 sub help {
-    my $topic = $_[0];
+    my $topic = shift;
     my $file  = $bot_misc_dir."/blootbot.help";
     my %help  = ();
 
@@ -37,7 +39,7 @@ sub help {
     }
     close FILE;
 
-    if (!defined $topic) {
+    if (!defined $topic or $topic eq "") {
 	&msg($who, $help{'main'});
 
 	my $i = 0;
@@ -602,6 +604,7 @@ sub Forker {
 
     if (&IsParam("forking") and $$ == $bot_pid) {
 	return $noreply unless (&addForked($label));
+	### use select(undef,undef,undef,0.2); ...
 	$SIG{CHLD} = 'IGNORE';
 	$pid = eval { fork() };
 	return $noreply if $pid;	# parent does nothing
@@ -624,7 +627,7 @@ sub Forker {
     if (defined $pid) {		# child.
 	&delForked($label);
 	&status("fork finished for '$label'.");
-	exit 0;
+	POSIX::_exit(0);
     }
 }
 
