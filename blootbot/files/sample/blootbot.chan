@@ -1,4 +1,4 @@
-#v1: blootbot -- blootbot -- written Thu Dec  9 19:57:51 2004
+#v1: blootbot -- blootbot -- written Thu Dec  9 21:27:25 2004
 
 #botpark
     +RootWarn
@@ -59,6 +59,7 @@ _default
     +lart
     +limitcheck
     +log
+    +md5
     +nickometer
     +page
     randomFactoidInterval 60
