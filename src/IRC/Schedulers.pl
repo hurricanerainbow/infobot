@@ -462,6 +462,8 @@ sub shmFlush {
     my $shmmsg = &shmRead($shm);
     $shmmsg =~ s/\0//g;         # remove padded \0's.
 
+    return if ($$ != $main::bot_pid); # fork protection.
+
     foreach (split '\|\|', $shmmsg) {
 	&VERB("shm: Processing '$_'.",2);
 
@@ -474,6 +476,8 @@ sub shmFlush {
 		$conn->new_send($1,$2);
 		$dcc{'SEND'}{$who} = time();
 	    }
+	} elsif (/^SET FORKPID (\S+) (\S+)/) {
+	    $forked{$1}{PID} = $2;
 	} elsif (/^DELETE FORK (\S+)$/) {
 	    delete $forked{$1};
 	} elsif (/^EVAL (.*)$/) {
