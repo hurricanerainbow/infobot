@@ -803,11 +803,11 @@ sub userCommands {
 	"Since $startString, there have been".
 	  " \002$count{'Update'}\002 ".
 		&fixPlural("modification", $count{'Update'}).
-	  " and \002$count{'Question'}\002 ".
+	  ", \002$count{'Question'}\002 ".
 		&fixPlural("question",$count{'Question'}).
-	  " and \002$count{'Dunno'}\002 ".
+	  ", \002$count{'Dunno'}\002 ".
 		&fixPlural("dunno",$count{'Dunno'}).
-	  " and \002$count{'Moron'}\002 ".
+	  ", \002$count{'Moron'}\002 ".
 		&fixPlural("moron",$count{'Moron'}).
 	  " and \002$count{'Commands'}\002 ".
 		&fixPlural("command",$count{'Commands'}).
