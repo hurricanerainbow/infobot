@@ -105,16 +105,24 @@ freshmeat: E: ## blootbot
 factstats: D: Display statistical data (max of 15) about factoids.
 factstats: U: ## <type>
 factstats: == author    -- top author of factoids.
-factstats: == broken    -- broken factoids.
-factstats: == dupe      -- duplicate factoids.
+factstats: == deadredir -- ??
+factstats: == duplicate -- duplicate factoids.
+factstats: == listfix   -- ??
 factstats: == locked    -- locked factoids.
 factstats: == new       -- recent addition of factoids.
+factstats: == nullfactoids -- ??
 factstats: == partdupe  -- initial partial duplicate factoids.
 factstats: == profanity -- possibly offensive factoids.
 factstats: == redir     -- redirection in factoids.
+factstats: == reqrate   -- ??
 factstats: == requested -- most requested factoids.
+factstats: == requesters -- most requested factoids.
+factstats: == seefix    -- ??
 factstats: == toolong   -- factoid {key|value} exceeding specified length.
+factstats: == tooshort  -- factoid {key|value} shorter than specified length.
+factstats: == total     -- ??
 factstats: == unrequest -- unrequested factoids.
+factstats: == vandalism -- ??
 factstats: E: ## new
 
 lart: D: Luser Attitude Readjustment Tool
