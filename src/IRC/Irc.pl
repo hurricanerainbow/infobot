@@ -8,7 +8,7 @@
 use strict;
 no strict 'refs';
 
-use vars qw(%floodjoin %nuh %dcc %cache %channels %param %mask
+use vars qw(%floodjoin %nuh %dcc %cache %conns %channels %param %mask
 	%chanconf %orig %ircPort %ircstats %last %netsplit);
 use vars qw($irc $nickserv $ident $conn $msgType $who $talkchannel
 	$addressed);
@@ -67,11 +67,15 @@ loop:;
 sub irc {
     my ($server,$port) = @_;
 
+    $irc = new Net::IRC;
+
+    # TODO: move all this to an sql table
     my $iaddr = inet_aton($server);
     my $paddr = sockaddr_in($port, $iaddr);
     my $proto = getprotobyname('tcp');
 
-    select STDOUT;
+    # why was this here?
+    #select STDOUT;
 
     # host->ip.
     my $resolve;
@@ -87,9 +91,6 @@ sub irc {
 	### warning in Sys/Hostname line 78???
 	### caused inside Net::IRC?
     }
-    &status("Connecting to port $port of server $server ($resolve) as $param{'ircNick'} ...");
-
-    $irc = new Net::IRC;
 
     my %args = (
 		Nick	=> $param{'ircNick'},
@@ -100,33 +101,65 @@ sub irc {
     $args{'LocalAddr'} = $param{'ircHost'} if ($param{'ircHost'});
     $args{'Password'} = $param{'ircPasswd'} if ($param{'ircPasswd'});
 
-    my $conn = $irc->newconn(%args);
-
-    if (!defined $conn) {
-	&ERROR("IRC: connection failed.");
-	&ERROR("add \"set ircHost 0.0.0.0\" to your config. If that does not work");
-	&ERROR("Please check /etc/hosts to see if you have a localhost line like:");
-	&ERROR("127.0.0.1   localhost    localhost");
-	&ERROR("If this is still a problem, please contact the maintainer.");
-	return 1;
-    }
-    $conn->maxlinelen($maxlinelen);
-
-    if ($param{'ircNick2'}) {
-	# prep for real multiple nick/server connects
-	# FIXME: all code should get nick/server out of self, not config
-        &status("Connecting to port $port of server $server ($resolve) as $param{'ircNick2'} ...");
-	$args{'Nick'} = $param{'ircNick2'};
-	my $conn = $irc->newconn(%args);
-	$conn->maxlinelen($maxlinelen);
-    }
-
-    if ($param{'ircNick3'}) {
-	# prep for real multiple nick/server connects
-	# FIXME: all code should get nick/server out of self, not config
-	$args{'Nick'} = $param{'ircNick3'};
-	my $conn = $irc->newconn(%args);
-	$conn->maxlinelen($maxlinelen);
+    foreach my $mynick (split ',', $param{'ircNick'}) {
+	&DEBUG("got $mynick");
+	&status("Connecting to port $port of server $server ($resolve) as $mynick ...");
+	$args{'Nick'} = $mynick;
+	$conns{$mynick} = $irc->newconn(%args);
+	if (!defined $conns{$mynick}) {
+	    &ERROR("IRC: connection failed.");
+	    &ERROR("add \"set ircHost 0.0.0.0\" to your config. If that does not work");
+	    &ERROR("Please check /etc/hosts to see if you have a localhost line like:");
+	    &ERROR("127.0.0.1   localhost    localhost");
+	    &ERROR("If this is still a problem, please contact the maintainer.");
+	}
+	$conns{$mynick}->maxlinelen($maxlinelen);
+	# handler stuff.
+	$conns{$mynick}->add_global_handler('caction',	\&on_action);
+	$conns{$mynick}->add_global_handler('cdcc',	\&on_dcc);
+	$conns{$mynick}->add_global_handler('cping',	\&on_ping);
+	$conns{$mynick}->add_global_handler('crping',	\&on_ping_reply);
+	$conns{$mynick}->add_global_handler('cversion',	\&on_version);
+	$conns{$mynick}->add_global_handler('crversion',	\&on_crversion);
+	$conns{$mynick}->add_global_handler('dcc_open',	\&on_dcc_open);
+	$conns{$mynick}->add_global_handler('dcc_close',	\&on_dcc_close);
+	$conns{$mynick}->add_global_handler('chat',	\&on_chat);
+	$conns{$mynick}->add_global_handler('msg',	\&on_msg);
+	$conns{$mynick}->add_global_handler('public',	\&on_public);
+	$conns{$mynick}->add_global_handler('join',	\&on_join);
+	$conns{$mynick}->add_global_handler('part',	\&on_part);
+	$conns{$mynick}->add_global_handler('topic',	\&on_topic);
+	$conns{$mynick}->add_global_handler('invite',	\&on_invite);
+	$conns{$mynick}->add_global_handler('kick',	\&on_kick);
+	$conns{$mynick}->add_global_handler('mode',	\&on_mode);
+	$conns{$mynick}->add_global_handler('nick',	\&on_nick);
+	$conns{$mynick}->add_global_handler('quit',	\&on_quit);
+	$conns{$mynick}->add_global_handler('notice',	\&on_notice);
+	$conns{$mynick}->add_global_handler('whoischannels', \&on_whoischannels);
+	$conns{$mynick}->add_global_handler('useronchannel', \&on_useronchannel);
+	$conns{$mynick}->add_global_handler('whois',	\&on_whois);
+	$conns{$mynick}->add_global_handler('other',	\&on_other);
+	$conns{$mynick}->add_global_handler('disconnect', \&on_disconnect);
+	$conns{$mynick}->add_global_handler([251,252,253,254,255], \&on_init);
+#	$conns{$mynick}->add_global_handler(302, \&on_init); # userhost
+	$conns{$mynick}->add_global_handler(303, \&on_ison); # notify.
+	$conns{$mynick}->add_global_handler(315, \&on_endofwho);
+	$conns{$mynick}->add_global_handler(422, \&on_endofwho); # nomotd.
+	$conns{$mynick}->add_global_handler(324, \&on_modeis);
+	$conns{$mynick}->add_global_handler(333, \&on_topicinfo);
+	$conns{$mynick}->add_global_handler(352, \&on_who);
+	$conns{$mynick}->add_global_handler(353, \&on_names);
+	$conns{$mynick}->add_global_handler(366, \&on_endofnames);
+	$conns{$mynick}->add_global_handler(376, \&on_endofmotd); # on_connect.
+	$conns{$mynick}->add_global_handler(433, \&on_nick_taken);
+	$conns{$mynick}->add_global_handler(439, \&on_targettoofast);
+	# for proper joinnextChan behaviour
+	$conns{$mynick}->add_global_handler(471, \&on_chanfull);
+	$conns{$mynick}->add_global_handler(473, \&on_inviteonly);
+	$conns{$mynick}->add_global_handler(474, \&on_banned);
+	$conns{$mynick}->add_global_handler(475, \&on_badchankey);
+	$conns{$mynick}->add_global_handler(443, \&on_useronchan);
+	# end of handler stuff.
     }
 
     &clearIRCVars();
@@ -137,54 +170,6 @@ sub irc {
     $irc->{_debug}	= 1;
 
     $ircstats{'Server'}	= "$server:$port";
-
-    # handler stuff.
-	$conn->add_global_handler('caction',	\&on_action);
-	$conn->add_global_handler('cdcc',	\&on_dcc);
-	$conn->add_global_handler('cping',	\&on_ping);
-	$conn->add_global_handler('crping',	\&on_ping_reply);
-	$conn->add_global_handler('cversion',	\&on_version);
-	$conn->add_global_handler('crversion',	\&on_crversion);
-	$conn->add_global_handler('dcc_open',	\&on_dcc_open);
-	$conn->add_global_handler('dcc_close',	\&on_dcc_close);
-	$conn->add_global_handler('chat',	\&on_chat);
-	$conn->add_global_handler('msg',	\&on_msg);
-	$conn->add_global_handler('public',	\&on_public);
-	$conn->add_global_handler('join',	\&on_join);
-	$conn->add_global_handler('part',	\&on_part);
-	$conn->add_global_handler('topic',	\&on_topic);
-	$conn->add_global_handler('invite',	\&on_invite);
-	$conn->add_global_handler('kick',	\&on_kick);
-	$conn->add_global_handler('mode',	\&on_mode);
-	$conn->add_global_handler('nick',	\&on_nick);
-	$conn->add_global_handler('quit',	\&on_quit);
-	$conn->add_global_handler('notice',	\&on_notice);
-	$conn->add_global_handler('whoischannels', \&on_whoischannels);
-	$conn->add_global_handler('useronchannel', \&on_useronchannel);
-	$conn->add_global_handler('whois',	\&on_whois);
-	$conn->add_global_handler('other',	\&on_other);
-	$conn->add_global_handler('disconnect', \&on_disconnect);
-	$conn->add_global_handler([251,252,253,254,255], \&on_init);
-#	$conn->add_global_handler(302, \&on_init); # userhost
-	$conn->add_global_handler(303, \&on_ison); # notify.
-	$conn->add_global_handler(315, \&on_endofwho);
-	$conn->add_global_handler(422, \&on_endofwho); # nomotd.
-	$conn->add_global_handler(324, \&on_modeis);
-	$conn->add_global_handler(333, \&on_topicinfo);
-	$conn->add_global_handler(352, \&on_who);
-	$conn->add_global_handler(353, \&on_names);
-	$conn->add_global_handler(366, \&on_endofnames);
-	$conn->add_global_handler(376, \&on_endofmotd); # on_connect.
-	$conn->add_global_handler(433, \&on_nick_taken);
-	$conn->add_global_handler(439, \&on_targettoofast);
-	# for proper joinnextChan behaviour
-	$conn->add_global_handler(471, \&on_chanfull);
-	$conn->add_global_handler(473, \&on_inviteonly);
-	$conn->add_global_handler(474, \&on_banned);
-	$conn->add_global_handler(475, \&on_badchankey);
-	$conn->add_global_handler(443, \&on_useronchan);
-
-    # end of handler stuff.
 
     $irc->start;
 }
