@@ -549,7 +549,7 @@ sub validFactoid {
 	/\\\%/ and last;
 	/\\\_/ and last;
 
-	# weird/special stuff. also old (stock) blootbot bugs.
+	# weird/special stuff. also old blootbot or stock infobot bugs.
 	$rhs =~ /( \Q$ident\E's|\Q$ident\E's )/i and last; # ownership.
 
 	# duplication.
@@ -622,12 +622,6 @@ sub Forker {
 	&status("fork finished for '$label'.");
 	exit 0;
     }
-}
-
-sub checkPing {
-    &DEBUG("checkPing() called.");
-    $conn->schedule(60, \&checkPing, "this is a test");
-    $conn->sl("PING $server :".time());
 }
 
 sub closePID {
