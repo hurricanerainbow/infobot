@@ -17,15 +17,6 @@ use vars qw($notcount $nottime $notsize $msgcount $msgtime $msgsize
 use vars qw($b_blue $ob);
 use vars qw(@joinchan @ircServers);
 
-# static scalar variables.
-$mask{ip}	= '(\d+)\.(\d+)\.(\d+)\.(\d+)';
-$mask{host}	= '[\d\w\_\-\/]+\.[\.\d\w\_\-\/]+';
-$mask{chan}	= '[\#\&]\S*|_default';
-my $isnick1	= 'a-zA-Z\[\]\{\}\_\`\^\|\\\\';
-my $isnick2	= '0-9\-';
-$mask{nick}	= "[$isnick1]{1}[$isnick1$isnick2]*";
-$mask{nuh}	= '\S*!\S*\@\S*';
-
 $nickserv	= 0;
 
 sub ircloop {
