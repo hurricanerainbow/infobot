@@ -308,10 +308,8 @@ sub Modules {
     my $itc;
     $itc = &getChanConf("ircTextCounters");
     $itc = &findChanConf("ircTextCounters") unless ($itc);
-    if ($itc) {
-	&do_text_counters($itc);
-	return;
-    }
+    return if ($itc && &do_text_counters($itc) == 1);
+    # end of text counters.
 
     # list{keys|values}. xk++. Idea taken from #linuxwarez@EFNET
     if ($message =~ /^list(\S+)(\s+(.*))?$/i) {
@@ -820,7 +818,7 @@ sub do_text_counters {
 
     if ($message =~ /^_stats(\s+(\S+))$/i) {
 	&textstats_main($2);
-	return;
+	return 1;
     }
 
     my ($type,$arg);
@@ -828,7 +826,7 @@ sub do_text_counters {
 	$type = $1;
 	$arg  = $3;
     } else {
-	return;
+	return 0;
     }
 
     # even more uglier with channel/time arguments.
@@ -882,7 +880,7 @@ sub do_text_counters {
 
 	if (!defined $x) {	# !defined.
 	    &pSReply("$arg has not said $type yet.");
-	    return;
+	    return 1;
 	}
 
 	# defined.
@@ -910,10 +908,7 @@ sub do_text_counters {
 	&pSReply("\002$arg\002 has said \037$type\037 \002$x\002 times (\002$pct1\002 %)$xtra");
     }
 
-    if ($@) {
-	&DEBUG("regex failed: $@");
-	return;
-    }
+    return 1;
 }
 
 sub textstats_main {
