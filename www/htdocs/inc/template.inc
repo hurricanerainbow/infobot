@@ -33,21 +33,12 @@ function bloot_menu()
 	?><b>Releases:</b><?
         ?><p>CVS tarball<br><?
         ?>[<a href="/pub/blootbot-cvs.tar.gz">HTTP</a> | <a href="ftp://blootbot.sourceforge.net/pub/blootbot/blootbot-cvs.tar.gz">FTP</a>]<br><?
-        ?><br><?
-        ?><p>1.2.0 [Stable] tarball<br><?
-        ?>[<a href="/pub/blootbot-1.2.0.tar.gz">HTTP</a> | <a href="ftp://blootbot.sourceforge.net/pub/blootbot/blootbot-1.2.0.tar.gz">FTP</a>]<br><?
-        ?><br><?
-        ?><p>1.1.0 [Old] tarball<br><?
-        ?>[<a href="/pub/blootbot-1.1.0.tar.gz">HTTP</a> | <a href="ftp://blootbot.sourceforge.net/pub/blootbot/blootbot-1.1.0.tar.gz">FTP</a>]<br><?
-        ?><br><?
-        ?><p>1.0.3 [Old] tarball<br><?
-        ?>[<a href="/pub/blootbot-1.0.3.tar.gz">HTTP</a> | <a href="ftp://blootbot.sourceforge.net/pub/blootbot/blootbot-1.0.3.tar.gz">FTP</a>]<br><?
-        ?><br><?
-	?>CVS Development:<br><?
-	?>CVS <A HREF="http://sourceforge.net/cvs/?group_id=8794">download</A> info<BR><?
-	?>* Download CVS <a href="http://cvs.sourceforge.net/cvstarballs/blootbot-cvsroot.tar.gz">Backup</a><br><?
-        ?>* View <a href="http://cvs.sourceforge.net/viewcvs.py/blootbot/blootbot/"><?
-        ?> CVS Tree</a></p><?
+        ?><p>releases<br><?
+        ?><a href="http://sourceforge.net/project/showfiles.php?group_id=8794">SourceForge</a><br><?
+	?>Development:<br><?
+	?>&nbsp;<a href="http://sourceforge.net/cvs/?group_id=8794">CVS info</a><br><?
+	?>&nbsp;<a href="http://cvs.sourceforge.net/cvstarballs/blootbot-cvsroot.tar.gz">CVS Backup</a><br><?
+        ?>&nbsp;<a href="http://cvs.sourceforge.net/viewcvs.py/blootbot/blootbot/">CVS Tree</a></p><?
         ?></td><?
         ?></tr><?
         ?></table><?
@@ -59,14 +50,8 @@ function bloot_menu()
         ?></tr><?
         ?><tr bgcolor="#999999"><?
         ?><td colspan="2"><?
-        ?><p><b>Documentation:</b><br><?
-        ?><a href="/not.php">Installation<br><?
-        ?>FAQ<br><?
-        ?>Development</a><br><?
-        ?><b>E-mail:</b><br><?
-        ?><a href="http://sourceforge.net/support/?func=addsupport&amp;group_id=8794">Request<?
-        ?> Support</a><br><?
-        ?><b>Other:</b> <br><?
+        ?><p><b>Other:</b> <br><?
+        ?><a href="http://sourceforge.net/support/?func=addsupport&amp;group_id=8794">Support</a><br><?
         ?><a href="http://sourceforge.net/bugs/?group_id=8794">BUG list</a><br><?
         ?><a href="http://sourceforge.net/forum/?group_id=8794">Discussion<?
         ?> Forum</a></p><?
@@ -83,8 +68,8 @@ function bloot_menu()
         ?><td colspan="2"><?
         ?><p>Report <a href="http://sourceforge.net/bugs/?func=addbug&amp;group_id=8794"><?
         ?> a BUG</a><br><?
-        ?>View <a href="pub/TODO"><?
-        ?> ToDo List</a><br><?
+        ?>View <a href="http://cvs.sourceforge.net/viewcvs.py/blootbot/blootbot/TODO?view=markup">TODO</a><br><?
+        ?><br><?
         ?><a href="http://sourceforge.net/project/admin/?group_id=8794">Admin<?
         ?></a></p><?
         ?></td><?
@@ -98,8 +83,8 @@ function bloot_footer()
         ?><tr><? 
         ?><td valign="bottom" align="right"> <?
         ?><p><font color="#FFFFFF"><b><i>Hosted by:</i></b></font><br><?
-        ?><a href="http://sourceforge.net"><?                           
-        ?><img src="http://sourceforge.net/sflogo.php?group_id=0&type=1" width="88" height="31" border="0"<?
+        ?><a href="http://sourceforge.net/projects/blootbot/"><?                           
+        ?><img src="http://sourceforge.net/sflogo.php?group_id=3248&type=1" width="88" height="31" border="0"<?
         ?>alt="SourceForge Logo"><?
         ?></a> </p><?              
         ?></td><?    
