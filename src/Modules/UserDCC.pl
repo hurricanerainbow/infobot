@@ -5,7 +5,14 @@
 #     Created: 20000707 (from UserExtra.pl)
 #
 
-if (&IsParam("useStrict")) { use strict; }
+use strict;
+
+use vars qw(%users %ignore %sched %bans %mask %cache %channels %param
+	%chanconf %dcc);
+use vars qw($who $chan $message $msgType $user $chnick $conn $ident
+	$verifyUser $ucount_userfile $utime_userfile $lobotomized
+	$utime_chanfile $ucount_chanfile);
+use vars qw(@backlog);
 
 sub userDCC {
     # hrm...
@@ -755,6 +762,7 @@ sub userDCC {
 	    return;
 	}
 
+	my $chflag;
 	my $user;
 	if ($args[0] =~ /^$mask{nick}$/i) {	# <nick>
 	    $user	= &getUser($args[0]);
@@ -999,7 +1007,7 @@ sub userDCC {
 		&unban($mask, $_);
 	    }
 
-	    if ($c) {
+	    if (@c) {
 		&pSReply("Removed $mask from chans: @c");
 	    } else {
 		&pSReply("$mask was not found in ban list.");
@@ -1121,7 +1129,7 @@ sub userDCC {
     if ($message =~ /^banlist(\s+(.*))?$/) {
 	my $arg	= $2;
 
-	if (defined $arg and $arg !~ /^$mask_chan$/) {
+	if (defined $arg and $arg !~ /^$mask{chan}$/) {
 	    &pSReply("error: chan $chan is invalid.");
 	    return;
 	}
