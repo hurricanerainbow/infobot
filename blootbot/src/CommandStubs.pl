@@ -200,7 +200,7 @@ sub parseCmdHook {
 &addCmdHook("extra", 'lart', ('CODEREF' => 'lart',
 	'Identifier' => 'lart', 'Help' => 'lart') );
 &addCmdHook("extra", 'convert', ('CODEREF' => 'convert',
-	'Forker' => 1, 'Identifier' => 'units',
+	'Forker' => 1, 'Identifier' => 'Units',
 	'Help' => 'convert') );
 &addCmdHook("extra", '(cookie|random)', ('CODEREF' => 'cookie',
 	'Forker' => 1, 'Identifier' => 'Factoids') );

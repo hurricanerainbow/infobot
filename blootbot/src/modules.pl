@@ -48,7 +48,7 @@ if ($@) {
 	"slashdot"	=> "slashdot.pl",
 	"DumpVars2"	=> "DumpVars2.pl",
 	"Topic"		=> "Topic.pl",
-	"units"		=> "Units.pl",
+	"Units"		=> "Units.pl",
 	"uptime"	=> "Uptime.pl",
 	"userinfo"	=> "UserInfo.pl",
 	"weather"	=> "Weather.pl",

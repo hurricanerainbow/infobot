@@ -1,4 +1,4 @@
-#v1: blootbot -- infobot -- written Tue Nov 23 05:31:25 2004
+#v1: blootbot -- infobot -- written Tue Nov 23 05:43:18 2004
 
 #botpark
     +RootWarn
@@ -33,6 +33,7 @@ _default
     +Rss
     +Search
     +Topic
+    +Units
     +allowConv
     +allowDNS
     +allowTelling
@@ -66,7 +67,6 @@ _default
     +slashdot
     +spell
     +tell
-    +units
     +userinfo
     +weather
     +wwwsearch
