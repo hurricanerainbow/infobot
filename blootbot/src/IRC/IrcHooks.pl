@@ -5,8 +5,6 @@
 #        NOTE: Based on code by Kevin Lenzo & Patrick Cole  (c) 1997
 #
 
-# use strict;	# TODO
-
 # GENERIC. TO COPY.
 sub on_generic {
     my ($self, $event) = @_;
@@ -869,33 +867,36 @@ sub on_public {
 	$userstats{lc $nick}{'Time'} = time();
     }
 
-    # would this slow things down?
-    if ($_ = &getChanConf("ircTextCounters")) {
-	my $time = time();
+    # cache it.
+    my $time	= time();
+    if (!$cache{ircTextCounters}) {
+	&DEBUG("caching ircTextCounters for first time.");
+	my @str	= split(/\s+/, &getChanConf("ircTextCounters"));
+	for (@str) { $_ = quotemeta($_); }
+	$cache{ircTextCounters} = join('|', @str);
+    }
 
-	foreach (split /[\s]+/) {
-	    my $x = $_;
+    my $str = $cache{ircTextCounters};
+    if ($str && $msg =~ /^($str)[\s!\.]?$/i) {
+	my $x = $1;
 
-	    # either full word or ends with a space, etc...
-	    next unless ($msg =~ /^\Q$x\E[\$\s!.]/i);
+	&VERB("textcounters: $x matched for $who",2);
+	my $c = $chan || "PRIVATE";
 
-	    &VERB("textcounters: $x matched for $who",2);
-	    my $c = $chan || "PRIVATE";
-
-	    my ($v,$t) = &sqlSelect("stats", "counter,time", {
+	# better to do "counter=counter+1".
+	# but that will avoid time check.
+	my ($v,$t) = &sqlSelect("stats", "counter,time", {
 			nick	=> $who,
 			type	=> $x,
 			channel	=> $c,
-	    } );
-	    $v++;
+	} );
+	$v++;
 
-	    # don't allow ppl to cheat the stats :-)
-	    next unless (defined $t);
-	    next unless ($time - $t > 10);
-
+	# don't allow ppl to cheat the stats :-)
+	if (defined $t && $time - $t > 60) { 
 	    &sqlReplace("stats", {
-		nick => $who,
-		type => $x,
+		nick	=> $who,
+		type	=> $x,
 		channel => $c,
 		time	=> $time,
 		counter => $v,

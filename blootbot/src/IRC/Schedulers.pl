@@ -417,7 +417,7 @@ sub chanlimitCheck {
 	delete $cache{warn}{chanlimit}{$chan};
 
 	if (!defined $limit) {
-	    &status("chanlimit: setting for first time or from netsplit, for $chan");
+	    &status("chanlimit: $chan: setting for first time or from netsplit.");
 	}
 
 	if (exists $cache{chanlimitChange}{$chan}) {

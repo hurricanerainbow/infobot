@@ -287,7 +287,7 @@ sub loadPerlModule {
 	return 0;
     } else {
 	$perlModulesLoaded{$_[0]} = 1;
-	&status("Module: Loaded $_[0] ...");
+	&status("Loaded $_[0]");
 	&showProc(" ($_[0])");
 	return 1;
     }
@@ -343,7 +343,7 @@ sub loadMyModule {
     } else {
 	$moduleAge{$modulefile} = (stat $modulefile)[9];
 
-	&status("myModule: Loaded $modulebase ...");
+	&status("Loaded $modulebase");
 	&showProc(" ($modulebase)");
 	return 1;
     }

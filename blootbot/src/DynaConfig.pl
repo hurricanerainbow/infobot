@@ -848,6 +848,7 @@ my @regFlagsUser = (
 	"O",	# dynamic ops (as on channel). (automatic +o)
 	"A",	# bot administration over /msg
 			# default is only via DCC CHAT
+	"T",	# add topics.
 );
 
 1;

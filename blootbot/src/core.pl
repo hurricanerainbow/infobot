@@ -100,7 +100,7 @@ sub doExit {
 	&status("--- Start of quit.");
 	$ident ||= "blootbot";	# lame hack.
 
-	&status("Memory Usage: $memusage kB");
+	&status("Memory Usage: $memusage KiB");
 
 	&closePID();
 	&closeStats();
@@ -321,7 +321,7 @@ sub getChanConfDefault {
 
     if (exists $param{$what}) {
 	if (!exists $cache{config}{$what}) {
-	    &status("Config ($chan): backward-compatible option: found param{$what} ($param{$what}) instead");
+	    &status("config ($chan): backward-compatible option: found param{$what} ($param{$what}) instead");
 	    $cache{config}{$what} = 1;
 	}
 
@@ -331,7 +331,7 @@ sub getChanConfDefault {
     return $val if (defined $val);
 
     $param{$what}	= $default;
-    &status("Config ($chan): auto-setting param{$what} = $default");
+    &status("config ($chan): auto-setting param{$what} = $default");
     $cache{config}{$what} = 1;
     return $default;
 }
@@ -394,13 +394,13 @@ sub showProc {
 	if ($delta == 0) {
 	    return;
 	} elsif ($delta > 500) {
-	    $str = "MEM:$prefix increased by $delta kB. (total: $memusage kB)";
+	    $str = "MEM:$prefix increased by $delta KiB. (total: $memusage KiB)";
 	} elsif ($delta > 0) {
-	    $str = "MEM:$prefix increased by $delta kB";
+	    $str = "MEM:$prefix increased by $delta KiB";
 	} else {	# delta < 0.
 	    $delta = -$delta;
 	    # never knew RSS could decrease, probably Size can't?
-	    $str = "MEM:$prefix decreased by $delta kB.";
+	    $str = "MEM:$prefix decreased by $delta KiB.";
 	}
 
 	&status($str);
@@ -440,7 +440,7 @@ sub setup {
 
     $param{tempDir} =~ s#\~/#$ENV{HOME}/#;
 
-    &status("Initial memory usage: $memusage kB");
+    &status("Initial memory usage: $memusage KiB");
     &status("-------------------------------------------------------");
 }
 
@@ -476,7 +476,7 @@ sub setupConfig {
 sub startup {
     if (&IsParam("DEBUG")) {
 	&status("enabling debug diagnostics.");
-	### I thought disabling this reduced memory usage by 1000 kB.
+	### I thought disabling this reduced memory usage by 1000 KiB.
 	use diagnostics;
     }
 
