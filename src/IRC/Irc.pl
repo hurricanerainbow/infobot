@@ -13,7 +13,7 @@ $nickserv	= 0;
 # static scalar variables.
 $mask{ip}	= '(\d+)\.(\d+)\.(\d+)\.(\d+)';
 $mask{host}	= '[\d\w\_\-\/]+\.[\.\d\w\_\-\/]+';
-$mask{chan}	= '[\#\&]\S*';
+$mask{chan}	= '[\#\&]\S*|_default';
 my $isnick1	= 'a-zA-Z\[\]\{\}\_\`\^\|\\\\';
 my $isnick2	= '0-9\-';
 $mask{nick}	= "[$isnick1]{1}[$isnick1$isnick2]*";
