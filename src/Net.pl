@@ -183,7 +183,10 @@ sub getURLAsFile {
     my ($ua,$res,$req);
     my $time = time();
 
-    return unless &loadPerlModule("LWP::UserAgent");
+    unless (&loadPerlModule('LWP::UserAgent')) {
+	&::DEBUG('getURLAsFile: LWP::UserAgent not installed');
+	return;
+    }
 
     $ua = new LWP::UserAgent;
     $ua->proxy('http', $param{'httpProxy'}) if &IsParam("httpProxy");
