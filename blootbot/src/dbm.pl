@@ -14,9 +14,15 @@ package main;
 use vars qw(%factoids %param);
 
 {
+    # FIXME we don't handle multiply indexes tables
+    # perhaps we should combine the keys with a ':' or something?
+    # the spaces below separate the keys from the rest
+    # of the fields.
+    # Tim Riker thinks that freshmeat below should be a single index
     my %formats = (
 	'factoids', [
 	    'factoid_key',
+
 	    'requested_by',
 	    'requested_time',
 	    'requested_count',
@@ -31,12 +37,14 @@ use vars qw(%factoids %param);
 	'freshmeat', [
 	    'projectname_short',
 	    'latest_version',
+
 	    'license',
 	    'url_homepage',
 	    'desc_short'
 	],
 	'rootwarn', [
 	    'nick',
+
 	    'attempt',
 	    'time',
 	    'host',
@@ -44,6 +52,7 @@ use vars qw(%factoids %param);
 	],
 	'seen', [
 	    'nick',
+
 	    'time',
 	    'channel',
 	    'host',
@@ -53,12 +62,14 @@ use vars qw(%factoids %param);
 	    'nick',
 	    'type',
 	    'channel',
+
 	    'time',
 	    'counter'
 	],
 	'botmail', [
 	    'srcwho',
 	    'dstwho',
+
 	    'srcuh',
 	    'time',
 	    'msg'
