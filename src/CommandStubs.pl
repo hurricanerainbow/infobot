@@ -17,7 +17,8 @@ $W3Search_regex = join '|', @W3Search_engines;
 #	Cmdstats	=> 'text_label',)
 #}
 ### EXAMPLE
-# addCmdHook('d?find', \&debianFind(), (
+# addCmdHook('d?find', (
+#	CODEREF => \&debianFind(),
 #	Forker => 1,
 #	Identifier => "debian",
 #	Help => "dfind",
@@ -25,6 +26,26 @@ $W3Search_regex = join '|', @W3Search_engines;
 ### NOTES:
 #   * viable solution?
 ###
+
+sub addCmdHook {
+    my ($ident, %hash) = @_;
+
+    &DEBUG("aCH: added $ident to command hooks.");
+    $cmdhooks{$ident} = \%hash;
+}
+
+# RUN IF ADDRESSED.
+sub parseCmdHook {
+    foreach (keys %cmdhooks) {
+	&DEBUG("cmdhooks{$_} => ...");
+	my %hash = \%{ $cmdhooks{$_} };
+	foreach (keys %hash) {
+	    &DEBUG("   '$_' => '$hash{$_}'.");
+	}
+    }
+
+    &DEBUG("pCH: ended.");
+}
 
 sub Modules {
     if (!defined $message) {
