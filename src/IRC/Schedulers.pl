@@ -364,7 +364,11 @@ sub chanlimitCheck {
 	    ### run NAMES again and flush it.
 	}
 
-	next unless (!defined $limit or $limit != $newlimit);
+	next unless (!defined $limit);
+	if ($limit == $newlimit) {
+	    $cache{chanlimitChange}{$chan} = time();
+	    next;
+	}
 
 	if (!exists $channels{$chan}{'o'}{$ident}) {
 	    &status("ChanLimit: dont have ops on $chan.") unless (exists $cache{warn}{chanlimit}{$chan});
@@ -856,6 +860,7 @@ sub shmFlush {
 
 ### this is semi-scheduled
 sub getNickInUse {
+    &DEBUG("gNIU: ident => $ident, ircNick => $param{'ircNick'}");
     if ($ident eq $param{'ircNick'}) {
 	&status("okay, got my nick back.");
 	return;

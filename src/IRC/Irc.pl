@@ -550,6 +550,8 @@ sub nick {
     if ($nick =~ /^$mask{nick}$/) {
 	&DEBUG("nick: Changing nick to $nick (from $ident)");
 	rawout("NICK ".$nick);
+	# unfortunately, on_nick doesn't catch ourself.
+	$ident	= $nick;
 	return 1;
     }
     &DEBUG("nick: failed... why oh why (nick => $nick)");

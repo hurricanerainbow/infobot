@@ -369,11 +369,6 @@ sub on_endofnames {
     &status("$b_blue$chan$ob: [$chanstats]");
 
     &chanServCheck($chan);
-
-    if (scalar @joinchan) {	# remaining channels to join.
-	# lets do two at once!
-	&joinNextChan();
-    }
     &joinNextChan();
 }
 
@@ -625,6 +620,7 @@ sub on_nick {
     delete $nuh{lc $nick};
 
     # successful self-nick change.
+    &DEBUG("on_nick... nick => $nick, ident => $ident");
     if ($ident eq "$nick-" or "$ident-" eq $nick) {
 	&DEBUG("on_nick: well... we need this bug fixed.");
 	&DEBUG("ident => $ident");
