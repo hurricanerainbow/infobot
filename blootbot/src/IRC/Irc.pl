@@ -110,6 +110,13 @@ sub irc {
 	return 1;
     }
 
+    if ($param{'ircNick2'}) {
+	# prep for real multiple nick/server connects
+	# FIXME: all locations should get nick/server out of self, not config
+	$args{'Nick'} = $param{'ircNick2'};
+	my $conn2 = $irc->newconn(%args);
+    }
+
     &clearIRCVars();
 
     # change internal timeout value for scheduler.
@@ -120,33 +127,33 @@ sub irc {
     $ircstats{'Server'}	= "$server:$port";
 
     # handler stuff.
-	$conn->add_handler('caction',	\&on_action);
-	$conn->add_handler('cdcc',	\&on_dcc);
-	$conn->add_handler('cping',	\&on_ping);
-	$conn->add_handler('crping',	\&on_ping_reply);
-	$conn->add_handler('cversion',	\&on_version);
-	$conn->add_handler('crversion',	\&on_crversion);
-	$conn->add_handler('dcc_open',	\&on_dcc_open);
-	$conn->add_handler('dcc_close',	\&on_dcc_close);
-	$conn->add_handler('chat',	\&on_chat);
-	$conn->add_handler('msg',	\&on_msg);
-	$conn->add_handler('public',	\&on_public);
-	$conn->add_handler('join',	\&on_join);
-	$conn->add_handler('part',	\&on_part);
-	$conn->add_handler('topic',	\&on_topic);
-	$conn->add_handler('invite',	\&on_invite);
-	$conn->add_handler('kick',	\&on_kick);
-	$conn->add_handler('mode',	\&on_mode);
-	$conn->add_handler('nick',	\&on_nick);
-	$conn->add_handler('quit',	\&on_quit);
-	$conn->add_handler('notice',	\&on_notice);
-	$conn->add_handler('whoischannels', \&on_whoischannels);
-	$conn->add_handler('useronchannel', \&on_useronchannel);
-	$conn->add_handler('whois',	\&on_whois);
-	$conn->add_handler('other',	\&on_other);
+	$conn->add_global_handler('caction',	\&on_action);
+	$conn->add_global_handler('cdcc',	\&on_dcc);
+	$conn->add_global_handler('cping',	\&on_ping);
+	$conn->add_global_handler('crping',	\&on_ping_reply);
+	$conn->add_global_handler('cversion',	\&on_version);
+	$conn->add_global_handler('crversion',	\&on_crversion);
+	$conn->add_global_handler('dcc_open',	\&on_dcc_open);
+	$conn->add_global_handler('dcc_close',	\&on_dcc_close);
+	$conn->add_global_handler('chat',	\&on_chat);
+	$conn->add_global_handler('msg',	\&on_msg);
+	$conn->add_global_handler('public',	\&on_public);
+	$conn->add_global_handler('join',	\&on_join);
+	$conn->add_global_handler('part',	\&on_part);
+	$conn->add_global_handler('topic',	\&on_topic);
+	$conn->add_global_handler('invite',	\&on_invite);
+	$conn->add_global_handler('kick',	\&on_kick);
+	$conn->add_global_handler('mode',	\&on_mode);
+	$conn->add_global_handler('nick',	\&on_nick);
+	$conn->add_global_handler('quit',	\&on_quit);
+	$conn->add_global_handler('notice',	\&on_notice);
+	$conn->add_global_handler('whoischannels', \&on_whoischannels);
+	$conn->add_global_handler('useronchannel', \&on_useronchannel);
+	$conn->add_global_handler('whois',	\&on_whois);
+	$conn->add_global_handler('other',	\&on_other);
 	$conn->add_global_handler('disconnect', \&on_disconnect);
 	$conn->add_global_handler([251,252,253,254,255], \&on_init);
-###	$conn->add_global_handler([251,252,253,254,255,302], \&on_init);
+#	$conn->add_global_handler(302, \&on_init); # userhost
 	$conn->add_global_handler(303, \&on_ison); # notify.
 	$conn->add_global_handler(315, \&on_endofwho);
 	$conn->add_global_handler(422, \&on_endofwho); # nomotd.
@@ -628,7 +635,7 @@ sub nick {
 
 sub invite {
     my($who, $chan) = @_;
-    # todo: check if $who or $chan are invalid.
+    # TODO: check if $who or $chan are invalid.
 
     $conn->invite($who, $chan);
 }
@@ -727,7 +734,7 @@ sub IsNickInAnyChan {
 
 # Usage: &validChan($chan);
 sub validChan {
-    # todo: use $c instead?
+    # TODO: use $c instead?
     my ($chan) = @_;
 
     if (!defined $chan or $chan =~ /^\s*$/) {
