@@ -181,20 +181,23 @@ sub getURL {
 sub getURLAsFile {
     my ($url,$file) = @_;
     my ($ua,$res,$req);
+    my $time = time();
 
     return unless &loadPerlModule("LWP::UserAgent");
+
     $ua = new LWP::UserAgent;
     $ua->proxy('http', $param{'httpProxy'}) if &IsParam("httpProxy");
-    my $req = HTTP::Request->new('GET', $url);
-    my $time = time();
+    $req = HTTP::Request->new('GET', $url);
     &status("getURLAsFile: getting '$url' as '$file'");
-    my $res = $ua->request($req, $file);
+    $res = $ua->request($req, $file);
+
     my $delta_time	= time() - $time;
     if ($delta_time) {
 	my $size = -s $file || 0;
 	my $rate = int($size / $delta_time / 1024);
 	&status("getURLAsFile: Done. ($rate kB/sec)");
     }
+
     return $res;
 }
 
