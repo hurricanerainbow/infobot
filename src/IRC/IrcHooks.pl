@@ -432,6 +432,11 @@ sub on_nick {
     my $nick = $event->nick();
     my $newnick = ($event->args)[0];
 
+    if (exists $netsplit{lc $newnick}) {
+	&DEBUG("on_nick: $newnick/$nick came back from netsplit and changed to original nick! removing from hash.");
+	delete $netsplit{lc $newnick};
+    }
+
     my ($chan,$mode);
     foreach $chan (keys %channels) {
 	foreach $mode (keys %{$channels{$chan}}) {
