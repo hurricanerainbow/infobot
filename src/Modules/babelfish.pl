@@ -10,16 +10,16 @@
 
 # hacked by Tim@Rikers.org to handle new URL and layout
 
-package babel;
+package babelfish;
 use strict;
 
-my $no_babel;
+my $no_babelfish;
 
 BEGIN {
     eval "use URI::Escape";    # utility functions for encoding the
-    if ($@) { $no_babel++};    # babelfish request
+    if ($@) { $no_babelfish++};    # babelfish request
     eval "use LWP::UserAgent";
-    if ($@) { $no_babel++};
+    if ($@) { $no_babelfish++};
 }
 
 BEGIN {
@@ -54,7 +54,7 @@ BEGIN {
 }
 
 sub babelfish {
-    return '' if $no_babel;
+    return '' if $no_babelfish;
   my ($from, $to, $phrase) = @_;
   &main::DEBUG("babelfish($from, $to, $phrase)");
 
@@ -82,7 +82,7 @@ sub babelfish {
 }
 
 sub translate {
-    return '' if $no_babel;
+    return '' if $no_babelfish;
   my ($phrase, $languagepair, $req, $ua) = @_;
   &main::DEBUG("translate($phrase, $languagepair, $req, $ua)");
 
@@ -115,16 +115,16 @@ sub translate {
   } else {
       $translated = ":("; # failure
   }
-  $translated = "babel.pl: result too long, probably an error" if (length($translated) > 700);
+  $translated = "babelfish.pl: result too long, probably an error" if (length($translated) > 700);
 
   &main::pSReply($translated);
 }
 
 if (0) {
     if (-t STDIN) {
-	#my $result = babel::babelfish('en','sp','hello world');
-	#my $result = babel::babelfish('en','sp','The cheese is old and moldy, where is the bathroom?');
-	my $result = babel::babelfish('en','gr','doesn\'t seem to translate things longer than 40 characters');
+	#my $result = babelfish::babelfish('en','sp','hello world');
+	#my $result = babelfish::babelfish('en','sp','The cheese is old and moldy, where is the bathroom?');
+	my $result = babelfish::babelfish('en','gr','doesn\'t seem to translate things longer than 40 characters');
 	$result =~ s/; /\n/g;
 	print "Babelfish says: \"$result\"\n";
     }

@@ -277,7 +277,7 @@ sub Modules {
 	return;
     }
 
-    # babel bot: Jonathan Feinberg++
+    # babelfish bot: Jonathan Feinberg++
     if ($message =~ m{
 		^\s*
 		(?:babel(?:fish)?|x|xlate|translate)
@@ -290,7 +290,7 @@ sub Modules {
     }xoi) {
 	return unless (&hasParam("babelfish"));
 
-	&Forker("babelfish", sub { &babel::babelfish(lc $1, lc $2, $3); } );
+	&Forker("babelfish", sub { &babelfish::babelfish(lc $1, lc $2, $3); } );
 
 	$cmdstats{'BabelFish'}++;
 	return;
