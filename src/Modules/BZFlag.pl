@@ -155,6 +155,7 @@ sub querytext {
 
 	# quit if version isn't valid
 	return 'not a bzflag server' if ($magic ne "BZFS");
+	$response .= "$major$minor$something$revision ";
 	# check version
 	if ($version eq "BZFS0026") {
 		# 1.11.x handled here
