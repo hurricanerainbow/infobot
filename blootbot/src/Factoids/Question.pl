@@ -11,7 +11,7 @@
 ##
 ##
 
-if (&IsParam("useStrict")) { use strict; }
+# use strict;	# TODO
 
 use vars qw($query $reply $finalQMark $nuh $result $talkok $who $nuh);
 use vars qw(%bots %forked);
@@ -109,13 +109,17 @@ sub doQuestion {
 	while ($result =~ /^see( also)? (.*?)\.?$/) {
 	    my $link	= $2;
 
-	    if (grep /^$link$/i, @link) {
+	    # #debian@OPN was having problems with libstdc++ factoid
+	    # redirection :) 20021116. -xk.
+	    # hrm... allow recursive loops... next if statement handles
+	    # that.
+	    if (grep /^\Q$link\E$/i, @link) {
 		&status("recursive link found; bailing out.");
 		last;
 	    }
 
 	    if (scalar @link >= 5) {
-		&status("recursive link limit reached.");
+		&status("recursive link limit (5) reached.");
 		last;
 	    }
 
