@@ -541,16 +541,18 @@ sub FactoidStuff {
 	    return;
 	}
 
-	if ($addressed) {
-	    if (length $message < 64) {
-		&status("unparseable: $message");
-		&performReply( &getRandom(keys %{$lang{'dunno'}}) );
-	    } else {
-		&status("unparse-ignore: $message");
-	    }
-		
-	    $count{'Dunno'}++;
+	return unless ($addressed);
+
+	if (length $message > 64) {
+	    &status("unparseable-moron: $message");
+	    &performReply( &getRandom(keys %{$lang{'moron'}}) );
+	    $count{'Moron'}++;
+	    return;
 	}
+
+	&status("unparseable: $message");
+	&performReply( &getRandom(keys %{$lang{'dunno'}}) );
+	$count{'Dunno'}++;
     }
 }
 
