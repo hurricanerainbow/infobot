@@ -82,8 +82,6 @@ sub addForked {
 	return 0;
     }
 
-    &DEBUG("forked => ".scalar(keys %forked) );
-
     foreach (keys %forked) {
 	my $time = time() - $forked{$_}{Time};
 	next unless ($time > $forker_timeout);

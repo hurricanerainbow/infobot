@@ -30,7 +30,7 @@ use vars qw(@joinchan @ircServers @wingateBad @wingateNow @wingateCache
 use vars qw(%count %netsplit %netsplitservers %flood %dcc %orig
 	    %nuh %talkWho %seen %floodwarn %param %dbh %ircPort
 	    %jointime %topic %joinverb %moduleAge %last %time %mask %file
-	    %forked %pid %chanconf %channels
+	    %forked %chanconf %channels
 );
 
 # Signals.
@@ -354,9 +354,6 @@ sub shutdown {
 
 sub restart {
     my ($sig) = @_;
-
-    &DEBUG(" forked => ".scalar(keys %forked) );
-    &DEBUG(" pid    => ".scalar(keys %pid) );
 
     if ($$ == $bot_pid) {
 	&status("--- $sig called.");

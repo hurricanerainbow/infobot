@@ -24,7 +24,7 @@ sub uptimeStr {
 }
 
 sub uptimeGetInfo {
-  my (%uptime,%done,%pid);
+  my (%uptime,%done);
   my ($uptime,$pid);
   my @results;
   my $file = $file{utm};
