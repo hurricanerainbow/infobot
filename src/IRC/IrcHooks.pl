@@ -215,7 +215,9 @@ sub on_disconnect {
     my $what = ($event->args)[0];
 
     &status("disconnect from $from ($what).");
-    $ircstats{'DisconnectReason'} = $what;
+    $ircstats{'DisconnectTime'}		= time();
+    $ircstats{'DisconnectReason'}	= $what;
+    $ircstats{'DisconnectCount'}++;
 
     # clear any variables on reconnection.
     $nickserv = 0;
