@@ -108,14 +108,14 @@ sub translate {
       &main::DEBUG("$translated\n===remove after 'Translate again'\n");
 
       $translated =~ s/[^:]*?:\s*(Help\s*)?//s;
-      &main::DEBUG("$translated\n===remove to first ':', optional Help\n");
+      &main::DEBUG("len=" . length($translated) . " $translated\n===remove to first ':', optional Help\n");
 
       $translated =~ s/\n/ /g;
       # FIXME: should we do unicode->iso (no. use utf8!)
   } else {
       $translated = ":("; # failure
   }
-  $translated = "babel.pl: result too long, probably an error" if (length($translated) > 370);
+  $translated = "babel.pl: result too long, probably an error" if (length($translated) > 700);
 
   &main::pSReply($translated);
 }
