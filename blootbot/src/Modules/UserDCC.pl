@@ -1210,6 +1210,23 @@ sub userDCC {
 	return;
     }
 
+    if ($message =~ /^sched$/) {
+	my @list;
+	my @run;
+	foreach (keys %sched) {
+	    next unless (exists $sched{$_}{TIME});
+	    push(@list,$_);
+
+	    next unless (exists $sched{$_}{RUNNING});
+	    push(@run,$_);
+	}
+
+	&pSReply( &formListReply(0,"Scheds to run: ", sort @list ) );
+	&pSReply( &formListReply(0, "Scheds running(should not happen?) ", sort @run ) );
+
+	return;
+    }
+
     return "REPLY";
 }
 
