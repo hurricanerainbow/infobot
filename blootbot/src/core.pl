@@ -315,7 +315,7 @@ sub getChanConf {
 
     $c		||= $chan;
     $c		||= "_default";
-    $c		= "_default" if ($c eq "*");	# fix!
+    $c		= "_default" if ($c eq "*");	# FIXME
     my @c	= grep /^\Q$c\E$/i, keys %chanconf;
 
     if (@c) {
