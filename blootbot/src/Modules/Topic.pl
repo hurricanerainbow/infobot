@@ -476,9 +476,10 @@ sub Topic {
     if (exists $topic{$chan}{'Who'} and exists $topic{$chan}{'Time'}) {
 	$reply = "topic on \002$chan\002 was last set by ".
 		$topic{$chan}{'Who'}. ".  This was done ".
-		&Time2String(time() - $topic{$chan}{'Time'}) ." ago.";
+		&Time2String(time() - $topic{$chan}{'Time'}) ." ago".
+		".  Length: ".length($topic{$chan}{'Current'});
 	my $change = $topic{$chan}{'What'};
-	$reply .= "Change => $change" if (defined $change);
+	$reply .= ".  Change => $change" if (defined $change);
     }
 
     &performStrictReply($reply);
