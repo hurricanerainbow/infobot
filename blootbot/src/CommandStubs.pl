@@ -314,7 +314,7 @@ sub Modules {
 
     # list{keys|values}. xk++. Idea taken from #linuxwarez@EFNET
     if ($message =~ /^list(\S+)(\s+(.*))?$/i) {
-	return unless (&hasParam("search"));
+	return unless (&hasParam('Search'));
 
 	my $thiscmd	= lc $1;
 	my $args	= $3 || "";
