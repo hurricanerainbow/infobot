@@ -443,6 +443,9 @@ sub on_join {
 	    next unless (exists $bans{$_}{$mask});
 
 	    my @array	= @{ $bans{$_}{$mask} };
+	    foreach (@array) {
+		&DEBUG("on_join: ban: array => '$_'");
+	    }
 	    $reason	||= $array[4];
 	    last;
 	}
