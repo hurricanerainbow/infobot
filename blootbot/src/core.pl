@@ -148,7 +148,7 @@ sub setup {
     &showProc(" (\&openLog before)");
     &openLog();		# write, append.
 
-    foreach ("debian","Temp") {
+    foreach ("debian") {
 	my $dir = "$bot_base_dir/$_/";
 	next if ( -d $dir);
 	&status("Making dir $_");
@@ -185,10 +185,15 @@ sub setupConfig {
 	&NEWloadConfig();
     }
 
-    foreach ("ircNick", "ircUser", "ircName", "DBType") {
+    foreach ("ircNick", "ircUser", "ircName", "DBType", "tempDir") {
 	next if &IsParam($_);
 	&ERROR("Parameter $_ has not been defined.");
 	exit 1;
+    }
+
+    if (! -d $param{tempDir}) {
+	&status("making $param{tempDir}...");
+	system("mkdir $param{tempDir}");
     }
 
     # static scalar variables.
@@ -221,7 +226,7 @@ sub restart {
     my ($sig) = @_;
 
     if ($$ == $bot_pid) {
-	&status("$sig called.");
+	&status("--- $sig called.");
 
 	### crappy bug in Net::IRC?
 	if (!$conn->connected and time - $msgtime > 900) {
@@ -236,7 +241,7 @@ sub restart {
 	&reloadAllModules() if (&IsParam("DEBUG"));
 	&setup();
 
-	&status("End of $sig.");
+	&status("--- End of $sig.");
     } else {
 	&status("$sig called; ignoring restart.");
     }
