@@ -456,7 +456,7 @@ sub seenFlush {
 
     &status("Flushed $flushed seen entries.")		if ($flushed);
     &VERB(sprintf("  new seen: %03.01f%% (%d/%d)",
-	$stats{'new'}*100/$stats{'count_old'},
+	$stats{'new'}*100/($stats{'count_old'} || 1),
 	$stats{'new'}, $stats{'count_old'} ), 2)	if ($stats{'new'});
     &VERB(sprintf("  now seen: %3.1f%% (%d/%d)",
 	$stats{'old'}*100/&countKeys("seen"),
