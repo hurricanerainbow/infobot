@@ -589,10 +589,11 @@ sub userCommands {
 	}
 
 	if (scalar @args == 2) {
-	    if (length $args[0] != 2) {
-		&msg($who, "invalid format...");
-		return;
-	    }
+# disable cause $1$ will use md5
+#	    if (length $args[0] != 2) {
+#		&msg($who, "invalid format...");
+#		return;
+#	    }
 
 	    &pSReply( crypt($args[1], $args[0]) );
 	} else {
