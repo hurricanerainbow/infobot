@@ -87,7 +87,7 @@ sub timeget {
     if ($no_timehires) {	# fallback.
 	return time();
     } else {			# the real thing.
-	return gettimeofday();
+	return [gettimeofday()];
     }
 }    
 
@@ -611,6 +611,8 @@ sub Forker {
 	$SIG{CHLD} = 'IGNORE';
 	$pid = eval { fork() };
 	return $noreply if $pid;	# parent does nothing
+
+	select(undef, undef, undef, 0.2);
 	&status("fork starting for '$label', PID == $$.");
 	&shmWrite($shm,"SET FORKPID $label $$");
 
