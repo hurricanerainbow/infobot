@@ -1044,6 +1044,8 @@ sub hookMsg {
 		push(@who, grep /^\Q$message\E$/i, keys %{ $flood{$_} });
 	    }
 
+	    return if ($lobotomized);
+
 	    if (scalar @who) {
 		&msg($who, "you already said what ".
 				join(' ', @who)." have said.");
