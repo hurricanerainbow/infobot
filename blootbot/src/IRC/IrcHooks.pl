@@ -100,6 +100,10 @@ sub on_chat {
 	return;
     }
 
+    if (defined $userHandle) {
+	&DEBUG("IrcHooks.pl: line 104: remove vUser");
+    }
+
     $userHandle = &verifyUser($who, $nuh);
     &status("$b_red=$b_cyan$who$b_red=$ob $message");
 
@@ -315,23 +319,14 @@ sub on_endofnames {
 	### chanserv support.
 	### TODO: what if we rejoin a channel.. need to set a var that
 	###	  we've done the request-for-ops-on-join.
-	return unless (&IsParam("chanServ_ops"));
+	return unless (&IsChanConf("chanServ_ops") > 0);
 	return unless ($nickserv);
 
-	my @chans = split(/[\s\t]+/, $param{'chanServ_ops'});
-
-	### TODO: since this function has a chan arg, why don't we use
-	###	  that instead of doing the following?
-	foreach $chan (keys %channels) {
-	    next unless (grep /^$chan$/i, @chans);
-
-	    if (!exists $channels{$chan}{'o'}{$ident}) {
-		&status("ChanServ ==> Requesting ops for $chan.");
-		&rawout("PRIVMSG ChanServ :OP $chan $ident");
-	    }
+	if (!exists $channels{$chan}{'o'}{$ident}) {
+	    &status("ChanServ ==> Requesting ops for $chan.");
+	    &rawout("PRIVMSG ChanServ :OP $chan $ident");
 	}
     }
-
 }
 
 sub on_init {
@@ -403,6 +398,23 @@ sub on_join {
 
     $channels{$chan}{''}{$who}++;
     $nuh{lc $who} = $who."!".$user."\@".$host unless (exists $nuh{lc $who});
+
+    ### on-join ban. (TODO: kick)
+    if (exists $bans{$chan}) {
+	### TODO: need to do $chan and _default
+	foreach (keys %{ $bans{$chan} }) {
+	    s/\*/\\S*/g;
+	    next unless /^\Q$nuh\E$/i;
+
+	    foreach (keys %{ $channels{$chan}{'b'} }) {
+		&DEBUG(" bans_on_chan($chan) => $_");
+	    }
+
+	    ### TODO: check $channels{$chan}{'b'} if ban already exists.
+	    &ban( "*!*@".&makeHostMask($host), $chan);
+	    last;
+	}
+    }
 
     ### ROOTWARN:
     &rootWarn($who,$user,$host,$chan)
@@ -477,14 +489,13 @@ sub on_modeis {
 sub on_msg {
     my ($self, $event) = @_;
     my $nick = $event->nick;
-    my $chan = lc ( ($event->to)[0] );	# CASING.
-    my $msg = ($event->args)[0];
+    my $msg  = ($event->args)[0];
 
     ($user,$host) = split(/\@/, $event->userhost);
     $uh		= $event->userhost();
     $nuh	= $nick."!".$uh;
 
-    &hookMsg('private', $chan, $nick, $msg);
+    &hookMsg('private', undef, $nick, $msg);
 }
 
 sub on_names {
@@ -876,7 +887,7 @@ sub hookMode {
 	    }
 
 	    # modes w/ target affecting nick => cache it.
-	    if ($mode =~ /[ov]/) {
+	    if ($mode =~ /[bov]/) {
 		$channels{$chan}{$mode}{$target}++	if  $parity;
 		delete $channels{$chan}{$mode}{$target}	if !$parity;
 	    }
@@ -1012,15 +1023,15 @@ sub hookMsg {
 	$flood{$floodwho}{$message} = time();
     }
 
-    # public.
-    if ($msgType =~ /public/i) {
-	$talkchannel = $chan;
+    if ($msgType =~ /public/i) {		    # public.
+	$talkchannel	= $chan;
 	&status("<$orig{who}/$chan> $orig{message}");
-    }
-
-    # private.
-    if ($msgType =~ /private/i) {
+    } elsif ($msgType =~ /private/i) {		   # private.
 	&status("[$orig{who}] $orig{message}");
+	$talkchannel	= undef;
+	$chan		= "_default";
+    } else {
+	&DEBUG("unknown msgType => $msgType.");
     }
 
     if ((!$skipmessage or &IsParam("seenStoreAll")) and
@@ -1038,38 +1049,21 @@ sub hookMsg {
     return if ($skipmessage);
     return unless (&IsParam("minVolunteerLength") or $addressed);
 
-    ### TODO: hash list of already-checked users.
-    ### eg: $ignoreChecked{$mask} = time();
     local $ignore	= 0;
-    my $checked		= 0;
+    if (exists $ignore{lc $chan}) {
+	foreach (keys %{ $ignore{lc $chan} }) {
+	    s/\*/\\S*/g;
 
-    if (my @m = grep /^$nuh$/i, keys %ignoreChecked) {
-	&DEBUG("found ignore for $nuh.");
-	foreach (@m) {
-	    &DEBUG("masks => $_  ($ignoreChecked{$_})");
-	}
-    }
-
-    foreach (keys %ignore) {
-	my $c = $_;
-	&DEBUG("c = $_, chan = $chan.");
-
-	foreach (keys %{ $ignore{$c} }) {
-	    my $m = $_;
-	    $m =~ s/\*/\\S*/g;
-
-	    next unless ($nuh =~ /^\Q$m\E$/i);
+	    next unless ($nuh =~ /^\Q$_\E$/i);
 	    $ignore++;
-	    $ignoreChecked{$nuh} = $c;
 	    last;
 	}
     }
 
-    if (!$ignore and !$checked) {
-	push(@ignore_off, $nuh);
-    }
-
     if (defined $nuh) {
+	if (defined $userHandle) {
+	    &DEBUG("line 1074: remove verifyUser");
+	}
 	$userHandle = &verifyUser($who, $nuh);
     } else {
 	&DEBUG("hookMsg: 'nuh' not defined?");
