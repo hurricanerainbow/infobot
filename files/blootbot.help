@@ -196,10 +196,10 @@ cookie: I can feed your appetite with random factoids.
 slashdot: D: News for nerds, Stuff that matters. [tm] (shows the headlines)
 slashdot: U: ##
 
-babelfish: D: Frontend to babelfish translating service provided by digital.com
-babelfish: U: x to <lang>: <words>
-babelfish: U: translate from <lang>: <words>
-babelfish: E: x to de: your cars rock
+babelfish: D: Frontend to babelfish translating service provided by http://babelfish.altavista.com/ Note that utf8 is used for non-ascii characters.
+babelfish: U: x <fromLang> <toLang> <words>
+babelfish: U: translate <fromLang> <toLang> <words>
+babelfish: E: x en de your cars rock
 
 search: U: ## <engine> for <string>
 search: E: ## google for evil
