@@ -31,11 +31,6 @@ sub doStatement {
     $in =~ s/ www\./ http:\/\/www\./ig;
     $in =~ s/ ftp\./ ftp:\/\/ftp\./ig;
 
-    # look for a "type nugget". this should be externalized.
-    $urlType = "mailto" if ($in =~ /\bmailto:.+\@.+\..{2,}/i);
-    $urlType = "mailto" if ($in =~ s/\b(\S+\@\S+\.\S{2,})/mailto:$1/gi);
-    $in =~ s/(mailto:)+/mailto:/g;
-
     $urlType = "about"   if ($in =~ /\babout:/i);
     $urlType = 'afp'     if ($in =~ /\bafp:/);
     $urlType = 'file'    if ($in =~ /\bfile:/);
