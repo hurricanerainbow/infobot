@@ -228,68 +228,6 @@ sub Modules {
 	return;
     }
 
-    # Nickometer. Adam Spiers++
-    if ($message =~ /^(?:lame|nick)ometer(?: for)? (\S+)/i) {
-	return unless (&IsChanConfOrWarn("nickometer"));
-
-	my $term = (lc $1 eq 'me') ? $who : $1;
-
-	&loadMyModule('nickometer');
-
-	if ($term =~ /^$mask{chan}$/) {
-	    &status("Doing nickometer for chan $term.");
-
-	    if (!&validChan($term)) {
-		&msg($who, "error: channel is invalid.");
-		return;
-	    }
-
-	    # step 1.
-	    my %nickometer;
-	    foreach (keys %{ $channels{lc $term}{''} }) {
-		my $str   = $_;
-		if (!defined $str) {
-		    &WARN("nickometer: nick in chan $term undefined?");
-		    next;
-		}
-
-		my $value = &nickometer($str);
-		$nickometer{$value}{$str} = 1;
-	    }
-
-	    # step 2.
-	    ### TODO: compact with map?
-	    my @list;
-	    foreach (sort {$b <=> $a} keys %nickometer) {
-		my $str = join(", ", sort keys %{ $nickometer{$_} });
-		push(@list, "$str ($_%)");
-	    }
-
-	    &performStrictReply( &formListReply(0, "Nickometer list for $term ", @list) );
-	    &DEBUG("test.");
-
-	    return;
-	}
-
-	my $percentage = &nickometer($term);
-
-	if ($percentage =~ /NaN/) {
-	    $percentage = "off the scale";
-	} else {
-	    $percentage = sprintf("%0.4f", $percentage);
-	    $percentage =~ s/(\.\d+)0+$/$1/;
-	    $percentage .= '%';
-	}
-
-	if ($msgType eq 'public') {
-	    &say("'$term' is $percentage lame, $who");
-	} else {
-	    &msg($who, "the 'lame nick-o-meter' reading for $term is $percentage, $who");
-	}
-
-	return;
-    }
-
     # Topic management. xk++
     # may want to add a userflags for topic. -xk
     if ($message =~ /^topic(\s+(.*))?$/i) {
@@ -1051,6 +989,9 @@ sub nullski {
 	'Forker' => 1, 'Help' => 'dns') );
 &addCmdHook('piglatin', ('CODEREF' => 'piglatin::piglatin',
 	'Identifier' => 'piglatin', 'Cmdstats' => 'piglatin',
+	'Forker' => 1) );
+&addCmdHook('(?:lame|nick)ometer(?: for)?', ('CODEREF' => 'nickometer::query',
+	'Identifier' => 'nickometer', 'Cmdstats' => 'nickometer',
 	'Forker' => 1) );
 ###
 ### END OF ADDING HOOKS.

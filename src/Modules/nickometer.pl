@@ -8,53 +8,115 @@
 # $Id$
 #
 
+package nickometer;
+
 use strict;
 
 my $pi		= 3.14159265;
 my $score	= 0;
-my $verbose	= 0;
+my $verbose	= 1;
+
+sub query {
+  my ($message) = @_;
+
+  my $term = (lc $message eq 'me') ? $::who : $message;
+  &::DEBUG("nickometer $_:$term:$message");
+
+  if ($term =~ /^$::mask{chan}$/) {
+    &::status("Doing nickometer for chan $term.");
+
+    if (!&::validChan($term)) {
+	&::msg($::who, "error: channel is invalid.");
+	return;
+    }
+
+    # step 1.
+    my %nickometer;
+    foreach (keys %{ $::channels{lc $term}{''} }) {
+      my $str   = $_;
+      if (!defined $str) {
+	&WARN("nickometer: nick in chan $term undefined?");
+	next;
+      }
+
+      my $value = &nickometer($str);
+      $nickometer{$value}{$str} = 1;
+    }
+
+    # step 2.
+    ### TODO: compact with map?
+    my @list;
+    foreach (sort {$b <=> $a} keys %nickometer) {
+      my $str = join(", ", sort keys %{ $nickometer{$_} });
+      push(@list, "$str ($_%)");
+    }
+
+    &::performStrictReply( &::formListReply(0, "Nickometer list for $term ", @list) );
+    &::DEBUG("test.");
+
+    return;
+  }
+
+  my $percentage = &nickometer($term);
+
+  if ($percentage =~ /NaN/) {
+    $percentage = "off the scale";
+  } else {
+    $percentage = sprintf("%0.4f", $percentage);
+    $percentage =~ s/(\.\d+)0+$/$1/;
+    $percentage .= '%';
+  }
+
+  if ($::msgType eq 'public') {
+    &::say("'$term' is $percentage lame, $::who");
+  } else {
+    &::msg($::who, "the 'lame nick-o-meter' reading for $term is $percentage, $::who");
+  }
+
+  return;
+}
 
 sub nickometer ($) {
-#  return unless &loadPerlModule("Getopt::Std");
-  return unless &loadPerlModule("Math::Trig");
-
-  local $_ = shift;
+  my ($text) = @_;
   $score = 0;
 
-  if (!defined) {
-    &DEBUG("nickometer: arg == NULL.");
+#  return unless &loadPerlModule("Getopt::Std");
+  return unless &::loadPerlModule("Math::Trig");
+
+  if (!defined $text) {
+    &::DEBUG("nickometer: arg == NULL. $text");
     return;
   }
 
   # Deal with special cases (precede with \ to prevent de-k3wlt0k)
   my %special_cost = (
-	'69'			=> 500,
-	'dea?th'		=> 500,
-	'dark'			=> 400,
-	'n[i1]ght'		=> 300,
-	'n[i1]te'		=> 500,
-	'fuck'			=> 500,
-	'sh[i1]t'		=> 500,
-	'coo[l1]'		=> 500,
-	'kew[l1]'		=> 500,
-	'lame'			=> 500,
-	'dood'			=> 500,
-	'dude'			=> 500,
-	'[l1](oo?|u)[sz]er'	=> 500,
-	'[l1]eet'		=> 500,
-	'e[l1]ite'		=> 500,
-	'[l1]ord'		=> 500,
-	'pron'			=> 1000,
-	'warez'			=> 1000,
-	'xx'			=> 100,
-	'\[rkx]0'		=> 1000,
-	'\0[rkx]'		=> 1000,
+    '69'		=> 500,
+    'dea?th'		=> 500,
+    'dark'		=> 400,
+    'n[i1]ght'		=> 300,
+    'n[i1]te'		=> 500,
+    'fuck'		=> 500,
+    'sh[i1]t'		=> 500,
+    'coo[l1]'		=> 500,
+    'kew[l1]'		=> 500,
+    'lame'		=> 500,
+    'dood'		=> 500,
+    'dude'		=> 500,
+    '[l1](oo?|u)[sz]er'	=> 500,
+    '[l1]eet'		=> 500,
+    'e[l1]ite'		=> 500,
+    '[l1]ord'		=> 500,
+    'pron'		=> 1000,
+    'warez'		=> 1000,
+    'xx'		=> 100,
+    '\[rkx]0'		=> 1000,
+    '\0[rkx]'		=> 1000,
   );
 
   foreach my $special (keys %special_cost) {
     my $special_pattern = $special;
     my $raw = ($special_pattern =~ s/^\\//);
-    my $nick = $_;
+    my $nick = $text;
     unless (defined $raw) {
       $nick =~ tr/023457+8/ozeasttb/;
     }
@@ -149,7 +211,7 @@ sub nickometer ($) {
 
   # Use an appropriate function to map [0, +inf) to [0, 100)
   my $percentage = 100 *
-		(1 + tanh(($score-400)/400)) *
+		(1 + &Math::Trig::tanh(($score-400)/400)) *
 		(1 - 1/(1+$score/5)) / 2;
 
   my $digits = 2 * (2 - &round_up(log(100 - $percentage) / log(10)));
