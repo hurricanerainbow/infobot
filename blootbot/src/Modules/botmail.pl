@@ -52,7 +52,7 @@ sub check {
     if ($t == 0) {
 	&::msg($recipient, "You have no botmail.") if ($always);
     } else {
-	&::msg($recipient, "You have $t messages awaiting, from: $from");
+	&::msg($recipient, "You have $t messages awaiting, from: $from (botmail read)");
     }
 }
 
