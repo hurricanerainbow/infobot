@@ -14,6 +14,11 @@ use strict;
 sub parse {
     my($what) = @_;
 
+    if ($::param{'DBType'} =~ /^dbm/i) {
+	# FIXME multi field indexed tables not supported under dbm
+	&::msg($::who, "botmail disabled for $::param{'DBType'}");
+	return;
+    }	
     if (!defined $what or $what =~ /^\s*$/) {
 	&::help("botmail");
 	return;
