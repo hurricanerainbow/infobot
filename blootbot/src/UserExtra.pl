@@ -319,14 +319,15 @@ sub tell {
 	return;
     }
 
-    # ...
+    my $oldwho		= $who;
+    my $oldmtype	= $msgType;
+    $who		= $target;
     my $result = &doQuestion($tell_obj);
-    # ^ returns '0' if nothing was found.
+	# ^ returns '0' if nothing was found.
+    $who		= $oldwho;
 
     # no such factoid.
     if ($result =~ /^0?$/) {
-	my $oldwho	= $who;
-	my $oldmtype	= $msgType;
 	$who		= $target;
 	$msgType	= "private";
 
