@@ -91,6 +91,14 @@ $noreply	= "NOREPLY";
 ### misc commands.
 ###
 
+sub whatInterface {
+    if (!&IsParam("Interface") or $param{'Interface'} =~ /IRC/) {
+	return "IRC";
+    } else {
+	return "CLI";
+    }
+}
+
 sub doExit {
     my ($sig)	= @_;
 
