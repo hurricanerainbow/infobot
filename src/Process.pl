@@ -299,8 +299,8 @@ sub process {
     ###
 
     # karma. set...
-    if ($message =~ /^(\S+)(--|\+\+)\s*$/ && $addressed &&
-	&hasParam("karma") && $msgType =~ /public/i
+    if ($msgType =~ /public/i && $message =~ /^(\S+)(--|\+\+)\s*$/ &&
+	$addressed && &hasParam("karma")
     ) {
 	# to request factoids such as "g++" or "libstdc++", append "?" to the query.
 	my ($term,$inc) = (lc $1,$2);
