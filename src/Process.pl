@@ -539,8 +539,13 @@ sub FactoidStuff {
 	}
 
 	if ($addressed) {
-	    &status("unparseable: $message");
-	    &performReply( &getRandom(keys %{$lang{'dunno'}}) );
+	    if (length $message < 64) {
+		&status("unparseable: $message");
+		&performReply( &getRandom(keys %{$lang{'dunno'}}) );
+	    } else {
+		&status("unparse-ignore: $message");
+	    }
+		
 	    $count{'Dunno'}++;
 	}
     }
