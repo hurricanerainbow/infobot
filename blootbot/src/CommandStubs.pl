@@ -8,6 +8,7 @@ use vars qw(@W3Search_engines $W3Search_regex);
 @W3Search_engines = qw(AltaVista Dejanews Excite Gopher HotBot Infoseek
 			Lycos Magellan PLweb SFgate Simple Verity Google);
 $W3Search_regex = join '|', @W3Search_engines;
+$babel::lang_regex = "";	# lame fix.
 
 ### PROPOSED COMMAND HOOK IMPLEMENTATION.
 # addCmdHook('TEXT_HOOK', $code_ref,
