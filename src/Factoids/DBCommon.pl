@@ -10,11 +10,11 @@
 #####
 # Usage: &setFactInfo($faqtoid, $key, $val);
 sub setFactInfo {
-    &sqlSet("factoids", 
+    &sqlSet("factoids",
 	{ factoid_key => $_[0] },
 	{ $_[1] => $_[2] }
     );
-}   
+}
 
 #####
 # Usage: &getFactInfo($faqtoid, [$what]);
@@ -28,14 +28,14 @@ sub getFactoid {
     return &getFactInfo($_[0], "factoid_value");
 }
 
-##### 
+#####
 # Usage: &delFactoid($faqtoid);
 sub delFactoid {
     my ($faqtoid) = @_;
 
     &sqlDelete("factoids", { factoid_key => $faqtoid } );
     &status("DELETED $faqtoid");
- 
+
     return 1;
 }
 
@@ -63,7 +63,7 @@ sub AddModified {
     my (@modifiedlist, @modified, %modified);
 
     if (defined $modified_by) {
-	push(@modifiedlist, split(/\,/, $modified_by));	
+	push(@modifiedlist, split(/\,/, $modified_by));
     }
     push(@modifiedlist,$nuh);
 
