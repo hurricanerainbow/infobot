@@ -305,10 +305,6 @@ sub setup {
 sub setupConfig {
     $param{'VERBOSITY'} = 1;
     &loadConfig($bot_misc_dir."/blootbot.config");
-    if (&IsParam("WIP")) {
-	require "src/Config.pl";
-	&NEWloadConfig();
-    }
 
     foreach ("ircNick", "ircUser", "ircName", "DBType", "tempDir") {
 	next if &IsParam($_);
