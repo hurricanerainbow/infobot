@@ -265,6 +265,8 @@ sub status {
 	} else {
 	    print "$printable\n";
 	}
+    } else {
+	print "VERBOSITY IS OFF?\n";
     }
 
     # log the line into a file.
