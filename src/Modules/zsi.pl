@@ -78,7 +78,7 @@ sub queryText {
 			my ($name, $href, $desc) = split(/\|/,$line);
 
 			if ($res_count < $res_return) {
-				$result .= "$name ($desc) $href\n";
+				$result .= "$name ($desc) $href : ";
 				$res_display ++;
 			}
 			$res_count ++;
@@ -86,7 +86,7 @@ sub queryText {
 	}
 
 	if (($query) && ($res_count > $res_display)) {
-		$result .= "$res_display of $res_count shown. All at http://killefiz.de/zaurus/search.php?q=$query\n";
+		$result .= "$res_display of $res_count shown. All at http://killefiz.de/zaurus/search.php?q=$query";
 	}
 
 	return $result;
