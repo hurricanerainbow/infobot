@@ -1,6 +1,16 @@
 # Pager
 #
-# modified from pager.pm in flooterbuck
+# modified from pager.pm in flooterbuck changes are:
+#
+# Copyright (c) 2004 Tim Riker <Tim@Rikers.org>
+#
+# This package is free software;  you can redistribute it and/or
+# modify it under the terms of the license found in the file
+# named LICENSE that should have accompanied this file.
+#
+# THIS PACKAGE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+# WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 package pager;
 use strict;
@@ -70,7 +80,7 @@ sub pager::page {
 		if ($failed) {
 			$retval='Sorry, an error occurred while sending mail.';
 		} else {
-			$retval="$from: I sent mail to $toaddr.";
+			$retval="$from: I sent mail to $toaddr from $fromaddr.";
 		}
 	} else {
 		$retval="Sorry, I don't know ${to}'s email address.";
