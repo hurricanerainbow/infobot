@@ -40,14 +40,14 @@ sub userCommands {
 		&fixPlural("channel",scalar(keys %channels))."."
 	    );
 
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	# channel specific.
 
 	if (&validChan($chan) == 0) {
 	    &msg($who,"error: invalid channel \002$chan\002");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	# Step 1:
@@ -104,7 +104,7 @@ sub userCommands {
 	}
 	&performStrictReply("$reply.");
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Command statistics.
@@ -113,7 +113,7 @@ sub userCommands {
 
 	if (!scalar(keys %cmdstats)) {
 	    &performReply("no-one has run any commands yet");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	my %countstats;
@@ -131,7 +131,7 @@ sub userCommands {
 	}
 	&performStrictReply("command usage include ". &IJoin(@array).".");
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # conversion: ascii.
@@ -148,7 +148,7 @@ sub userCommands {
 	$result = "NULL"	if ($arg == 0);
 
 	&performReply( sprintf("ascii %s is '%s'", $arg, $result) );
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # conversion: ord.
@@ -166,7 +166,7 @@ sub userCommands {
 	}
 
 	&performReply( sprintf("'%s' is ascii %s", $arg, ord $1) );
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # hex.
@@ -175,12 +175,12 @@ sub userCommands {
 
 	if (!defined $arg) {
 	    &help("hex");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if (length $arg > 80) {
 	    &msg($who, "Too long.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	my $retval;
@@ -190,14 +190,14 @@ sub userCommands {
 
 	&performStrictReply("$arg is$retval");
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # crypt.
     if ($message =~ /^crypt\s+(\S+)\s*(?:,| )\s*(\S+)/) {
 	# word salt.
 	&performStrictReply(crypt($1, $2));
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Factoid extension info. xk++
@@ -208,7 +208,7 @@ sub userCommands {
 	if ($faqtoid =~ /^\-(\S+)(\s+(.*))$/) {
 	    &msg($who,"error: individual factoid info queries not supported as yet.");
 	    &msg($who,"it's possible that the factoid mistakenly begins with '-'.");
-	    return 'NOREPLY';
+	    return $noreply;
 
 	    $query   = lc $1;
 	    $faqtoid = lc $3;
@@ -218,7 +218,7 @@ sub userCommands {
 	&CmdFactInfo($faqtoid, $query);
 	
 	$cmdstats{'Factoid Info'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Factoid extension statistics. xk++
@@ -227,14 +227,14 @@ sub userCommands {
 
 	if (!defined $type) {
 	    &help("factstats");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	&Forker("factoids", sub {
 		&performStrictReply( &CmdFactStats($type) );
 	} );
 	$cmdstats{'Factoid Statistics'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # help.
@@ -243,7 +243,7 @@ sub userCommands {
 
 	&help($2);
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # karma.
@@ -259,7 +259,7 @@ sub userCommands {
 	    &performStrictReply("$target has neutral karma");
 	}
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # ignorelist.
@@ -273,7 +273,7 @@ sub userCommands {
 
 	if ($count == 0) {
 	    &performStrictReply("no one in the ignore list!!!");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	foreach (sort keys %ignoreList) {
@@ -299,7 +299,7 @@ sub userCommands {
 	    }
 	}
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # ispell.
@@ -309,17 +309,17 @@ sub userCommands {
 
 	if ($query eq "") {
 	    &help("spell");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if (! -x "/usr/bin/spell") {
 	    &msg($who, "no binary found.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if (!&validExec($query)) {
 	    &msg($who,"argument appears to be fuzzy.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	my $reply = "I can't find alternate spellings for '$query'";
@@ -349,7 +349,7 @@ sub userCommands {
 
 	&performStrictReply($reply);
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # nslookup.
@@ -358,18 +358,18 @@ sub userCommands {
 
 	if ($3 eq "") {
 	    &help("nslookup");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	&status("DNS Lookup: $3");
 	&loadMyModule($myModules{'allowDNS'});
 	&DNS($3);
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # cycle.
     if ($message =~ /^(cycle)(\s+(\S+))?$/i) {
-	return 'NOREPLY' unless (&hasFlag("o"));
+	return $noreply unless (&hasFlag("o"));
 	my $chan = lc $3;
 
 	if ($chan eq "") {
@@ -378,13 +378,13 @@ sub userCommands {
 		&DEBUG("cycle: setting chan to '$chan'.");
 	    } else {
 		&help("cycle");
-		return 'NOREPLY';
+		return $noreply;
 	    }
 	}
 
 	if (&validChan($chan) == 0) {
 	    &msg($who,"error: invalid channel \002$chan\002");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	&msg($chan, "I'm coming back. (courtesy of $who)");
@@ -392,23 +392,23 @@ sub userCommands {
 	sleep 3;
 	&joinchan($chan);
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # redir.
     if ($message =~ /^redir(\s+(.*))?/i) {
-	return 'NOREPLY' unless (&hasFlag("o"));
+	return $noreply unless (&hasFlag("o"));
 	my $factoid = $2;
 
 	if (!defined $factoid) {
 	    &help("redir");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	my $val  = &getFactInfo($factoid, "factoid_value");
 	if (!defined $val or $val eq "") {
 	    &msg($who, "error: '$factoid' does not exist.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 	&DEBUG("val => '$val'.");
 	my @list = &searchTable("factoids", "factoid_key",
@@ -416,11 +416,11 @@ sub userCommands {
 
 	if (scalar @list == 1) {
 	    &msg($who, "hrm... '$factoid' is unique.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 	if (scalar @list > 5) {
 	    &msg($who, "A bit too many factoids to be redirected, hey?");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	my @redir;
@@ -438,7 +438,7 @@ sub userCommands {
 
 	&msg($who, &formListReply(0, "'$factoid' is redirected to by '", @redir));
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # rot13 it.
@@ -447,13 +447,13 @@ sub userCommands {
 
 	if ($reply eq "") {
 	    &help("rot13");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	$reply =~ y/A-Za-z/N-ZA-Mn-za-m/;
 	&performStrictReply($reply);
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # ircstats.
@@ -480,7 +480,7 @@ sub userCommands {
 
 	&performStrictReply($reply);
 		
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # status.
@@ -503,7 +503,7 @@ sub userCommands {
 	  "kB of memory."
 	);
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # tell.
@@ -513,7 +513,7 @@ sub userCommands {
 	my $args = $3;
 	if (!defined $args) {
 	    &help("tell");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	my ($target, $tell_obj) = ('','');
@@ -559,13 +559,13 @@ sub userCommands {
 	# check target type. Deny channel targets.
 	if ($target !~ /^$mask{nick}$/ or $target =~ /^$mask{chan}$/) {
 	    &msg($who,"No, $who, I won't.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	# "intrusive".
 	if (!&IsNickInAnyChan($target)) {
 	    &msg($who, "No, $target is not in any of my chans.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	### TODO: don't "tell" if sender is not in target's channel.
@@ -573,17 +573,17 @@ sub userCommands {
 	# self.
 	if ($target eq $ident) {
 	    &msg($who, "Isn't that a bit silly?");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	# ...
 	my $result = &doQuestion($tell_obj);
-	return 'NOREPLY' if ($result eq "NOREPLY");
+	return $noreply if ($result eq $noreply);
 
 	# no such factoid.
 	if ($result eq "") {
 	    &msg($who, "i dunno what is '$tell_obj'.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	# success.
@@ -597,14 +597,14 @@ sub userCommands {
 
 	&msg($target, $reply);
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # wantNick. xk++
     if ($message =~ /^wantNick$/i) {
 	if ($param{'ircNick'} eq $ident) {
 	    &msg($who, "no need to get my nick back since i have it ;)");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	my $str = "attempting to change nick to $param{'ircNick'}";
@@ -612,7 +612,7 @@ sub userCommands {
 	&msg($who, $str);
 
 	&nick($param{'ircNick'});
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # what else...
