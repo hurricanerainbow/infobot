@@ -904,6 +904,6 @@ sub nullski {
 ### END OF ADDING HOOKS.
 ###
 
-&status('CMD: loaded '.scalar(keys %cmdhooks).' command hooks.');
+&status('loaded '.scalar(keys %cmdhooks).' command hooks.');
 
 1;

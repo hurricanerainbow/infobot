@@ -27,7 +27,6 @@ sub getReply {
     }
 
     $message =~ tr/A-Z/a-z/;
-    $message =~ s/^cmd:/CMD:/;
 
     @searches = split(/\s+/, &getChanConfDefault('factoidSearch', '_default'));
 
@@ -150,7 +149,7 @@ sub getReply {
     ###
 
     # don't evaluate if it has factoid arguments.
-    if ($message =~ /^CMD:/i) {
+    if ($message =~ /^cmd:/i) {
 	&status("Reply: not doing substVars (eval dollar vars)");
     } else {
 	$reply = &substVars($reply,1);

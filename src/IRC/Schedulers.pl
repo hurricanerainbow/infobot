@@ -165,7 +165,7 @@ sub randomFactoid {
 	    ($key,$val) = &randKey("factoids","factoid_key,factoid_value");
 	    &DEBUG("rF: $key, $val");
 ###	    $val =~ tr/^[A-Z]/[a-z]/;	# blah is Good => blah is good.
-	    last if ((defined $val) and ($val !~ /^</) and ($key !~ /\#DEL\#/) and ($key !~ /^CMD:/));
+	    last if ((defined $val) and ($val !~ /^</) and ($key !~ /\#DEL\#/) and ($key !~ /^cmd:/));
 
 	    $error++;
 	    if ($error == 5) {
