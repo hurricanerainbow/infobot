@@ -461,11 +461,11 @@ sub on_nick {
 sub on_nick_taken {
     my ($self) = @_;
     my $nick = $self->nick;
-    my $newnick = substr($nick,0,8).int(rand(10));
+    my $newnick = substr($nick,0,7)."-";
 
-    &DEBUG("on_nick_taken: changing nick to $newnick.");
-    $self->nick($newnick);
-    $ident	= $newnick;
+    &status("nick taken; changing to temporary nick.");
+    &nick($newnick);
+    &getNickInUse(1);
 }
 
 sub on_notice {
