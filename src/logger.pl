@@ -6,9 +6,9 @@
 #      NOTE: Based on code by Kevin Lenzo & Patrick Cole  (c) 1997
 #
 
-use strict;
+if (&IsParam("useStrict")) { use strict; }
 
-use vars qw($logDate $loggingstatus $statcount $bot_pid
+use vars qw($logDate $loggingstatus $statcount $bot_pid $forkedtime
 	    $statcountfix $addressed $logcount $logtime);
 use vars qw(@backlog);
 use vars qw(%param %file);
@@ -16,6 +16,7 @@ use vars qw(%param %file);
 require 5.001;
 
 $logtime	= time();
+$logcount	= 0;
 
 my %attributes = (
 	'clear'      => 0,
