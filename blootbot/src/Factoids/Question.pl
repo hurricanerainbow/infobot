@@ -100,14 +100,14 @@ sub doQuestion {
     }
 
     ### TODO: Use &Forker(); move function to Freshmeat.pl.
-    if (&IsParam("freshmeatForFactoid")) {
+    if (&IsChanConf("freshmeatForFactoid")) {
 	&loadMyModule($myModules{'freshmeat'});
 	$result = &Freshmeat::showPackage($query);
 	return $result if (defined $result);
     }
 
     ### TODO: Use &Forker(); move function to Debian.pl
-    if (&IsParam("debianForFactoid")) {
+    if (&IsChanConf("debianForFactoid")) {
 	&loadMyModule($myModules{'debian'});
 	$result = &Debian::DebianFind($query);	# ???
 	### TODO: debian module should tell, through shm, that it went
@@ -129,7 +129,7 @@ sub doQuestion {
 	}
     }
 
-    $reply;
+    return $reply;
 }
 
 1;

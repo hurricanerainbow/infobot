@@ -611,10 +611,10 @@ sub hasProfanity {
 sub hasParam {
     my ($param) = @_;
 
-    ### TODO: specific reason why it failed.
     if (&IsChanConf($param)) {
 	return 1;
     } else {
+	### TODO: specific reason why it failed.
 	&msg($who, "unfortunately, \002$param\002 is disabled in my configuration") unless ($addrchar);
 	return 0;
     }

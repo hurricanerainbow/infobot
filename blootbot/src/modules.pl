@@ -44,6 +44,7 @@ if ($@) {
 	"wingate"	=> "Wingate.pl",
 	"insult"	=> "insult.pl",
 	"nickometer"	=> "nickometer.pl",
+	"babelfish"	=> "babel.pl",
 );
 @myModulesLoadNow	= ('topic', 'uptime',);
 @myModulesReloadNot	= ('IRC/Irc.pl','IRC/Schedulers.pl');

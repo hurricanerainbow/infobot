@@ -310,5 +310,4 @@ sub smart_replace {
     return $string;
 }
 
-
 1;
