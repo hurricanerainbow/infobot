@@ -12,6 +12,7 @@ sub HTTPDtype {
     my($line) = '';
     my($code, $mess, %h);
 
+    # TODO: remove leading http:// and trailing :port and /foo if found
     $HOST = 'joeysmith.com' unless length($HOST) > 0;
     return unless &::loadPerlModule("Net::HTTP::NB");
     return unless &::loadPerlModule("IO::Select");
