@@ -1,7 +1,7 @@
 INSTALL.patches
 -------------------
 
-- apply *.patch patches from patches/	( DOES THIS WORK???)
+- apply *.patch patches inside patches/
 	- cd /usr/lib/perl5/Net
 	  patch -p0 < Net::IRC.patch
 	- cd /usr/lib/perl5/WWW/Search

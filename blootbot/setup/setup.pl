@@ -49,19 +49,16 @@ if ($param{'DBType'} =~ /mysql/i) {
 	$database_exists++ if $database eq $param{DBName};
     }
     if ($database_exists) {
-	&status("Hmm, database '$param{DBName}' already exists. Continuing...");
+	&status("Database '$param{DBName}' already exists. Continuing...");
     } else {
 	&status("Creating db ...");
 	&dbRaw("create(database)", "CREATE DATABASE $param{DBName}");
     }
 
-    &status("Creating db ...");
-    &dbRaw("CREATE DATABASE $param{'DBName'}");
-
-    &status("--- Adding user information.");
+    &status("--- Adding user information for user '$param{'SQLUser'}'");
 
     if (!&dbGet("user","user", "user=".&dbQuote($param{'SQLUser'}) ) ) {
-	&status("--- Adding user $param{'SQLUser'} $dbname/user table...");
+	&status("--- Adding user '$param{'SQLUser'}' $dbname/user table...");
 
 	$query = "INSERT INTO user VALUES ".
 		"('localhost', '$param{'SQLUser'}', ".
@@ -71,11 +68,11 @@ if ($param{'DBType'} =~ /mysql/i) {
 
 	&dbRaw("create(user)", $query);
     } else {
-	&status("... User information already present.");
+	&status("... user information already present.");
     }
 
     if (!&dbGet("db","db","db=".&dbQuote($param{'SQLUser'}) ) ) {
-	&status("--- Adding 'db' stuff.");
+	&status("--- Adding database information for database '$dbname'.");
 
 	$query = "INSERT INTO db VALUES ".
 		"('localhost', '$dbname', ".

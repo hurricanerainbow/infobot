@@ -4,7 +4,7 @@ Method of installation.
 - Move files/sample/sample.config to files/blootbot.config
 - Edit files/blootbot.config, modify to taste.
 - Edit files/blootbot.chan to set which channels to join.
-- Edit files/ircII.server to modify list of IRC servers to connect.
+- Edit files/blootbot.server to modify list of IRC servers to connect.
 
 - Install the following Perl modules:
 	- Net::IRC perl module
@@ -17,14 +17,10 @@ Method of installation.
 		- Debian: (apt-get install libhtml-parser-perl)
 
 - Choose your database:
-	- MySQL (see INSTALL.mysql)
-	- PgSQL (see INSTALL.pgsql, DOES NOT WORK YET)
-	- Berkeley DBM (see INSTALL.dbm)
+	- MySQL, read INSTALL.mysql (supported)
+	- PgSQL, read INSTALL.pgsql (unsupported, may work)
+	- Berkeley DBM, read INSTALL.dbm (broken, unsupported)
 
-[OPTIONAL,FIXME]
-- 'scripts/insertDB.pl files/sample.insert'.
-
-- There are "bugs" in the perl modules. (see INSTALL.patches) on how to
-  fix.
+- There are "bugs" in the perl modules.  Read INSTALL.patches on how to fix.
 
 - Finally, './blootbot'

@@ -849,7 +849,7 @@ sub infoStats {
 # Usage: &generateIndex();
 sub generateIndex {
     my (@dists)	= @_;
-    &::status("Debian: !!! generateIndex($dists[0]) called !!!");
+    &::DEBUG("D: generateIndex($dists[0]) called!");
     if (!scalar @dists or $dists[0] eq '') {
 	&::ERROR("gI: no dists to generate index.");
 	return 1;
@@ -971,7 +971,7 @@ sub searchPackage {
 	}
 
 	if ($error) {
-	    &::ERROR("could not generate index ($file)!!!");
+	    &::ERROR("could not generate index ($file)!");
 	    return;
 	}
 

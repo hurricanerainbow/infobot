@@ -185,7 +185,7 @@ sub on_endofmotd {
 
     &status("End of motd. Now lets join some channels...");
     if (!scalar @joinchan) {
-	&WARN("joinchan array is empty!!!");
+	&WARN("joinchan array is empty!");
 	@joinchan = &getJoinChans(1);
     }
 

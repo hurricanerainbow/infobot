@@ -19,7 +19,7 @@ FEATURES
 	* Debian Contents and Packages, search and info.
 	* ChanServ/NickServ (OPN) support.
 	* WWW-Search (eg: google for BLAH)
-	* Slashdot,Kernel and Freshmeat auto-update announcements.
+	* Slashdot, Kernel and Freshmeat auto-update announcements.
 	* Units conversion (provided by external module, Units-Module)
 
 	DESIGN
@@ -66,9 +66,9 @@ However, these people do not realize the potential of open wingates.
 test all modifications properly (and extensively).  Suggestions are
 welcomed.
 
-	a few guys from #debian@OPN are attempting to rewrite the bot in C
-to support dbm185or2//mysql//postgresql. It's available at
-ftp://leguin.org.uk/pub/bloatbot/
+	gp@OPN is currently working on a C version of infobot or 
+blootbot, not based on the above source base.  Core factoid code and
+mysql support works - but that is it.
 
 MODIFICATIONS
 	All modifications are that of the blootbot author unless otherwise
@@ -132,10 +132,10 @@ and \broken.
 deleted the message together with the patch after replying to the guy. I
 hope to get that same guy to re-send me the patch...
 
-	MbM sent me a patch to clean up behaviour of factoids
-(adding,removing, modifying). Thanks.
+	MbM@OPN sent a patch to clean up behaviour of factoids
+(adding, removing, modifying).  Thanks.
 
 
 CONTACT
-	Contributions of a patch or a job offer can be sent to
-<dms@users.sourceforge.net> [DOES IT WORK??]
+	Contributions of a patch, or anything, can be sent to
+<dms@users.sourceforge.net>
