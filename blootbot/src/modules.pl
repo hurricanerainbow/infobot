@@ -5,9 +5,9 @@
 #     Created: 20000624
 #
 
-# use strict;	# TODO
+use strict;
 
-use vars qw($AUTOLOAD);
+use vars qw($AUTOLOAD $no_timehires);
 
 ###
 ### REQUIRED MODULES.
@@ -203,8 +203,7 @@ sub reloadModule {
 
 	if ($age < $moduleAge{$file}) {
 	    &WARN("rM: we're not gonna downgrade '$file'; use touch.");
-	    &DEBUG("age => $age");
-	    &DEBUG("mA{$file} => $moduleAge{$file}");
+	    &DEBUG("age => $age, mA{$file} => $moduleAge{$file}");
 	    return $retval;
 	}
 
