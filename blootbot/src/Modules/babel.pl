@@ -8,114 +8,135 @@
 # Version 1.0
 # First public release.
 
+# hacked by Tim@Rikers.org to handle new URL and layout
+
 package babel;
 use strict;
 
+my $no_babel;
+
 BEGIN {
-    # Translate some feasible abbreviations into the ones babelfish
-    # expects.
+    eval "use URI::Escape";    # utility functions for encoding the
+    if ($@) { $no_babel++};    # babelfish request
+    eval "use LWP::UserAgent";
+    if ($@) { $no_babel++};
+}
+
+BEGIN {
+  # Translate some feasible abbreviations into the ones babelfish
+  # expects.
     use vars qw!%lang_code $lang_regex!;
     %lang_code = (
-		'fr' => 'fr',
-		'sp' => 'es',
-		'po' => 'pt',
-		'pt' => 'pt',
-		'it' => 'it',
-		'ge' => 'de',
-		'de' => 'de',
-		'gr' => 'de',
-		'en' => 'en'
-	       );
+                'fr' => 'fr',
+                'sp' => 'es',
+                'es' => 'es',
+                'po' => 'pt',
+                'pt' => 'pt',
+                'it' => 'it',
+                'ge' => 'de',
+                'de' => 'de',
+                'gr' => 'de',
+                'en' => 'en',
+                'zh' => 'zh',
+                'ja' => 'ja',
+                'jp' => 'ja',
+                'ko' => 'ko',
+                'kr' => 'ko',
+                'ru' => 'ru'
+               );
 
-    # Here's how we recognize the language you're asking for.  It looks
-    # like RTSL saves you a few keystrokes in #perl, huh?
-    $lang_regex = join '|', keys %lang_code;
+  # Here's how we recognize the language you're asking for.  It looks
+  # like RTSL saves you a few keystrokes in #perl, huh?
+  $lang_regex = join '|', keys %lang_code;
 }
 
 sub babelfish {
-    my ($direction, $lang, $phrase) = @_;
+    return '' if $no_babel;
+  my ($from, $to, $phrase) = @_;
+  #&main::DEBUG("babelfish($from, $to, $phrase)");
 
-    return unless &::loadPerlModule("URI::Escape");
-    return unless &::loadPerlModule("LWP::UserAgent");
+  $from = $lang_code{$from};
+  $to = $lang_code{$to};
 
-    $lang = $lang_code{$lang};
+  my $ua = new LWP::UserAgent;
+  $ua->timeout(5);
 
-    my $ua = new LWP::UserAgent;
-    $ua->timeout(10);
-    $ua->proxy('http', $::param{'httpProxy'}) if &::IsParam("httpProxy");
+  my $req =
+    HTTP::Request->new('POST', 'http://babelfish.altavista.com/raging/translate.dyn');
 
-    my $url = 'http://babelfish.altavista.com/raging/translate.dyn';
-    my $req = HTTP::Request->new('POST',$url);
+# babelfish ignored this, but it SHOULD work
+# Accept-Charset: iso-8859-1
+#  $req->header('Accept-Charset' => 'iso-8859-1');
+#  print $req->header('Accept-Charset');
+  $req->content_type('application/x-www-form-urlencoded');
 
-    $req->content_type('application/x-www-form-urlencoded');
-
-    my $tolang = "en_$lang";
-    my $toenglish = "${lang}_en";
-
-    if ($direction eq 'to') {
-	my $xlate = translate($phrase, $tolang, $req, $ua);
-	&::pSReply($xlate) if ($xlate);
-	return;
-    } elsif ($direction eq 'from') {
-	my $xlate = translate($phrase, $toenglish, $req, $ua);
-	&::pSReply($xlate) if ($xlate);
-	return;
-    }
-    &::DEBUG("what's this junk?");
-
-    my $last_english = $phrase;
-    my $last_lang;
-    my %results = ();
-    my $i = 0;
-    while ($i++ < 7) {
-	last if $results{$phrase}++;	# REMOVE!
-	$last_lang = $phrase = translate($phrase, $tolang, $req, $ua);
-	last if $results{$phrase}++;	# REMOVE!
-	$last_english = $phrase = translate($phrase, $toenglish, $req, $ua);
-    }
-
-    &::pSReply($last_english);
+  return translate($phrase, "${from}_${to}", $req, $ua);
 }
 
 sub translate {
-    my ($phrase, $languagepair, $req, $ua) = @_;
+    return '' if $no_babel;
+  my ($phrase, $languagepair, $req, $ua) = @_;
+  #&main::DEBUG("translate($phrase, $languagepair, $req, $ua)");
 
-    my $urltext = URI::Escape::uri_escape($phrase);
-    $req->content("urltext=$urltext&lp=$languagepair&doit=done");
+  my $urltext = uri_escape($phrase);
+  $req->content("urltext=$urltext&lp=$languagepair");
+  #&main::DEBUG("http://babelfish.altavista.com/raging/translate.dyn??urltext=$urltext&lp=$languagepair");
 
-    my $res = $ua->request($req);
+  my $res = $ua->request($req);
+  my $translated;
 
-    my $translated;
-    if ($res->is_success) {		# success.
-	my $html = $res->content;
-	my $textarea	= 0;
-	foreach (split "\n", $html) {
-	    $textarea	= 1	if (/<textarea/i);
-	    next unless ($textarea);
+  if ($res->is_success) {
+      my $html = $res->content;
+      # This method subject to change with the whims of Altavista's design
+      # staff.
+      $html =~ s/\s+/ /sg;
+      #&main::DEBUG("$html\n===============\n");
+      # look for the first :< which should be the "To English:<", etc.
+      # strip any trailing tags, grab text that follows up to the next tag.
+      #my ($translated) = ($html =~ m{:\s*(<[^>]*>\s*)+([^<]*)}sx);
+      ($translated) = $html;
+      #(undef, $translated) = ($html =~ m{(:\s+(<[^>]*>\s*)+)([^<\s]*)<}sx);
 
-	    &::DEBUG("   '$_'");
+      # Tim@Rikers.org get's frustrated and splits this into steps:
+      # 1) remove everything up to the first ':' in the text
+      $translated =~ s/.*?:\s*</</s;
+      # 2) remove any <attributes> till the first text
+      $translated =~ s/(<[^>]*>\s*)*//s;
+      # 3) remove the first trailing <attribute> and everything after it
+      $translated =~ s/<.*//s;
 
-	    $textarea	= 0	if (/<\/textarea/i);
-	}
+      # look for contents of first textarea - not anymore cause > 40 char does not get one.
+      #my ($translated) = ($html =~ m{<textarea[^>]*>+([^<]*)}sx);
+      #&main::DEBUG("\"$translated\"\n===============\n");
+#       ($html =~ m{<textarea[^>]*>
+#               \s*
+#               ([^<]*)
+#               }sx);
+#         ($html =~ m{<br>
+#                         \s+
+#                             <font\ face="arial,\ helvetica">
+#                                 \s*
+#                                     (?:\*\*\s+time\ out\s+\*\*)?
+#                                         \s*
+#                                             ([^<]*)
+#                                             }sx);
+      $translated =~ s/\n/ /g;
+      $translated =~ s/\s*$//;
+      # need a way to do unicode->iso
+  } else {
+      $translated = ":("; # failure
+  }
+  &main::pSReply($translated);
+}
 
-	$html	=~ s/\cM//g;
-	$html	=~ s/\n\s*\n/\n/g;
-	$html	=~ s/\n/ /g;	# ...
-
-	if ($html =~ /<textarea.*?>(.*?)<\/textarea/si) {
-	    $translated = $1;
-	    $translated =~ s/^[\n ]|[\n ]$//g;
-	} else {
-	    &::WARN("failed regex for babelfish.");
-	}
-
-    } else {				# failure
-	$translated = "FAILURE w/ babelfish";
+if (0) {
+    if (-t STDIN) {
+        #my $result = babel::babelfish('en','sp','hello world');
+        #my $result = babel::babelfish('en','sp','The cheese is old and moldy, where is the bathroom?');
+        my $result = babel::babelfish('en','gr','doesn\'t seem to translate things longer than 40 characters');
+        $result =~ s/; /\n/g;
+        print "Babelfish says: \"$result\"\n";
     }
-
-    $translated	||= "NULL reply from babelfish.";
-
-    return $translated;
 }
 
 1;
