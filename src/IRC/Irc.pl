@@ -7,6 +7,9 @@
 
 if (&IsParam("useStrict")) { use strict; }
 
+use vars qw($nickserv);
+$nickserv	= 0;
+
 # static scalar variables.
 $mask{ip}	= '(\d+)\.(\d+)\.(\d+)\.(\d+)';
 $mask{host}	= '[\d\w\_\-\/]+\.[\.\d\w\_\-\/]+';
