@@ -262,10 +262,8 @@ sub process {
 
     # greetings.
     if ($message =~ /how (the hell )?are (ya|you)( doin\'?g?)?\?*$/) {
-	my $reply = &getRandom(keys %{ $lang{'howareyou'} });
 
-	&performReply($reply);
-        
+	&performReply(&getRandom(keys %{ $lang{'howareyou'} }));
 	return;
     }
 
@@ -275,11 +273,7 @@ sub process {
     {
 	return 'praise: no addr' unless ($addressed);
 
-	&status("random praise detected");
-
-	my $tmp = (rand() < 0.5) ? "thanks $who " : "";
-	&pSReply($tmp.":)");
-
+	&performReply(&getRandom(keys %{ $lang{'praise'} }));
 	return;
     }
 
