@@ -151,6 +151,8 @@ sub loadUsers {
     $file =~ s/^.*\///;
     &status("Loaded userlist $file (". scalar(keys %userList) ." users)");
     foreach $userName (keys %userList) {
+	last if ($param{VERBOSITY} < 2);
+
 	&status("  $userName:");
 	&status("    flags: +$userList{$userName}{'flags'}");
 
