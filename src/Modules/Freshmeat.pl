@@ -1,7 +1,7 @@
 #
 # Freshmeat.pl: Frontend to www.freshmeat.net
 #       Author: dms
-#      Version: v0.7c (20000606)
+#      Version: v0.7d (20000923)
 #      Created: 19990930
 #
 
@@ -104,9 +104,9 @@ sub downloadIndex {
     if (&main::isStale($idx, 1)) {
 	&main::status("Freshmeat: fetching data.");
 	foreach (keys %urls) {
-	    &main::DEBUG("FM: urls{$_} => '$urls{$_}'.");
 	    my $retval = &main::getURLAsFile($urls{$_}, $idx);
-	    next if ($retval eq "403");
+	    next if ($retval =~ /^(403|500)$/);
+
 	    &main::DEBUG("FM: last! retval => '$retval'.");
 	    last;
 	}
