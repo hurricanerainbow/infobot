@@ -204,7 +204,7 @@ sub getReply {
 	# randnick.
 	if ($reply =~ /\$randnick/) {
 	    my @nicks = keys %{$channels{$chan}{''}};
-	    my $randnick = $nicks[$rand*$#nicks];
+	    my $randnick = $nicks[ int($rand*$#nicks) ];
 	    s/\$randnick/$randnick/;
 	}
 
