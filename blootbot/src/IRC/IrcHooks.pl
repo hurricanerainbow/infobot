@@ -115,6 +115,12 @@ sub on_chat {
 sub on_endofmotd {
     my ($self) = @_;
 
+    # what's the following for?
+    $ident			= $param{'ircNick'};
+    # update IRCStats.
+    $ircstats{'ConnectTime'}	= time();
+    $ircstats{'ConnectCount'}++;
+
     if (&IsParam("wingate")) {
 	my $file = "$bot_base_dir/$param{'ircUser'}.wingate";
 	open(IN, $file);
