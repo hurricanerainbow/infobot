@@ -45,7 +45,7 @@ sub hookMode {
 
 	    # modes w/ target affecting nick => cache it.
 	    if ($mode =~ /[bov]/) {
-		if ($mode eq "o" and $nick eq "ChanServ" and $target =~ /^\Q$ident$\E/i) {
+		if ($mode eq "o" and $nick eq "ChanServ" and $target =~ /^\Q$ident\E$/i) {
 		    &DEBUG("hookmode: chanserv deopped us! asking");
 		    &chanServCheck($chan);
 		}

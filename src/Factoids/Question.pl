@@ -19,14 +19,13 @@ use vars qw(%bots %forked);
 sub doQuestion {
     # my doesn't allow variables to be inherinted, local does.
     # following is used in math()...
-    local($query) = @_;
-    local($reply) = "";
-    local $finalQMark = $query =~ s/\?+\s*$//;
-    $finalQMark += $query =~ s/\?\s*$//;
-    $query =~ s/^\s+|\s+$//g;
+    local($query)	= @_;
+    local($reply)	= "";
+    local $finalQMark	= $query =~ s/\?+\s*$//;
+    $finalQMark		+= $query =~ s/\?\s*$//;
+    $query		=~ s/^\s+|\s+$//g;
 
     if (!defined $query or $query =~ /^\s*$/) {
-	&FIXME("doQ: query == NULL (message => $message)");
 	return '';
     }
 

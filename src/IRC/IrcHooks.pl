@@ -516,7 +516,7 @@ sub on_join {
     }
 
     ### chanlimit check.
-    &chanLimitVerify($chan);
+#    &chanLimitVerify($chan);
 
     ### wingate:
     &wingateCheck();
@@ -829,7 +829,7 @@ sub on_quit {
 
 	# chanlimit code.
 	if (&ChanConfList("chanlimitcheck") and !scalar keys %netsplit) {
-	    &DEBUG("on_quit: netsplit detected; disabling chan limit.");
+	    &DEBUG("on_quit: netsplit detected on $chan; disabling chan limit.");
 	    &rawout("MODE $chan -l");
 	}
 

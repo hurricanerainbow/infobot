@@ -622,10 +622,9 @@ sub joinNextChan {
     }
 
     # !scalar @joinchan:
-
     if (exists $cache{joinTime}) {
 	my $delta	= time() - $cache{joinTime};
-	my $timestr = &Time2String($delta);
+	my $timestr	= &Time2String($delta);
 	my $rate	= sprintf("%.1f", $delta / &getJoinChans() );
 	delete $cache{joinTime};
 

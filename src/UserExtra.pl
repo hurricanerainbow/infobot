@@ -352,7 +352,7 @@ sub tell {
 	$message	= $tell_obj;
 	$done++ unless (&Modules());
 
-	&DEBUG("setting old values of who and msgType.");
+	&VERB("teel: setting old values of who and msgType.",2);
 	$who		= $oldwho;
 	$msgType	= $oldmtype;
 

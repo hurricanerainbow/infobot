@@ -143,8 +143,8 @@ sub dbGetCol {
 }
 
 #####
-# Usage: &dbGetRowInfo();
-sub dbGetRowInfo {
+# Usage: &dbGetColInfo();
+sub dbGetColInfo {
     my ($db) = @_;
 
     if (scalar @{ "${db}_format" }) {
