@@ -1243,7 +1243,7 @@ sub on_banned {
     my $chan	= $args[1];
 
     &status(">>> banned/$b_blue$chan$ob $b_cyan$args[0]$ob");
-
+    #FIXME if $args[0] == me then kill autojoin!
     &joinNextChan();
 }
 
