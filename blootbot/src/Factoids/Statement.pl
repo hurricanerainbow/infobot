@@ -1,0 +1,113 @@
+
+# infobot :: Kevin Lenzo  (c) 1997
+
+##
+##  doStatement --
+##
+##	decide if $in is a statement, and if so,
+##		- update the dbm
+##		- return feedback statement
+##
+##	otherwise return
+##		- null for confused.
+##		- NOREPLY not to respond.
+##
+
+if (&IsParam("useStrict")) { use strict; }
+
+sub doStatement {
+    my($in) = @_;
+
+    $in =~ s/\\(\S+)/\#$1\#/g;	# fix the backslash.
+    $in =~ s/^no([, ]+)//i;	# 'no, '.
+
+    # check if we need to be addressed and if we are
+    return 'NOREPLY' unless ($learnok);
+
+    my($urlType) = "";
+
+    # prefix www with http:// and ftp with ftp://
+    $in =~ s/ www\./ http:\/\/www\./ig;
+    $in =~ s/ ftp\./ ftp:\/\/ftp\./ig;
+
+    # look for a "type nugget". this should be externalized.
+    $urlType = "mailto" if ($in =~ /\bmailto:.+\@.+\..{2,}/i);
+    $urlType = "mailto" if ($in =~ s/\b(\S+\@\S+\.\S{2,})/mailto:$1/gi);
+    $in =~ s/(mailto:)+/mailto:/g;
+
+    $urlType = "about"   if ($in =~ /\babout:/i);
+    $urlType = 'afp'     if ($in =~ /\bafp:/);
+    $urlType = 'file'    if ($in =~ /\bfile:/);
+    $urlType = 'palace'  if ($in =~ /\bpalace:/);
+    $urlType = 'phoneto' if ($in =~ /\bphone(to)?:/);
+    if ($in =~ /\b(news|http|ftp|gopher|telnet):\s*\/\/[\-\w]+(\.[\-\w]+)+/) {
+	$urlType = $1;
+    }
+
+    # acceptUrl.
+    if (&IsParam("acceptUrl")) {
+	if ($param{'acceptUrl'} eq 'REQUIRE') {		# require url type.
+	    return 'NOREPLY' if ($urlType eq "");
+	} elsif ($param{'acceptUrl'} eq 'REJECT') {
+	    &status("REJECTED URL entry") if (&IsParam("VERBOSITY"));
+	    return 'NOREPLY' unless ($urlType eq "");
+	} else {
+	    # OPTIONAL
+	}
+    }
+
+    # learn statement. '$lhs is|are $rhs'
+    if ($in =~ /(^|\s)(is|are)(\s|$)/i) {
+	my($lhs, $mhs, $rhs) = ($`, $&, $');
+
+	$lhs =~ tr/A-Z/a-z/;
+	$lhs =~ s/^(the|da|an?)\s+//i; # discard article
+
+	# remove excessive initial and final whitespaces.
+	$lhs =~ s/^\s+|\s+$//g;
+	$mhs =~ s/^\s+|\s+$//g;
+	$rhs =~ s/^\s+|\s+$//g;
+
+	# break if either lhs or rhs is NULL.
+	if ($lhs eq "" or $rhs eq "") {
+	    return 'NOREPLY';
+	}
+
+	# lets check if it failed.
+	if (&validFactoid($lhs,$rhs) == 0) {
+	    if ($addressed) {
+		&status("IGNORE statement: <$who> $message");
+		&performReply( &getRandom(keys %{$lang{'confused'}}) );
+	    }
+	    return 'NOREPLY';
+	}
+
+	return 'NOREPLY' if (!$addressed and $lhs =~ /\s+/);
+
+	&status("statement: <$who> $message");
+
+	# change "#*#" back to "*" because of '\' sar to '#blah#'.
+	$lhs =~ s/\#(\S+)\#/$1/g;
+	$rhs =~ s/\#(\S+)\#/$1/g;
+
+	$lhs =~ s/\?+\s*$//;	# strip off '?'.
+
+	# verify the update statement whether there are any weird
+	# characters.
+	### this chan be simplified.
+	foreach (split //, $lhs.$rhs) {
+	    my $ord = ord $_;
+	    if ($ord > 170 and $ord < 220) {
+		&status("statement: illegal character '$_' $ord.");
+		&performAddressedReply("i'm not going to learn illegal characters");
+		return 'NOREPLY';
+	    }
+	}
+
+	return &update($lhs, $mhs, $rhs);
+    }
+
+    return '';
+}
+
+1;

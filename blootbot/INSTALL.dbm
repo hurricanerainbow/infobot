@@ -1,0 +1,14 @@
+INSTALLATION of dbm
+----------------------
+
+- perl5.004 uses dbm1.85 while perl5.005 uses dbm2.00.  Attempting to
+  interchange dbm between the two will result in corruption.
+- the dbm will produce two files of the same size (for some reason)
+- If the bot crashes, the dbm file may increase in size dramatically, from
+  900k-1400k to 16m-24m
+- dbm is a slow but simple form of db.  If you want performance, try mysql
+  or pgsql (NOT YET)
+
+= To convert dbm file to mysql table:
+	- run 'scripts/dbm2mysql.pl old-db' to convert dbm database file
+	  to mysql.

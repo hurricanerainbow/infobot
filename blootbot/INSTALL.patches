@@ -1,0 +1,8 @@
+INSTALL.patches
+-------------------
+
+- apply *.patch patches from docs/	( DOES THIS WORK???)
+	- cd /usr/lib/perl5/Net
+	  patch -p0 < Net::IRC.patch
+	- cd /usr/lib/perl5/WWW/Search
+	  patch -p0 < WWW::Search::Google.patch
