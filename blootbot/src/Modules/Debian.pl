@@ -72,7 +72,6 @@ sub DebianDownload {
     # fe dists.
     # Download the files.
     my $file;
-##    my %ret;
     foreach $file (keys %urls) {
 	my $url = $urls{$file};
 	$url  =~ s/##DIST/$dist/g;
@@ -80,7 +79,7 @@ sub DebianDownload {
 	my $update = 0;
 
 	if ( -f $file) {
-	    my $last_refresh = (stat($file))[9];
+	    my $last_refresh = (stat $file)[9];
 	    $update++ if (time() - $last_refresh > $refresh);
 	} else {
 	    $update++;
@@ -104,14 +103,13 @@ sub DebianDownload {
 	if ($url =~ /^ftp:\/\/(.*?)\/(\S+)\/(\S+)$/) {
 	    my ($host,$path,$thisfile) = ($1,$2,$3);
 
-	    # error internally to ftp.
-	    # hope it doesn't do anything bad.
-	    if ($file =~ /Contents-woody-i386-non-US/) {
-		&::DEBUG("Skipping Contents-woody-i386-non-US.");
+### HACK 1
+#	    if ($file =~ /Contents-woody-i386-non-US/) {
+#		&::DEBUG("Skipping Contents-woody-i386-non-US.");
 #		$file =~ s/woody/potato/;
 #		$path =~ s/woody/potato/;
-###		next;
-	    }
+#		next;
+#	    }
 
 	    if (!&::ftpGet($host,$path,$thisfile,$file)) {
 		&::WARN("deb: down: $file == BAD.");
@@ -125,13 +123,13 @@ sub DebianDownload {
 		next;
 	    }
 
-	    if ($file =~ /Contents-potato-i386-non-US/) {
-		&::DEBUG("hack: using potato's non-US contents for woody.");
-		system("cp debian/Contents-potato-i386-non-US.gz debian/Contents-woody-i386-non-US.gz");
-	    }
+### HACK2
+#	    if ($file =~ /Contents-potato-i386-non-US/) {
+#		&::DEBUG("hack: using potato's non-US contents for woody.");
+#		system("cp debian/Contents-potato-i386-non-US.gz debian/Contents-woody-i386-non-US.gz");
+#	    }
 
 	    &::DEBUG("deb: download: good.");
-##	    $ret{$
 	    $good++;
 	} else {
 	    &::ERROR("Debian: invalid format of url => ($url).");
@@ -162,8 +160,6 @@ sub searchContents {
     my $dccsend	= 0;
 
     $dccsend++		if ($query =~ s/^dcc\s+//i);
-    ### larne's regex.
-    # $query = $query.'(\.so\.)?([.[[:digit:]]+\.]+)?$';
 
     $query =~ s/\\([\^\$])/$1/g;	# hrm?
     $query =~ s/^\s+|\s+$//g;
@@ -188,10 +184,10 @@ sub searchContents {
     # start of search.
     my $start_time = &::timeget();
 
-    my $found = 0;
+    my $found	= 0;
+    my $front	= 0;
     my %contents;
     my $grepRE;
-    my $front = 0;
     ### TODO: search properly if /usr/bin/blah is done.
     if ($query =~ s/\$$//) {
 	&::DEBUG("search-regex found.");
@@ -204,7 +200,7 @@ sub searchContents {
 	$grepRE = "$query*\[ \t]";
     }
 
-    ### fix up grepRE for "*".
+    # fix up grepRE for "*".
     $grepRE =~ s/\*/.*/g;
 
     my @files;
@@ -223,18 +219,26 @@ sub searchContents {
 
     my $files = join(' ', @files);
 
+    my $regex	= $query;
+    $regex	=~ s/\./\\./g;
+    $regex	=~ s/\*/\\S*/g;
+    $regex	=~ s/\?/./g;
+
     open(IN,"zegrep -h '$grepRE' $files |");
     while (<IN>) {
 	if (/^\.?\/?(.*?)[\t\s]+(\S+)\n$/) {
 	    my ($file,$package) = ("/".$1,$2);
-	    if ($query =~ /\//) {
-		next unless ($file =~ /\Q$query\E/);
+	    if ($query =~ /[\/\*\\]/) {
+		next unless (eval { $file =~ /$regex/ });
+		return unless &checkEval($@);
 	    } else {
 		my ($basename) = $file =~ /^.*\/(.*)$/;
-		next unless ($basename =~ /\Q$query\E/);
+		next unless (eval { $basename =~ /$regex/ });
+		return unless &checkEval($@);
 	    }
 	    next if ($query !~ /\.\d\.gz/ and $file =~ /\/man\//);
-	    next if ($front and $file !~ /^\/\Q$query\E/);
+	    next if ($front and eval { $file !~ /^\/$query/ });
+	    return unless &checkEval($@);
 
 	    $contents{$package}{$file} = 1;
 	    $found++;
@@ -301,7 +305,18 @@ sub searchContents {
 	&::pSReply( &::formListReply(0, $prefix, @list) );
     } else {		# !@list.
 	&::DEBUG("ok, !\@list, searching desc for '$query'.");
-	&searchDesc($query);
+	my @list = &searchDesc($query);
+
+	if (!scalar @list) {
+	    my $prefix = "Debian Package/File/Desc Search of '$query' ";
+	    &::pSReply( &::formListReply(0, $prefix, ) );
+	} elsif (scalar @list == 1) {	# list = 1.
+	    &::DEBUG("list == 1; showing package info of '$list[0]'.");
+	    &infoPackages("info", $list[0]);
+	} else {				# list > 1.
+	    my $prefix = "Debian Desc Search of '$query' ";
+	    &::pSReply( &::formListReply(0, $prefix, @list) );
+	}
     }
 }
 
@@ -440,15 +455,21 @@ sub searchDesc {
 	}
     }
 
+    my $regex	= $query;
+    $regex	=~ s/\./\\./g;
+    $regex	=~ s/\*/\\S*/g;
+    $regex	=~ s/\?/./g;
+
     my (%desc, $package);
     open(IN,"zegrep -h '^Package|^Description' $files |");
-    $query =~ s/\*/\\S*/g;	# regex.
     while (<IN>) {
 	if (/^Package: (\S+)$/) {
 	    $package = $1;
 	} elsif (/^Description: (.*)$/) {
 	    my $desc = $1;
-	    next unless ($desc =~ /\Q$query\E/i);
+	    next unless (eval { $desc =~ /$regex/i });
+	    return unless &checkEval($@);
+
 	    if ($package eq "") {
 		&::WARN("sD: package == NULL?");
 		next;
@@ -461,21 +482,11 @@ sub searchDesc {
     }
     close IN;
 
-    my @list = keys %desc;
-    if (!scalar @list) {
-	my $prefix = "Debian Desc Search of '$query' ";
-	&::pSReply( &::formListReply(0, $prefix, ) );
-    } elsif (scalar @list == 1) {	# list = 1.
-	&::DEBUG("list == 1; showing package info of '$list[0]'.");
-	&infoPackages("info", $list[0]);
-    } else {				# list > 1.
-	my $prefix = "Debian Desc Search of '$query' ";
-	&::pSReply( &::formListReply(0, $prefix, @list) );
-    }
-
     # show how long it took.
     my $delta_time = &::timedelta($start_time);
     &::status(sprintf("Debian: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
+
+    return keys %desc;
 }
 
 ####
@@ -1086,6 +1097,34 @@ sub debianCheck {
     }
 
     return $retval;
+}
+
+sub checkEval {
+    my($str)	= @_;
+
+    if ($str) {
+	&::WARN("cE: $str");
+	return 0;
+    } else {
+	return 1;
+    }
+}
+
+sub searchDescFE {
+    &::DEBUG("FE called for searchDesc");
+    my ($query)	= @_;
+    my @list = &searchDesc($query);
+
+    if (!scalar @list) {
+	my $prefix = "Debian Desc Search of '$query' ";
+	&::pSReply( &::formListReply(0, $prefix, ) );
+    } elsif (scalar @list == 1) {	# list = 1.
+	&::DEBUG("list == 1; showing package info of '$list[0]'.");
+	&infoPackages("info", $list[0]);
+    } else {				# list > 1.
+	my $prefix = "Debian Desc Search of '$query' ";
+	&::pSReply( &::formListReply(0, $prefix, @list) );
+    }
 }
 
 1;

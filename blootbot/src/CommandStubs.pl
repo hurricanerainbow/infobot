@@ -136,7 +136,7 @@ sub parseCmdHook {
 &addCmdHook("extra", 'dauthor', ('CODEREF' => 'Debian::searchAuthor',
 	'Forker' => 1, 'Identifier' => 'debian',
 	'Cmdstats' => 'Debian Author Search', 'Help' => "dauthor" ) );
-&addCmdHook("extra", '(d|search)desc', ('CODEREF' => 'Debian::searchDesc',
+&addCmdHook("extra", '(d|search)desc', ('CODEREF' => 'Debian::searchDescFE',
 	'Forker' => 1, 'Identifier' => 'debian',
 	'Cmdstats' => 'Debian Desc Search', 'Help' => "ddesc" ) );
 &addCmdHook("extra", 'dnew', ('CODEREF' => 'DebianNew',
