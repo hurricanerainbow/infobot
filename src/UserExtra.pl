@@ -619,7 +619,6 @@ sub userCommands {
 	&pSReply("reloading...");
 	&reloadAllModules();
 	&pSReply("reloaded.");
-
 	return;
     }
 
