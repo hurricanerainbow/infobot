@@ -54,8 +54,7 @@ sub msg {
 	undef $postprocess;
     } elsif ($postprocess = &getChanConf('postprocess', $talkchannel)) {
 	&DEBUG("say: $postprocess $msg");
-	&parseCmdHook("main", $postprocess . ' ' . $msg);
-	&parseCmdHook("extra", $postprocess . ' ' . $msg);
+	&parseCmdHook($postprocess . ' ' . $msg);
 	undef $postprocess;
 	return;
     }

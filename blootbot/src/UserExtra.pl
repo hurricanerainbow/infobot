@@ -1,41 +1,15 @@
 #
 # UserExtra.pl: User Commands, Public.
 #       Author: dms
-#      Version: v0.2b (20000707)
-#      Created: 20000107
 #
 
 use strict;
 use vars qw($message $arg $qWord $verb $lobotomized $who $result $chan
 	$conn $msgType $query $talkchannel $ident $memusage);
 use vars qw(%channels %chanstats %cmdstats %count %ircstats %param
-	%cache %mask %userstats %hooks_main);
+	%cache %mask %userstats);
 
-###
-### Start of command hooks for UserExtra.
-###
-
-&addCmdHook("main", 'chan(stats|info)', ('CODEREF' => 'chaninfo', ) );
-&addCmdHook("main", 'cmd(stats|info)', ('CODEREF' => 'cmdstats', ) );
-&addCmdHook("main", 'sched(stats|info)', ('CODEREF' => 'scheduleList', ) );
-&addCmdHook("main", 'factinfo', ('CODEREF' => 'factinfo',
-	'Cmdstats' => 'Factoid Info', Module => 'Factoids', ) );
-&addCmdHook("main", 'factstats?', ('CODEREF' => 'factstats',
-	'Cmdstats' => 'Factoid Stats', Help => "factstats",
-	Forker => 1, 'Identifier' => 'Factoids', ) );
-&addCmdHook("main", 'help', ('CODEREF' => 'help',
-	'Cmdstats' => 'Help', ) );
-&addCmdHook("main", 'karma', ('CODEREF' => 'karma', ) );
-&addCmdHook("main", 'tell|explain', ('CODEREF' => 'tell',
-	Help => 'tell', Identifier => 'allowTelling',
-	Cmdstats => 'Tell') );
-&addCmdHook("main", 'News', ('CODEREF' => 'News::Parse',
-	Module => 'News', 'Cmdstats' => 'News' ) );
-&addCmdHook("main", 'countrystats', ('CODEREF' => 'countryStats',
-#	Forker => "NULL",
- ) );
-
-&status("CMD: loaded ".scalar(keys %hooks_main)." MAIN command hooks.");
+### hooks get added in CommandHooks.pl.
 
 ###
 ### Start of commands for hooks.
@@ -302,8 +276,7 @@ sub tell {
 	# support command redirection.
 	# recursive cmdHooks aswell :)
 	my $done = 0;
-	$done++ if &parseCmdHook("main", $tell_obj);
-	$done++ if &parseCmdHook("extra", $tell_obj);
+	$done++ if &parseCmdHook($tell_obj);
 	$message	= $tell_obj;
 	$done++ unless (&Modules());
 

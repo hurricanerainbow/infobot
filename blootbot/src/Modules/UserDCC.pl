@@ -1425,8 +1425,7 @@ sub userDCC {
     $msgType = "chat" if (exists $dcc{'CHAT'}{$who});
 
     my $done = 0;
-    $done++ if &parseCmdHook("main", $message);
-    $done++ if &parseCmdHook("extra", $message);
+    $done++ if &parseCmdHook($message);
     $done++ unless (&Modules());
 
     if ($done) {

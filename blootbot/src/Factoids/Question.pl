@@ -132,8 +132,7 @@ sub doQuestion {
 		# support command redirection.
 		# recursive cmdHooks aswell :)
 		my $done = 0;
-		$done++ if &parseCmdHook("main", $link);
-		$done++ if &parseCmdHook("extra", $link);
+		$done++ if &parseCmdHook($link);
 		$message	= $link;
 		$done++ unless (&Modules());
 
