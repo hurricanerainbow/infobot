@@ -4,17 +4,28 @@
 # blootbot -- copyright david sobon (c) 1999-infinity
 
 use strict;
-use vars qw($bot_base_dir $bot_src_dir $bot_misc_dir
-	    $bot_pid $memusage %param
+use vars qw($bot_base_dir $bot_src_dir $bot_misc_dir $bot_state_dir
+	    $bot_data_dir $bot_config_dir $bot_log_dir $bot_run_dir 
+	    $bot_pid $memusage %param $fhs
 );
 
 BEGIN {
-    # set this to the absolute path if you need it; especially
-    # if . is not in your path
+    $fhs = 0;
 
-    $bot_base_dir	= '.';
+    if ($fhs) {	# FHS
+	$bot_base_dir	= $bot_state_dir;
+	$bot_config_dir	= '.';
+    } else {	# non-FHS
+	$bot_base_dir	= '.';
+	$bot_config_dir	= 'files/';
+	$bot_data_dir	= 'files/';
+	$bot_state_dir	= 'files/';
+	$bot_run_dir	= '.';
+    }
+    # common.
     $bot_src_dir	= "$bot_base_dir/src";
     $bot_misc_dir	= "$bot_base_dir/files";
+
     $bot_pid		= $$;
 
     require "$bot_src_dir/logger.pl";
