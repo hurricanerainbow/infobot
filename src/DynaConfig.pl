@@ -888,7 +888,8 @@ sub convertUserFileVer2 {
 	}
 
 	next if ($fail);
-	delete $users{$handle}{FLAGS};
+# uncomment to enable attribute conversion support.
+#	delete $users{$handle}{FLAGS};
     }
 }
 
