@@ -715,7 +715,14 @@ sub on_nick {
 sub on_nick_taken {
     my ($self)	= @_;
     my $nick	= $self->nick;
-    my $newnick = $nick."-";
+    my $newnick = $nick.int(rand 10);
+
+    if ($nick eq $ident) {
+	&DEBUG("on_nick_tane: nick eq ident... wtf?");
+	return;
+    }
+
+    &DEBUG("on_nick_taken: ident => $ident");
 
     &status("nick taken ($nick); preparing nick change.");
 
