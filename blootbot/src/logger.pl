@@ -73,6 +73,20 @@ sub openLog {
     return unless (&IsParam("logfile"));
     $file{log} = $param{'logfile'};
 
+    my $error = 0;
+    my $path = &getPath($file{log});
+    while (! -d $path) {
+	if ($error) {
+	    &ERROR("openLog: failed opening log to $file{log}; disabling.");
+	    delete $param{'logfile'};
+	    return;
+	}
+
+	&status("openLog: making $path.");
+	last if (mkdir $path, 0755);
+	$error++;
+    }
+
     if (&IsParam("logType") and $param{'logType'} =~ /DAILY/i) {
 	my ($day,$month,$year) = (localtime(time()))[3,4,5];
 	$logDate = sprintf("%04d%02d%02d",$year+1900,$month+1,$day);
