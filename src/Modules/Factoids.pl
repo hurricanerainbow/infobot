@@ -33,6 +33,17 @@ sub CmdFactInfo {
 	return $noreply;
     }
 
+    # fix for problem observed by asuffield.
+    # why did it happen though?
+    if (!$factinfo{'factoid_value'}) {
+	&performReply("there's no such factoid as \002$faqtoid\002; deleted because we don't have factoid_value!");
+	foreach (keys %factinfo) {
+	    &DEBUG("factinfo{$_} => '$factinfo{$_}'.");
+	}
+###	&delFactoid($faqtoid);
+	return $noreply;
+    }
+
     # created:
     if ($factinfo{'created_by'}) {
 
@@ -269,6 +280,27 @@ sub CmdFactStats {
 
 	# parse the results.
 	my $prefix = "dupe factoid ";
+	return &formListReply(1, $prefix, @list);
+
+    } elsif ($type =~ /^nullfactoids$/i) {
+	my $query = "SELECT factoid_key,factoid_value FROM factoids WHERE factoid_value=''";
+	my $sth = $dbh->prepare($query);
+	&ERROR("factstats(null): => '$query'.") unless $sth->execute;
+
+	my @list;
+	while (my @row = $sth->fetchrow_array) {
+	    if ($row[1] ne "") {
+		&DEBUG("row[1] != NULL for $row[0].");
+		next;
+	    }
+
+	    &DEBUG("row[0] => '$row[0]'.");
+	    push(@list, $row[0]);
+	}
+	$sth->finish;
+
+	# parse the results.
+	my $prefix = "NULL factoids (not deleted yet) ";
 	return &formListReply(1, $prefix, @list);
 
     } elsif ($type =~ /^(2|too)short$/i) {
