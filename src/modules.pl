@@ -281,7 +281,7 @@ sub loadMyModule {
     # call reloadModule() which checks age of file and reload.
     if (grep /\/$modulebase$/, keys %INC) {
 	&reloadModule($modulebase);
-	return;
+	return 1;	# depend on reloadModule?
     }
 
     if (! -f $modulefile) {
@@ -302,9 +302,10 @@ sub loadMyModule {
 	    &shutdown() if (defined $shm and defined $dbh);
 	} else {			# child.
 	    &delForked($modulename);
+	    exit 1;
 	}
 
-	exit 1;
+	return 0;
     } else {
 	$moduleAge{$modulefile} = (stat $modulefile)[9];
 
