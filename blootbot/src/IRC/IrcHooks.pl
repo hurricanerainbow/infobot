@@ -775,6 +775,51 @@ sub on_topicinfo {
     &status(">>> set by $b_cyan$setby$ob $timestr");
 }
 
+sub on_crversion {
+    my ($self, $event) = @_;
+    my $nick	= $event->nick();
+    my $ver;
+
+    if (scalar $event->args() != 1) {	# old.
+	$ver	= join ' ', $event->args();
+	$ver	=~ s/^VERSION //;
+    } else {				# new.
+	$ver	= ($event->args())[0];
+    }
+
+    if (grep /^\Q$nick\E$/i, @vernick) {
+	&WARN("nick $nick found in vernick; skipping.");
+	return;
+    }
+    push(@vernick, $nick);
+
+    if ($ver =~ /bitchx/i) {
+	$ver{bitchx}{$nick}	= $ver;
+    } elsif ($ver =~ /xc\!|xchat/i) {
+	$ver{xchat}{$nick}	= $ver;
+    } elsif ($ver =~ /irssi/i) {
+	$ver{irssi}{$nick}	= $ver;
+    } elsif ($ver =~ /epic/i) {
+	$ver{epic}{$nick}	= $ver;
+    } elsif ($ver =~ /mirc/i) {
+	$ver{mirc}{$nick}	= $ver;
+    } elsif ($ver =~ /ircle/i) {
+	$ver{ircle}{$nick}	= $ver;
+    } elsif ($ver =~ /ircII/i) {
+	$ver{ircII}{$nick}	= $ver;
+    } elsif ($ver =~ /sirc /i) {
+	$ver{sirc}{$nick}	= $ver;
+    } elsif ($ver =~ /kvirc/i) {
+	$ver{kvirc}{$nick}	= $ver;
+    } elsif ($ver =~ /eggdrop/i) {
+	$ver{eggdrop}{$nick}	= $ver;
+    } elsif ($ver =~ /xircon/i) {
+	$ver{xircon}{$nick}	= $ver;
+    } else {
+	$ver{other}{$nick}	= $ver;
+    }
+}
+
 sub on_version {
     my ($self, $event) = @_;
     my $nick = $event->nick;
