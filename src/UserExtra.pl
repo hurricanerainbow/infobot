@@ -787,7 +787,7 @@ sub userCommands {
 	}
 
 	&pSReply($reply);
-		
+
 	return;
     }
 
@@ -796,7 +796,10 @@ sub userCommands {
 	my $startString	= scalar(gmtime $^T);
 	my $upString	= &Time2String(time() - $^T);
 	my $factoids	= &countKeys("factoids");
-
+	my $forks = 0;
+	foreach (keys %forked) {
+	    $forks += scalar keys %{ $forked{$_} };
+	}
 	$count{'Commands'}	= 0;
 	foreach (keys %cmdstats) {
 	    $count{'Commands'} += $cmdstats{$_};
@@ -817,7 +820,9 @@ sub userCommands {
 	  ".  I have been awake for $upString this session, and ".
 	  "currently reference \002$factoids\002 factoids.  ".
 	  "I'm using about \002$memusage\002 ".
-	  "kB of memory."
+	  "kB of memory. With \002$forks\002 active ".
+		&fixPlural("fork",$forks).
+	  "."
 	);
 
 	return;
