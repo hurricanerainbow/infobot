@@ -78,7 +78,7 @@ $nottime	= 0;
 $notsize	= 0;
 $notcount	= 0;
 ###
-$bot_release	= "1.1.0";
+$bot_release	= "1.3.1";
 if ( -d "CVS" ) {
     use POSIX qw(strftime);
     $bot_release	.= strftime(" cvs (%Y%m%d)", gmtime( (stat("CVS"))[9] ) );
