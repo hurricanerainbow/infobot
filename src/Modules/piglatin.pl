@@ -29,7 +29,8 @@ sub piglatin
     } else {
       $pigword = $word . 'w' . $suffix;
     }
-    $piglatin .= " $pigword";
+    $piglatin .= ' ' if $piglatin;
+    $piglatin .= $pigword;
   }
   &::performStrictReply($piglatin||'failed');
 }
