@@ -138,7 +138,7 @@ sub dbGet {
 
     &DEBUG("dbGet: select=>'$select'.");
     my @array = split "$;", ${"$table"}{lc $val};
-    unshift(@array,$key);
+    unshift(@array,$val);
     for (0 .. $#format) {
 	my $str = $format[$_];
 	next unless (grep /^$str$/, split(/\,/, $select));
