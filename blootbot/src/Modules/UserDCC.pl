@@ -340,14 +340,14 @@ sub userDCC {
     }
 
     # global factoid substitution.
-    if ($message =~ m|^s([/,#])(.+?)\2(.*?)\2;?\s*$|) {
-	&DEBUG("global factoid subst called!");
+    if ($message =~ m|^s([/,#])(.+?)\1(.*?)\1;?\s*$|) {
 	my ($delim,$op,$np) = ($1, $2, $3);
 	return $noreply unless (&hasFlag("n"));
+	### TODO: support flags to do full-on global.
 
 	# incorrect format.
 	if ($np =~ /$delim/) {
-	    &msg($who,"looks like you used the delimiter too many times. You may want to use a different delimiter, like ':' or '#'.");
+	    &performReply("looks like you used the delimiter too many times. You may want to use a different delimiter, like ':' or '#'.");
 	    return $noreply;
 	}
 
@@ -357,9 +357,17 @@ sub userDCC {
 			"factoid_value", $op);
 
 	if (!scalar @list) {
-	    &performStrictReply("Expression didn't match anything.");
+	    &performReply("Expression didn't match anything.");
 	    return $noreply;
 	}
+
+	if (scalar @list > 100) {
+	    &performReply("regex found more than 100 matches... not doing.");
+	    return $noreply;
+	}
+
+	&status("gsubst: going to alter ".scalar(@list)." factoids.");
+	&performReply("going to alter ".scalar(@list)." factoids.");
 
 	my $error = 0;
 	foreach (@list) {
@@ -377,7 +385,7 @@ sub userDCC {
 		    &performReply("that's too long (or was long)");
 		    return $noreply;
 		}
-###		&setFactInfo($faqtoid, "factoid_value", $result);
+		&setFactInfo($faqtoid, "factoid_value", $result);
 		&status("update: '$faqtoid' =is=> '$result'; was '$was'");
 	    } else {
 		&WARN("subst: that's weird... thought we found the string ($op) in '$faqtoid'.");
@@ -386,8 +394,11 @@ sub userDCC {
 	}
 
 	if ($error) {
-	    &ERROR("Something happened...");
+	    &ERROR("Some warnings/errors?");
 	}
+
+	&performReply("Ok... did s/$op/$np/ for ".
+				(scalar(@list) - $error)." factoids");
 
 	return $noreply;
     }
@@ -424,7 +435,7 @@ sub userDCC {
 
 	&status("USER reload $who");
 	&msg($who,"reloading...");
-	&reloadModules();
+	&reloadAllModules();
 	&msg($who,"reloaded.");
 
 	return $noreply;
