@@ -58,7 +58,7 @@ sub chaninfo {
 
 	### line 1.
 	foreach (sort keys %channels) {
-	    if (/^\s*$/ or / /) {
+	    if ( /^\s*$/ or / / ) {
 		&status("chanstats: fe channels: chan == NULL.");
 		&ircCheck();
 		next;
@@ -622,8 +622,8 @@ sub userCommands {
 
 	&status("USER reload $who");
 	&pSReply("reloading...");
-	&reloadAllModules();
-	&pSReply("reloaded.");
+	my $modules = &reloadAllModules();
+	&pSReply("reloaded:$modules");
 	return;
     }
 
