@@ -28,8 +28,8 @@ sub getReply {
 
     $message =~ tr/A-Z/a-z/;
 
-    my ($result, $fauthor, $count) = &dbGet("factoids", 
-	"factoid_value,created_by,requested_count", "factoid_key=".&dbQuote($message) );
+    my ($count, $fauthor, $result) = &dbGet("factoids", 
+	"requested_count,created_by,factoid_value", "factoid_key=".&dbQuote($message) );
     if ($result) {
 	$lhs = $message;
 	$mhs = "is";
