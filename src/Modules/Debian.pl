@@ -450,6 +450,7 @@ sub searchDesc {
 
     my (%desc, $package);
     open(IN,"zegrep -h '^Package|^Description' $files |");
+    $query =~ s/\*/\\S*/g;	# regex.
     while (<IN>) {
 	if (/^Package: (\S+)$/) {
 	    $package = $1;
