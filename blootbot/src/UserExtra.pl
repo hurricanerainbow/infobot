@@ -44,9 +44,10 @@ sub chaninfo {
     my $mode;
 
     if ($chan eq "") {		# all channels.
-	my $count	= 0;
 	my $i		= keys %channels;
 	my $reply	= "i am on \002$i\002 ".&fixPlural("channel",$i);
+	my $tucount	= 0;	# total user count.
+	my $uucount	= 0;	# unique user count.
 	my @array;
 
 	### line 1.
@@ -60,19 +61,27 @@ sub chaninfo {
 	}
 	&pSReply($reply.": ".join(' ', @array));
 
-	### line 2.
+	### total user count.
 	foreach $chan (keys %channels) {
-	    # crappy debugging...
-	    # TODO: use $mask{chan} instead?
-	    if ($chan =~ / /) {
-		&ERROR("bad channel: chan => '$chan'.");
-	    }
-	    $count += scalar(keys %{$channels{$chan}{''}});
+	    $tucount += scalar(keys %{$channels{$chan}{''}});
 	}
+
+	### unique user count.
+	my @nicks;
+	foreach $chan (keys %channels) {
+	    foreach (keys %{ $channels{$chan}{''} }) {
+		next if (grep /^\Q$_\E$/, @nicks);
+		$uucount++;
+		push(@nicks, $_);
+	    }
+	}
+
+	my $chans = scalar(keys %channels);
 	&pSReply(
-		"i've cached \002$count\002 ".&fixPlural("user",$count).
-		" distributed over \002".scalar(keys %channels)."\002 ".
-		&fixPlural("channel",scalar(keys %channels))."."
+	    "i've cached \002$tucount\002 ". &fixPlural("user",$tucount).
+	    ", \002$uucount\002 unique ". &fixPlural("user",$uucount).
+	    ", distributed over \002$chans\002 ".
+	    &fixPlural("channel", $chans)."."
 	);
 
 	return;
@@ -650,11 +659,16 @@ sub userCommands {
 	    &msg($who, "I hope you're right. I'll try anyway.");
 	}
 
-	my $str = "attempting to change nick to $param{'ircNick'}";
-	&status($str);
-	&msg($who, $str);
+	if (! &IsNickInAnyChan( $param{ircNick} ) ) {
+	    my $str = "attempting to change nick to $param{'ircNick'}";
+	    &status($str);
+	    &msg($who, $str);
+	    &nick($param{'ircNick'});
+	} else {
+	    &msg($who, "hrm... can't do it");
+	    &DEBUG("wN: nick is somewhere... should try later.");
+	}
 
-	&nick($param{'ircNick'});
 	return;
     }
 
