@@ -636,15 +636,10 @@ sub checkTables {
 	    $db{$_} = 1;
 	}
 
-	# create database.
-	if (!scalar keys %db) {
-	    &status("Creating database $param{'DBName'}...");
-	    my $query = "CREATE DATABASE $param{'DBName'}";
-	    &sqlRaw("create(db $param{'DBName'})", $query);
-	}
+	# create database not needed for SQLite
     }
 
-    foreach ( qw(factoids rootwarn seen stats botmail) ) {
+    foreach ( qw(botmail factoids rootwarn seen stats) ) {
 	if (exists $db{$_}) {
 	    $cache{has_table}{$_} = 1;
 	    next;
