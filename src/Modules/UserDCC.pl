@@ -576,14 +576,14 @@ sub userDCC {
 		my $str = "";
 		foreach (sort keys %{ $chanconf{$chan} }) {
 		    my $newstr = join(', ', @items);
-		    if (length $newstr > 60) {
-			&pSReply("    $str");
+		    if (length $newstr > 63) {
+			&pSReply(" $str");
 			@items = ();
 		    }
 		    $str = $newstr;
 		    push(@items, "$_ => $chanconf{$chan}{$_}");
 		}
-		&pSReply("    $str") if (@items);
+		&pSReply(" $str") if (@items);
 	    }
 	    return;
 	}
