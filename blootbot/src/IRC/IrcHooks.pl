@@ -955,7 +955,7 @@ sub on_quit {
 
 	$netsplit{lc $nick} = time();
 	if (!exists $netsplitservers{$1}{$2}) {
-	    &status("netsplit detected between $1 and $2 at [".scalar(localtime)."]");
+	    &status("netsplit detected between $1 and $2 at [".scalar(gmtime)."]");
 	    $netsplitservers{$1}{$2} = time();
 	}
     }
@@ -1058,7 +1058,7 @@ sub on_topicinfo {
 
     my $timestr;
     if (time() - $time > 60*60*24) {
-	$timestr	= "at ". localtime $time;
+	$timestr	= "at ". gmtime $time;
     } else {
 	$timestr	= &Time2String(time() - $time) ." ago";
     }

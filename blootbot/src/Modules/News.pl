@@ -287,11 +287,11 @@ sub add {
 
     my $agestr	= &::Time2String($::news{$chan}{$str}{Expire} - time() );
     my $item	= &newsS2N($str);
-    &::notice($who, "Added '\037$str\037' at [".localtime(time).
+    &::notice($who, "Added '\037$str\037' at [".gmtime(time).
 		"] by \002$::who\002 for item #\002$item\002.");
     &::notice($who, "Now do 'news text $item <your_description>'");
     &::notice($who, "This item will expire at \002".
-	localtime($::news{$chan}{$str}{Expire})."\002 [$agestr from now] "
+	gmtime($::news{$chan}{$str}{Expire})."\002 [$agestr from now] "
     );
 
     &writeNews();
@@ -470,7 +470,7 @@ sub read {
 	return;
     }
 
-    my $t	= localtime( $::news{$chan}{$item}{Time} );
+    my $t	= gmtime( $::news{$chan}{$item}{Time} );
     my $a	= $::news{$chan}{$item}{Author};
     my $text	= $::news{$chan}{$item}{Text};
     my $num	= &newsS2N($item);
@@ -492,7 +492,7 @@ sub read {
     my $e;
     if ($_) {
 	$e = sprintf("\037%s\037  [%s from now]",
-		scalar(localtime($_)),
+		scalar(gmtime($_)),
 		&::Time2String($_ - time())
 	);
     }
@@ -680,7 +680,7 @@ sub set {
 	    return;
 	} else {
 	    &::notice($who, "Set expire for \002$item\002, to ".
-		localtime($time) ." [".&::Time2String($time - time())."]" );
+		gmtime($time) ." [".&::Time2String($time - time())."]" );
 
 	    if (time() > $time) {
 		&::DEBUG("news: hrm... time() > $time, should expire.");

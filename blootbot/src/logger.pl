@@ -91,7 +91,7 @@ sub openLog {
     }
 
     if (&IsParam("logType") and $param{'logType'} =~ /DAILY/i) {
-	my ($day,$month,$year) = (localtime time())[3,4,5];
+	my ($day,$month,$year) = (gmtime time())[3,4,5];
 	$logDate = sprintf("%04d%02d%02d",$year+1900,$month+1,$day);
 	$file{log} .= "-".$logDate;
     }
@@ -354,9 +354,9 @@ sub status {
 
     my $date;
     if (&IsParam("logType") and $param{'logType'} =~ /DAILY/i) {
-	$date = sprintf("%02d:%02d.%02d", (localtime $time)[2,1,0]);
+	$date = sprintf("%02d:%02d.%02d", (gmtime $time)[2,1,0]);
 
-	my ($day,$month,$year) = (localtime $time)[3,4,5];
+	my ($day,$month,$year) = (gmtime $time)[3,4,5];
 	my $newlogDate = sprintf("%04d%02d%02d",$year+1900,$month+1,$day);
 	if (defined $logDate and $newlogDate != $logDate) {
 	    &closeLog();

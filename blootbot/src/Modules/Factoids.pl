@@ -52,7 +52,7 @@ sub CmdFactInfo {
 	if ($time) {
 	    if (time() - $time > 60*60*24*7) {
 		my $days = int( (time() - $time)/60/60/24 );
-		$string .= " at \037". scalar(localtime $time). "\037" .
+		$string .= " at \037". scalar(gmtime $time). "\037" .
 				" ($days days)";
 	    } else {
 		$string .= " ".&Time2String(time() - $time)." ago";
@@ -69,7 +69,7 @@ sub CmdFactInfo {
 	my $time = $factinfo{'modified_time'};
 	if ($time) {
 	    if (time() - $time > 60*60*24*7) {
-		$string .= " at \037". scalar(localtime $time). "\037";
+		$string .= " at \037". scalar(gmtime $time). "\037";
 	    } else {
 		$string .= " ".&Time2String(time() - $time)." ago ";
 	    }
@@ -109,7 +109,7 @@ sub CmdFactInfo {
 	my $requested_time = $factinfo{'requested_time'};
 	if ($requested_time) {
 	    if (time() - $requested_time > 60*60*24*7) {
-		$string .= " at \037". scalar(localtime $requested_time). "\037";
+		$string .= " at \037". scalar(gmtime $requested_time). "\037";
 	    } else {
 		$string .= ", ".&Time2String(time() - $requested_time)." ago";
 	    }
