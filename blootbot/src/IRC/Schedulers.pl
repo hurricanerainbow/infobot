@@ -673,37 +673,40 @@ sub ircCheck {
     }
 
     $cache{statusSafe} = 1;
-
-    my @join = &getJoinChans(1);
-    if (scalar @join) {
-	&FIXME('ircCheck: found channels to join! ' . join(',',@join));
-	&joinNextChan();
-    }
-
-    # TODO: fix on_disconnect()
-
-    if (time() - $msgtime > 3600) {
-	# TODO: shouldn't we use cache{connect} somewhere?
-	if (exists $cache{connect}) {
-	    &WARN("ircCheck: no msg for 3600 and disco'd! reconnecting!");
-	    $msgtime = time();	# just in case.
-	    &ircloop();
-	    delete $cache{connect};
-	} else {
-	    &status('ircCheck: possible lost in space; checking.'.
-		scalar(gmtime) );
-	    &msg($ident, "TEST");
-	    $cache{connect} = time();
-	}
-    }
-
-    if (grep /^\s*$/, keys %channels) {
-	&WARN('ircCheck: we have a NULL chan in hash channels? removing!');
-	if (!exists $channels{''}) {
-	    &DEBUG('ircCheck: this should never happen!');
+    foreach (sort keys %conns) {
+	$conn=$conns{$_};
+	&DEBUG("ircCheck for $_");
+	my @join = &getJoinChans(1);
+	if (scalar @join) {
+	    &FIXME('ircCheck: found channels to join! ' . join(',',@join));
+	    &joinNextChan();
 	}
 
-	delete $channels{''};
+	# TODO: fix on_disconnect()
+
+	if (time() - $msgtime > 3600) {
+	    # TODO: shouldn't we use cache{connect} somewhere?
+	    if (exists $cache{connect}) {
+		&WARN("ircCheck: no msg for 3600 and disco'd! reconnecting!");
+		$msgtime = time();	# just in case.
+		&ircloop();
+		delete $cache{connect};
+	    } else {
+		&status('ircCheck: possible lost in space; checking.'.
+		    scalar(gmtime) );
+		&msg($ident, "TEST");
+		$cache{connect} = time();
+	    }
+	}
+
+	if (grep /^\s*$/, keys %channels) {
+	    &WARN('ircCheck: we have a NULL chan in hash channels? removing!');
+	    if (!exists $channels{''}) {
+		&DEBUG('ircCheck: this should never happen!');
+	    }
+
+	    delete $channels{''};
+	}
     }
 
     $cache{statusSafe} = 0;
