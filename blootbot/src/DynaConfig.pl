@@ -372,7 +372,7 @@ sub verifyUser {
     my ($user,$m);
 
     if ($userHandle = $dcc{'CHATvrfy'}{$who}) {
-	&DEBUG("vUser: cached auth for $who.");
+	&VERB("vUser: cached auth for $who.",2);
 	return $userHandle;
     }
 
@@ -602,6 +602,116 @@ sub getUser {
     } else {
 	return;
     }
+}
+
+sub chanSet {
+    my($cmd, $chan, $what, $val) = @_;
+
+    if ($cmd eq "+chan") {
+	if (exists $chanconf{$chan}) {
+	    &pSReply("chan $chan already exists.");
+	    return;
+	}
+	$chanconf{$chan}{_time_added}	= time();
+	$chanconf{$what}{autojoin}	= 1;
+
+	&pSReply("Joining $chan...");
+	&joinchan($chan);
+
+	return;
+    }
+
+    if (!exists $chanconf{$chan}) {
+	&pSReply("no such channel $chan");
+	return;
+    }
+
+    my $update	= 0;
+
+    if (defined $what and $what =~ s/^\+(\S+)/$1/) {
+	my $was	= $chanconf{$chan}{$1};
+	if (defined $was and $was eq "1") {
+	    &pSReply("setting $what for $chan already 1.");
+	    return;
+	}
+
+	$was	= ($was) ? "; was '$was'" : "";
+	&pSReply("Setting $what for $chan to '1'$was.");
+
+	$chanconf{$chan}{$what} = 1;
+
+	$update++;
+    } elsif (defined $what and $what =~ s/^\-(\S+)/$1/) {
+	my $was	= $chanconf{$chan}{$1};
+	# hrm...
+	if (!defined $was) {
+	    &pSReply("setting $what for $chan is not set.");
+	    return;
+	}
+
+	if ($was eq "0") {
+	    &pSReply("setting $what for $chan already 0.");
+	    return;
+	}
+
+	$was	= ($was) ? "; was '$was'" : "";
+	&pSReply("Setting $what for $chan to '0'$was.");
+
+	$chanconf{$chan}{$what} = 0;
+
+	$update++;
+    } elsif (defined $val) {
+	my $was	= $chanconf{$chan}{$what};
+	if (defined $was and $was eq $val) {
+	    &pSReply("setting $what for $chan already '$val'.");
+	    return;
+	}
+	$was	= ($was) ? "; was '$was'" : "";
+	&pSReply("Setting $what for $chan to '$val'$was.");
+
+	$chanconf{$chan}{$what} = $val;
+
+	$update++;
+    } else {				# read only.
+	if (exists $chanconf{$chan}{$what}) {
+	    &pSReply("$what for $chan is '$chanconf{$chan}{$what}'");
+	} else {
+	    &pSReply("$what for $chan is not set.");
+	}
+    }
+
+    if ($update) {
+	$utime_chanfile = time();
+	$ucount_chanfile++;
+	return;
+    }
+
+    ### TODO: move to UserDCC again.
+    if ($cmd eq "chanset" and !defined $what) {
+	&DEBUG("showing channel conf.");
+
+	foreach $chan ($chan, "_default") {
+	    &pSReply("chan: $chan");
+	    ### TODO: merge 2 or 3 per line.
+	    my @items;
+	    my $str = "";
+	    foreach (sort keys %{ $chanconf{$chan} }) {
+		my $newstr = join(', ', @items);
+		if (length $newstr > 60) {
+		    &pSReply("    $str");
+		    @items = ();
+		}
+		$str = $newstr;
+		push(@items, "$_ => $chanconf{$chan}{$_}");
+	    }
+
+	    &pSReply("    $str") if (@items);
+	}
+
+	return;
+    }
+
+    return;
 }
 
 my @regFlagsChan = (
