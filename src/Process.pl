@@ -424,19 +424,19 @@ sub FactoidStuff {
 	    return;
 	}
 
-	# strongly requested by #debian on 19991028. -xk
-	if (1 and $faqtoid !~ /^\Q$who\E$/i and &IsFlag("o") ne "o") {
-	    &msg($who,"sorry, locking cannot be used since it can be abused unneccesarily.");
-	    &status("Replace 1 with 0 in Process.pl#~324 for locking support.");
-	    return;
-	}
-
 	if (&getFactoid($faqtoid) eq "") {
 	    &msg($who, "factoid \002$faqtoid\002 does not exist");
 	    return;
 	}
 
 	if ($function eq "lock") {
+	    # strongly requested by #debian on 19991028. -xk
+	    if (1 and $faqtoid !~ /^\Q$who\E$/i and &IsFlag("o") ne "o") {
+		&msg($who,"sorry, locking cannot be used since it can be abused unneccesarily.");
+		&status("Replace 1 with 0 in Process.pl#~324 for locking support.");
+		return;
+	    }
+
 	    &CmdLock($faqtoid);
 	} else {
 	    &CmdUnLock($faqtoid);
