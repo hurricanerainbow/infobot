@@ -130,14 +130,9 @@ sub ChanConfList {
     return unless (defined $param);
     my %chan	= &getChanConfList($param);
 
-    # what if we have it set on _default and a few channels with
-    # negative set? perhaps we should disable -blah settings to remove
-    # this mess.
-
     if (exists $chan{_default}) {
 	return keys %chanconf;
     } else {
-	### TODO: -option is included aswell though.
 	return keys %chan;
     }
 }

@@ -346,7 +346,7 @@ sub Modules {
 	return unless (&hasParam("topic"));
 
 	my $chan	= $talkchannel;
-	my @args	= split(/ /, $2);
+	my @args	= split / /, $2 || "";
 
 	if (!scalar @args) {
 	    &msg($who,"Try 'help topic'");
