@@ -307,6 +307,7 @@ sub FactoidStuff {
 	}
 
 	$faqtoid =~ tr/A-Z/a-z/;
+	$faqtoid =~ s/^cmd:/CMD:/; # basic command undeleteing
 	my $result = &getFactoid($faqtoid." #DEL#");
 	my $check  = &getFactoid($faqtoid);
 
