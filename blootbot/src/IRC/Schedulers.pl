@@ -24,18 +24,18 @@ sub setupSchedulers {
     &chanlimitCheck(1);
     &netsplitCheck(1);	# mandatory
     &floodLoop(1);	# mandatory
-    &seenFlush(1);
+    &seenFlush(2);
     &leakCheck(2);	# mandatory
     &ignoreCheck(1);	# mandatory
-    &seenFlushOld(1);
+    &seenFlushOld(2);
     &ircCheck(1);	# mandatory
     &miscCheck(2);	# mandatory
     &shmFlush(1);	# mandatory
     &slashdotLoop(2);
     &freshmeatLoop(2);
     &kernelLoop(2);
-    &wingateWriteFile(1);
-    &factoidCheck(1);
+    &wingateWriteFile(2);
+    &factoidCheck(2);
 
 #    my $count = map { exists $sched{$_}{TIME} } keys %sched;
     my $count	= 0;
@@ -94,7 +94,7 @@ sub randomQuote {
     }
 
     foreach ( &ChanConfList("randomQuote") ) {
-	next unless (&validChan($_));	# ???
+	next unless (&validChan($_));
 
 	&status("sending random Quote to $_.");
 	&action($_, "Ponders: ".$line);
@@ -127,7 +127,7 @@ sub randomFactoid {
     }
 
     foreach ( &ChanConfList("randomFactoid") ) {
-	next unless (&validChan($_));	# ???
+	next unless (&validChan($_));
 
 	&status("sending random Factoid to $_.");
 	&action($_, "Thinks: \037$key\037 is $val");
@@ -153,7 +153,7 @@ sub randomFreshmeat {
 	my $retval = &Freshmeat::randPackage();
 
 	foreach (@chans) {
-	    next unless (&validChan($_));	# ???
+	    next unless (&validChan($_));
 
 	    &status("sending random Freshmeat to $_.");
 	    &say($_, $line);
@@ -292,14 +292,14 @@ sub chanlimitCheck {
     }
 
     foreach ( &ChanConfList("chanlimitcheck") ) {
-	next unless (&validChan($_));	# ???
+	next unless (&validChan($_));
 
 	my $limitplus	= &getChanConfDefault("chanlimitcheckPlus", 5, $_);
 	my $newlimit	= scalar(keys %{$channels{$_}{''}}) + $limitplus;
 	my $limit	= $channels{$_}{'l'};
 
 	if (scalar keys %{$channels{$_}{''}} > $limit) {
-	    &status("LIMIT: set too low!!! FIXME");
+	    &FIXME("LIMIT: set too low!!! FIXME");
 	    ### run NAMES again and flush it.
 	}
 
@@ -309,9 +309,9 @@ sub chanlimitCheck {
 	    &ERROR("chanlimitcheck: dont have ops on $_.");
 	    next;
 	}
+
 	&rawout("MODE $_ +l $newlimit");
     }
-
 }
 
 sub netsplitCheck {
@@ -378,13 +378,6 @@ sub floodLoop {
 }
 
 sub seenFlush {
-    my %stats;
-    my $nick;
-    my $flushed 	= 0;
-    $stats{'count_old'} = &countKeys("seen") || 0;
-    $stats{'new'}	= 0;
-    $stats{'old'}	= 0;
-
     if (@_) {
 	my $interval = &getChanConfDefault("seenFlushInterval", 60);
 	&ScheduleThis($interval, "seenFlush");
@@ -392,6 +385,13 @@ sub seenFlush {
     } else {
 	delete $sched{"seenFlush"}{RUNNING};
     }
+
+    my %stats;
+    my $nick;
+    my $flushed 	= 0;
+    $stats{'count_old'} = &countKeys("seen") || 0;
+    $stats{'new'}	= 0;
+    $stats{'old'}	= 0;
 
     if ($param{'DBType'} =~ /^mysql|pg|postgres/i) {
 	foreach $nick (keys %seencache) {
@@ -453,7 +453,6 @@ sub seenFlush {
 	$stats{'old'}, &countKeys("seen") ), 2)		if ($stats{'old'});
 
     &WARN("scalar keys seenflush != 0!")	if (scalar keys %seenflush);
-
 }
 
 sub leakCheck {
@@ -558,7 +557,12 @@ sub ircCheck {
 
     if ($ident !~ /^\Q$param{ircNick}\E$/) {
 	&WARN("ircCheck: ident($ident) != param{ircNick}($param{IrcNick}).");
-	### TODO: schedule check for own nick if taken?
+	if (! &IsNickInAnyChan( $param{ircNick} ) ) {
+	    &DEBUG("$param{ircNick} not in use... changing!");
+	    &nick( $param{ircNick} );
+	} else {
+	    &WARN("$param{ircNick} is still in use...");
+	}
     }
 
     &joinNextChan();
@@ -567,11 +571,13 @@ sub ircCheck {
 
     if (grep /^\s*$/, keys %channels) {
 	&WARN("we have a NULL chan in hash channels? removing!");
-	delete $channels{''};	# ???
+	delete $channels{''};
+
 	&DEBUG("channels now:");
 	foreach (keys %channels) {
 	    &status("  $_");
 	}
+
 	&DEBUG("channels END");
     }
 
@@ -637,6 +643,24 @@ sub miscCheck {
 	unlink "$bot_base_dir/debian/$_";
     }
     closedir DEBIAN;
+
+    # user/chan file check.
+    foreach ("chan","users") {
+	my $f		= $bot_misc_dir."/blootbot.$_";
+	my $backup	= 0;
+
+	if ( -e "$f~" ) {
+	    $backup++ if ( -s $f > -s "$f~");
+	    $backup++ if ( (stat $f)[9] - (stat "$f~")[9] > 60*60*24*7);
+	} else {
+	    $backup++;
+	}
+	next unless ($backup);
+
+	### TODO: do internal copying.
+	&status("Backup: $f to $f~");
+	system("/bin/cp $f $f~");
+    }
 
     ### check modules if they've been modified. might be evil.
     &reloadAllModules();
@@ -867,10 +891,10 @@ sub factoidCheck {
 	delete $sched{"factoidCheck"}{RUNNING};
     }
 
-    my @list = &searchTable("factoids", "factoid_key", "factoid_key", " #DEL#");
-    my $stale = &getChanConfDefault("factoidDeleteDelay", 7)*60*60*24;
-
+    my @list	= &searchTable("factoids", "factoid_key", "factoid_key", " #DEL#");
+    my $stale	= &getChanConfDefault("factoidDeleteDelay", 30) *60*60*24;
     my $time	= time();
+
     foreach (@list) {
 	my $age = &getFactInfo($_, "modified_time");	
 	if (!defined $age or $age !~ /^\d+$/) {
@@ -882,7 +906,8 @@ sub factoidCheck {
 
 	my $fix = $_;
 	$fix =~ s/ #DEL#$//g;
-	&VERB("safedel: Removing $fix for good.",2);
+	&DEBUG("safedel: Removing $fix ($_) for good.");
+
 	&delFactoid($_);
     }
 
