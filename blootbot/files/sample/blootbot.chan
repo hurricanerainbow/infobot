@@ -1,9 +1,6 @@
 #v1: blootbot -- blootbot -- written Wed Oct 30 03:12:44 2002
 
 #debian-bots
-    +allowTelling
-    +autojoin
-    +babelfish
     factoidDeleteDelay 7
     ircTextCounters heh hah :) ? hi lol
     +joinfloodCheck
@@ -13,13 +10,14 @@
     newsDefaultExpire 7
     +newsKeepRead
     +newsNotifyAll
-    +rootWarn
     rootWarnMode aggressive
 
 #botpark
     +autojoin
 
 _default
+    +allowTelling
+    +babelfish
     +allowConv
     +allowDNS
     +BZFlag
@@ -51,6 +49,7 @@ _default
     +quote
     randomFactoidInterval 60
     randomQuoteInterval 60
+    +rootWarn
     +search
     +seen
     seenFlushInterval 60

@@ -6,7 +6,8 @@
 #         NOTE: Ripped from ActivePerl "asp sample" example.
 #
 
-use strict;
+# FIXME
+#use strict;
 
 #use vars qw();
 

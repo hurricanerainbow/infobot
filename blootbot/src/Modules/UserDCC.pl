@@ -115,7 +115,7 @@ sub userDCC {
     # dump variables.
     if ($message =~ /^dumpvars$/i) {
 	return unless (&hasFlag("o"));
-	return unless (&IsParam("dumpvars"));
+	return unless (&IsParam("DumpVars"));
 
 	&status("Dumping all variables...");
 	&dumpallvars();
