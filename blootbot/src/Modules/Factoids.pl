@@ -138,8 +138,8 @@ sub CmdFactStats {
 
     if ($type =~ /^author$/i) {
 	my %hash = &sqlSelectColHash("factoids",
-		"factoid_key,created_by", { },
-		"created_by IS NOT NULL"
+		"factoid_key,created_by", undef,
+		"WHERE created_by IS NOT NULL"
 	);
 	my %author;
 
@@ -175,8 +175,8 @@ sub CmdFactStats {
         &status("factstats(vandalism): starting...");
 	my $start_time	= &timeget();
 	my %data	= &sqlSelectColHash("factoids",
-		"factoid_key,factoid_value", { },
-		"factoid_value IS NOT NULL"
+		"factoid_key,factoid_value", undef,
+		"WHERE factoid_value IS NOT NULL"
 	);
 	my @list;
 
@@ -306,8 +306,8 @@ sub CmdFactStats {
         &status("factstats(dupe): starting...");
 	my $start_time	= &timeget();
 	my %hash	= &sqlSelectColHash("factoids", 
-		"factoid_key,factoid_value", { },
-		"factoid_value IS NOT NULL", 1
+		"factoid_key,factoid_value", undef,
+		"WHERE factoid_value IS NOT NULL", 1
 	);
 	my $refs	= 0;
 	my @list;
@@ -425,8 +425,8 @@ sub CmdFactStats {
 
     } elsif ($type =~ /^locked$/i) {
 	my %hash = &sqlSelectColhash("factoids", 
-		"factoid_key,locked_by", { },
-		"locked_by IS NOT NULL"
+		"factoid_key,locked_by", undef,
+		"WHERE locked_by IS NOT NULL"
 	);
 	my @list = keys %hash;
 
@@ -439,8 +439,8 @@ sub CmdFactStats {
 
     } elsif ($type =~ /^new$/i) {
 	my %hash = &sqlSelectColHash("factoids",
-		"factoid_key,created_time", { },
-		"created_time IS NOT NULL"
+		"factoid_key,created_time", undef,
+		"WHERE created_time IS NOT NULL"
 	);
 	my %age;
 
@@ -520,8 +520,8 @@ sub CmdFactStats {
 
     } elsif ($type =~ /^profanity$/i) {
 	my %data = &sqlSelectColHash("factoids",
-		"factoid_key,factoid_value", { },
-		"factoid_value IS NOT NULL"
+		"factoid_key,factoid_value", undef,
+		"WHERE factoid_value IS NOT NULL"
 	);
 	my @list;
 
@@ -571,8 +571,8 @@ sub CmdFactStats {
 
     } elsif ($type =~ /^request(ed)?$/i) {
 	my %hash = &sqlSelectColHash("factoids",
-		"factoid_key,requested_count", { },
-		"requested_count IS NOT NULL", 1
+		"factoid_key,requested_count", undef,
+		"WHERE requested_count IS NOT NULL", 1
 	);
 
 	if (!scalar keys %hash) {
@@ -599,8 +599,8 @@ sub CmdFactStats {
 
     } elsif ($type =~ /^reqrate$/i) {
 	my %hash = &sqlSelectColHash("factoids",
-		"factoid_key,(unix_timestamp() - created_time)/requested_count as rate", { },
-		"requested_by IS NOT NULL and created_time IS NOT NULL ORDER BY rate LIMIT 15", 1
+		"factoid_key,(unix_timestamp() - created_time)/requested_count as rate", undef,
+		"WHERE requested_by IS NOT NULL and created_time IS NOT NULL ORDER BY rate LIMIT 15", 1
 	);
 
 	my $rate;
@@ -619,8 +619,8 @@ sub CmdFactStats {
 
     } elsif ($type =~ /^requesters?$/i) {
 	my %hash = &sqlSelectColHash("factoids",
-		"factoid_key,requested_by", { },
-		"requested_by IS NOT NULL"
+		"factoid_key,requested_by", undef,
+		"WHERE requested_by IS NOT NULL"
 	);
 	my %requester;
 
