@@ -72,9 +72,9 @@ sub irc {
     my $proto = getprotobyname('tcp');
 
     select STDOUT;
-    &status("Connecting to port $port of server $server ...");
 
     # host->ip.
+    my $resolve;
     if ($server =~ /\D$/) {
 	my $packed = scalar(gethostbyname($server));
 
@@ -83,11 +83,11 @@ sub irc {
 	    return 0;
 	}
 
-	my $resolve = inet_ntoa($packed);
-	&status("  resolved to $resolve.");
+	$resolve = inet_ntoa($packed);
 	### warning in Sys/Hostname line 78???
 	### caused inside Net::IRC?
     }
+    &status("Connecting to port $port of server $server ($resolve) as $param{'ircNick'} ...");
 
     $irc = new Net::IRC;
 
@@ -115,6 +115,7 @@ sub irc {
     if ($param{'ircNick2'}) {
 	# prep for real multiple nick/server connects
 	# FIXME: all code should get nick/server out of self, not config
+        &status("Connecting to port $port of server $server ($resolve) as $param{'ircNick2'} ...");
 	$args{'Nick'} = $param{'ircNick2'};
 	my $conn = $irc->newconn(%args);
 	$conn->maxlinelen($maxlinelen);
