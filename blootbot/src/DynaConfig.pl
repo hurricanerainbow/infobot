@@ -62,6 +62,11 @@ sub readUserFile {
 		next;
 	    }
 
+	    if (!defined $nick) {
+		&WARN("invalid line: $_");
+		next;
+	    }
+
 	    # nice little hack.
 	    if ($what eq "HOSTS") {
 		$users{$nick}{$what}{$val} = 1;

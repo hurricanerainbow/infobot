@@ -588,9 +588,11 @@ sub CmdFactStats {
 	my @list;
 	my $total	= 0;
 	my $users	= 0;
-	foreach $rate (sort { $b <=> $a } keys %hash) {
+	foreach $rate (sort { $a <=> $b } keys %hash) {
 	    my $f	= join(", ", sort keys %{ $hash{$rate} });
-	    push(@list, "$f - ".&Time2String($rate));
+	    my $str	= "$f - ".&Time2String($rate);
+	    $str	=~ s/\002//g;
+	    push(@list, $str);
 	}
 
 	my $prefix = "Rank of top factoid rate (time/req): ";

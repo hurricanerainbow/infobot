@@ -459,7 +459,7 @@ sub on_join {
     }
 
     if ($netsplit and !exists $cache{netsplit}) {
-	&DEBUG("on_join: ok.... re-running chanlimitCheck in 60.");
+	&VERB("on_join: ok.... re-running chanlimitCheck in 60.",2);
 	$conn->schedule(60, sub {
 		&chanlimitCheck();
 		delete $cache{netsplit};
@@ -860,25 +860,11 @@ sub on_quit {
 	&DEBUG("on_quit: nick $nick was not found in any chan.");
     }
 
-    &delUserInfo($nick, keys %channels);
-
-    if (exists $nuh{lc $nick}) {
-	delete $nuh{lc $nick};
-    } else {
-	# well.. it's good but weird that this has happened - lets just
-	# be quiet about it.
-    }
-    delete $userstats{lc $nick} if (&IsChanConf("seenStats"));
-    delete $chanstats{lc $nick};
-
     # should fix chanstats inconsistencies bug #2.
     if ($reason =~ /^($mask{host})\s($mask{host})$/) {	# netsplit.
 	$reason = "NETSPLIT: $1 <=> $2";
 
 	# chanlimit code.
-	my @l = &getNickInChans($nick);
-	&DEBUG("on_quit: l => ".scalar(@l) );
-
 	foreach $chan ( &getNickInChans($nick) ) {
 	    next unless ( &IsChanConf("chanlimitcheck") );
 	    next unless ( exists $channels{$_}{'l'} );
@@ -899,6 +885,20 @@ sub on_quit {
     if ($nick =~ /^\Q$ident\E$/) {
 	&ERROR("^^^ THIS SHOULD NEVER HAPPEN (10).");
     }
+
+    ###
+    ### ok... lets clear out the cache
+    ###
+    &delUserInfo($nick, keys %channels);
+    if (exists $nuh{lc $nick}) {
+	delete $nuh{lc $nick};
+    } else {
+	# well.. it's good but weird that this has happened - lets just
+	# be quiet about it.
+    }
+    delete $userstats{lc $nick} if (&IsChanConf("seenStats"));
+    delete $chanstats{lc $nick};
+    ###
 
     # does this work?
     if ($nick !~ /^\Q$ident\E$/ and $nick =~ /^\Q$param{'ircNick'}\E$/i) {

@@ -400,6 +400,9 @@ sub FactoidStuff {
 	    my $limit	= &getChanConfDefault("factoidPreventForgetLimit", 
 				0, $chan);
 
+	    &DEBUG("forget: limit = $limit");
+	    &DEBUG("forget: count = $count");
+
 	    if (IsFlag("r") ne "r") {
 		&msg($who, "you don't have access to remove factoids");
 		return;

@@ -262,7 +262,7 @@ sub Modules {
     }
 
     # google searching. Simon++
-    if ($message =~ /^(?:search\s+)?(\S+)\s+for\s+['"]?(.*?)['"]?\s*\?*$/i) {
+    if ($message =~ /^(?:search\s+)?(\S+)\s+for\s+['"]?(.*?)["']?\s*\?*$/i) {
 	return unless (&hasParam("wwwsearch"));
 
 	&Forker("wwwsearch", sub { &W3Search::W3Search($1,$2); } );
@@ -282,12 +282,13 @@ sub Modules {
 	    my $arg	= $3;
 
 	    if (!defined $arg or $arg =~ /^\s*$/) {
-		# this is fucking ugly but it works :-)
+		# this is way fucking ugly.
 		my $x = (&dbRawReturn("SELECT SUM(counter) FROM stats WHERE type=".&dbQuote($type) ))[0];
 		my %hash = &dbGetCol("stats", "nick,counter", "type=".&dbQuote($type).
-			" ORDER BY nick DESC LIMIT 3", 1);
+			" ORDER BY counter DESC LIMIT 3", 1);
 		my $i;
 		my @top;
+
 		# unfortunately we have to sort it again!
 		# todo: make dbGetCol return hash and array? too much effort.
 		foreach $i (sort { $b <=> $a } keys %hash) {

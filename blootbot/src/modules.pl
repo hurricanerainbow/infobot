@@ -49,23 +49,13 @@ if ($@) {
 );
 ### THIS IS NOT LOADED ON RELOAD :(
 BEGIN {
-    @myModulesLoadNow	= ('topic', 'uptime', 'news');
+    @myModulesLoadNow	= ('topic', 'uptime', 'news', 'rootWarn');
     @myModulesReloadNot	= ('IRC/Irc.pl','IRC/Schedulers.pl');
 }
 
 sub loadCoreModules {
-    if (!opendir(DIR, $bot_src_dir)) {
-	&ERROR("can't open source directory $bot_src_dir: $!");
-	exit 1;
-    }
+    my @mods = &getPerlFiles($bot_src_dir);
 
-    my @mods;
-    while (defined(my $file = readdir DIR)) {
-	next unless $file =~ /\.pl$/;
-	next unless $file =~ /^[A-Z]/;
-	push(@mods, $file);
-    }
-    closedir DIR;
     &status("Loading ".scalar(@mods)." CORE modules...");
 
     foreach (sort @mods) {
@@ -126,38 +116,31 @@ sub loadDBModules {
 }
 
 sub loadFactoidsModules {
-    &status("Loading Factoids modules...");
-
     if (!&IsParam("factoids")) {
 	&status("Factoid support DISABLED.");
 	return;
     }
 
-    if (!opendir(DIR, "$bot_src_dir/Factoids")) {
-	&ERROR("can't open source directory Factoids: $!");
-	exit 1;
-    }
+    &status("Loading Factoids modules...");
 
-    while (defined(my $file = readdir DIR)) {
-	next unless $file =~ /\.pl$/;
-	next unless $file =~ /^[A-Z]/;
-	my $mod = "$bot_src_dir/Factoids/$file";
-	### TODO: use eval and exit gracefully?
+    foreach ( &getPerlFiles("$bot_src_dir/Factoids") ) {
+	my $mod = "$bot_src_dir/Factoids/$_";
+
 	eval "require \"$mod\"";
 	if ($@) {
-	    &WARN("lFM: $@");
+	    &ERROR("lFM: $@");
 	    exit 1;
 	}
 
 	$moduleAge{$mod} = (stat $mod)[9];
-	&showProc(" ($file)") if (&IsParam("DEBUG"));
+	&showProc(" ($_)") if (&IsParam("DEBUG"));
     }
-    closedir DIR;
 }
 
 sub loadIRCModules {
-    &status("Loading IRC modules...");
     if (&whatInterface() =~ /IRC/) {
+	&status("Loading IRC modules...");
+
 	eval "use Net::IRC";
 	if ($@) {
 	    &ERROR("libnet-irc-perl is not installed!");
@@ -170,21 +153,19 @@ sub loadIRCModules {
 	return;
     }
 
-    if (!opendir(DIR, "$bot_src_dir/IRC")) {
-	&ERROR("can't open source directory Factoids: $!");
-	exit 1;
-    }
+    foreach ( &getPerlFiles("$bot_src_dir/IRC") ) {
+	my $mod = "$bot_src_dir/IRC/$_";
 
-    while (defined(my $file = readdir DIR)) {
-	next unless $file =~ /\.pl$/;
-	next unless $file =~ /^[A-Z]/;
-	my $mod = "$bot_src_dir/IRC/$file";
-	### TODO: use eval and exit gracefully?
-	require $mod;
+	eval "require \"$mod\"";
+	if ($@) {
+	    &ERROR("lIRCM => $@");
+	    &shutdown();
+	    exit 1;
+        }
+
 	$moduleAge{$mod} = (stat $mod)[9];
-	&showProc(" ($file)") if (&IsParam("DEBUG"));
+	&showProc(" ($_)") if (&IsParam("DEBUG"));
     }
-    closedir DIR;
 }
 
 sub loadMyModulesNow {
@@ -209,7 +190,9 @@ sub loadMyModulesNow {
 	    next;
 	}
 
-	&loadMyModule($myModules{$_});
+	# weird hack to get rootwarn to work.
+	# it may break on other cases though, any ideas?
+	&loadMyModule( $myModules{$_} || $myModules{lc $_} );
 	$loaded++;
     }
 
@@ -218,11 +201,14 @@ sub loadMyModulesNow {
 
 ### rename to moduleReloadAll?
 sub reloadAllModules {
-###    &status("Module: reloading all.");
-    foreach (map { substr($_,2) } keys %moduleAge) {
+    &VERB("Module: reloading all.",2);
+
+    # obscure usage of map and regex :)
+    foreach (map { s/.*?\/?src/src/; $_ } keys %moduleAge) {
         &reloadModule($_);
     }
-###    &status("Module: reloading done.");
+
+    &VERB("Module: reloading done.",2);
 }
 
 ### rename to modulesReload?
@@ -326,7 +312,7 @@ sub loadMyModule {
 	    $modulename = $tmp;
 	}
     }
-    my $modulefile = "$bot_src_dir/Modules/$modulebase";
+    $modulefile = "$bot_src_dir/Modules/$modulebase";
 
     # call reloadModule() which checks age of file and reload.
     if (grep /\/$modulebase$/, keys %INC) {
@@ -386,6 +372,25 @@ sub AUTOLOAD {
 	&DEBUG("Trying to load module $AUTOLOAD...");
 	&loadMyModule(lc $AUTOLOAD);
     }
+}
+
+sub getPerlFiles {
+    my($dir) = @_;
+
+    if (!opendir(DIR, $dir)) {
+        &ERROR("cannot open source directory $dir: $!");
+        exit 1;
+    }
+
+    my @mods;
+    while (defined(my $file = readdir DIR)) {
+	next unless $file =~ /\.pl$/;
+	next unless $file =~ /^[A-Z]/;
+	push(@mods, $file);
+    }
+    closedir DIR;
+
+    return reverse sort @mods;
 }
 
 1;
