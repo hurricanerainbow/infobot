@@ -281,7 +281,7 @@ sub add {
     }
 
     $::news{$chan}{$str}{Time}	= time();
-    my $expire = &::getChanConfDefault("newsDefaultExpire",7);
+    my $expire = &::getChanConfDefault("newsDefaultExpire",7, $chan);
     $::news{$chan}{$str}{Expire}	= time() + $expire*60*60*24;
     $::news{$chan}{$str}{Author}	= $::who;	# case!
 

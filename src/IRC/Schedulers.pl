@@ -29,7 +29,7 @@ sub setupSchedulersII {
 
 sub queueTask {
     my($codename, $chanconfdef, $intervaldef, $defer) = @_;
-    my $t = &getChanConfDefault($chanconfdef, $intervaldef);
+    my $t = &getChanConfDefault($chanconfdef, $intervaldef, $chan);
     my $waittime = &getRandomInt($t);
 
     if (!defined $waittime) {
@@ -125,7 +125,7 @@ sub ScheduleThis {
 ####
 
 sub randomQuote {
-    my $interval = &getChanConfDefault("randomQuoteInterval", 60);
+    my $interval = &getChanConfDefault("randomQuoteInterval", 60, $chan);
     if (@_) {
 	&ScheduleThis($interval, "randomQuote");
 	return if ($_[0] eq "2");	# defer.
@@ -151,7 +151,7 @@ sub randomFactoid {
     my ($key,$val);
     my $error = 0;
 
-    my $interval = &getChanConfDefault("randomFactoidInterval", 60);
+    my $interval = &getChanConfDefault("randomFactoidInterval", 60, $chan);
     if (@_) {
 	&ScheduleThis($interval, "randomFactoid");
 	return if ($_[0] eq "2");	# defer.
@@ -259,7 +259,7 @@ sub seenFlushOld {
     return unless (&IsChanConf("seenFlushInterval") > 0);
 
     # global setting. does not make sense for per-channel.
-    my $max_time = &getChanConfDefault("seenMaxDays", 30) *60*60*24;
+    my $max_time = &getChanConfDefault("seenMaxDays", 30, $chan) *60*60*24;
     my $delete   = 0;
 
     if ($param{'DBType'} =~ /^(pgsql|mysql|sqlite)/i) {
@@ -369,7 +369,7 @@ sub newsFlush {
 }
 
 sub chanlimitCheck {
-    my $interval = &getChanConfDefault("chanlimitcheckInterval", 10);
+    my $interval = &getChanConfDefault("chanlimitcheckInterval", 10, $chan);
     my $mynick=$conn->nick();
 
     if (@_) {
@@ -523,7 +523,7 @@ sub floodLoop {
     }
 
     my $time		= time();
-    my $interval	= &getChanConfDefault("floodCycle",60);
+    my $interval	= &getChanConfDefault("floodCycle",60, $chan);
 
     foreach $who (keys %flood) {
 	foreach (keys %{ $flood{$who} }) {
@@ -543,7 +543,7 @@ sub floodLoop {
 
 sub seenFlush {
     if (@_) {
-	my $interval = &getChanConfDefault("seenFlushInterval", 60);
+	my $interval = &getChanConfDefault("seenFlushInterval", 60, $chan);
 	&ScheduleThis($interval, "seenFlush");
 	return if ($_[0] eq "2");
     }
@@ -945,7 +945,7 @@ sub wingateCheck {
 	&DEBUG("Already scanned $host. good.");
     }
 
-    my $interval = &getChanConfDefault('wingateInterval', 60); # seconds.
+    my $interval = &getChanConfDefault('wingateInterval', 60, $chan); # seconds.
     return if (defined $forked{'Wingate'});
     return if (time() - $wingaterun <= $interval);
     return unless (scalar(keys %wingateToDo));
@@ -996,7 +996,7 @@ sub factoidCheck {
     }
 
     my @list	= &searchTable("factoids", "factoid_key", "factoid_key", " #DEL#");
-    my $stale	= &getChanConfDefault("factoidDeleteDelay", 14) *60*60*24;
+    my $stale	= &getChanConfDefault("factoidDeleteDelay", 14, $chan) *60*60*24;
     if ($stale < 1) {
 	# disable it since it's "illegal".
 	return;

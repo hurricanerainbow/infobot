@@ -117,8 +117,8 @@ sub timedelta {
 sub formListReply {
     my($rand, $prefix, @list) = @_;
     my $total	= scalar @list;
-    my $maxshow = &getChanConfDefault('maxListReplyCount', 15);
-    my $maxlen	= &getChanConfDefault('maxListReplyLength', 400);
+    my $maxshow = &getChanConfDefault('maxListReplyCount', 15, $chan);
+    my $maxlen	= &getChanConfDefault('maxListReplyLength', 400, $chan);
     my $reply;
 
     # remove irc overhead
