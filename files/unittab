@@ -18,6 +18,8 @@
 # Seven instrinsic SI units:
 gram       ***
 meter	   ***
+# Tim Riker <Tim@Rikers.org> adds metre alias
+metre	   meter
 second     ***
 ampere     ***
 candela    ***
