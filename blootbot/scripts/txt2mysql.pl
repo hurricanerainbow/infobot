@@ -18,8 +18,8 @@ if (!scalar @ARGV) {
 my $txtfile = shift;
 open(IN,$txtfile) or die "error: cannot open txtfile '$txtfile'.\n";
 
-# read the infobot config.
-&loadConfig("files/infobot.config");
+# read the bot config file.
+&loadConfig("files/blootbot.config");
 &loadDBModules();
 &openDB();
 

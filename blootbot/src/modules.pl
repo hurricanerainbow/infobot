@@ -49,8 +49,8 @@ if ($@) {
 @myModulesReloadNot	= ('IRC/Irc.pl','IRC/Schedulers.pl');
 
 sub loadCoreModules {
-    if (!opendir(DIR, $infobot_src_dir)) {
-	&ERROR("can't open source directory $infobot_src_dir: $!");
+    if (!opendir(DIR, $bot_src_dir)) {
+	&ERROR("can't open source directory $bot_src_dir: $!");
 	exit 1;
     }
 
@@ -59,7 +59,7 @@ sub loadCoreModules {
     while (defined(my $file = readdir DIR)) {
 	next unless $file =~ /\.pl$/;
 	next unless $file =~ /^[A-Z]/;
-	my $mod = "$infobot_src_dir/$file";
+	my $mod = "$bot_src_dir/$file";
 	### TODO: use eval and exit gracefully?
 	require $mod;
 	$moduleAge{$mod} = (stat $mod)[9];
@@ -80,7 +80,7 @@ sub loadDBModules {
 	&showProc(" (DBI // mysql)");
 
 	&status("  using MySQL support.");
-	require "$infobot_src_dir/db_mysql.pl";
+	require "$bot_src_dir/db_mysql.pl";
 
     } elsif ($param{'DBType'} =~ /^pgsql$/i) {
 	eval "use Pg";
@@ -91,11 +91,11 @@ sub loadDBModules {
 	&showProc(" (Pg // postgreSQLl)");
 
 	&status("  using PostgreSQL support.");
-	require "$infobot_src_dir/db_pgsql.pl";
+	require "$bot_src_dir/db_pgsql.pl";
     } elsif ($param{'DBType'} =~ /^dbm$/i) {
 
 	&status("  using Berkeley DBM 1.85/2.0 support.");
-	require "$infobot_src_dir/db_dbm.pl";
+	require "$bot_src_dir/db_dbm.pl";
     } else {
 
 	&status("DB support DISABLED.");
@@ -111,7 +111,7 @@ sub loadFactoidsModules {
 	return;
     }
 
-    if (!opendir(DIR, "$infobot_src_dir/Factoids")) {
+    if (!opendir(DIR, "$bot_src_dir/Factoids")) {
 	&ERROR("can't open source directory Factoids: $!");
 	exit 1;
     }
@@ -119,7 +119,7 @@ sub loadFactoidsModules {
     while (defined(my $file = readdir DIR)) {
 	next unless $file =~ /\.pl$/;
 	next unless $file =~ /^[A-Z]/;
-	my $mod = "$infobot_src_dir/Factoids/$file";
+	my $mod = "$bot_src_dir/Factoids/$file";
 	### TODO: use eval and exit gracefully?
 	require $mod;
 	$moduleAge{$mod} = (stat $mod)[9];
@@ -142,7 +142,7 @@ sub loadIRCModules {
 	return;
     }
 
-    if (!opendir(DIR, "$infobot_src_dir/IRC")) {
+    if (!opendir(DIR, "$bot_src_dir/IRC")) {
 	&ERROR("can't open source directory Factoids: $!");
 	exit 1;
     }
@@ -150,7 +150,7 @@ sub loadIRCModules {
     while (defined(my $file = readdir DIR)) {
 	next unless $file =~ /\.pl$/;
 	next unless $file =~ /^[A-Z]/;
-	my $mod = "$infobot_src_dir/IRC/$file";
+	my $mod = "$bot_src_dir/IRC/$file";
 	### TODO: use eval and exit gracefully?
 	require $mod;
 	$moduleAge{$mod} = (stat $mod)[9];
@@ -260,13 +260,13 @@ sub loadMyModule {
     } else {
 	$modulebase = $tmp;
     }
-    my $modulefile = "$infobot_src_dir/Modules/$modulebase";
+    my $modulefile = "$bot_src_dir/Modules/$modulebase";
 
     return 1 if (grep /$modulefile/, keys %INC);
 
     if (! -f $modulefile) {
 	&ERROR("lMM: module ($modulebase) does not exist.");
-	if ($$ == $infobot_pid) {	# parent.
+	if ($$ == $bot_pid) {	# parent.
 	    &shutdown() if (defined $shm and defined $dbh);
 	} else {			# child.
 	    &delForked($modulename);
@@ -278,7 +278,7 @@ sub loadMyModule {
     eval "require \"$modulefile\"";
     if ($@) {
 	&ERROR("cannot load my module: $modulebase");
-	if ($infobot_pid == $$) {	# parent.
+	if ($bot_pid == $$) {	# parent.
 	    &shutdown() if (defined $shm and defined $dbh);
 	} else {			# child.
 	    &delForked($modulebase);

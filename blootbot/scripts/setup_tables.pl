@@ -8,10 +8,10 @@ require "src/logger.pl";
 require "src/modules.pl";
 require "src/Misc.pl";
 
-$infobot_src_dir = "./src/";
+$bot_src_dir = "./src/";
 
-# read param stuff from infobot.config.
-&loadConfig("files/infobot.config");
+# read param stuff from blootbot.config.
+&loadConfig("files/blootbot.config");
 &loadDBModules();
 my $dbname = $param{'DBName'};
 my $query;

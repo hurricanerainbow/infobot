@@ -1,0 +1,31 @@
+#
+# User File (c) 1998 Infobot & Associates
+#
+# FLAGS
+# ---------------------- Factoids.
+# f   multiple line factoid (MLF) Usage Allowed [UNTESTED,OLD?]
+# m   Modifying (mod) Allowed
+# r   Removing  (del) Allowed
+# t   Teaching  (add) Allowed
+# ----------------------
+# i   Ignore Flag	level 0
+# o   Op Flag		level 1
+# n   Owner Flag	level 2
+# e   Extra Privs	level 3
+# ----------------------
+
+###
+# default is to allow modification, removal and addition of factoids,
+# if factoid support is enabled.
+UserEntry default {
+	flags +mrt;
+}
+
+###
+# Sample user entry with all the flags.
+UserEntry GmLB {
+	name  "Danny";
+	title "Grand Master";
+	flags +mrsteon;
+	pass  ECovKDtJnED36;
+}

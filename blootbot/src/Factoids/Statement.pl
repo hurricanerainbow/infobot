@@ -1,5 +1,6 @@
-
-# infobot :: Kevin Lenzo  (c) 1997
+###
+### Statement.pl: Kevin Lenzo  (c) 1997
+###
 
 ##
 ##  doStatement --
@@ -22,7 +23,7 @@ sub doStatement {
     $in =~ s/^no([, ]+)//i;	# 'no, '.
 
     # check if we need to be addressed and if we are
-    return 'NOREPLY' unless ($learnok);
+    return $noreply unless ($learnok);
 
     my($urlType) = "";
 
@@ -47,10 +48,10 @@ sub doStatement {
     # acceptUrl.
     if (&IsParam("acceptUrl")) {
 	if ($param{'acceptUrl'} eq 'REQUIRE') {		# require url type.
-	    return 'NOREPLY' if ($urlType eq "");
+	    return $noreply if ($urlType eq "");
 	} elsif ($param{'acceptUrl'} eq 'REJECT') {
 	    &status("REJECTED URL entry") if (&IsParam("VERBOSITY"));
-	    return 'NOREPLY' unless ($urlType eq "");
+	    return $noreply unless ($urlType eq "");
 	} else {
 	    # OPTIONAL
 	}
@@ -70,7 +71,7 @@ sub doStatement {
 
 	# break if either lhs or rhs is NULL.
 	if ($lhs eq "" or $rhs eq "") {
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	# lets check if it failed.
@@ -79,10 +80,10 @@ sub doStatement {
 		&status("IGNORE statement: <$who> $message");
 		&performReply( &getRandom(keys %{$lang{'confused'}}) );
 	    }
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
-	return 'NOREPLY' if (!$addressed and $lhs =~ /\s+/);
+	return $noreply if (!$addressed and $lhs =~ /\s+/);
 
 	&status("statement: <$who> $message");
 
@@ -100,7 +101,7 @@ sub doStatement {
 	    if ($ord > 170 and $ord < 220) {
 		&status("statement: illegal character '$_' $ord.");
 		&performAddressedReply("i'm not going to learn illegal characters");
-		return 'NOREPLY';
+		return $noreply;
 	    }
 	}
 

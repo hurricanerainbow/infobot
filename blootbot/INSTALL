@@ -1,9 +1,9 @@
 Method of installation.
 -----------------------
 
-- Move infobot.config to infobot.config.used
-- Copy samle.config to infobot.config
-- Edit files/infobot.config, modify to taste.
+- Move blootbot.config to blootbot.config.used
+- Copy sample.config to blootbot.config
+- Edit files/blootbot.config, modify to taste.
 - Edit files/ircII.server to modify list of IRC servers to connect.
 - Depends on:
 	- Net::IRC perl module
@@ -26,4 +26,4 @@ Method of installation.
 - There are "bugs" in the perl modules. (see INSTALL.patches) on how to
   fix.
 
-- Finally, './infobot'
+- Finally, './blootbot'

@@ -16,19 +16,19 @@ sub update {
     $lhs =~ s/\s+/ /g;
 
     # locked.
-    return 'NOREPLY' if (&IsLocked($lhs) == 1);
+    return $noreply if (&IsLocked($lhs) == 1);
 
     # profanity.
     if (&IsParam("profanityCheck") and &hasProfanity($rhs)) {
 	&msg($who, "please, watch your language.");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # teaching.
     if (&IsFlag("t") ne "t") {
 	&msg($who, "permission denied.");
 	&status("alert: $who wanted to teach me.");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # nice 'are' hack (or work-around).
@@ -48,7 +48,7 @@ sub update {
 	length($rhs) > $param{'maxDataSize'})
     {
 	&performAddressedReply("that's too long");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     #
@@ -62,7 +62,7 @@ sub update {
 	if (&dbGet("freshmeat", "name", $lhs, "name")) {
 	    &msg($who, "permission denied. (freshmeat)");
 	    &status("alert: $who wanted to teach me something that freshmeat already has info on.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
     }
 
@@ -71,7 +71,7 @@ sub update {
 
 	if ($exists eq $rhs) {
 	    &performAddressedReply("i already had it that way");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if ($also) {			# 'is also'.
@@ -98,7 +98,7 @@ sub update {
 	    # max length check again.
 	    if (length($rhs) > $param{'maxDataSize'}) {
 		&performAddressedReply("that's too long");
-		return 'NOREPLY';
+		return $noreply;
 	    }
 
 	    &performAddressedReply("okay");
@@ -115,7 +115,7 @@ sub update {
 
 		if (IsFlag("m") ne "m" and $author !~ /^\Q$who\E\!/i) {
 		    &msg($who, "you can't change that factoid.");
-		    return 'NOREPLY';
+		    return $noreply;
 		}
 
 		&performAddressedReply("okay");
@@ -132,7 +132,7 @@ sub update {
 		    &performStrictReply("...but \002$lhs\002 is already something else...");
 		    &status("FAILED update: <$who> \'$lhs\' =$mhs=> \'$rhs\'");
 		}
-		return 'NOREPLY';
+		return $noreply;
 	    }
 	}
     } else {			# not exists.

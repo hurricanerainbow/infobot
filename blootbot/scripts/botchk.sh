@@ -10,10 +10,10 @@ if [ -f $PIDFILE ]; then	# exists.
 	exit 0
     fi
 
-    # ./infobot removes the pid file.
+    # blootbot removes the pid file.
     echo "stale pid file; removing."
 #    rm -f $PIDFILE
 fi
 
 cd $BOTDIR
-./infobot
+./blootbot

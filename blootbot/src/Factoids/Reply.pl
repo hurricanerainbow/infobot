@@ -1,4 +1,6 @@
-# infobot :: Kevin Lenzo   (c) 1997
+###
+### Reply.pl: Kevin Lenzo   (c) 1997
+###
 
 ##
 # x is y === $lhs $mhs $rhs
@@ -131,12 +133,12 @@ sub getReply {
 	    # only remove '<action>' and make it an action.
 	} else {		# not a short reply
 
-	    ### infobot-infobot reply.
-	    if (exists $infobots{$nuh} and $rhs !~ /^\s*$/) {
+	    ### bot->bot reply.
+	    if (exists $bots{$nuh} and $rhs !~ /^\s*$/) {
 		return "$lhs $mhs $rhs";
 	    }
 
-	    ### infobot-person reply.
+	    ### bot->person reply.
 	    # result is random if separated by '||'.
 	    # rhs is full factoid with '||'.
 	    if ($mhs eq "is") {
@@ -151,7 +153,7 @@ sub getReply {
 		# fix the person.
 	    } else {
 		if ($reply =~ /^you are / or $reply =~ / you are /) {
-		    return 'NOREPLY' if ($addressed);
+		    return $noreply if ($addressed);
 		}
 	    }
 	}

@@ -8,7 +8,7 @@ require "src/logger.pl";
 require "src/modules.pl";
 require "src/Misc.pl";
 require "src/Files.pl";
-$infobot_src_dir = "./src/";
+$bot_src_dir = "./src/";
 
 my $dbname = shift;
 if (!defined $dbname) {
@@ -18,7 +18,7 @@ if (!defined $dbname) {
 }
 
 # open the db.
-&loadConfig("files/infobot.config");
+&loadConfig("files/blootbot.config");
 &loadDBModules();
 
 &openDB();
