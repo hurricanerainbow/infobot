@@ -12,7 +12,7 @@ no strict 'refs'; # FIXME: dstats aborts if set
 
 my $announce	= 0;
 my $defaultdist	= "sid";
-my $refresh = &::getChanConfDefault("debianRefreshInterval",7)
+my $refresh = &::getChanConfDefault('debianRefreshInterval',7)
 			* 60 * 60 * 24;
 my $debug	= 0;
 my $debian_dir	= "$::bot_state_dir/debian";
