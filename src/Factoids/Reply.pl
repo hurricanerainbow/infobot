@@ -28,7 +28,9 @@ sub getReply {
 
     $message =~ tr/A-Z/a-z/;
 
-    if ($result = &getFactoid($message)) {
+    my ($result, $fauthor, $count) = &dbGet("factoids", 
+	"factoid_value,created_by,requested_count", "factoid_key=".&dbQuote($message) );
+    if ($result) {
 	$lhs = $message;
 	$mhs = "is";
 	$rhs = $result;
@@ -48,7 +50,6 @@ sub getReply {
 	$result =~ s/^\s*//;
     }
 
-    my $fauthor = &dbGet("factoids", "created_by", "factoid_key=".&dbQuote($message) );
     $result	= &SARit($result);
 
     $reply	= $result;
@@ -59,7 +60,6 @@ sub getReply {
 	# stats code.
 	### FIXME: old mysql doesn't support
 	### "requested_count=requested_count+1".
-	my $count = &getFactInfo($lhs,"requested_count") || 0;
 	$count++;
 	### BROKEN!!! - Tim Riker <Tim@Rikers.org> says it's fixed now
 	if (0) {	# old code.
