@@ -191,7 +191,7 @@ sub status {
 
     if ($input eq $logold) {
 	# allow perl flooding
-	$logrepeat++ unless (/!WARN! PERL: Use of uninitialized/);
+	$logrepeat++ unless ($input =~ /PERL: Use of uninitialized/);
 
 	# todo: prevent massive repetitive throttling.
 	if ($logrepeat >= 3) {
