@@ -236,7 +236,7 @@ sub hookMsg {
     }
 
     return if ($skipmessage);
-    return unless (&IsParam("minVolunteerLength") or $addressed);
+    return unless (&IsChanConf("minVolunteerLength") or $addressed);
 
     foreach (@ignore) {
 	s/\*/\\S*/g;
