@@ -18,6 +18,7 @@ use vars qw($b_blue $ob);
 use vars qw(@ircServers);
 
 $nickserv	= 0;
+$maxlinelen	= 400;
 
 sub ircloop {
     my $error	= 0;
@@ -109,12 +110,14 @@ sub irc {
 	&ERROR("If this is still a problem, please contact the maintainer.");
 	return 1;
     }
+    $conn->maxlinelen($maxlinelen);
 
     if ($param{'ircNick2'}) {
 	# prep for real multiple nick/server connects
 	# FIXME: all code should get nick/server out of self, not config
 	$args{'Nick'} = $param{'ircNick2'};
 	my $conn = $irc->newconn(%args);
+	$conn->maxlinelen($maxlinelen);
     }
 
     if ($param{'ircNick3'}) {
@@ -122,6 +125,7 @@ sub irc {
 	# FIXME: all code should get nick/server out of self, not config
 	$args{'Nick'} = $param{'ircNick3'};
 	my $conn = $irc->newconn(%args);
+	$conn->maxlinelen($maxlinelen);
     }
 
     &clearIRCVars();
