@@ -30,7 +30,6 @@ sub doQuestion {
 	return '';
     }
 
-    my $origQuery	= $query;
     my $questionWord	= "";
 
     if (!$addressed) {
@@ -120,11 +119,7 @@ sub doQuestion {
     if ($questionWord ne "" or $finalQMark) {
 	# if it has not been explicitly marked as a question
 	if ($addressed and $reply eq "") {
-	    if ($origQuery eq $query) {
-		&status("notfound: <$who> $origQuery");
-	    } else {
-		&status("notfound: <$who> $origQuery :: $query");
-	    }
+	    &status("notfound: <$who> ".join(' :: ', @query));
 
 	    return '' unless (&IsParam("friendlyBots"));
 
