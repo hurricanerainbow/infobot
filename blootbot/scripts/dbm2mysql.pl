@@ -9,10 +9,7 @@ require "src/modules.pl";
 require "src/Misc.pl";
 require "src/Files.pl";
 &loadDBModules();
-package MYSQL;
-require "src/db_mysql.pl";
-package DBM;
-require "src/db_dbm.pl";
+require "src/dbi.pl";
 package main;
 
 if (!scalar @ARGV) {
@@ -26,25 +23,42 @@ my $dbfile = shift;
 my $key;
 my %db;
 
+# open dbm.
+if (dbmopen(%{ $dbm }, $dbfile, 0666)) {
+    &status("::: opening dbm file: $dbfile");
+} else {
+    &ERROR("Failed open to dbm file ($dbfile).");
+    exit 1;
+}
+
 ### open all the data...
 &loadConfig("files/blootbot.config");
 $dbname = $param{'DBName'};
-my $dbh_mysql = MYSQL::openDB($param{'DBName'}, $param{'SQLUser'}, $param{'SQLPass'});
-DBM::openDB();
+my $dbh_mysql = sqlOpenDB($param{'DBName'},
+	$param{'DBType'}, $param{'SQLUser'}, $param{'SQLPass'});
 
 print "scalar db == '". scalar(keys %db) ."'.\n";
 
 my ($ndef, $i) = (1,1);
 my $factoid;
 foreach $factoid (keys %db) {
-    foreach (@DBM::extra_format) {
-	my $val = &DBM::getFactInfo($key, $_, $db{$key});
-	if (!defined $val) {
-	    $ndef++;
-	    next;
+    # blootbot dbm to sql support:
+    if (0) {
+	foreach (@DBM::extra_format) {
+#	    my $val = &getFactInfo($key, $_, $db{$key});
+	    if (!defined $val) {
+		$ndef++;
+		next;
+	    }
 	}
-	&MYSQL::setFactInfo($key, $_, $val); # fact, type, what
+    } else {
+	# infobot dbm to blootbot sql support.
+        &sqlReplace("factoids", {
+		factoid_key	=> $_,
+		factoid_value	=> $db{$_},
+	} );
     }
+
     $i++;
     print "i=$i... " if ($i % 100 == 0);
     print "ndef=$ndef... " if ($ndef % 1000 == 0);
@@ -52,3 +66,4 @@ foreach $factoid (keys %db) {
 
 print "Done.\n";
 &closeDB();
+dbmclose(%{ $dbm });
