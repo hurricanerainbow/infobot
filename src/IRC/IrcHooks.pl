@@ -365,8 +365,9 @@ sub on_disconnect {
     my ($event) = @_;
     my $from = $event->from();
     my $what = ($event->args)[0];
+    my $mynick=$conn->nick();
 
-    &status("disconnect from $from ($what).");
+    &status("$mynick disconnect from $from ($what).");
     $ircstats{'DisconnectTime'}		= time();
     $ircstats{'DisconnectReason'}	= $what;
     $ircstats{'DisconnectCount'}++;
@@ -385,12 +386,9 @@ sub on_disconnect {
 	return;
     }
 
-    if (!$conn->connect()) {
-	&DEBUG("on_disconnect: 3");
-	&WARN("not connected? help me. gonna call ircCheck() in 60s");
-	&clearIRCVars();
-	&ScheduleThis(1, "ircCheck");
-    }
+    &WARN("scheduling call ircCheck() in 60s");
+    &clearIRCVars();
+    &ScheduleThis(1, "ircCheck");
 }
 
 sub on_endofnames {

@@ -697,19 +697,6 @@ sub ircCheck {
 	}
     }
 
-    if ($ident !~ /^\Q$param{ircNick}\E$/) {
-	# this does not work unfortunately.
-	&WARN("ircCheck: ident($ident) != param{ircNick}($param{ircNick}).");
-
-	# this check is misleading... perhaps we should do a notify.
-	if (! &IsNickInAnyChan( $param{ircNick} ) ) {
-	    &DEBUG("$param{ircNick} not in use... changing!");
-	    &nick( $param{ircNick} );
-	} else {
-	    &WARN("$param{ircNick} is still in use...");
-	}
-    }
-
     if (grep /^\s*$/, keys %channels) {
 	&WARN('ircCheck: we have a NULL chan in hash channels? removing!');
 	if (!exists $channels{''}) {
@@ -748,6 +735,20 @@ sub miscCheck {
 	return;
     }
 
+    # make backup of important files.
+    &mkBackup( $bot_state_dir."/blootbot.chan", 60*60*24*3);
+    &mkBackup( $bot_state_dir."/blootbot.users", 60*60*24*3);
+    &mkBackup( $bot_base_dir."/blootbot-news.txt", 60*60*24*1);
+
+    # flush cache{lobotomy}
+    foreach (keys %{ $cache{lobotomy} }) {
+	next unless (time() - $cache{lobotomy}{$_} > 60*60);
+	delete $cache{lobotomy}{$_};
+    }
+
+    ### check modules if they've been modified. might be evil.
+    &reloadAllModules();
+
     # shmid stale remove.
     foreach (@ipcs) {
 	chop;
@@ -766,7 +767,7 @@ sub miscCheck {
 	    # FIXME remove not-pid shm if parent process dead
 	    next if ($pid == $bot_pid);
 	    # don't touch other bots, if they're running.
-	    next unless ($param{ircNick} =~ /^\Q$n\E$/);
+	    next unless ($param{ircUser} =~ /^\Q$n\E$/);
 	} else {
 	    &DEBUG("shm: $shmid is not ours or old blootbot => ($z)");
 	    next;
@@ -775,20 +776,6 @@ sub miscCheck {
 	&status("SHM: nuking shmid $shmid");
 	CORE::system("/usr/bin/ipcrm shm $shmid >/dev/null");
     }
-
-    # make backup of important files.
-    &mkBackup( $bot_state_dir."/blootbot.chan", 60*60*24*3);
-    &mkBackup( $bot_state_dir."/blootbot.users", 60*60*24*3);
-    &mkBackup( $bot_base_dir."/blootbot-news.txt", 60*60*24*1);
-
-    # flush cache{lobotomy}
-    foreach (keys %{ $cache{lobotomy} }) {
-	next unless (time() - $cache{lobotomy}{$_} > 60*60);
-	delete $cache{lobotomy}{$_};
-    }
-
-    ### check modules if they've been modified. might be evil.
-    &reloadAllModules();
 }
 
 sub miscCheck2 {
@@ -832,17 +819,18 @@ sub miscCheck2 {
 
 ### this is semi-scheduled
 sub getNickInUse {
-    if ($ident eq $param{'ircNick'}) {
-	&status("okay, got my nick back.");
-	return;
-    }
-
-    if (@_) {
-	&ScheduleThis(30, "getNickInUse");
-	return if ($_[0] eq "2");	# defer.
-    }
-
-    &nick( $param{'ircNick'} );
+# FIXME: broken for multiple connects
+#    if ($ident eq $param{'ircNick'}) {
+#	&status("okay, got my nick back.");
+#	return;
+#    }
+#
+#    if (@_) {
+#	&ScheduleThis(30, "getNickInUse");
+#	return if ($_[0] eq "2");	# defer.
+#    }
+#
+#    &nick( $param{'ircNick'} );
 }
 
 sub uptimeLoop {
