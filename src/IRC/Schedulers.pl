@@ -195,13 +195,12 @@ sub logLoop {
     }
 
     ### check if all the logs exceed size.
-    my $logdir = "$bot_base_dir/log/";
-    if (opendir(LOGS, $logdir)) {
+    if (opendir(LOGS, $bot_log_dir)) {
 	my $tsize = 0;
 	my (%age, %size);
 
 	while (defined($_ = readdir LOGS)) {
-	    my $logfile		= "$logdir/$_";
+	    my $logfile		= "$bot_log_dir/$_";
 
 	    next unless ( -f $logfile);
 	    my $size		= -s $logfile;
@@ -227,7 +226,7 @@ sub logLoop {
 	### TODO: add how many b,kb,mb removed?
 	&status("LOG: removed $delete logs.") if ($delete);
     } else {
-	&WARN("could not open dir $logdir");
+	&WARN("could not open dir $bot_log_dir");
     }
 
 }
@@ -838,13 +837,13 @@ sub miscCheck2 {
     }
 
     # debian check.
-    opendir(DEBIAN, "$bot_base_dir/debian");
+    opendir(DEBIAN, "$bot_state_dir/debian");
     foreach ( grep /gz$/, readdir(DEBIAN) ) {
-	my $exit = CORE::system("gzip -t $bot_base_dir/debian/$_");
+	my $exit = CORE::system("gzip -t $bot_state_dir/debian/$_");
 	next unless ($exit);
 
 	&status("debian: unlinking file => $_");
-	unlink "$bot_base_dir/debian/$_";
+	unlink "$bot_state_dir/debian/$_";
     }
     closedir DEBIAN;
 

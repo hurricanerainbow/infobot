@@ -69,7 +69,7 @@ my %urlpackages = (
 #######################
 
 ####
-# Usage: &DebianDownload(%hash);
+# Usage: &DebianDownload($dist, %hash);
 sub DebianDownload {
     my ($dist, %urls)	= @_;
     my $bad	= 0;
@@ -512,7 +512,7 @@ sub searchDesc {
 ####
 # Usage: &generateIncoming();
 sub generateIncoming {
-    my $pkgfile  = "debian/Packages-incoming";
+    my $pkgfile  = $debian_dir."/Packages-incoming";
     my $idxfile  = $pkgfile.".idx";
     my $stale	 = 0;
     $stale++ if (&::isStale($pkgfile.".gz", $refresh));
@@ -716,7 +716,7 @@ sub infoPackages {
 
 	    if ($incoming) {
 		&::status("iP: info requested and pkg is in incoming, too.");
-		my %incpkg = &getPackageInfo($query, "debian/Packages-incoming");
+		my %incpkg = &getPackageInfo($query, $debian_dir ."/Packages-incoming");
 
 		if (scalar keys %incpkg) {
 		   $pkg{'info'} .= ". Is in incoming ($incpkg{'file'}).";
@@ -851,7 +851,7 @@ sub generateIndex {
 
     foreach (@dists) {
 	my $dist = &getDistro($_); # incase the alias is returned, possible?
-	my $idx  = "debian/Packages-$dist.idx";
+	my $idx  = $debian_dir."/Packages-$dist.idx";
 
 	# TODO: check if any of the Packages file have been updated then
 	#	regenerate it, even if it's not stale.
@@ -917,7 +917,7 @@ sub validPackage {
     &::DEBUG("deb: validPackage($package, $dist) called.") if ($debug);
 
     my $error = 0;
-    while (!open(IN, "debian/Packages-$dist.idx")) {
+    while (!open(IN, $debian_dir. "/Packages-$dist.idx")) {
 	if ($error) {
 	    &::ERROR("Packages-$dist.idx does not exist (#1).");
 	    return;
@@ -949,7 +949,7 @@ sub validPackage {
 
 sub searchPackage {
     my ($dist, $query) = &getDistroFromStr($_[0]);
-    my $file = "debian/Packages-$dist.idx";
+    my $file = $debian_dir."/Packages-$dist.idx";
     my @files;
     my $error	= 0;
     my $warn	= 0;
@@ -1082,19 +1082,18 @@ sub DebianFind {
 }
 
 sub debianCheck {
-    my $dir	= "debian/";
     my $error	= 0;
 
     &::status("debianCheck() called.");
 
     ### TODO: remove the following loop (check if dir exists before)
     while (1) {
-	last if (opendir(DEBIAN, $dir));
+	last if (opendir(DEBIAN, $debian_dir));
 	if ($error) {
 	    &::ERROR("dC: cannot opendir debian.");
 	    return;
 	}
-	mkdir $dir, 0755;
+	mkdir $debian_dir, 0755;
 	$error++;
     }
 
@@ -1103,14 +1102,14 @@ sub debianCheck {
     while (defined($file = readdir DEBIAN)) {
 	next unless ($file =~ /(gz|bz2)$/);
 
-	my $exit = system("gzip -t '$dir/$file'");
+	my $exit = system("gzip -t '$debian_dir/$file'");
 	next unless ($exit);
 	&::DEBUG("deb: hmr... => ".(time() - (stat($file))[8])."'.");
 	next unless (time() - (stat($file))[8] > 3600);
 
 	&::DEBUG("deb: dC: exit => '$exit'.");
-	&::WARN("dC: '$dir/$file' corrupted? deleting!");
-	unlink $dir."/".$file;
+	&::WARN("dC: '$debian_dir/$file' corrupted? deleting!");
+	unlink $debian_dir."/".$file;
 	$retval++;
     }
 
