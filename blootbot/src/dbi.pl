@@ -240,7 +240,8 @@ sub sqlSet {
     my $result = &sqlSelect($table, $k, $where_href);
 #    &DEBUG("result is not defined :(") if (!defined $result);
 
-    if (1 or defined $result) {
+    # this was hardwired to use sqlUpdate. sqlite does not do inserts on sqlUpdate.
+    if (defined $result) {
 	&sqlUpdate($table, $data_href, $where_href);
     } else {
 	# hack.
