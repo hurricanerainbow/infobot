@@ -437,7 +437,16 @@ sub isStale {
 	return 1;
     }
 
+    if (!defined $file) {
+	&WARN("isStale: file == NULL.");
+	return 1;
+    }
+
     return 1 unless ( -f $file);
+    if ($file =~ /idx/) {
+	my $age	= time() - (stat($file))[9];
+	&DEBUG("stale: $age. (". &Time2String($age) .")");
+    }
     return 1 if (time() - (stat($file))[9] > $age*60*60*24);
     return 0;
 }
