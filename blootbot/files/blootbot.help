@@ -82,9 +82,14 @@ join: U: ## <#chan> [key]
 join: E: ## #debian
 join: E: ## #debian rules
 
-kick: U: ## <nick> [#chan]
+kick: U: ## <nick> [#chan] [message]
 kick: E: ## oznoid
 kick: E: ## larne #debian
+kick: E: ## john #foo go away!
+
+mode: U: ## <#chan> <mode>
+mode: E: ## #debian +t
+mode: E: ## #debian -i
 
 wantnick: If someone's taken my nick (I hope not) and I'm using some temporary nick, I can change back to my original nick if it's not taken (again).
 
