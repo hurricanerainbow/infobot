@@ -406,12 +406,10 @@ sub IsHostMatch {
 sub isStale {
     my ($file, $age) = @_;
 
-    &DEBUG("isStale: $file does not exist") unless ( -f $file);
     return 1 unless ( -f $file);
     return 1 if (time() - (stat($file))[9] > $age*60*60*24);
     my $delta = time() - (stat($file))[9];
     my $hage  = $age*60*60*24;
-    &DEBUG("isStale: not stale! $delta < $hage");
     return 0;
 }
 
@@ -601,8 +599,8 @@ sub Forker {
     if (&IsParam("forking") and $$ == $bot_pid) {
 	return $noreply unless (&addForked($label));
 	$SIG{CHLD} = 'IGNORE';
-	$pid = eval { fork() };  # catch non-forking OSes and other errors
-	return $noreply if $pid;   # parent does nothing
+	$pid = eval { fork() };
+	return $noreply if $pid;	# parent does nothing
 	&status("fork starting for '$label', PID == $$.");
     }
 
