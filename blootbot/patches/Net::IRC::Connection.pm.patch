@@ -1,0 +1,26 @@
+--- Connection.pm	Tue Feb 13 21:09:31 2001
++++ /usr/lib/perl5/Net/IRC/Connection.pm	Wed Dec 27 20:32:30 2000
+@@ -1288,17 +1376,20 @@
+ 	if ($prefix) {
+ 	    my $handler = $prefix . lc $ctype;   # unit. value prob with $ctype
+ 
+-	    warn "ctype => $ctype\n";
+-
+ 	    # -- #perl was here! --
+ 	    # fimmtiu: Words cannot describe my joy. Sil, you kick ass.
+ 	    # fimmtiu: I was passing the wrong arg to Event::new()
+  
+-	    $self->handler(Net::IRC::Event->new($handler, $from, $stuff,
++###	    $one =~ s/^$ctype //i;  # strip the CTCP type off the args
++	    $self->handler(Net::IRC::Event->new( $handler, $from, $stuff,
++###						 $handler, $one ));
+ 						$handler, (split /\s/, $one)));
+ 	}
+ 
+-	# This next line is very likely broken somehow. Sigh.
+ 	$self->handler(Net::IRC::Event->new($type, $from, $stuff, $type, $two))
+-	    if ($two);
++	    if $two;
+     }
+     return 1;
+ }
