@@ -224,12 +224,12 @@ sub parseCmdHook {
 	'Cmdstats' => 'Uptime') );
 &addCmdHook("extra", 'nullski', ('CODEREF' => 'nullski', ) );
 &addCmdHook("extra", 'verstats', ('CODEREF' => 'do_verstats' ) );
-&addCmdHook("extra", 'weather', ('CODEREF' => 'Weather::Weather',
-	'Identifier' => 'weather', 'Help' => 'weather',
-	'Cmdstats' => 'weather', 'Forker' => 1) );
+&addCmdHook("extra", 'Weather', ('CODEREF' => 'Weather::Weather',
+	'Identifier' => 'Weather', 'Help' => 'weather',
+	'Cmdstats' => 'Weather', 'Forker' => 1) );
 &addCmdHook("extra", 'metar', ('CODEREF' => 'Weather::Metar',
-	'Identifier' => 'weather', 'Help' => 'weather',
-	'Cmdstats' => 'weather', 'Forker' => 1) );
+	'Identifier' => 'Weather', 'Help' => 'weather',
+	'Cmdstats' => 'Weather', 'Forker' => 1) );
 &addCmdHook("extra", 'bzflist', ('CODEREF' => 'BZFlag::list',
 	'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag',
 	'Forker' => 1) );

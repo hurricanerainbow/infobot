@@ -51,7 +51,7 @@ if ($@) {
 	"Units"		=> "Units.pl",
 	"Uptime"	=> "Uptime.pl",
 	"UserInfo"	=> "UserInfo.pl",
-	"weather"	=> "Weather.pl",
+	"Weather"	=> "Weather.pl",
 	"whatis"	=> "WhatIs.pl",
 	"wikipedia"	=> "wikipedia.pl",
 	"wingate"	=> "Wingate.pl",
