@@ -417,7 +417,7 @@ sub verifyUser {
     foreach $user (keys %users) {
 	next if ($user eq "_default");
 
-	foreach $m (keys %{$users{$user}{HOSTS}}) {
+	foreach $m (keys %{ $users{$user}{HOSTS} }) {
 	    $m =~ s/\?/./g;
 	    $m =~ s/\*/.*?/g;
 	    $m =~ s/([\@\(\)\[\]])/\\$1/g;

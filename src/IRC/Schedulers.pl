@@ -29,7 +29,7 @@ sub setupSchedulers {
     &leakCheck(2);	# mandatory
     &ignoreCheck(1);	# mandatory
     &seenFlushOld(2);
-    &ircCheck(1);	# mandatory
+    &ircCheck(2);	# mandatory
     &miscCheck(1);	# mandatory
     &miscCheck2(2);	# mandatory
     &shmFlush(1);	# mandatory
@@ -356,10 +356,10 @@ sub chanlimitCheck {
 	next unless (&validChan($chan));
 
 	my $limitplus	= &getChanConfDefault("chanlimitcheckPlus", 5, $chan);
-	my $newlimit	= scalar(keys %{$channels{$chan}{''}}) + $limitplus;
+	my $newlimit	= scalar(keys %{ $channels{$chan}{''} }) + $limitplus;
 	my $limit	= $channels{$chan}{'l'};
 
-	if (defined $limit and scalar keys %{$channels{$chan}{''}} > $limit) {
+	if (defined $limit and scalar keys %{ $channels{$chan}{''} } > $limit) {
 	    &FIXME("LIMIT: set too low!!! FIXME");
 	    ### run NAMES again and flush it.
 	}
@@ -369,7 +369,7 @@ sub chanlimitCheck {
 	if (!exists $channels{$chan}{'o'}{$ident}) {
 	    &status("ChanLimit: dont have ops on $chan.") unless (exists $cache{warn}{chanlimit}{$chan});
 	    $cache{warn}{chanlimit}{$chan} = 1;
-	    ### TODO: check chanserv?
+	    &chanServCheck($chan);
 	    next;
 	}
 	delete $cache{warn}{chanlimit}{$chan};
@@ -378,8 +378,8 @@ sub chanlimitCheck {
 	    &status("ChanLimit: setting for first time or from netsplit, for $chan");
 	}
 
-	if (exists $cache{ "chanlimitChange_$chan" }) {
-	    my $delta = time() - $cache{ "chanlimitChange_$chan" };
+	if (exists $cache{chanlimitChange}{$chan}) {
+	    my $delta = time() - $cache{chanlimitChange}{$chan};
 	    if ($delta < $interval*60) {
 		&DEBUG("not going to change chanlimit! ($delta<$interval*60)");
 		return;
@@ -387,7 +387,7 @@ sub chanlimitCheck {
 	}
 
 	&rawout("MODE $chan +l $newlimit");
-	$cache{ "chanlimitChange_$chan" } = time();
+	$cache{chanlimitChange}{$chan} = time();
     }
 }
 
@@ -402,7 +402,7 @@ sub netsplitCheck {
     }
 
     foreach $s1 (keys %netsplitservers) {
-	foreach $s2 (keys %{$netsplitservers{$s1}}) {
+	foreach $s2 (keys %{ $netsplitservers{$s1} }) {
 	    if (time() - $netsplitservers{$s1}{$s2} > 3600) {
 		&status("netsplit between $s1 and $s2 appears to be stale.");
 		delete $netsplitservers{$s1}{$s2};
@@ -445,7 +445,7 @@ sub floodLoop {
     my $interval	= &getChanConfDefault("floodCycle",60);
 
     foreach $who (keys %flood) {
-	foreach (keys %{$flood{$who}}) {
+	foreach (keys %{ $flood{$who} }) {
 	    if (!exists $flood{$who}{$_}) {
 		&WARN("flood{$who}{$_} undefined?");
 		next;
@@ -639,7 +639,6 @@ sub ignoreCheck {
 }
 
 sub ircCheck {
-
     if (@_) {
 	&ScheduleThis(60, "ircCheck");
 	return if ($_[0] eq "2");	# defer.
@@ -652,14 +651,6 @@ sub ircCheck {
     my $inow  = scalar(keys %channels);
     if ($iconf > 2 and $inow * 2 <= $iconf) {
 	&FIXME("ircCheck: current channels * 2 <= config channels. FIXME.");
-    }
-
-    # chanserv ops.
-    foreach ( &ChanConfList("chanServ_ops") ) {
-	next if (exists $channels{$chan}{'o'}{$ident});
-
-	&status("ChanServ ==> Requesting ops for $chan. (3)");
-	&rawout("PRIVMSG ChanServ :OP $chan $ident");
     }
 
     if (!$conn->connected or time() - $msgtime > 3600) {
@@ -680,6 +671,8 @@ sub ircCheck {
     if ($ident !~ /^\Q$param{ircNick}\E$/) {
 	# this does not work unfortunately.
 	&WARN("ircCheck: ident($ident) != param{ircNick}($param{IrcNick}).");
+
+	# this check is misleading... perhaps we should do a notify.
 	if (! &IsNickInAnyChan( $param{ircNick} ) ) {
 	    &DEBUG("$param{ircNick} not in use... changing!");
 	    &nick( $param{ircNick} );
@@ -687,10 +680,6 @@ sub ircCheck {
 	    &WARN("$param{ircNick} is still in use...");
 	}
     }
-
-    &joinNextChan();
-	# if scalar @joinnext => join more channels
-	# else check for chanserv.
 
     if (grep /^\s*$/, keys %channels) {
 	&WARN("ircCheck: we have a NULL chan in hash channels? removing!");

@@ -208,7 +208,7 @@ sub fixFileList {
     # sort the hash list appropriately.
     foreach (sort keys %files) {
 	my $file = $_;
-	my @keys = sort keys %{$files{$file}};
+	my @keys = sort keys %{ $files{$file} };
 	my $i	 = scalar(@keys);
 
 	if ($i > 1) {

@@ -51,7 +51,7 @@ sub uptimeGetInfo {
   # should be no problems, even if uptime or pid is duplicated.
   ## WARN: run away forks may get through here, have to fix.
   foreach $uptime (sort {$b <=> $a} keys %uptime) {
-    foreach $pid (keys %{$uptime{$uptime}}) {
+    foreach $pid (keys %{ $uptime{$uptime} }) {
 	next if (exists $done{$pid});
 
 	push(@results,"$uptime.$pid $uptime{$uptime}{$pid}");

@@ -24,11 +24,11 @@ sub userDCC {
 
     # who.
     if ($message =~ /^who$/) {
-	my $count = scalar(keys %{$dcc{'CHAT'}});
+	my $count = scalar(keys %{ $dcc{'CHAT'} });
 	my $dccCHAT = $message;
 
 	&pSReply("Start of who ($count users).");
-	foreach (keys %{$dcc{'CHAT'}}) {
+	foreach (keys %{ $dcc{'CHAT'} }) {
 	    &pSReply("=> $_");
 	}
 	&pSReply("End of who.");

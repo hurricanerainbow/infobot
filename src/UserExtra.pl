@@ -60,13 +60,13 @@ sub chaninfo {
 		&ircCheck();
 		next;
 	    }
-	    push(@array, "$_ (".scalar(keys %{$channels{$_}{''}}).")");
+	    push(@array, "$_ (".scalar(keys %{ $channels{$_}{''} }).")");
 	}
 	&pSReply($reply.": ".join(' ', @array));
 
 	### total user count.
 	foreach $chan (keys %channels) {
-	    $tucount += scalar(keys %{$channels{$chan}{''}});
+	    $tucount += scalar(keys %{ $channels{$chan}{''} });
 	}
 
 	### unique user count.
@@ -103,7 +103,7 @@ sub chaninfo {
 
     # Step 1:
     my @array;
-    foreach (sort keys %{$chanstats{$chan}}) {
+    foreach (sort keys %{ $chanstats{$chan} }) {
 	my $int = $chanstats{$chan}{$_};
 	next unless ($int);
 
@@ -123,7 +123,7 @@ sub chaninfo {
 		- $chanstats{$chan}{'Part'};
 
     if ($delta_stats) {
-	my $total = scalar(keys %{$channels{$chan}{''}});
+	my $total = scalar(keys %{ $channels{$chan}{''} });
 	&status("chaninfo: join ~= signoff + part (drift of $delta_stats < $total).");
 
 	if ($delta_stats > $total) {
@@ -135,7 +135,7 @@ sub chaninfo {
     undef @array;
     my $type;
     foreach ("v","o","") {
-	my $int = scalar(keys %{$channels{$chan}{$_}});
+	my $int = scalar(keys %{ $channels{$chan}{$_} });
 	next unless ($int);
 
 	$type = "Voice" if ($_ eq "v");
@@ -167,14 +167,14 @@ sub cmdstats {
 
     my %countstats;
     foreach (keys %cmdstats) {
-	$countstats{$cmdstats{$_}}{$_} = 1;
+	$countstats{ $cmdstats{$_} }{$_} = 1;
     }
 
     foreach (sort {$b <=> $a} keys %countstats) {
 	my $int = $_;
 	next unless ($int);
 
-	foreach (keys %{$countstats{$int}}) {
+	foreach (keys %{ $countstats{$int} }) {
 	    push(@array, "\002$int\002 of $_");
 	}
     }
@@ -638,7 +638,7 @@ sub userCommands {
 	my $p = sprintf("%.02f", $connectivity);
 	$p =~ s/(\.\d*)0+$/$1/;
 	if ($p =~ s/\.0$//) {
-	    &DEBUG("p sar not working properly :(");
+	    # this should not happen... but why...
 	} else {
 	    $p =~ s/\.$//
 	}
@@ -662,7 +662,7 @@ sub userCommands {
 	### REASON.
 	my $reason = $ircstats{'DisconnectReason'};
 	if (defined $reason) {
-	    $reply .= "  I was last disconnected for '$reason'.";
+	    $reply .= ".  I was last disconnected for '$reason'.";
 	}
 
 	&pSReply($reply);

@@ -167,7 +167,7 @@ sub CmdFactStats {
 	my $count;
 	my @list;
 	foreach $count (sort { $b <=> $a } keys %count) {
-	    my $author = join(", ", sort keys %{$count{$count}});
+	    my $author = join(", ", sort keys %{ $count{$count} });
 	    push(@list, "$count by $author");
 	}
 
@@ -246,11 +246,11 @@ sub CmdFactStats {
 	my $v;
 
 	foreach $v (keys %hash) {
-	    my $count = scalar(keys %{$hash{$v}});
+	    my $count = scalar(keys %{ $hash{$v} });
 	    next if ($count == 1);
 
 	    my @sublist;
-	    foreach (keys %{$hash{$v}}) {
+	    foreach (keys %{ $hash{$v} }) {
 		if ($v =~ /^<REPLY> see /i) {
 		    $refs++;
 		    next;
@@ -384,7 +384,7 @@ sub CmdFactStats {
 
 	my @list;
 	foreach (sort {$a <=> $b} keys %age) {
-	    push(@list, join(",", keys %{$age{$_}}));
+	    push(@list, join(",", keys %{ $age{$_} }));
 	}
 
 	my $prefix = "new factoids in the last 24hours ";
@@ -421,7 +421,7 @@ sub CmdFactStats {
 	    my @sublist;
 	    my $length;
 	    foreach $length (@length) {
-		foreach (keys %{$length{$length}}) {
+		foreach (keys %{ $length{$length} }) {
 		    if ($key{$_} =~ /^$val/i) {
 			s/([\,\;]+)/\037$1\037/g;
 			s/( and|and )/\037$1\037/g;
@@ -478,7 +478,7 @@ sub CmdFactStats {
 
 	my @newlist;
 	foreach $f (keys %redir) {
-	    my @sublist = keys %{$redir{$f}};
+	    my @sublist = keys %{ $redir{$f} };
 	    for (@sublist) {
 		s/([\,\;]+)/\037$1\037/g;
 	    }
@@ -533,7 +533,7 @@ sub CmdFactStats {
 	# work-around.
 	my %count;
 	foreach (keys %requester) {
-	    $count{$requester{$_}}{$_} = 1;
+	    $count{ $requester{$_} }{$_} = 1;
 	}
 	undef %requester;
 

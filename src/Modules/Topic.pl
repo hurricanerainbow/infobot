@@ -418,14 +418,14 @@ sub Topic {
 
   } elsif ($cmd =~ /^(history)$/i) {
     ### CMD: HISTORY:
-    if (!scalar @{$topic{$chan}{'History'}}) {
+    if (!scalar @{ $topic{$chan}{'History'} }) {
 	&msg($who, "Sorry, no topics in history list.");
 	return;
     }
 
     &msg($who, "History of topics on \002$chan\002:");
-    for (1 .. scalar @{$topic{$chan}{'History'}}) {
-	my $topic = ${$topic{$chan}{'History'}}[$_-1];
+    for (1 .. scalar @{ $topic{$chan}{'History'} }) {
+	my $topic = ${ $topic{$chan}{'History'} }[$_-1];
 	&msg($who, "  #\002$_\002: $topic");
 
 	# To prevent excess floods.
@@ -444,7 +444,7 @@ sub Topic {
 
     # following needs to be verified.
     if ($args =~ /^last$/i) {
-	if (${$topic{$chan}{'History'}}[0] eq $topic{$chan}{'Current'}) {
+	if (${ $topic{$chan}{'History'} }[0] eq $topic{$chan}{'Current'}) {
 	    &msg($who,"error: cannot restore last topic because it's mine.");
 	    return;
 	}
@@ -452,13 +452,13 @@ sub Topic {
     }
 
     if ($args =~ /\d+/) {
-	if ($args > $#{$topic{$chan}{'History'}} || $args < 1) {
+	if ($args > $#{ $topic{$chan}{'History'} } || $args < 1) {
 	    &msg($who, "error: argument is out of range.");
 	    return;
 	}
 
 	$_ = "Changing topic according to request.";
-	&topicNew($chan, ${$topic{$chan}{'History'}}[$args-1], $_, $topicUpdate);
+	&topicNew($chan, ${ $topic{$chan}{'History'} }[$args-1], $_, $topicUpdate);
 
 	return;
     }

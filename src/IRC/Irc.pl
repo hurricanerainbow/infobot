@@ -144,6 +144,11 @@ sub irc {
 	$conn->add_global_handler(376, \&on_endofmotd); # on_connect.
 	$conn->add_global_handler(433, \&on_nick_taken);
 	$conn->add_global_handler(439, \&on_targettoofast);
+	# for proper joinnextChan behaviour
+	$conn->add_global_handler(471, \&on_chanfull);
+	$conn->add_global_handler(473, \&on_inviteonly);
+	$conn->add_global_handler(474, \&on_banned);
+	$conn->add_global_handler(475, \&on_badchankey);
 
     # end of handler stuff.
 
@@ -300,7 +305,7 @@ sub DCCBroadcast {
 
     ### FIXME: flag not supported yet.
 
-    foreach (keys %{$dcc{'CHAT'}}) {
+    foreach (keys %{ $dcc{'CHAT'} }) {
 	$conn->privmsg($dcc{'CHAT'}{$_}, $txt);
     }
 }
@@ -385,7 +390,7 @@ sub dcc_close {
 
     foreach $type (keys %dcc) {
 	&FIXME("dcc_close: $who");
-	my @who = grep /^\Q$who\E$/i, keys %{$dcc{$type}};
+	my @who = grep /^\Q$who\E$/i, keys %{ $dcc{$type} };
 	next unless (scalar @who);
 	$who = $who[0];
     }
@@ -564,28 +569,24 @@ sub invite {
 
 # Usage: &joinNextChan();
 sub joinNextChan {
+    &DEBUG("joinNextChan called.");
+
     if (scalar @joinchan) {
-	my $chan = shift @joinchan;
+	$chan = shift @joinchan;
 	&joinchan($chan);
 
 	if (my $i = scalar @joinchan) {
 	    &status("joinNextChan: $i chans to join.");
 	}
-	return;
-    }
 
-    if (&IsParam("nickServ_pass") and $nickserv < 1) {
-	&WARN("jNC: nickserv/chanserv not up.") if (!$nickserv);
-	$nickserv--;
-    }
+	# chanserv check: channel specific.
+	&chanServCheck($chan);
 
-    my %chan = &getChanConfList("chanServ");
-    foreach $chan (keys %chan) {
-	next unless ($chan{$chan} > 0);
-	    
-	if (!exists $channels{$chan}{'o'}{$ident}) {
-	    &status("ChanServ ==> Requesting ops for $chan. (1)");
-	    &rawout("PRIVMSG ChanServ :OP $chan $ident");
+    } else {
+	# chanserv check: global channels, in case we missed one.
+
+	foreach ( &ChanConfList("chanServ_ops") ) {
+	    &chanServCheck($_);
 	}
     }
 }
@@ -596,7 +597,7 @@ sub GetNickInChans {
     my @array;
 
     foreach (keys %channels) {
-	next unless (grep /^\Q$nick\E$/i, keys %{$channels{$_}{''}});
+	next unless (grep /^\Q$nick\E$/i, keys %{ $channels{$_}{''} });
 	push(@array, $_);
     }
 
@@ -621,7 +622,7 @@ sub IsNickInChan {
 	return 0;
     }
 
-    if (grep /^\Q$nick\E$/i, keys %{$channels{$chan}{''}}) {
+    if (grep /^\Q$nick\E$/i, keys %{ $channels{$chan}{''} }) {
 	return 1;
     } else {
 	foreach (keys %channels) {
@@ -636,7 +637,7 @@ sub IsNickInAnyChan {
     my ($nick) = @_;
 
     foreach $chan (keys %channels) {
-	next unless (grep /^\Q$nick\E$/i, keys %{$channels{$chan}{''}});
+	next unless (grep /^\Q$nick\E$/i, keys %{ $channels{$chan}{''}  });
 	return 1;
     }
     return 0;
@@ -665,7 +666,7 @@ sub DeleteUserInfo {
     my ($mode,$chan);
 
     foreach $chan (@chans) {
-	foreach $mode (keys %{$channels{$chan}}) {
+	foreach $mode (keys %{ $channels{$chan} }) {
 	    # use grep here?
 	    next unless (exists $channels{$chan}{$mode}{$nick});
 
@@ -727,7 +728,7 @@ sub closeDCC {
     foreach $type (keys %dcc) {
 	next if ($type ne uc($type));
  
-	foreach $nick (keys %{$dcc{$type}}) {
+	foreach $nick (keys %{ $dcc{$type} }) {
 	    next unless (defined $nick);
 	    &DEBUG("closing DCC $type to $nick (FIXME).");
 	    next unless (defined $dcc{$type}{$nick});
@@ -746,7 +747,7 @@ sub joinfloodCheck {
     return unless (&IsChanConf("joinfloodCheck"));
 
     if (exists $netsplit{lc $who}) {	# netsplit join.
-	&DEBUG("jfC: $who was in netsplit; not checking.");
+	&DEBUG("joinfloodCheck: $who was in netsplit; not checking.");
     }
 
     if (exists $floodjoin{$chan}{$who}{Time}) {
@@ -784,7 +785,7 @@ sub joinfloodCheck {
 	}
     }
 
-    &DEBUG("jfC: $delete deleted.") if ($delete);
+    &DEBUG("joinfloodCheck: $delete deleted.") if ($delete);
 }
 
 sub getHostMask {
