@@ -611,6 +611,18 @@ sub userCommands {
 	return;
     }
 
+    # reload.
+    if ($message =~ /^reload$/i) {
+	return unless (&hasFlag("n"));
+
+	&status("USER reload $who");
+	&pSReply("reloading...");
+	&reloadAllModules();
+	&pSReply("reloaded.");
+
+	return;
+    }
+
     # redir.
     if ($message =~ /^redir(\s+(.*))?/i) {
 	return unless (&hasFlag("o"));
