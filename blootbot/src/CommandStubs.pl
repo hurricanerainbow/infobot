@@ -57,12 +57,17 @@ sub parseCmdHook {
 	    next;
 	}
 
-	&DEBUG("pCH(hooks_$hashname): $cmd matched $ident");
+	&status("hooks($hashname): $cmd matched '$ident'");
 	my %hash = %{ ${"hooks_$hashname"}{$ident} };
 
 	if (!scalar keys %hash) {
 	    &WARN("CmdHook: hash is NULL?");
 	    return 1;
+	}
+
+	if ($hash{NoArgs} and $flatarg) {
+	    &DEBUG("cmd $ident does not take args; skipping.");
+	    next;
 	}
 
 	if (!exists $hash{CODEREF}) {
@@ -72,7 +77,7 @@ sub parseCmdHook {
 
 	### DEBUG.
 	foreach (keys %hash) {
-	    &DEBUG(" $cmd->$_ => '$hash{$_}'.");
+	    &VERB(" $cmd->$_ => '$hash{$_}'.",2);
 	}
 
 	### HELP.
@@ -120,7 +125,7 @@ sub parseCmdHook {
 	    $cmdstats{ $hash{'Cmdstats'} }++;
 	}
 
-	&DEBUG("pCH: ended.");
+	&VERB("hooks: End of command.",2);
 
 	$done = 1;
     }
@@ -158,7 +163,7 @@ sub parseCmdHook {
 	'Forker' => 1, 'Identifier' => 'insult', 'Help' => "insult" ) );
 &addCmdHook("extra", 'kernel', ('CODEREF' => 'Kernel::Kernel',
 	'Forker' => 1, 'Identifier' => 'kernel',
-	'Cmdstats' => 'Kernel') );
+	'Cmdstats' => 'Kernel', 'NoArgs' => 1) );
 &addCmdHook("extra", 'listauth', ('CODEREF' => 'CmdListAuth',
 	'Identifier' => 'search', Module => 'factoids', 
 	'Help' => 'listauth') );

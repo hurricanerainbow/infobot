@@ -709,7 +709,7 @@ sub userDCC {
 	}
 
 	if (!defined $user) {
-	    &pSReply("user $user does not exist.");
+	    &pSReply("user does not exist.");
 	    return;
 	}
 

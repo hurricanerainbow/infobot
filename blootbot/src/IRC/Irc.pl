@@ -685,7 +685,7 @@ sub joinfloodCheck {
     return unless (&IsChanConf("joinfloodCheck"));
 
     if (exists $netsplit{lc $who}) {	# netsplit join.
-	&DEBUG("jfC: $who was in netsnipe; not checking.");
+	&DEBUG("jfC: $who was in netsplit; not checking.");
     }
 
     if (exists $floodjoin{$chan}{$who}{Time}) {

@@ -99,9 +99,8 @@ sub doStatement {
 	    }
 	}
 
-	if (&update($lhs, $mhs, $rhs)) {
-	    return;	# success.
-	}
+	# success.
+	return if (&update($lhs, $mhs, $rhs));
     }
 
     return "CONTINUE";

@@ -31,6 +31,7 @@ if ($@) {
 	"kernel"	=> "Kernel.pl",
 	"ircdcc"	=> "UserDCC.pl",
 	"perlMath"	=> "Math.pl",
+	"news"		=> "News.pl",
 	"quote"		=> "Quote.pl",
 	"rootwarn"	=> "RootWarn.pl",
 	"search"	=> "Search.pl",
@@ -46,8 +47,9 @@ if ($@) {
 	"nickometer"	=> "nickometer.pl",
 	"babelfish"	=> "babel.pl",
 );
+### THIS IS NOT LOADED ON RELOAD :(
 BEGIN {
-    @myModulesLoadNow	= ('topic', 'uptime',);
+    @myModulesLoadNow	= ('topic', 'uptime', 'news');
     @myModulesReloadNot	= ('IRC/Irc.pl','IRC/Schedulers.pl');
 }
 
@@ -187,7 +189,8 @@ sub loadMyModulesNow {
 	    next;
 	}
 
-	if (!&IsParam($_) and !&IsChanConf($_)) {
+	if (!&IsParam($_) and !&IsChanConf($_) and !&getChanConfList($_)) {
+	    &DEBUG("_ => $_");
 	    if (exists $myModules{$_}) {
 		&status("myModule: $myModules{$_} (1) not loaded.");
 	    } else {
@@ -201,7 +204,7 @@ sub loadMyModulesNow {
 	$loaded++;
     }
 
-    &status("Module: Loaded/Total [$loaded/$total]");
+    &status("Module: Runtime: Loaded/Total [$loaded/$total]");
 }
 
 ### rename to moduleReloadAll?

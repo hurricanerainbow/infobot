@@ -307,8 +307,8 @@ sub writeChanFile {
 	    }
 	}
 
-	&DEBUG("chans => ".scalar(keys %chanconf)." - 1");
 	foreach (keys %opts) {
+	    next unless ($opts{$_} > 1);
 	    &DEBUG("  opts{$_} => $opts{$_}");
 	}
 

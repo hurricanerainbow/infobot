@@ -16,6 +16,7 @@ sub setupSchedulers {
     # ONCE OFF.
 
     # REPETITIVE.
+    # 1 for run straight away, 2 for on next-run.
     &uptimeLoop(1);
     &randomQuote(2);
     &randomFactoid(2);
@@ -29,13 +30,14 @@ sub setupSchedulers {
     &ignoreCheck(1);	# mandatory
     &seenFlushOld(2);
     &ircCheck(1);	# mandatory
-    &miscCheck(2);	# mandatory
+    &miscCheck(1);	# mandatory
     &shmFlush(1);	# mandatory
     &slashdotLoop(2);
     &freshmeatLoop(2);
     &kernelLoop(2);
     &wingateWriteFile(2);
     &factoidCheck(2);
+    &newsFlush(1);
 
 #    my $count = map { exists $sched{$_}{TIME} } keys %sched;
     my $count	= 0;
@@ -279,6 +281,62 @@ sub seenFlushOld {
     }
     &VERB("SEEN deleted $delete seen entries.",2);
 
+}
+
+sub newsFlush {
+    if (@_) {
+	&ScheduleThis(1440, "newsFlush");
+	return if ($_[0] eq "2");	# defer.
+    } else {
+	delete $sched{"newsFlush"}{RUNNING};
+    }
+
+    return unless (&IsChanConf("news") > 0);
+
+    my $delete	= 0;
+    my $oldest	= time();
+    foreach $chan (keys %::news) {
+	foreach $item (keys %{ $::news{$chan} }) {
+	    my $t = $::news{$chan}{$item}{Expire};
+
+	    next if ($t == 0 or $t == -1);
+	    if ($t < 1000) {
+		&status("newsFlush: Fixed Expire time for $chan/$item, should not happen anyway.");
+		$::news{$chan}{$item}{Expire} = time() + $t*60*60*24;
+		next;
+	    }
+
+	    $oldest = $t if ($t < $oldest);
+
+	    next unless (time() > $t);
+	    # todo: show how old it was.
+	    &DEBUG("delete $chan/'$item'.");
+	    delete $::news{$chan}{$item};
+	    $delete++;
+	}
+    }
+
+    # todo: flush users aswell.
+    my $duser	= 0;
+    foreach $chan (keys %::newsuser) {
+	foreach (keys %{ $::newsuser{$chan} }) {
+	    my $t = $::newsuser{$chan}{$_};
+	    if (!defined $t or $t < 1000) {
+		&DEBUG("something wrong with newsuser{$chan}{$_} => $t");
+		next;
+	    }
+
+	    next unless ($oldest > $t);
+
+	    delete $::newsuser{$chan}{$_};
+	    $duser++;
+	}
+    }
+
+    &News::writeNews();
+
+#    &VERB("NEWS deleted $delete seen entries.",2);
+    &status("NEWS deleted $delete news entries; $duser user cache.");
 }
 
 sub chanlimitCheck {
@@ -562,6 +620,7 @@ sub ircCheck {
     }
 
     if (!$conn->connected or time - $msgtime > 3600) {
+	# todo: shouldn't we use cache{connect} somewhere?
 	if (exists $cache{connect}) {
 	    &WARN("ircCheck: no msg for 3600 and disco'd! reconnecting!");
 	    $msgtime = time();	# just in case.
@@ -645,7 +704,7 @@ sub miscCheck {
 
 	} else {
 	    &DEBUG("shm: $shmid is not ours or old blootbot => ($z)");
-	    next;
+#	    next;
 	}
 
 	&status("SHM: nuking shmid $shmid");
