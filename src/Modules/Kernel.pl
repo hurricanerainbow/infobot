@@ -8,7 +8,7 @@
 package Kernel;
 
 sub kernelGetInfo {
-    return &getURL("http://www.kernel.org/kdist/finger_banner");
+    return &::getURL("http://www.kernel.org/kdist/finger_banner");
 }
 
 sub Kernel {
