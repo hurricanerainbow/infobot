@@ -234,6 +234,11 @@ sub dbReplace {
 	}
     }
 
+    if (0) {
+	&DEBUG("REPLACE INTO $table (".join(',',@keys).
+		") VALUES (". join(',',@vals). ")" );
+    }
+
     &dbRaw("Replace($table)", "REPLACE INTO $table (".join(',',@keys).
 		") VALUES (". join(',',@vals). ")"
     );

@@ -271,11 +271,6 @@ sub process {
     ### bot commands...
     ###
 
-    if ($message =~ s/^literal\s+//i) {
-	&status("literal ask of '$message'.");
-	$literal = 1;
-    }
-
     # karma. set...
     if ($message =~ /^(\S+)(--|\+\+)\s*$/ and $addressed) {
 	return '' unless (&hasParam("karma"));

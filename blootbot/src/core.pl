@@ -268,23 +268,30 @@ sub IsChanConf {
 #  About: Retrieve value for 'param' value in current/default chan.
 # Return: scalar for success, undef for failure.
 sub getChanConf {
-    my($param,$chan)	= @_;
+    my($param,$c)	= @_;
 
     if (!defined $param) {
 	&WARN("param == NULL.");
 	return 0;
     }
 
-    $chan	||= "_default";
-    my @c	= grep /^$chan$/i, keys %chanconf;
+    # this looks evil... 
+    if (0 and !defined $chan) {
+	&DEBUG("gCC: ok !chan... doing _default instead.");
+    }
+
+    $c		||= $chan;
+    $c		||= "_default";
+    my @c	= grep /^$c$/i, keys %chanconf;
 
     if (@c) {
-	if ($c[0] ne $chan) {
+	if (0 and $c[0] ne $c) {
 	    &WARN("c ne chan ($c[0] ne $chan)");
 	}
 	return $chanconf{$c[0]}{$param};
     }
 
+#    &DEBUG("gCC: returning _default... ");
     return $chanconf{"_default"}{$param};
 }
 

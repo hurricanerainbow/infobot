@@ -356,7 +356,7 @@ sub tell {
 	$message	= $tell_obj;
 	$done++ unless (&Modules());
 
-	&VERB("teel: setting old values of who and msgType.",2);
+	&VERB("tell: setting old values of who and msgType.",2);
 	$who		= $oldwho;
 	$msgType	= $oldmtype;
 
@@ -390,6 +390,7 @@ sub DNS {
     my $dns = shift;
     my($match, $x, $y, $result);
     my $pid;
+    $dns =~ s/^\s+|\s+$//g;
 
     if ($dns =~ /(\d+\.\d+\.\d+\.\d+)/) {
 	&status("DNS query by IP address: $in");
@@ -406,11 +407,11 @@ sub DNS {
 
     } else {
 
-	&status("DNS query by name: $in");
-	$x = join('.',unpack('C4',(gethostbyname($in))[4]));
+	&status("DNS query by name: $dns");
+	$x = join('.',unpack('C4',(gethostbyname($dns))[4]));
 
 	if ($x !~ /^\s*$/) {
-	    $result = $in." is ".$x;
+	    $result = $dns." is ".$x;
 	} else {
 	    $result = "I can\'t find that machine name";
 	}
