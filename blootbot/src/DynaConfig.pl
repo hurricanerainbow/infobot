@@ -217,7 +217,7 @@ sub writeUserFile {
     $wtime_userfile = time();
     &status("--- Saved USERFILE ($cusers users; $cbans bans; $cignore ignore) at $time");
     if (defined $msgType and $msgType =~ /^chat$/) {
-	&performStrictReply("--- Writing user file...");
+	&pSReply("--- Writing user file...");
     }
 }
 
@@ -249,7 +249,8 @@ sub readChanFile {
     while (<IN>) {
 	chop;
 
-	next if /^$/;
+	next if /^\s*$/;
+	next if /^\// or /^\;/;	# / or ; are comment lines.
 
 	if (/^(\S+)\s*$/) {
 	    $chan	= $1;
@@ -279,7 +280,8 @@ sub readChanFile {
     ### TODO: check against valid params.
     foreach $chan (keys %chanconf) {
 	foreach (keys %{ $chanconf{$chan} }) {
-	    next unless (/^[+-]/);
+	    next unless /^[+-]/;
+
 	    &WARN("invalid param: chanconf{$chan}{$_}; removing.");
 	    delete $chanconf{$chan}{$_};
 	    undef $chanconf{$chan}{$_};
@@ -320,6 +322,7 @@ sub writeChanFile {
 		next if ($chan eq "_default");
 		next unless (exists $chanconf{$chan}{$opt});
 		next unless ($val eq $chanconf{$chan}{$opt});
+
 		push(@chans,$chan);
 		delete $chanconf{$chan}{$opt};
 	    }
@@ -387,7 +390,7 @@ sub writeChanFile {
 		" chans) at $time");
 
     if (defined $msgType and $msgType =~ /^chat$/) {
-	&performStrictReply("--- Writing chan file...");
+	&pSReply("--- Writing chan file...");
     }
 }
 
@@ -489,7 +492,7 @@ sub hasFlag {
 	return 1;
     } else {
 	&status("DCC CHAT: <$who> $message -- not enough flags.");
-	&performStrictReply("error: you do not have enough flags for that. ($flag required)");
+	&pSReply("error: you do not have enough flags for that. ($flag required)");
 	return 0;
     }
 }

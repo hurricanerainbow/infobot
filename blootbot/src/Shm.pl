@@ -12,6 +12,11 @@ sub openSHM {
     my $IPC_PRIVATE = 0;
     my $size = 2000;
 
+    if (&IsParam("noSHM")) {
+	&status("Created shared memory: disabled. [bot may become  unreliable]");
+	return 0;
+    }
+
     if (defined( $_ = shmget($IPC_PRIVATE, $size, 0777) )) {
 	&status("Created shared memory (shm) key: [$_]");
 	return $_;
@@ -39,6 +44,8 @@ sub shmRead {
     my $size = 3*80;
     my $retval = '';
 
+    return '' if (&IsParam("noSHM"));
+
     if (shmread($key,$retval,$position,$size)) {
 	return $retval;
     } else {
@@ -53,6 +60,8 @@ sub shmWrite {
     my ($key, $str) = @_;
     my $position = 0;
     my $size = 80*3;
+
+    return if (&IsParam("noSHM"));
 
     # NULL hack.
     ### TODO: create shmClear to deal with this.

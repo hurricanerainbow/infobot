@@ -215,6 +215,9 @@ sub parseCmdHook {
 	'Identifier' => 'freshmeat', 'Cmdstats' => 'Freshmeat',
 	'Forker' => 1, 'Help' => 'freshmeat') );
 &addCmdHook("extra", 'verstats', ('CODEREF' => 'do_verstats' ) );
+&addCmdHook("extra", 'weather', ('CODEREF' => 'Weather::Weather',
+	'Identifier' => 'weather', 'Help' => 'weather',
+	'Cmdstats' => 'Weather') );
 
 ###
 ### END OF ADDING HOOKS.
@@ -529,7 +532,7 @@ sub Modules {
 	    $reply .= ".  Started the scan ".&Time2String(time() - $wingaterun)." ago";
 	}
 
-	&performStrictReply("$reply.");
+	&pSReply("$reply.");
 
 	return;
     }
@@ -781,7 +784,7 @@ sub DebianNew {
     }
     close IDX1;
 
-    &::performStrictReply( &::formListReply(0, "New debian packages:", @new) );
+    &::pSReply( &::formListReply(0, "New debian packages:", @new) );
 }
 
 sub do_verstats {

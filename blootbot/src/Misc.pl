@@ -66,7 +66,7 @@ sub help {
 
     if (exists $help{$topic}) {
 	foreach (split /\n/, $help{$topic}) {
-	    &performStrictReply($_);
+	    &pSReply($_);
 	}
     } else {
 	&pSReply("no help on $topic.  Use 'help' without arguments.");
@@ -200,9 +200,9 @@ sub fixFileList {
 
     # generate a hash list.
     foreach (@files) {
-	if (/^(.*\/)(.*?)$/) {
-	    $files{$1}{$2} = 1;
-	}
+	next unless /^(.*\/)(.*?)$/;
+
+	$files{$1}{$2} = 1;
     }
     @files = ();	# reuse the array.
 

@@ -240,7 +240,7 @@ sub process {
 
 	# customized random message.
 	my $tmp = (rand() < 0.5) ? ", $who" : "";
-	&performStrictReply(&getRandom(keys %{ $lang{'hello'} }) . $tmp);
+	&pSReply( &getRandom(keys %{ $lang{'hello'} }) . $tmp );
 	return;
     }
 
@@ -262,7 +262,7 @@ sub process {
 	&status("random praise detected");
 
 	my $tmp = (rand() < 0.5) ? "thanks $who " : "";
-	&performStrictReply($tmp.":)");
+	&pSReply($tmp.":)");
 
 	return;
     }
