@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 # irclog2html.pl Version 1.5 - 11th May 2000
 # Copyright (C) 2000, Jeffrey W. Waugh
@@ -188,9 +188,9 @@ sub html_rgb
 	my $rgbmin = 240;
 
 	my $a = 0.95;			# tune these for the starting and ending concentrations of R,G,B
-	my $b = 0.5;
+	my $c = 0.5;
 
-	my $rgb = [ [$a,$b,$b], [$b,$a,$b], [$b,$b,$a], [$a,$a,$b], [$a,$b,$a], [$b,$a,$a] ];
+	my $rgb = [ [$a,$c,$c], [$c,$a,$c], [$c,$c,$a], [$a,$a,$c], [$a,$c,$a], [$c,$a,$a] ];
 	my $n = $i % @$rgb;
 	my $m = $rgbmin + ($rgbmax - $rgbmin) * ($ncolours - $i) / $ncolours;
 
@@ -226,8 +226,9 @@ sub main {
 
 		if (!$line eq "") {
 
+
 			# parse out the time
-			if ($line =~ s/^([0-9:\.]*) (.*)$/\2/) {
+			if ($line =~ s/^([0-9:\.]*) (.*)$/$2/) {
 				$time = $1;
 			} else {
 				$time = "";
@@ -256,6 +257,7 @@ sub main {
 
 				$text = $line;
 				$text =~ s/^&lt\;.*?&gt\; (.*)$/$1/;
+				$text =~ s/^ .*/&lt\;PROTECTED&gt\;/g;
 				$text =~ s/  /&nbsp\;&nbsp\;/g;
 
 				$htmlcolour = $colour_nick{$nick};
