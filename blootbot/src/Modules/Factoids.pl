@@ -225,7 +225,7 @@ sub CmdFactStats {
 
 	my @newlist;
 	foreach $f (keys %redir) {
-	    my @sublist = keys %{$redir{$f}};
+	    my @sublist = keys %{ $redir{$f} };
 	    for (@sublist) {
 		s/([\,\;]+)/\037$1\037/g;
 	    }
@@ -494,15 +494,18 @@ sub CmdFactStats {
 
 	my $count;
 	my @list;
+	my $total	= 0;
 	foreach $count (sort {$b <=> $a} keys %hash) {
-	    my @faqtoids = sort keys %{$hash{$count}};
+	    my @faqtoids = sort keys %{ $hash{$count} };
 
 	    for (@faqtoids) {
 		s/([\,\;]+)/\037$1\037/g;
 	    }
+	    $total	+= $count * scalar(@faqtoids);
 
 	    push(@list, "$count - ". join(", ", @faqtoids));
 	}
+	unshift(@list, "\037$total - TOTAL\037");
 
 	my $prefix = "factoid statistics on $type ";
 	return &formListReply(0, $prefix, @list);
@@ -531,10 +534,17 @@ sub CmdFactStats {
 
 	my $count;
 	my @list;
+	my $total	= 0;
+	my $users	= 0;
 	foreach $count (sort { $b <=> $a } keys %count) {
-	    my $requester = join(", ", sort keys %{$count{$count}});
+	    my $requester = join(", ", sort keys %{ $count{$count} });
+	    $total	+= $count * scalar(keys %{ $count{$count} });
+	    $users	+= scalar(keys %{ $count{$count} });
 	    push(@list, "$count by $requester");
 	}
+	unshift(@list, "\037$total TOTAL REQUESTS; $users UNIQUE REQUESTERS\037");
+	# should not the above value be the same as collected by
+	# 'requested'? soemthing weird is going on!
 
 	my $prefix = "rank of top factoid requesters: ";
 	return &formListReply(0, $prefix, @list);
@@ -550,21 +560,22 @@ sub CmdFactStats {
 	for (@list) {
 	    my $factoid = $_;
 	    my $val = &getFactInfo($factoid, "factoid_value");
-	    if ($val =~ /^see( also)? (.*?)\.?$/i) {
-		my $redirf = lc $2;
-		my $redir = &getFactInfo($redirf, "factoid_value");
+	
+	    next unless ($val =~ /^see( also)? (.*?)\.?$/i);
 
-		if ($redirf =~ /^\Q$factoid\W$/i) {
-		    &delFactoid($factoid);
-		    $loop{$factoid} = 1;
-		}
+	    my $redirf	= lc $2;
+	    my $redir	= &getFactInfo($redirf, "factoid_value");
 
-		if (defined $redir) {	# good.
-		    &setFactInfo($factoid,"factoid_value","<REPLY> see $redir");
-		    $fixed++;
-		} else {
-		    push(@newlist, $redirf);
-		}
+	    if ($redirf =~ /^\Q$factoid\W$/i) {
+		&delFactoid($factoid);
+		$loop{$factoid} = 1;
+	    }
+
+	    if (defined $redir) {	# good.
+		&setFactInfo($factoid,"factoid_value","<REPLY> see $redir");
+		$fixed++;
+	    } else {
+		push(@newlist, $redirf);
 	    }
 	}
 
