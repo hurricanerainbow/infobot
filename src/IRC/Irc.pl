@@ -262,8 +262,8 @@ sub action {
     rawout($rawout);
 }
 
-# Usage: &action(nick || chan, txt);
-sub notice{
+# Usage: &notice(nick || chan, txt);
+sub notice {
     my ($target, $txt) = @_;
     if (!defined $txt) {
 	&DEBUG("action: txt == NULL.");
@@ -271,6 +271,25 @@ sub notice{
     }
 
     &status("-$target- $txt");
+
+    my $t	= time();
+
+    if ($t == $nottime) {
+	$notcount++;
+	$notsize += length $txt;
+
+	if ($notcount % 4 and $notcount) {
+	    sleep 1;
+	} elsif ($notsize > 1500) {
+	    sleep 1;
+	    $notsize -= 1500;
+	}
+
+    } else {
+	$notcount	= 0;
+	$nottime	= $t;
+	$notsize	= length $msg;
+    }
 
     $conn->notice($target, $txt);
 }

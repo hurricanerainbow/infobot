@@ -21,6 +21,7 @@ use vars qw(
 	$utime_chanfile	$wtime_chanfile	$ucount_chanfile
 	$pubsize $pubcount $pubtime $pubsleep
 	$msgsize $msgcount $msgtime $msgsleep
+	$notsize $notcount $nottime $notsleep
 );
 
 # dynamic hash.
@@ -62,6 +63,9 @@ $msgcount	= $msgsleep	= 0;
 $pubtime	= 0;
 $pubsize	= 0;
 $pubcount	= $pubsleep	= 0;
+$nottime	= 0;
+$notsize	= 0;
+$notcount	= $notsleep	= 0;
 ###
 $bot_version	= "blootbot cvs (20010214) -- $^O";
 $noreply	= "NOREPLY";

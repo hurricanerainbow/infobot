@@ -643,8 +643,6 @@ sub userCommands {
 	    $p =~ s/\.$//
 	}
 
-	&DEBUG("connectivity => $p %");
-
 	if ($total_time != (time() - $ircstats{'ConnectTime'}) ) {
 	    my $tt_format = &Time2String($total_time);
 	    &DEBUG("tt_format => $tt_format");
@@ -657,7 +655,8 @@ sub userCommands {
 	} else {
 	    $reply = "Currently I'm hooked up to $ircstats{'Server'} but only".
 		" for $format_time.  ".
-		"I had to reconnect \002$count\002 times.";
+		"I had to reconnect \002$count\002 times.".
+		"   Connectivity: $p %";
 	}
 
 	### REASON.
