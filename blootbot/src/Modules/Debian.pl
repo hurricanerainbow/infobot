@@ -170,12 +170,6 @@ sub searchContents {
 
     $query =~ s/\\([\^\$])/$1/g;	# hrm?
     $query =~ s/^\s+|\s+$//g;
-    ### EGREP DOES NOT SUPPORT THIS TYPE OF EXPRESSION!!!
-###    $query =~ s/\*/\\S*/g;
-    if ($query =~ /\*/) {
-	&main::msg($main::who, "We don't support * yet.");
-	return;
-    }
 
     if (!&main::validExec($query)) {
 	&main::msg($main::who, "search string looks fuzzy.");
@@ -199,19 +193,22 @@ sub searchContents {
 
     my $found = 0;
     my %contents;
-    my $search;
+    my $grepRE;
     my $front = 0;
     ### TODO: search properly if /usr/bin/blah is done.
     if ($query =~ s/\$$//) {
 	&main::DEBUG("search-regex found.");
-	$search = "$query\[ \t]";
+	$grepRE = "$query\[ \t]";
     } elsif ($query =~ s/^\^//) {
 	&main::DEBUG("front marker regex found.");
 	$front = 1;
-	$search = $query;
+	$grepRE = $query;
     } else {
-	$search = "$query.*\[ \t]";
+	$grepRE = "$query.*\[ \t]";
     }
+
+    ### fix up grepRE for "*".
+    $grepRE =~ s/\*/\.\*/g;
 
     my @files;
     foreach (keys %urlcontents) {
@@ -229,8 +226,8 @@ sub searchContents {
 
     my $files = join(' ', @files);
 
-    &main::status("search regex => '$search'.");
-    open(IN,"zegrep -h '$search' $files |");
+    &main::status("search regex => '$grepRE'.");
+    open(IN,"zegrep -h '$grepRE' $files |");
     while (<IN>) {
 	if (/^\.?\/?(.*?)[\t\s]+(\S+)\n$/) {
 	    my ($file,$package) = ("/".$1,$2);
@@ -263,11 +260,7 @@ sub searchContents {
 	    return;
 	}
 
-	if (! -d "Temp/") {
-	    mkdir("Temp",0755);
-	}
-
-	my $file = "temp/$main::who.txt";
+	my $file = "$main::param{tempDir}/$main::who.txt";
 	if (!open(OUT,">$file")) {
 	    &main::ERROR("Debian: cannot write file for dcc send.");
 	    return;
@@ -840,6 +833,11 @@ sub generateIndex {
 	    &main::DEBUG("gIndex: calling generateIncoming()!");
 	    &generateIncoming();
 	    next;
+	}
+
+	if (/^woody$/i) {
+	    &main::DEBUG("Copying old index of woody to -old");
+	    system("cp $idx $idx-old");
 	}
 
 	&main::DEBUG("gIndeX: calling DebianDownload($dist, ...).");
