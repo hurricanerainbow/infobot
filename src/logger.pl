@@ -13,8 +13,6 @@ use vars qw($logDate $logold $logcount $logtime $logrepeat $running);
 use vars qw(@backlog);
 use vars qw(%param %file %cache);
 
-require 5.001;
-
 $logtime	= time();
 $logcount	= 0;
 $logrepeat	= 0;
@@ -190,31 +188,31 @@ sub status {
     my $status;
 
     # a way to hook onto status without looping.
-    # todo: find why $channels{undef} is created.
+    # todo: find why $channels{} is created.
     if (0 and $running and !$cache{statusSafe}) {
 	&ircCheck();
     }
 
     if ($input eq $logold) {
 	# allow perl flooding
-	$logrepeat++ unless ($input =~ /PERL: Use of uninitialized/);
-
-	# todo: prevent massive repetitive throttling.
-	if ($logrepeat >= 3) {
-	    $logrepeat = 0;
-	    &status("LOG: repeat throttle.");
-	    # we block it to ensure sequence of logging is intact.
-	    # could go with $conn->schedule but that's evil :)
-	    sleep 1;
+	if ($input !~ /PERL: Use of uninitialized/) {
+	    $logrepeat++;
+	    return;
 	}
     } else {
 	$logold = $input;
+
+	# if only I had followed how sysklogd does it, heh. lame me. -xk
+	if ($logrepeat >= 3) {
+	    &status("LOG: last message repeated $logrepeat times");
+	    $logrepeat = 0;
+	}
     }
 
     # if it's not a scalar, attempt to warn and fix.
     my $ref = ref $input;
     if (defined $ref and $ref ne "") {
-	&status("status: 'input' is not scalar ($ref).");
+	&WARN("status: 'input' is not scalar ($ref).");
 
 	if ($ref eq "ARRAY") {
 	    foreach (@$input) {
@@ -235,7 +233,7 @@ sub status {
 
     # does this work?
     if ($input =~ /\n/) {
-	foreach (split(/\n/, $input)) {
+	foreach (split /\n/, $input) {
 	    &status($_);
 	}
     }
@@ -254,12 +252,13 @@ sub status {
     my $time	= time();
     my $reset	= 0;
 
+    # hrm... what is this supposed to achieve? nothing I guess.
     if ($logtime == $time) {
 	if ($logcount < 25) {			# too high?
 	    $logcount++;
 	} else {
 	    sleep 1;
-	    &status("LOG: Throttling.");	# recursive?
+	    &status("LOG: Throttling.");
 	    $reset++;
 	}
     } else {	# $logtime != $time.
@@ -316,22 +315,28 @@ sub status {
 	} elsif ($printable =~ s/^\* (\S+)\/(\S+) //) {
 	    # public action.
 	    print "$b_white*$ob $b_cyan$1$ob/$b_blue$2$ob $printable\n";
+
 	} elsif ($printable =~ s/^(-\S+-) //) {
 	    # notice
 	    print "$_green$1 $printable$ob\n";
+
 	} elsif ($printable =~ s/^(\* )?(\[\S+\]) //) {
 	    # message/private action from someone
 	    print "$b_white$1$ob" if (defined $1);
 	    print "$b_red$2 $printable$ob\n";
+
 	} elsif ($printable =~ s/^(>\S+<) //) {
 	    # i'm messaging someone
 	    print "$b_magenta$1 $printable$ob\n";
+
 	} elsif ($printable =~ s/^(enter:|update:|forget:) //) {
 	    # something that should be SEEN
 	    print "$b_green$1 $printable$ob\n";
+
 	} else {
 	    print "$printable\n";
 	}
+
     } else {
 	#print "VERBOSITY IS OFF?\n";
     }
@@ -340,7 +345,7 @@ sub status {
     return unless (&IsParam("logfile"));
     return unless (defined fileno LOG);
 
-    # remove control characters from logging.
+    # remove control characters from logging to LOGFILE.
     for ($input) {
 	s/\e\[[0-9;]+m//g;	# escape codes.
 	s/[\cA-\c_]//g;		# control chars.
