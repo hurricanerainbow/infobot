@@ -66,7 +66,7 @@ sub queryText {
 	my $content = $response->content;
 
 	if ($content =~ /No entries found/im) {
-		return "$result No results were found searching ZFI for '$query'.";
+		return "No results were found searching ZFI for '$query'.";
 	}
 
 	my $res_count = 0; #local counter
@@ -75,7 +75,7 @@ sub queryText {
 	my @lines = split(/\n/,$content);
 
 	my $result = '';
-	foreach $line(@lines) {
+	foreach my $line (@lines) {
 		if (length($line) > 10) {
 			my ($name, $href, $desc) = split(/\|/,$line);
 
