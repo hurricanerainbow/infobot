@@ -406,11 +406,12 @@ sub IsHostMatch {
 sub isStale {
     my ($file, $age) = @_;
 
+    &DEBUG("isStale: $file does not exist") unless ( -f $file);
     return 1 unless ( -f $file);
     return 1 if (time() - (stat($file))[8] > $age*60*60*24);
     my $delta = time() - (stat($file))[8];
     my $hage  = $age*60*60*24;
-    &DEBUG("isStale: not stale! $delta < $hage ($age) ?");
+    &DEBUG("isStale: not stale! $delta < $hage");
     return 0;
 }
 
