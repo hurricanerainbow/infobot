@@ -2,18 +2,15 @@ INSTALL.patches
 -------------------
 
 - apply *.patch patches inside patches/
-	- cd /usr/lib/perl5/Net
-	  patch -p0 < Net::IRC.patch
 	- cd /usr/lib/perl5/WWW/Search
 	  patch -p0 < WWW::Search::Google.patch
 
 - alternatively, move the files from patches/
 	- mv patches/Google.pm /usr/lib/perl5/WWW/Search/
 
-UPDATE
+Net::IRC DCC CHAT
 ----------------------
-you now not need to patch Net::IRC for the forking patch, it's done
-inside the bot code.  Unfortunately, Net::IRC 0.70 has buggy code that
-does not detect DCC CHAT properly.  To fix the problems identified,
-download the debs (convert to tarball if on non-debian system) from:
-http://nyip.net/~apt/
+Unfortunately, Net::IRC 0.70 has buggy code that does not detect DCC CHAT
+properly. to patch:
+	cd /usr/share/perl5/Net/IRC/
+	cat ~bot/patches/Net_IRC_Connection_pm.patch | patch -p0
