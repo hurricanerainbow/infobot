@@ -67,7 +67,7 @@ sub Kernel {
 }
 
 sub kernelAnnounce {
-    my $file = "$main::bot_base_dir/Temp/kernel.txt";
+    my $file = "$main::param{tempDir}/kernel.txt";
     my @now  = &kernelGetInfo();
     my @old;
 
