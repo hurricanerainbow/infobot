@@ -187,7 +187,7 @@ sub readNews {
 }
 
 sub writeNews {
-    if (!scalar keys %::news) {
+    if (!scalar keys %::news and !scalar keys %::newsuser) {
 	&::DEBUG("wN: nothing to write.");
 	return;
     }
@@ -534,7 +534,6 @@ sub set {
 
     &::DEBUG("item => '$item'.");
     my $news = &getNewsItem($item);
-    &::DEBUG("news => '$news'");
 
     if (!defined $news) {
 	&::notice($::who, "Could not find item '$item' substring or # in news list.");
@@ -690,7 +689,13 @@ sub latest {
 
 	# don't list new items if they don't have Text.
 	if (!exists $::news{$chan}{$_}{Text}) {
-	    &::WARN("news: news{$chan}{$_}{Text} undef.");
+	    if (time() - $::news{$chan}{$_}{Time} > 60*60*24*3) {
+		&::DEBUG("deleting news{$chan}{$_} because it was too old and had no text info.");
+		delete $::news{$chan}{$_};
+	    } else {
+		&::WARN("news: news{$chan}{$_}{Text} undef.");
+	    }
+
 	    next;
 	}
 
@@ -851,9 +856,8 @@ sub getNewsItem {
 	    return;
 	}
 
-	&::DEBUG("gNI: part_string->full_string: $what->$items[0]");
 	if (@items) {
-	    &::DEBUG("gNI: Guessed '$items[0]'.");
+	    &::DEBUG("gNI: part_string->full_string: $what->$items[0]");
 	    return $items[0];
 	} else {
 	    &::DEBUG("gNI: No match.");

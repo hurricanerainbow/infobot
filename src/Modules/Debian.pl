@@ -935,7 +935,7 @@ sub validPackage {
     }
     close IN;
 
-    &::DEBUG("vP: scanned $count items in index.");
+    &::VERB("vP: scanned $count items in index.",2);
 
     return @files;
 }
@@ -1015,15 +1015,16 @@ sub getDistro {
     }
 
     if (exists $dists{$dist}) {
-	&::DEBUG("gD: returning dists{$dist} ($dists{$dist})");
+	&::VERB("gD: returning dists{$dist} ($dists{$dist})",2);
 	return $dists{$dist};
+
     } else {
 	if (!grep /^\Q$dist\E$/i, %dists) {
 	    &::msg($::who, "invalid dist '$dist'.");
 	    return;
 	}
 
-	&::DEBUG("gD: returning $dist (no change or conversion)");
+	&::VERB("gD: returning $dist (no change or conversion)",2);
 	return $dist;
     }
 }

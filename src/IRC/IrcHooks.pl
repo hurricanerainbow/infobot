@@ -130,9 +130,8 @@ sub on_chat {
 sub on_endofmotd {
     my ($self) = @_;
 
-    # what's the following for?
-    $ident			= $param{'ircNick'};
     # update IRCStats.
+    $ident	||= $param{'ircNick'};	# hack.
     $ircstats{'ConnectTime'}	= time();
     $ircstats{'ConnectCount'}++;
     $ircstats{'OffTime'}	+= time() - $ircstats{'DisconnectTime'}
@@ -627,35 +626,34 @@ sub on_nick {
     }
     # todo: do %flood* aswell.
 
-    &DeleteUserInfo($nick,keys %channels);
+    &DeleteUserInfo($nick, keys %channels);
     $nuh{lc $newnick} = $nuh{lc $nick};
     delete $nuh{lc $nick};
 
-    # successful self-nick change.
-    &DEBUG("on_nick... nick => $nick, ident => $ident");
-    if ($ident eq "$nick-" or "$ident-" eq $nick) {
-	&DEBUG("on_nick: well... we need this bug fixed.");
-	&DEBUG("ident => $ident");
-	&DEBUG("nick => $nick");
-	$ident = $newnick;
-    }
-
     if ($nick eq $ident) {
 	&status(">>> I materialized into $b_green$newnick$ob from $nick");
-	$ident = $newnick;
+	$ident	= $newnick;
     } else {
 	&status(">>> $b_cyan$nick$ob materializes into $b_green$newnick$ob");
+
+	if ($nick =~ /^\Q$param{'ircNick'}\E$/i) {
+	    &getNickInUse();
+	}
     }
 }
 
 sub on_nick_taken {
-    my ($self) = @_;
-    my $nick = $self->nick;
-    my $newnick = substr($nick,0,7)."-";
+    my ($self)	= @_;
+    my $nick	= $self->nick;
+    my $newnick = $nick."-";
 
-    &status("nick taken; changing to temporary nick ($nick -> $newnick).");
-    &nick($newnick);
-    &getNickInUse(1);
+    &status("nick taken ($nick); preparing nick change.");
+
+    $self->whois($nick);
+    $conn->schedule(5, sub {
+	&status("nick taken; changing to temporary nick ($nick -> $newnick).");
+	&nick($newnick);
+    } );
 }
 
 sub on_notice {
@@ -766,26 +764,14 @@ sub on_public {
     # todo: move this out of hookMsg to here?
     ($user,$host) = split(/\@/, $uh);
 
+    # rare case should this happen - catch it just in case.
     if ($bot_pid != $$) {
 	&ERROR("run-away fork; exiting.");
 	&delForked($forker);
     }
 
-    ### DEBUGGING.
-    if ($statcount < 200) {
-	foreach $chan (grep /[A-Z]/, keys %channels) {
-	    &DEBUG("leak: chan => '$chan'.");
-	    my ($i,$j);
-	    foreach $i (keys %{ $channels{$chan} }) {  
-		foreach (keys %{ $channels{$chan}{$i} }) {
-		    &DEBUG("leak:   \$channels{$chan}{$i}{$_} ...");
-		}
-	    }
-	}
-    }
-
-    $msgtime = time();
-    $lastWho{$chan} = $nick;
+    $msgtime		= time();
+    $lastWho{$chan}	= $nick;
     ### TODO: use $nick or lc $nick?
     if (&IsChanConf("seenStats")) {
 	$userstats{lc $nick}{'Count'}++;
@@ -841,6 +827,7 @@ sub on_quit {
     if ($reason =~ /^($mask{host})\s($mask{host})$/) {	# netsplit.
 	$reason = "NETSPLIT: $1 <=> $2";
 
+	# chanlimit code.
 	if (&ChanConfList("chanlimitcheck") and !scalar keys %netsplit) {
 	    &DEBUG("on_quit: netsplit detected; disabling chan limit.");
 	    &rawout("MODE $chan -l");

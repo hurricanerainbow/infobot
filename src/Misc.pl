@@ -456,8 +456,6 @@ sub isStale {
 	&DEBUG("stale: $age2. (". &Time2String($age2) .")");
     }
     $age *= 60*60*24 if ($age >= 0 and $age < 30);
-    &DEBUG("age = $age");
-    &DEBUG("... = ".(stat $file)[9] );
 
     return 1 if (time() - (stat($file))[9] > $age);
     return 0;

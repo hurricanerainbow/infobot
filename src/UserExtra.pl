@@ -157,7 +157,7 @@ sub chaninfo {
 
     my($count) = (sort { $b <=> $a } keys %new)[0];
     if ($count) {
-	$reply .= ".  \002$new{$count}\002 has said the most with a total of \002$count\002 messages";
+	$reply .= ".  \002$count\002 has said the most with a total of \002$new{$count}\002 messages";
     }
     &pSReply("$reply.");
 }
