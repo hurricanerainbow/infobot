@@ -1262,8 +1262,6 @@ sub on_useronchan {
 
 # TODO not used yet
 sub on_stdin {
-    &FIXME("on_stdin");
-
     my $line = <STDIN>;
     chomp($line);
     &FIXME("on_stdin: line => \"$line\"");
