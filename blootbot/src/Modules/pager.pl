@@ -39,6 +39,9 @@ sub pager::page {
 	my $to = $1;
 	my $msg = $2;
 
+	# allow optional trailing : ie: page foo[:] hello
+	$to =~ s/:$//;
+
 	my $tofactoid = &::getFactoid("${to}'s pager");
 	if ($tofactoid =~ /(\S+@\S+)/) {
 		my $toaddr = $1;
@@ -64,12 +67,12 @@ sub pager::page {
 			'X-Mailer' => "blootbot",
 		);
 
-		#my $logmsg;
-		#for (keys %headers) {
-		#	$logmsg .= "$_: $headers{$_}\n";
-		#}
-		#$logmsg .= "\n$msg\n";
-		#&main::status("pager:\n$logmsg");
+#		my $logmsg;
+#		for (keys %headers) {
+#			$logmsg .= "$_: $headers{$_}\n";
+#		}
+#		$logmsg .= "\n$msg\n";
+#		&main::status("pager:\n$logmsg");
 
 		my $failed;
 		my $mailer = new Mail::Mailer 'sendmail';
