@@ -842,22 +842,30 @@ if (0) {
 
     # wantNick. xk++
     if ($message =~ /^wantNick$/i) {
+	# cannot trust Net::IRC's nick()
 	if ($param{'ircNick'} eq $ident) {
 	    &msg($who, "I hope you're right. I'll try anyway.");
+	    &DEBUG("ircNick => $param{'ircNick'}");
+	    &DEBUG("ident => $ident");
 	}
-	&DEBUG("ircNick => $param{'ircNick'}");
-	&DEBUG("ident => $ident");
 
-	if (! &IsNickInAnyChan( $param{ircNick} ) ) {
+	# fallback check, I guess.  needed?
+	if (! &IsNickInAnyChan( $param{'ircNick'} ) ) {
 	    my $str = "attempting to change nick to $param{'ircNick'}";
 	    &status($str);
 	    &msg($who, $str);
-	    &nick($param{'ircNick'});
-	} else {
-	    &msg($who, "hrm.. I shouldn't do it (BUG?) but doing it anyway!");
-	    &DEBUG("wN: nick is somewhere... should try later.");
-	    &nick($param{'ircNick'});
+	    &nick($param{ 'ircNick' });
+	    return;
 	}
+
+	# idea from dondelecarlo :)
+	if ($param{'nickServ_pass'}) {
+	    &status("someone is using our nick; KILLing");
+	    &msg("NickServ", "GHOST $param{'ircNick'} $param{'nickServ_pass'}");
+	    return;
+	}
+
+	&nick( $param{'ircNick'} );
 
 	return;
     }
