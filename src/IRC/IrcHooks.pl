@@ -474,7 +474,7 @@ sub on_join {
     }
 
     $chanstats{$chan}{'Join'}++;
-    $userstats{lc $who}{'Join'} = time() if (&IsChanConf("seenStats"));
+    $userstats{lc $who}{'Join'} = time() if (&IsChanConf("seenStats") > 0);
     $cache{maxpeeps}{$chan}	= $i if ($i > $j);
 
     &joinfloodCheck($who, $chan, $event->userhost);
@@ -817,7 +817,7 @@ sub on_part {
 	&clearChanVars($chan);
     }
 
-    if (!&IsNickInAnyChan($nick) and &IsChanConf("seenStats")) {
+    if (!&IsNickInAnyChan($nick) and &IsChanConf("seenStats") > 0) {
 	delete $userstats{lc $nick};
     }
 
@@ -868,7 +868,7 @@ sub on_public {
     $msgtime		= time();
     $lastWho{$chan}	= $nick;
     ### TODO: use $nick or lc $nick?
-    if (&IsChanConf("seenStats")) {
+    if (&IsChanConf("seenStats") > 0) {
 	$userstats{lc $nick}{'Count'}++;
 	$userstats{lc $nick}{'Time'} = time();
     }
@@ -977,7 +977,7 @@ sub on_quit {
 	# well.. it's good but weird that this has happened - lets just
 	# be quiet about it.
     }
-    delete $userstats{lc $nick} if (&IsChanConf("seenStats"));
+    delete $userstats{lc $nick} if (&IsChanConf("seenStats") > 0);
     delete $chanstats{lc $nick};
     ###
 
