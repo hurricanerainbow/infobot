@@ -12,7 +12,9 @@ sub IsFlag {
 
     $userHandle ||= "default";
 
-    &DEBUG("isFlag: userHandle == '$userHandle'.");
+    if ($userHandle ne "default") {
+	&DEBUG("isFlag: userHandle == '$userHandle'.");
+    }
 
     foreach $f (split //, $userList{$userHandle}{'flags'}) {
 	foreach $o (@ind) {
@@ -52,7 +54,6 @@ sub verifyUser {
 	    $m =~ s/([\@\(\)\[\]])/\\$1/g;
 
 	    next unless ($lnuh =~ /^$m$/i);
-	    &DEBUG("vUser: $lnuh matched masked ($m). Good!");
 
 	    $userHandle = $user;
 	    $userinlist = "";
