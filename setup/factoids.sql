@@ -1,7 +1,7 @@
 CREATE TABLE factoids (
 	factoid_key VARCHAR(64) NOT NULL,
 
-	requested_by VARCHAR(64) NOT NULL,
+	requested_by VARCHAR(64) NOT NULL DEFAULT 'nobody',
 	requested_time INT NOT NULL DEFAULT '0',
 	requested_count SMALLINT UNSIGNED NOT NULL DEFAULT '0',
 	created_by VARCHAR(64),
