@@ -164,7 +164,7 @@ sub output_timenicktext {
 }
 
 sub output_timeservermsg {
-	my ($date, $time, $line) = @_;
+	my ($date, $time, $channel, $line) = @_;
 	my $lineout = '';
 
 	if ($STYLE =~ /table/) {
@@ -176,7 +176,7 @@ sub output_timeservermsg {
 		$lineout .= "$time " if $time;
 		$lineout .= "$line<br>\n";
 	}
-	output_line($date, $time,'',$lineout);
+	output_line($date, $time, $channel, $lineout);
 }
 
 sub html_rgb
@@ -225,14 +225,13 @@ sub main {
 		chomp $line;
 
 		if (!$line eq "") {
-
-
 			# parse out the time
 			if ($line =~ s/^([0-9:\.]*) (.*)$/$2/) {
 				$time = $1;
 			} else {
-				$time = "";
+				$time = '';
 			}
+			$channel = '';
 
 			# Replace ampersands, pointies, control characters #
 			$line =~ s/&/&amp\;/g;
@@ -271,45 +270,40 @@ sub main {
 					$htmlcolour = $colour_nick{$nick} = html_rgb($nickcount, $NICKMAX);
 				}
 				output_timenicktext($date, $time, $channel, $nick, $text, $htmlcolour);
-			}
-
-			elsif ($line =~ /^&gt\;&gt\;&gt\; /) {
+			} elsif ($line =~ /^&gt\;&gt\;&gt\; /) {
 				$line =~ s/^&gt\;&gt\;&gt\; /\*\*\* /;
 
 				# Process changed nick results, and remember colours accordingly #
-				if ($line =~ /\*\*\* (.*?) are|is now known as (.*)/) {
-					my $nick_old;
-					my $nick_new;
+				if ($line =~ /\*\*\* (.*?) materializes into (.*)/) {
+					my $nick_old = $1;
+					my $nick_new = $2;
 
-					$nick_old = $line;
-					$nick_old =~ s/\*\*\* (.*?) (are|is) now known as .*/$1/;
-
-					$nick_new = $line;
-					$nick_new =~ s/\*\*\* .*? (are|is) now known as (.*)/$2/;
+					#$nick_old = $line;
+					#$nick_old =~ s/\*\*\* (.*?) materializes into .*/$1/;
+					#$nick_new = $line;
+					#$nick_new =~ s/\*\*\* (.*?) materializes into (.*)/$2/;
 
 					$colour_nick{$nick_new} = $colour_nick{$nick_old};
 					$colour_nick{$nick_old} = undef;
 
 					$line =~ s/(\*\*\* .*)/<font color=\"$colour_nickchange\">$1<\/font>/
-				}
-
-				# Colourise joined/left/server messages #
-				elsif ($line =~ /\*\*\* .*left|quit/) {
-					$line =~ s/(\*\*\* .*)/<font color=\"$colour_left\">$1<\/font>/;
-				}
-				elsif ($line =~ /\*\*\* .*joined/) {
+				} elsif ($line =~ /\*\*\* (join|mode|topic)\/(.*?) .*/) {
+					$channel = lc $2;
 					$line =~ s/(\*\*\* .*)/<font color=\"$colour_joined\">$1<\/font>/;
-				}
-				elsif ($line =~ /\*\*\* /) {
+				} elsif ($line =~ /\*\*\* (part|kick|banned)\/(.*?) .*/) {
+					$channel = lc $2;
+					$line =~ s/(\*\*\* .*)/<font color=\"$colour_left\">$1<\/font>/;
+				} elsif ($line =~ /\*\*\* .* has signed off IRC .*/) {
+					# Colourise joined/left/server messages #
+					$line =~ s/(\*\*\* .*)/<font color=\"$colour_left\">$1<\/font>/;
+				} elsif ($line =~ /\*\*\* /) {
 					$line =~ s/(\*\*\* .*)$/<font color=\"$colour_server\">$1<\/font>/;
-				}
-
-				# Colourise the /me's #
-				elsif ($line =~ /^\* .*$/) {
+				} elsif ($line =~ /^\* .*$/) {
+				  # Colourise the /me's #
 					$line =~ s/^(\*.*)$/<font color=\"$colour_action\">$1<\/font>/;
 				}
 
-				output_timeservermsg($date, $time, $line);
+				output_timeservermsg($date, $time, $channel, $line);
 			}
 		}
 	}
