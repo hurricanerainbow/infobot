@@ -23,5 +23,5 @@ DBD::SQLite sources:
 
 http://search.cpan.org/author/MSERGEANT/DBD-SQLite/
 
-You will also need the normal Perl DBD stuff which
-should be included in your Perl distribution.
+You will also need the normal Perl DBD stuff which should be included in your
+Perl distribution.
