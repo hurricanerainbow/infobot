@@ -75,8 +75,8 @@ nslookup: E: ## 3.1.33.7
 spell: You've guessed it right, I'm a spell checker. Give me any word and I can confirm whether it's good or bad.
 
 crypt: It's good that you thought about encryption. I can do it for you.
-crypt: U: ## <string> <salt>
-crypt: E: ## changeme 69
+crypt: U: ## <salt> <string>
+crypt: E: ## 69 changeme
 
 join: U: ## <#chan> [key]
 join: E: ## #debian
