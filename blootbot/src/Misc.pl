@@ -470,6 +470,22 @@ sub isStale {
     return 0;
 }
 
+sub isFileUpdated {
+    my ($file, $time) = @_;
+
+    if (! -f $file) {
+	return 1;
+    }
+
+    my $time_file = (stat $file)[9];
+
+    if ($time == $time_file) {
+	return 0;
+    } else {
+	return 1;
+    }
+}
+
 ##########
 ### make commands.
 ###
