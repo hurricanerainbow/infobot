@@ -23,8 +23,6 @@ unlobotomy: which is not possible in real life, an unlobotomy will bring me back
 
 addressing: it is a good idea if i stay in REQUIRE mode then i won't yell out random crap if i listen in too hard.  currently there is no way to turn this of on-the-fly.
 
-forget: FIXME
-
 find: D: Debian Packages (fallback to Contents) Search
 find: U: ## [dcc] [dist] <string>
 find: E: ## strings.h
@@ -174,21 +172,13 @@ babelfish: U: x to <lang>: <words>
 babelfish: U: translate from <lang>: <words>
 babelfish: E: x to de: your cars rock
 
-insult: FIXME
-
 search: U: ## <engine> for <string>
 search: E: ## google for evil
-
-nickometer: FIXME
-
-rot13: FIXME
 
 karma: Karma is a community rating system.  Use "X++" to increase the karma, or "X--" to decrease it.  Ask for ratings using "karma for X?"
 
 kernel: D: Frontend to linux.kernel.org's finger response.
 kernel: U: ##
-
-maths: FIXME
 
 lock: D: Factoid locking to prevent removal by others.
 lock: U: ## <factoid>
@@ -210,3 +200,52 @@ dollar variables: $channel     - ...
 dollar variables: $lastspeaker - ...
 dollar variables: $factoid     - ...
 dollar variables: ...          - ...
+
+chanset: D: FIXME
+chanset: U: ## [#chan] [what] [val]
+chanset: E: ## #c +test
+chanset: E: ## #c -test
+chanset: E: ## #c test
+chanset: E: ## #c test testing123
+
+chanunset: D: FIXME.
+chanunset: U: ## <#chan> [what]
+chanunset: E: ## #c
+chanunset: E: ## #c test
+
+chpass: D: FIXME.
+chpass: U: ## [user] <pass>
+chpass: E: ## testing
+chpass: E: ## testing test0R
+
+chattr: D: FIXME.
+chattr: U: ## <user> [flags]
+chattr: E: ## bloot +nmo
+chattr: E: ## bloot -ot
+chattr: E: ## bloot
+
+chnick: D: FIXME.
+chnick: U: ## [nick] <new-nick>
+chnick: E: ## moron
+chnick: E: ## owner eleet
+
++host: D: FIXME.
++host: U: ## [user] <mask>
++host: E: ## *!*@owns.org
++host: E: ## owner leet!leet@*.heh.org
+
+-host: D: FIXME.
+-host: U: ## [user] <mask>
+-host: E: ## *!*@owns.org
+-host: E: ## owner leet!leet@*.heh.org
+
++ban: D: FIXME.
++ban: U: ## <mask|user> [chan] [time] [reason]
++ban: E: ## *!*@owns.org #bots 60 stop flooding.
++ban: E: ## *!*@*microsoft.com STOOPID
++ban: E: ## MoronMan
+
+-ban: D: FIXME.
+-ban: U: ## <mask|user>
+-ban: E: ## *!*@owns.org
+-ban: E: ## MoronMan
