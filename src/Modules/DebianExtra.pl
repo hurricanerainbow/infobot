@@ -7,31 +7,29 @@
 
 use strict;
 
-package DBugs;
+package DebianExtra;
 
 sub Parse {
     my($args) = @_;
+    my($msg) = '';
 
+    #&::DEBUG("DebianExtra: $args\n");
     if (!defined $args or $args =~ /^$/) {
-	&debianBugs();
-    }
-
-    if ($args =~ /^(\d+)$/) {
+	$msg = &debianBugs();
+    } elsif ($args =~ /^(\d+)$/) {
 	# package number:
-	&do_id($args);
-
+	$msg = &do_id($args);
     } elsif ($args =~ /^(\S+\@\S+)$/) {
 	# package email maintainer.
-	&do_email($args);
-
+	$msg = &do_email($args);
     } elsif ($args =~ /^(\S+)$/) {
 	# package name.
-	&do_pkg($args);
-
+	$msg = &do_pkg($args);
     } else {
 	# invalid.
-	&::msg($::who, "error: could not parse $args");
+	$msg = "error: could not parse $args";
     }
+    &::msg($::who, $msg);
 }
 
 sub debianBugs {
@@ -65,14 +63,90 @@ sub debianBugs {
     }
 }
 
-sub do_id {
-    my($num)	= @_;
-    my $url	= "http://bugs.debian.org/$num";
+sub do_id($){
+    my ($bug_num) = shift;
 
-    if (1) { # FIXME
-	&::msg($::who, "do_id not supported yet.");
-	return;
+    if (not $bug_num =~ /^\#?\d+$/) {
+	return "Bug is not a number!";
     }
+    $bug_num =~ s/^\#//;
+    my @results = &::getURL("http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=$bug_num");
+    my $report = join("\n", @results);
+
+    # strip down report to relevant header information.
+    $report =~ s/\r//sig;
+    $report =~ /<BODY[^>]*>(.+?)<HR>/si;
+    $report = $1;
+    my $bug = {};
+    ($bug->{num}, $bug->{title}) = $report =~ m#\#(\d+)\<\/A\>\<BR\>(.+?)\<\/H1\>#is;
+    &::DEBUG("Bugnum: $bug->{num}\n");
+    $bug->{title} =~ s/&lt;/\</g;
+    $bug->{title} =~ s/&gt;/\>/g;
+    $bug->{title} =~ s/&quot;/\"/g;
+    &::DEBUG("Title: $bug->{title}\n");
+    $bug->{severity} = 'n'; #Default severity is normal
+    my @bug_flags = split /(?<!\&.t);/s, $report;
+    foreach my $bug_flag (@bug_flags) {
+	$bug_flag =~ s/\n//g;
+	&::DEBUG("Bug_flag: $bug_flag\n");
+	if ($bug_flag =~ /Severity:/i) {
+	    ($bug->{severity}) = $bug_flag =~ /(wishlist|minor|normal|important|serious|grave)/i;
+	    # Just leave the leter instead of the whole thing.
+	    $bug->{severity} =~ s/^(.).+$/$1/;
+	}
+	elsif ($bug_flag =~ /Package:/) {
+	    ($bug->{package}) = $bug_flag =~ /\"\>\s*([^<>]+?)\s*\<\/a\>/;
+	    # take packagename out of title if it's there
+	    $bug->{title} =~ s/^$bug->{package}: //;
+	}
+	elsif ($bug_flag =~ /Reported by:/) {
+	    ($bug->{reporter}) = $bug_flag =~ /\"\>\s*(.+?)\s*\<\/a\>/;
+	    # strip &lt; and &gt;
+	    $bug->{reporter} =~ s/&lt;/\</g;
+	    $bug->{reporter} =~ s/&gt;/\>/g;
+	}
+	elsif ($bug_flag =~ /Date:/) {
+	    ($bug->{date}) = $bug_flag =~ /Date:\s*(\w.+?)\s*$/;
+	    #ditch extra whitespace
+	    $bug->{date} =~ s/\s{2,}/\ /;
+	}
+	elsif ($bug_flag =~ /Tags:/) {
+	    ($bug->{tags}) = $bug_flag =~ /strong\>\s*(.+?)\s*\<\/strong\>/;
+	}
+	elsif ($bug_flag =~ /merged with /) {
+	    $bug_flag =~ s/merged with\s*//;
+	    $bug_flag =~ s/\<[^\>]+\>//g;
+	    $bug_flag =~ s/\s//sg;
+	    $bug->{merged_with} = $bug_flag;
+
+	}
+	elsif ($bug_flag =~ /\>Done:\</) {
+	    $bug->{done} = 1;
+	}
+    }
+
+    # report bug
+
+    $report = '';
+    $report .= 'DONE:' if defined $bug->{done} and $bug->{done};
+    $report .= '#'.$bug->{num}.':'.uc($bug->{severity}).'['.$bug->{package}.'] '.$bug->{title};
+    $report .= ' ('.$bug->{tags}.')' if defined $bug->{tags};
+    $report .= ' ' . $bug->{date};
+    # Avoid reporting so many merged bugs.
+    $report .= ' ['.join(',',splice(@{[split(/,/,$bug->{merged_with})]},0,3)).']' if defined $bug->{merged_with};
+    if ($::DEBUG) {
+	use Data::Dumper;
+	&::DEBUG(Dumper($bug));
+    }
+    return $report;
+}
+
+sub old_do_id {
+    my($num) = @_;
+    my $url = "http://bugs.debian.org/$num";
+
+    # FIXME
+    return "do_id not supported yet.";
 
     my @results = &::getURL($url);
     foreach (@results) {
@@ -81,13 +155,11 @@ sub do_id {
 }
 
 sub do_email {
-    my($email)	= @_;
-    my $url	= "http://bugs.debian.org/$email";
+    my($email) = @_;
+    my $url = "http://bugs.debian.org/$email";
 
-    if (1) { # FIXME
-	&::msg($::who, "do_email not supported yet.");
-	return;
-    }
+    # FIXME
+    return "do_email not supported yet.";
 
     my @results = &::getURL($url);
     foreach (@results) {
@@ -96,13 +168,11 @@ sub do_email {
 }
 
 sub do_pkg {
-    my($pkg)	= @_;
-    my $url	= "http://bugs.debian.org/$pkg";
+    my($pkg) = @_;
+    my $url = "http://bugs.debian.org/$pkg";
 
-    if (1) { # FIXME
-	&::msg($::who, "do_pkg not supported yet.");
-	return;
-    }
+    # FIXME
+    return "do_pkg not supported yet.";
 
     my @results = &::getURL($url);
     foreach (@results) {
