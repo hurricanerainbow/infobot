@@ -9,38 +9,68 @@ author: oznoid (mailto:lenzo@ri.cmu.edu) is my original author.
 corrections: If I come back with "...but x is at http://xx.xx.xx" or something like that, and you want to change the entry, use "no, x is at http://sdfsdfsdf".  The "No," tells me to supercede the existing value.
 corrections: you can append stuff to a factoid with "also". "x is also at ..."
 
-action: This is used to override the usual response. "x is <REPLY> does the hokey-pokey". When asked about x, the bot does this "* blootbot does the hokey-pokey"
+action: This is used to override the usual response. "x is <action> does the hokey-pokey". When asked about x, the bot does this "* blootbot does the hokey-pokey"
 
 reply: There is a special tag, <reply>, that is used to override the usual response.  Usually, a response is "X is Y", but it can be made "Y" by making the entry "X is <reply> Y".  
-reply: This is a good way to close junk entries; use "X is <reply>" with nothing after it.
 
-alternation: The || symbol in an entry causes an blootbot to choose one of the replies at random. "X is Y|Z" will produce "X is Y" or "X is Z" randomly. 
+alternation: The || symbol in an entry causes an blootbot to choose one of the replies at random. "X is Y||Z" will produce "X is Y" or "X is Z" randomly. 
+
+redirection: If a factoid x contains simply "<reply> see y", then when asked for x, I will deliver factoid y instead
 
 # now the commands...
-lobotomy: i can be given a lobotomy ([o] is required) if people start to abuse me.  to bring me back to life, give me an unlobotomy
+lobotomy: I can be given a lobotomy ([o] is required) if people start to abuse me.  To bring me back to life, give me an unlobotomy
 
-unlobotomy: which is not possible in real life, an unlobotomy will bring me back to life in the case of a lobotomy.
+unlobotomy: Which is not possible in real life, an unlobotomy will bring me back to life in the case of a lobotomy.
 
-addressing: it is a good idea if i stay in REQUIRE mode then i won't yell out random crap if i listen in too hard.  currently there is no way to turn this of on-the-fly.
+addressing: It is a good idea if I stay in REQUIRE mode so that I won't yell out random crap if I listen in too hard.  Currently there is no way to turn this off on-the-fly. (REQUIRE mode requires me to be addressed by name if I am to respond)
 
-find: D: Debian Packages (fallback to Contents) Search
-find: U: ## [dcc] [dist] <string>
+forget: If I have an old/redundant factoid x, "forget x" will cause me to erase it.
+
+unforget: If a factoid has been forgotten, "unforget x" will cause me to unerase it.
+
+find: D: Debian Packages (fallback to Contents) search
+find: U: ## <string> [dist]
 find: E: ## strings.h
-find: E: ## dcc usr/bin
-find: E: ## slink x11amp
+find: E: ## x11amp potato
 
-rename: D: Factoid renaming.
+contents: D: Debian Contents search only (no Packages)
+contents: U: ## <string> [dist]
+contents: E: ## strings.h
+contents: E: ## x11amp potato
+
+dauthor: D: Find Debian package maintainers, and list the packages they maintain
+dauthor: U: ## <string> [dist]
+dauthor: E: ## Wichert
+dauthor: E: ## Wichert potato
+
+ddesc: D: Search the Description: lines in Debian packages
+ddesc: U: ## <string> [dist]
+ddesc: E: ## mule
+ddesc: E: ## mule potato
+
+bugs: D: Show the current count of release critical bugs (latest versions)
+bugs: U: ##
+
+dstats: D: Show basic stats on the current size of the Debian distros
+dstats: U: ## [dist]
+dstats: E: ##
+dstats: E: ## potato
+
+uptime: D: Show the current uptime, and the top 3 uptimes recorded
+uptime: U: ##
+
+rename: D: Factoid renaming
 rename: U: ## 'from' 'to'
 rename: E: ## 'infobot' 'blootbot'
 
-nslookup: D: Query DNS.
+nslookup: D: Query DNS
 nslookup: U: ## <host|ip>
 nslookup: E: ## debian.org
 nslookup: E: ## 3.1.33.7
 
-spell: you've guessed it right, i'm a spell checker. give me any word and i can confirm whether it's good or bad.
+spell: You've guessed it right, I'm a spell checker. Give me any word and I can confirm whether it's good or bad.
 
-crypt: it's good that you thought about encryption. i can do it for you.
+crypt: It's good that you thought about encryption. I can do it for you.
 crypt: U: ## <string> <salt>
 crypt: E: ## changeme 69
 
@@ -52,14 +82,14 @@ kick: U: ## <nick> [#chan]
 kick: E: ## oznoid
 kick: E: ## larne #debian
 
-wantnick: if someone's taken my nick (i hope not) and i'm using some temporary nick, i can change back to my original nick if it's not taken (again).
+wantnick: If someone's taken my nick (I hope not) and I'm using some temporary nick, I can change back to my original nick if it's not taken (again).
 
-chaninfo: D: Display channel statistics on Op, Ban, Deop, Unban, Part, Join, SignOff, PublicMsg, Kick and Topic.
+chaninfo: D: Display channel statistics on Op, Ban, Deop, Unban, Part, Join, SignOff, PublicMsg, Kick and Topic
 chaninfo: U: ## [#channel]
 chaninfo: E: ##
 chaninfo: E: ## #debian
 
-dict: D: DICT Protocol Client.
+dict: D: DICT Protocol Client
 dict: U: ## <query>
 dict: E: ## AI
 dict: E: ## 1 linux
@@ -88,38 +118,33 @@ lart: U: ## [#chan] <who>
 lart: E: ## lenzo infobot's bugginess
 lart: E: ## #perl everyone perl \=\= lamerville
 
-listauth: D: Search the factoid extension db by creator.
+listauth: D: Search the factoid extension db by creator
 listauth: U: ## <search>
 listauth: E: ## xk
 
-listkeys: D: Search the factoid database by key (factoid).
+listkeys: D: Search the factoid database by key (factoid)
 listkeys: U: ## <regex>
 listkeys: E: ## blootbot
 
-listvalues: D: Search the factoid database by value (description).
+listvalues: D: Search the factoid database by value (description)
 listvalues: U: ## <regex>
 listvalues: E: ## blootbot
 
-quote: D: Frontend to yahoo's online stock market share listing.
+quote: D: Frontend to yahoo's online stock market share listing
 quote: U: ## <query>
 quote: E: ## RHAT
 
-weather: D: Frontend to www.weather.com.
-weather: U: ## <query>
-weather: E: ## Sydney
-weather: E: ## Perth, Australia
-weather: N: For first timers, please search for the city as all search results are kept in the local cache. You can then query 'city, location'.
-
-topic add: D: Add your own topic.
+topic add: D: Add your own topic
 topic add: U: ## <topic>
 topic add: E: ## This is a test
 
-topic del: D: Delete one or two subtopics.
+topic del: D: Delete one or two subtopics
 topic del: U: ## <#>
 topic del: E: ## 1
 topic del: E: ## 1-3,5
+topic del: E: ## last
 
-topic mod: D: Search and replace strings in the topic.
+topic mod: D: Search and replace strings in the topic
 topic mod: U: ## <REGEX>
 topic mod: E: s/test/TEST/
 topic mod: E: s#msg test#/msg test#g
@@ -129,6 +154,7 @@ topic mv: U: ## <#> <before|after|swap> <#>
 topic mv: E: ## 1 after 2
 topic mv: E: ## first before last
 
+topic restore: D: Restores the topic to an earlier version
 topic restore: U: ## <#>
 topic restore: E: ## 3
 
@@ -152,9 +178,11 @@ topic: NOTE: #chan arg is only required if command is sent over private message 
 topic: NOTE: commands can be preceeded? with '-' in order not to enforce changes to topic.
 topic: End of help.
 
+part: D: Leave a channel (DCC only)
 part: U: ## <#channel>
 part: E: ## #debian
 
+seen: D: Report last seen time for somebody
 seen: U: ## <nick>
 seen: E: ## blootbot
 
@@ -162,9 +190,9 @@ factinfo: D: View statistical information about a particular factoid.
 factinfo: U: ## <factoid>
 factinfo: E: ## test
 
-cookie: i can feed your appetite with random factoids.
+cookie: I can feed your appetite with random factoids.
 
-slashdot: D: News for nerds, Stuff that matters. [tm]
+slashdot: D: News for nerds, Stuff that matters. [tm] (shows the headlines)
 slashdot: U: ##
 
 babelfish: D: Frontend to babelfish translating service provided by digital.com
@@ -193,13 +221,12 @@ unlock: E: ## abuse
 dollar variables: D: To be used in factoids
 dollar variables: $date        - ...
 dollar variables: $time        - ...
-dollar variables: $who         - ...
-dollar variables: $username    - ...
+dollar variables: $who         - nick that caused the factoid to be retrieved
+dollar variables: $username    - the username, not the nick
 dollar variables: $host        - ...
 dollar variables: $channel     - ...
 dollar variables: $lastspeaker - ...
 dollar variables: $factoid     - ...
-dollar variables: ...          - ...
 
 chanset: D: FIXME
 chanset: U: ## [#chan] [what] [val]
@@ -249,3 +276,31 @@ chnick: E: ## owner eleet
 -ban: U: ## <mask|user>
 -ban: E: ## *!*@owns.org
 -ban: E: ## MoronMan
+
+ircstats: ircstats dumps some status information on the bot's IRC connection
+
+status: status dumps general status information
+
+cpustats: cpustats dumps the bot's cpu usage this session
+
+ord: D: Convert ascii to decimal
+ord: U: ## <single character>
+ord: E: ## c
+
+hex: D: Convert ascii to hex
+hex: U: ## <string>
+hex: E: ## carrot
+
+cycle: D: Causes me to cycle in the channel it's said, or in the named channel
+cycle: U: ## [channel]
+cycle: E: ##
+cycle: E: ## #debian-bots
+
+rot13: D: ROT13's the given string
+rot13: U: ## <string>
+rot13: E: ## guvf vf n ynzr rknzcyr
+
+nickometer: D: Measures the lame-ness of a nick or channel
+nickometer: U: ## {nick,channel}
+nickometer: E: ## unknown_lamer
+nickometer: E: ## #debian-bots
