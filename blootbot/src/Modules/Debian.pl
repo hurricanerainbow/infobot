@@ -378,7 +378,7 @@ sub generateIncoming {
     my $idxfile  = $pkgfile.".idx";
     my $stale	 = 0;
     $stale++ if (&main::isStale($pkgfile.".gz", $interval));
-    $stale++ if (&main::isStale($idxfile.".gz", $interval));
+    $stale++ if (&main::isStale($idxfile, $interval));
     &main::DEBUG("gI: stale => '$stale'.");
     return 0 unless ($stale);
 
@@ -464,7 +464,7 @@ sub getPackageInfo {
 		$pkg{'section'}		= $1;
 	    } elsif (/^Size: (.*)$/) {
 		$pkg{'size'}		= $1;
-	    } elsif (/^i.*size: (.*)$/) {
+	    } elsif (/^Installed-Size: (.*)$/i) {
 		$pkg{'installed'}	= $1;
 	    } elsif (/^Description: (.*)$/) {
 		$pkg{'desc'}		= $1;
@@ -705,7 +705,7 @@ sub infoStats {
 # Usage: &generateIndex();
 sub generateIndex {
     my (@dists)	= @_;
-    &main::DEBUG("Debian: generateIndex() called.");
+    &main::status("Debian: !!! generateIndex() called !!!");
     if (!scalar @dists) {
 	&main::ERROR("gI: no dists to generate index.");
 	return 1;
