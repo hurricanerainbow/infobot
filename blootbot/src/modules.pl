@@ -193,7 +193,7 @@ sub reloadModule {
     my $file	= (grep /\/$mod/, keys %INC)[0];
 
     if (!defined $file) {
-	&DEBUG("rM: mod '$mod' was not found in \%INC.");
+###	&DEBUG("rM: mod '$mod' was not found in \%INC.");
 	return;
     }
 
@@ -234,7 +234,6 @@ sub loadPerlModule {
     return 0 if (exists $perlModulesMissing{$_[0]});
     return 1 if (exists $perlModulesLoaded{$_[0]});
 
-    &DEBUG("lPM: _ => '$_[0]'.");
     &reloadModule($_[0]);
 
     eval "use $_[0]";
