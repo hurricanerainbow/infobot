@@ -75,12 +75,14 @@ sub chaninfo {
 	### unique user count.
 	my @nicks;
 	foreach $chan (keys %channels) {
-	    foreach (keys %{ $channels{$chan}{''} }) {
-		next if (grep /^\Q$_\E$/, @nicks);
+	    my $nick = '';
+	    foreach $nick (keys %{ $channels{$chan}{''} }) {
+		next if (grep /^\Q$nick\E$/, @nicks);
 		$uucount++;
-		push(@nicks, $_);
+		push(@nicks, $nick);
 	    }
 	}
+	&::DEBUG(join ":", @nicks);
 
 	if (scalar @nicks != $uucount) {
 	    &DEBUG("nicks != uucount...");
