@@ -186,6 +186,15 @@ sub process {
 	}
     }
 
+    # override msgType.
+    if ($msgType =~ /public/ and $message =~ s/^\+//) {
+	&status("found '+' flag; setting msgType to public.");
+	$force_public_reply++;
+	$msgType = 'public';
+	$who	 = $chan;	# major hack to fix &msg().
+	&DEBUG("addressed => $addressed.");
+    }
+
     # User Processing, for all users.
     if ($addressed) {
 	my $retval;
@@ -261,13 +270,6 @@ sub process {
     ###
     ### bot commands...
     ###
-
-    # override msgType.
-    if ($msgType =~ /public/ and $message =~ s/^\+//) {
-	&status("found '+' flag; setting msgType to public.");
-	$force_public_reply++;
-	$msgType = 'public';
-    }
 
     if ($message =~ s/^literal\s+//i) {
 	&status("literal ask of '$message'.");

@@ -697,7 +697,8 @@ sub infoPackages {
 	    $pkg{'info'}  = "\002(\002". $pkg{'desc'} ."\002)\002";
 	    $pkg{'info'} .= ", section ".$pkg{'section'};
 	    $pkg{'info'} .= ", is ".$pkg{'priority'};
-	    $pkg{'info'} .= ". Version: \002$pkg{'version'}\002";
+#	    $pkg{'info'} .= ". Version: \002$pkg{'version'}\002";
+	    $pkg{'info'} .= ". Version: \002$pkg{'version'}\002 ($dist)";
 	    $pkg{'info'} .= ", Packaged size: \002". int($pkg{'size'}/1024) ."\002 kB";
 	    $pkg{'info'} .= ", Installed size: \002$pkg{'installed'}\002 kB";
 

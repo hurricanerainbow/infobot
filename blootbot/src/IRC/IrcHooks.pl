@@ -482,32 +482,8 @@ sub on_join {
 
     ### NEWS:
     if (&IsChanConf("news") && &IsChanConf("newsKeepRead")) {
-	my @new;
-	foreach (keys %{ $::news{$chan} }) {
-	    my $t = $::newsuser{$chan}{$who};
-	    next if (!defined $t);
-	    next if ($t > $::news{$chan}{$_}{Time});
-
-	    push(@new, $_);
-	}
-
-	if (scalar @new) {
-	    &msg($who, "+==== New news for $chan (".scalar(@new)."):");
-	    # todo: show how many sec/min/etc ago?
-	    my $timestr = &Time2String( time() - $::newsuser{$chan}{$who} );
-	    &msg($who, "|= Last time read $timestr ago");
-
-	    foreach (@new) {
-		my $i   = &News::getNewsItem($_);
-		my $age = time() - $::news{$chan}{$_}{Time};
-		&msg($who, sprintf("\002[\002%2d\002]\002 %s (%s)",
-			$i, $_, &Time2String($age) ) );
-	    }
-	    &msg($who, "to read, do 'news read <#>' or 'news read <keyword>'");
-
-	    # lame hack to prevent dupes if we just ignore it.
-	    $::newsuser{$chan}{$who} = time();
-	}
+	# todo: what if it hasn't been loaded?
+	&News::latest($chan);
     }
 
     ### chanlimit check.
@@ -589,7 +565,7 @@ sub on_msg {
 
     if ($nick eq $ident) { # hopefully ourselves.
 	if ($msg eq "TEST") {
-	    &status("Local: Yes, we're alive.");
+	    &status("IRCTEST: Yes, we're alive.");
 	    delete $cache{connect};
 	    return;
 	}

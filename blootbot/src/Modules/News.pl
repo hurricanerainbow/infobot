@@ -75,6 +75,9 @@ sub Parse {
 	&read($1);
     } elsif ($what =~ /^read(\s+(.*))?$/i) {
 	&read($2);
+    } elsif ($what =~ /^(latest|new)(\s+(.*))?$/i) {
+	&::DEBUG("latest called... hrm");
+	&latest($3 || $chan, 1);
     } elsif ($what =~ /^list$/i) {
 	&::DEBUG("list longcut called.");
 	&list();
@@ -218,16 +221,15 @@ sub add {
     $::news{$chan}{$str}{Author}	= $::who;
 
     my $agestr	= &::Time2String($::news{$chan}{$str}{Expire} - time() );
-    my $item	= &getNewsItem($str);
-    if ($item eq $str) {
-	&::DEBUG("item eq str ($item): should never happen.");
-    }
+    my $item	= &newsS2N($str);
     &::msg($::who, "Added '\037$str\037' at [".localtime(time).
 		"] by \002$::who\002 for item #\002$item\002.");
     &::msg($::who, "Now do 'news text $item <your_description>'");
     &::msg($::who, "This item will expire at \002".
 	localtime($::news{$chan}{$str}{Expire})."\002 [$agestr from now] "
     );
+
+    &writeNews();
 }
 
 sub del {
@@ -251,9 +253,8 @@ sub del {
 	    return;
 	}
 
-	$item = &getNewsItem($what);
-	&::DEBUG("del: num: item => $item ($what)");
-	$what	= $item;	# hack hack hack.
+	$item	= &getNewsItem($what);
+	$what	= $item;		# hack hack hack.
 
     } else {
 	$_	= &getNewsItem($what);	# hack hack hack.
@@ -584,6 +585,54 @@ sub set {
     &::msg($::who, "Setting [$chan]/{$news}/<$what> to '$value'.");
 }
 
+sub latest {
+    my($tchan, $flag) = @_;
+
+    $chan ||= $tchan;	# hack hack hack.
+
+    # todo: if chan = undefined, guess.
+    if (!exists $::news{$chan}) {
+	&::msg($::who, "invalid chan $chan");
+	return;
+    }
+
+    my @new;
+    foreach (keys %{ $::news{$chan} }) {
+	my $t = $::newsuser{$chan}{$::who};
+	next if (!defined $t);
+	next if ($t > $::news{$chan}{$_}{Time});
+
+	push(@new, $_);
+    }
+
+    if (!scalar @new and $flag) {
+	&::msg($::who, "no new news for $chan.");
+	return;
+    }
+
+    if (scalar @new) {
+	&::msg($::who, "+==== New news for \002$chan\002 (".
+		scalar(@new)." new items):");
+
+	my $timestr = &::Time2String( time() - $::newsuser{$chan}{$::who} );
+	&::msg($::who, "|= Last time read $timestr ago");
+
+	foreach (@new) {
+	    my $i   = &newsS2N($_);
+	    &::DEBUG("i = $i, _ => $_");
+	    my $age = time() - $::news{$chan}{$_}{Time};
+	    &::msg($::who, sprintf("\002[\002%2d\002]\002 %s",
+		$i, $_) );
+#		$i, $_, &::Time2String($age) ) );
+	}
+
+	&::msg($::who, "|= to read, do 'news read <#>' or 'news read <keyword>'");
+
+	# lame hack to prevent dupes if we just ignore it.
+	$::newsuser{$chan}{$::who} = time();
+    }
+}
+
 ###
 ### helpers...
 ###
@@ -600,6 +649,32 @@ sub getNewsAll {
     }
 
     return @items;
+}
+
+sub newsS2N {
+    my($what)	= @_;
+    my @items;
+    my $no;
+
+    my %time;
+    foreach (keys %{ $::news{$chan} }) {
+	my $t = $::news{$chan}{$_}{Time};
+
+	if (!defined $t or $t !~ /^\d+$/) {
+	    &::DEBUG("warn: t is undefined for news{$chan}{$_}{Time}; removing item.");
+	    delete $::news{$chan}{$_};
+	    next;
+	}
+
+	$time{$t} = $_;
+    }
+
+    foreach (sort { $a <=> $b } keys %time) {
+	$item++;
+	return $item if ($time{$_} eq $what);
+    }
+
+    &::DEBUG("newsS2N($what): failed...");
 }
 
 sub getNewsItem {
@@ -633,7 +708,12 @@ sub getNewsItem {
 	my $no;
 	foreach (sort { $a <=> $b } keys %time) {
 	    $item++;
-	    $no = $item if ($time{$_} eq $what);
+#	    $no = $item if ($time{$_} eq $what);
+	    if ($time{$_} eq $what) {
+		$no = $item;
+		next;
+	    }
+
 	    push(@items, $time{$_}) if ($time{$_} =~ /\Q$what\E/i);
 	}
 
@@ -642,6 +722,7 @@ sub getNewsItem {
 	# todo: split this command in the future into:
 	#	full_string->number and number->string
 	#	partial_string->full_string
+	&::DEBUG("no => $no, items => @items.");
 	if (defined $no and !@items) {
 	    &::DEBUG("string->number resolution.");
 	    return $no;
@@ -653,6 +734,7 @@ sub getNewsItem {
 	    return;
 	}
 
+	&::DEBUG("gNI: string->number(??): $what->$items[0]");
 	if (@items) {
 	    &::DEBUG("gNI: Guessed '$items[0]'.");
 	    return $items[0];

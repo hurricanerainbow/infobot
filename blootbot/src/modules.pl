@@ -239,25 +239,31 @@ sub reloadModule {
 	return;
     }
 
-    my $age = (stat $file)[9];
-    return if ($age == $moduleAge{$file});
-
-    if ($age < $moduleAge{$file}) {
-	&WARN("rM: we're not gonna downgrade the file. use 'touch'.");
-	return;
-    }
-
     if (grep /$mod/, @myModulesReloadNot) {
 	&DEBUG("rM: SHOULD NOT RELOAD $mod!!!");
 	return;
     }
 
-    my $dc  = &Time2String($age   - $moduleAge{$file});
-    my $ago = &Time2String(time() - $moduleAge{$file});
+    my $age = (stat $file)[9];
+
+    if (!exists $moduleAge{$file}) {
+	&DEBUG("Looks like $file was not loaded; fixing.");
+    } else {
+	return if ($age == $moduleAge{$file});
+
+	if ($age < $moduleAge{$file}) {
+	    &WARN("rM: we're not gonna downgrade the file. use 'touch'.");
+	    return;
+	}
+
+	my $dc  = &Time2String($age   - $moduleAge{$file});
+	my $ago = &Time2String(time() - $moduleAge{$file});
+
+	&VERB("Module:  delta change: $dc",2);
+	&VERB("Module:           ago: $ago",2);
+    }
 
     &status("Module: Loading $mod...");
-    &VERB("Module:  delta change: $dc",2);
-    &VERB("Module:           ago: $ago",2);
 
     delete $INC{$file};
     eval "require \"$file\"";	# require or use?

@@ -30,7 +30,8 @@ use vars qw(%channels %chanstats %cmdstats);
 	Help => 'nslookup', Identifier => 'allowDNS',
 	Forker => "NULL", ) );
 &addCmdHook("main", 'tell|explain', ('CODEREF' => 'tell', 
-	Help => 'tell', Identifier => 'allowTelling', ) );
+	Help => 'tell', Identifier => 'allowTelling',
+	Cmdstats => 'Tell') );
 &addCmdHook("main", 'news', ('CODEREF' => 'News::Parse', 
 	Module => 'news', Identifier => 'news') );
 

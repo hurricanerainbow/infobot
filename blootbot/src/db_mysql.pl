@@ -186,6 +186,25 @@ sub dbInsert {
 }
 
 #####
+# Usage: &dbReplace($table, $primkey, %hash);
+sub dbReplace {
+    my ($table, $primkey, %hash) = @_;
+    my (@keys, @vals);
+
+    foreach (keys %hash) {
+	&DEBUG("hash{$_} => $hash{$_}");
+	push(@keys, $_);
+	push(@vals, &dbQuote($hash{$_}));
+    }
+
+    &dbRaw("Replace($table)", "REPLACE INTO $table (".join(',',@keys).
+		") VALUES (".join(',',@vals).")"
+    );
+
+    return 1;
+}
+
+#####
 # Usage: &dbSetRow($table, @values);
 sub dbSetRow {
     my ($table, @values) = @_;
