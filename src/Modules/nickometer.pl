@@ -14,13 +14,12 @@ use strict;
 
 my $pi		= 3.14159265;
 my $score	= 0;
-my $verbose	= 1;
+my $verbose	= 0;
 
 sub query {
   my ($message) = @_;
 
   my $term = (lc $message eq 'me') ? $::who : $message;
-  &::DEBUG("nickometer $_:$term:$message");
 
   if ($term =~ /^$::mask{chan}$/) {
     &::status("Doing nickometer for chan $term.");
@@ -125,13 +124,13 @@ sub nickometer ($) {
   }
 
   # Allow Perl referencing
-  s/^\\([A-Za-z])/$1/;
+  $text =~ s/^\\([A-Za-z])/$1/;
 
   # C-- ain't so bad either
-  s/^C--$/C/;
+  $text =~ s/^C--$/C/;
 
   # Punish consecutive non-alphas
-  s/([^A-Za-z0-9]{2,})
+  $text =~ s/([^A-Za-z0-9]{2,})
    /my $consecutive = length($1);
     &punish(&slow_pow(10, $consecutive),
 	    "$consecutive total consecutive non-alphas")
@@ -140,14 +139,14 @@ sub nickometer ($) {
    /egx;
 
   # Remove balanced brackets (and punish a little bit) and punish for unmatched
-  while (s/^([^()]*)   (\() (.*) (\)) ([^()]*)   $/$1$3$5/x ||
-	 s/^([^{}]*)   (\{) (.*) (\}) ([^{}]*)   $/$1$3$5/x ||
-	 s/^([^\[\]]*) (\[) (.*) (\]) ([^\[\]]*) $/$1$3$5/x)
+  while ($text =~ s/^([^()]*)   (\() (.*) (\)) ([^()]*)   $/$1$3$5/x ||
+	 $text =~ s/^([^{}]*)   (\{) (.*) (\}) ([^{}]*)   $/$1$3$5/x ||
+	 $text =~ s/^([^\[\]]*) (\[) (.*) (\]) ([^\[\]]*) $/$1$3$5/x)
   {
     print "Removed $2$4 outside parentheses; nick now $_\n" if $verbose;
     &punish(15, "brackets");
   }
-  my $parentheses = tr/(){}[]/(){}[]/;
+  my $parentheses = $text =~ tr/(){}[]/(){}[]/;
   &punish(&slow_pow(10, $parentheses),
 	  "$parentheses unmatched " .
 	    ($parentheses == 1 ? 'parenthesis' : 'parentheses'))
@@ -156,7 +155,7 @@ sub nickometer ($) {
   # Punish k3wlt0k
   my @k3wlt0k_weights = (5, 5, 2, 5, 2, 3, 1, 2, 2, 2);
   for my $digit (0 .. 9) {
-    my $occurrences = s/$digit/$digit/g || 0;
+    my $occurrences = $text =~ s/$digit/$digit/g || 0;
     &punish($k3wlt0k_weights[$digit] * $occurrences * 30,
 	    $occurrences . ' ' .
 	      (($occurrences == 1) ? 'occurrence' : 'occurrences') .
@@ -166,11 +165,11 @@ sub nickometer ($) {
 
   # An alpha caps is not lame in middle or at end, provided the first
   # alpha is caps.
-  my $orig_case = $_;
-  s/^([^A-Za-z]*[A-Z].*[a-z].*?)[_-]?([A-Z])/$1\l$2/;
+  my $orig_case = $text;
+  $text =~ s/^([^A-Za-z]*[A-Z].*[a-z].*?)[_-]?([A-Z])/$1\l$2/;
 
   # A caps first alpha is sometimes not lame
-  s/^([^A-Za-z]*)([A-Z])([a-z])/$1\l$2$3/;
+  $text =~ s/^([^A-Za-z]*)([A-Z])([a-z])/$1\l$2$3/;
 
   # Punish uppercase to lowercase shifts and vice-versa, modulo
   # exceptions above
@@ -191,14 +190,14 @@ sub nickometer ($) {
     if $number_shifts > 1;
 
   # Punish extraneous caps
-  my $caps = tr/A-Z/A-Z/;
+  my $caps = $text =~ tr/A-Z/A-Z/;
   &punish(&slow_pow(7, $caps), "$caps extraneous caps") if $caps;
 
   # One and only one trailing underscore is OK.
-  s/\_$//;
+  $text =~ s/\_$//;
 
   # Now punish anything that's left
-  my $remains = $_;
+  my $remains = $text;
   $remains =~ tr/a-zA-Z0-9//d;
   my $remains_length = length($remains);
 
@@ -250,7 +249,7 @@ sub slow_pow ($$) {
 sub slow_exponent ($) {
   my $x = shift;
 
-  return 1.3 * $x * (1 - atan($x/6) *2/$pi);
+  return 1.3 * $x * (1 - &Math::Trig::atan($x/6) *2/$pi);
 }
 
 sub round_up ($) {
