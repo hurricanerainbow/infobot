@@ -22,10 +22,7 @@ sub ftpGet {
 ###	'BlockSize'	=> 1024,	# ???
     );
 
-    if ($@) {
-	&ERROR("FTP: $@.");
-	return;
-    }
+    return if ($@);
 
     # login.
     if ($ftp->login()) {
@@ -110,10 +107,7 @@ sub ftpList {
     &status("FTP: opening connection to $host.") if ($verbose_ftp);
     my $ftp = Net::FTP->new($host,'Timeout'=>60);
 
-    if ($@) {
-###	&ERROR("FTP: $@.");
-	return;
-    }
+    return if ($@);
 
     # login.
     if ($ftp->login()) {
