@@ -2,6 +2,7 @@ DONE:
 	- add handling for channel specific factoids:
 	  "#botpark logs" -> http://ibot.rikers.org/botpark
 	  factoidSearch is a space delimited list of prefixes to try
+	- kill %myModules - loadMyModule expects the CORRECT CASE basename
 TODO:
 	- let's get a release out!
 	- kill SHM and and move to a pipe
@@ -14,8 +15,6 @@ TODO:
 	- move lart from blootbot.lang to "lart:<something>" in factoids?
 	- all IsChanConf tests MUST be checking for >0 as -1 is possible
 	  there are a lot of incorrect "if(IsChanConf("foo")) instances now
-	- move src/modules.pl to a built list from src/Modules/*
-	  refresh this list on start and reload. note: lowercase and strip .pl
 	- make sure scheduler design is _right_ - it's broken'ish.
 	- debian BTS frontend "bugs"
 	- !country
