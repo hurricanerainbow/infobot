@@ -638,8 +638,8 @@ sub joinNextChan {
     }
 }
 
-# Usage: &GetNickInChans($nick,$chan);
-sub GetNickInChans {
+# Usage: &getNickInChans($nick);
+sub getNickInChans {
     my ($nick) = @_;
     my @array;
 
@@ -651,8 +651,8 @@ sub GetNickInChans {
     return @array;
 }
 
-# Usage: &GetNicksInChan($chan);
-sub GetNicksInChan {
+# Usage: &getNicksInChan($chan);
+sub getNicksInChan {
     my ($chan) = @_;
     my @array;
 
@@ -707,8 +707,8 @@ sub validChan {
 }
 
 ###
-# Usage: &DeleteUserInfo($nick,@chans);
-sub DeleteUserInfo {
+# Usage: &delUserInfo($nick,@chans);
+sub delUserInfo {
     my ($nick,@chans) = @_;
     my ($mode,$chan);
 
@@ -764,12 +764,12 @@ sub getJoinChans {
 
     my $str;
     if (scalar @skip) {
-	$str = "gJC: channels not auto-joining: @skip";
+	$str = "channels not auto-joining: @skip (joining: @chans)";
     } else {
-	$str = "gJC: auto-joining all chans.";
+	$str = "auto-joining all chans: @chans";
     }
 
-    &status($str) if ($show);
+    &status("Chans: ".$str) if ($show);
 
     return @chans;
 }

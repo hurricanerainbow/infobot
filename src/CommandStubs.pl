@@ -498,7 +498,7 @@ sub seen {
     my $reply;
     ### TODO: multi channel support. may require &IsNick() to return
     ###	all channels or something.
-    my @chans = &GetNickInChans($seen[0]);
+    my @chans = &getNickInChans($seen[0]);
     if (scalar @chans) {
 	$reply = "$seen[0] is currently on";
 

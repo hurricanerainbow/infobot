@@ -74,7 +74,7 @@ sub ScheduleThis {
     my $retval = $conn->schedule($waittime, \&$codename, @args);
     $sched{$codename}{LABEL}	= $retval;
     $sched{$codename}{TIME}	= time()+$waittime;
-    $sched{$codename}{RUNNING}	= 1;
+    $sched{$codename}{LOOP}	= 1;
 }
 
 ####
@@ -86,8 +86,6 @@ sub randomQuote {
     if (@_) {
 	&ScheduleThis($interval, "randomQuote");
 	return if ($_[0] eq "2");	# defer.
-    } else {
-	delete $sched{"randomQuote"}{RUNNING};
     }
 
     my $line = &getRandomLineFromFile($bot_misc_dir. "/blootbot.randtext");
@@ -114,8 +112,6 @@ sub randomFactoid {
     if (@_) {
 	&ScheduleThis($interval, "randomFactoid");
 	return if ($_[0] eq "2");	# defer.
-    } else {
-	delete $sched{"randomFactoid"}{RUNNING};
     }
 
     while (1) {
@@ -146,8 +142,6 @@ sub randomFreshmeat {
     if (@_) {
 	&ScheduleThis($interval, "randomFreshmeat");
 	return if ($_[0] eq "2");	# defer.
-    } else {
-	delete $sched{"randomFreshmeat"}{RUNNING};
     }
 
     my @chans = &ChanConfList("randomFreshmeat");
@@ -169,8 +163,6 @@ sub logLoop {
     if (@_) {
 	&ScheduleThis(60, "logLoop");
 	return if ($_[0] eq "2");	# defer.
-    } else {
-	delete $sched{"logLoop"}{RUNNING};
     }
 
     return unless (defined fileno LOG);
@@ -243,8 +235,6 @@ sub seenFlushOld {
     if (@_) {
 	&ScheduleThis(1440, "seenFlushOld");
 	return if ($_[0] eq "2");	# defer.
-    } else {
-	delete $sched{"seenFlushOld"}{RUNNING};
     }
 
     # is this global-only?
@@ -287,10 +277,8 @@ sub seenFlushOld {
 
 sub newsFlush {
     if (@_) {
-	&ScheduleThis(1440, "newsFlush");
+	&ScheduleThis(60, "newsFlush");
 	return if ($_[0] eq "2");	# defer.
-    } else {
-	delete $sched{"newsFlush"}{RUNNING};
     }
 
     return unless (&IsChanConf("news") > 0);
@@ -348,9 +336,8 @@ sub newsFlush {
     if ($delete or $duser) {
 	&DEBUG("newsF: Writing news.");
 	&News::writeNews();
+	&status("NEWS deleted: $delete news entries; $duser user cache.");
     }
-
-    &status("NEWS deleted: $delete news entries; $duser user cache.");
 }
 
 sub chanlimitCheck {
@@ -359,8 +346,6 @@ sub chanlimitCheck {
     if (@_) {
 	&ScheduleThis($interval, "chanlimitCheck");
 	return if ($_[0] eq "2");
-    } else {
-	delete $sched{"chanlimitCheck"}{RUNNING};
     }
 
     foreach $chan ( &ChanConfList("chanlimitcheck") ) {
@@ -422,8 +407,6 @@ sub netsplitCheck {
     if (@_) {
 	&ScheduleThis(30, "netsplitCheck");
 	return if ($_[0] eq "2");
-    } else {
-	delete $sched{"netsplitCheck"}{RUNNING};
     }
 
     foreach $s1 (keys %netsplitservers) {
@@ -465,8 +448,6 @@ sub floodLoop {
     if (@_) {
 	&ScheduleThis(60, "floodLoop");	# minutes.
 	return if ($_[0] eq "2");
-    } else {
-	delete $sched{"floodLoop"}{RUNNING};
     }
 
     my $time		= time();
@@ -493,8 +474,6 @@ sub seenFlush {
 	my $interval = &getChanConfDefault("seenFlushInterval", 60);
 	&ScheduleThis($interval, "seenFlush");
 	return if ($_[0] eq "2");
-    } else {
-	delete $sched{"seenFlush"}{RUNNING};
     }
 
     my %stats;
@@ -506,8 +485,6 @@ sub seenFlush {
 
     if ($param{'DBType'} =~ /^mysql|pg|postgres/i) {
 	foreach $nick (keys %seencache) {
-	    if (0) {
-	    #BROKEN#
 	    my $retval = &dbReplace("seen", "nick", $nick, (
 			"nick" => $seencache{$nick}{'nick'},
 			"time" => $seencache{$nick}{'time'},
@@ -515,13 +492,14 @@ sub seenFlush {
 			"channel" => $seencache{$nick}{'chan'},
 			"message" => $seencache{$nick}{'msg'},
 	    ) );
-	    &DEBUG("retval => $retval.");
 	    delete $seencache{$nick};
 	    $flushed++;
 
 	    next;
-	    }
-	    ### OLD CODE...
+
+	    ###
+	    ### old code.
+	    ###
 
 	    my $exists = &dbGet("seen","nick", $nick, "nick");
 
@@ -590,8 +568,6 @@ sub leakCheck {
     if (@_) {
 	&ScheduleThis(240, "leakCheck");
 	return if ($_[0] eq "2");
-    } else {
-	delete $sched{"leakCheck"}{RUNNING};
     }
 
     # flood. this is dealt with in floodLoop()
@@ -648,8 +624,6 @@ sub ignoreCheck {
     if (@_) {
 	&ScheduleThis(60, "ignoreCheck");
 	return if ($_[0] eq "2");	# defer.
-    } else {
-	delete $sched{"ignoreCheck"}{RUNNING};
     }
 
     my $time	= time();
@@ -675,8 +649,6 @@ sub ircCheck {
     if (@_) {
 	&ScheduleThis(60, "ircCheck");
 	return if ($_[0] eq "2");	# defer.
-    } else {
-	delete $sched{"ircCheck"}{RUNNING};
     }
 
     my @x	= &getJoinChans();
@@ -748,8 +720,6 @@ sub miscCheck {
     if (@_) {
 	&ScheduleThis(240, "miscCheck");
 	return if ($_[0] eq "2");	# defer.
-    } else {
-	delete $sched{"miscCheck"}{RUNNING};
     }
 
     # SHM check.
@@ -803,8 +773,6 @@ sub miscCheck2 {
     if (@_) {
 	&ScheduleThis(240, "miscCheck2");
 	return if ($_[0] eq "2");	# defer.
-    } else {
-	delete $sched{"miscCheck2"}{RUNNING};
     }
 
     &DEBUG("miscCheck2: Doing debian checking...");
@@ -843,8 +811,6 @@ sub shmFlush {
     if (@_) {
 	&ScheduleThis(5, "shmFlush");
 	return if ($_[0] eq "2");
-    } else {
-	delete $sched{"shmFlush"}{RUNNING};
     }
 
     my $time;
@@ -892,8 +858,6 @@ sub getNickInUse {
     if (@_) {
 	&ScheduleThis(30, "getNickInUse");
 	return if ($_[0] eq "2");	# defer.
-    } else {
-	delete $sched{"getNickInUse"}{RUNNING};
     }
 
     &nick( $param{'ircNick'} );
@@ -905,8 +869,6 @@ sub uptimeLoop {
     if (@_) {
 	&ScheduleThis(60, "uptimeLoop");
 	return if ($_[0] eq "2");	# defer.
-    } else {
-	delete $sched{"uptimeLoop"}{RUNNING};
     }
 
     &uptimeWriteFile();
@@ -917,8 +879,6 @@ sub slashdotLoop {
     if (@_) {
 	&ScheduleThis(60, "slashdotLoop");
 	return if ($_[0] eq "2");
-    } else {
-	delete $sched{"slashdotLoop"}{RUNNING};
     }
 
     my @chans = &ChanConfList("slashdotAnnounce");
@@ -941,8 +901,6 @@ sub freshmeatLoop {
     if (@_) {
 	&ScheduleThis(60, "freshmeatLoop");
 	return if ($_[0] eq "2");
-    } else {
-	delete $sched{"freshmeatLoop"}{RUNNING};
     }
 
     my @chans = &ChanConfList("freshmeatAnnounce");
@@ -964,8 +922,6 @@ sub kernelLoop {
     if (@_) {
 	&ScheduleThis(240, "kernelLoop");
 	return if ($_[0] eq "2");
-    } else {
-	delete $sched{"kernelLoop"}{RUNNING};
     }
 
     my @chans = &ChanConfList("kernelAnnounce");
@@ -1024,8 +980,6 @@ sub wingateWriteFile {
     if (@_) {
 	&ScheduleThis(60, "wingateWriteFile");
 	return if ($_[0] eq "2");	# defer.
-    } else {
-	delete $sched{"wingateWriteFile"}{RUNNING};
     }
 
     return unless (scalar @wingateCache);
@@ -1058,8 +1012,6 @@ sub factoidCheck {
     if (@_) {
 	&ScheduleThis(1440, "factoidCheck");
 	return if ($_[0] eq "2");	# defer.
-    } else {
-	delete $sched{"factoidCheck"}{RUNNING};
     }
 
     my @list	= &searchTable("factoids", "factoid_key", "factoid_key", " #DEL#");
@@ -1100,8 +1052,6 @@ sub dccStatus {
     if (@_) {
 	&ScheduleThis(10, "dccStatus");
 	return if ($_[0] eq "2");	# defer.
-    } else {
-	delete $sched{"dccStatus"}{RUNNING};
     }
 
     my $time = strftime("%H:%M", localtime(time()) );
@@ -1191,10 +1141,9 @@ sub mkBackup {
     }
     return unless ($backup);
 
-    my $delta = time() - (stat $file)[9];
-    &DEBUG("mkb: delta => $delta");
-
-    my $age = &Time2String($delta);
+    # should delta be time(file) - time(file~)?
+    my $delta	= time() - (stat "$file~")[9];
+    my $age	= &Time2String($delta);
 
     ### TODO: do internal copying.
     &status("Backup: $file ($age)");
