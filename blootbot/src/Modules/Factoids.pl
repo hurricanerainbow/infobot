@@ -60,28 +60,28 @@ sub CmdFactInfo {
     }
 
     # modified:
-#    if ($factinfo{'modified_by'}) {
-#	$string	= "last modified";
-#
-#	my $time = $factinfo{'modified_time'};
-#	if ($time) {
-#	    if (time() - $time > 60*60*24*7) {
-#		$string .= " at \037". scalar(localtime $time). "\037";
-#	    } else {
-#		$string .= " ".&Time2String(time() - $time)." ago";
-#	    }
-#	}
-#
-#	my @x;
-#	foreach (split ",", $factinfo{'modified_by'}) {
-#	    /\!/;
-#	    push(@x, $`);
-#	}
-#	$string .= "by ".&IJoin(@x);
-#
-#	$i++;
-#	push(@array,$string);
-#    }
+    if ($factinfo{'modified_by'}) {
+	$string	= "last modified";
+
+	my $time = $factinfo{'modified_time'};
+	if ($time) {
+	    if (time() - $time > 60*60*24*7) {
+		$string .= " at \037". scalar(localtime $time). "\037";
+	    } else {
+		$string .= " ".&Time2String(time() - $time)." ago ";
+	    }
+	}
+
+	my @x;
+	foreach (split ",", $factinfo{'modified_by'}) {
+	    /\!/;
+	    push(@x, $`);
+	}
+	$string .= "by ".&IJoin(@x);
+
+	$i++;
+	push(@array,$string);
+    }
 
     # requested:
     if ($factinfo{'requested_by'}) {
