@@ -235,8 +235,8 @@ listvalues: D: Search the factoid database by value (description)
 listvalues: U: ## <regex>
 listvalues: E: ## blootbot
 
-literal: used to get a raw factoid contents
-literal: U: ## <factoid>
+literal: used to get a raw factoid contents. Use _default to ignore factoidSearch path.
+literal: U: ## [_default|prefix] <factoid>
 literal: E: ## blootbot
 
 lobotomy: I can be given a lobotomy ([o] is required) if people start to abuse me.  To bring me back to life, give me an unlobotomy
