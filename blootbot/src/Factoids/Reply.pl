@@ -86,9 +86,32 @@ sub getReply {
 	$done = 0;
 
 	# EG: (blah1|blah2|blah3|) => blah1
-	while ($result =~ /\((.*?\|.*?)\)/) {
+	while ($result =~ /\((.*\|.*?)\)/) {
 	    my $str = $1;
-	    my @rand = split /\|/, $str;
+	    my @rand;
+
+	    if ($done == 1) {
+		&status("Cool. recursive SAR factoids rock :-)");
+	    }
+
+	    my $x = "";
+	    foreach (split /\|/, $str) {
+		$x = $x.$_;
+
+		if (/^\(/ or ($x ne $_ and !/\)$/)) {   # start or mid.
+		    $x = $x."|";
+###		    print "start or mid. ($x)\n";
+		} elsif (/\)$/) {               # end.
+###		    print "end; pushing '$x$_', (was $x)\n";
+		    push(@rand,$x);
+		    $x = "";
+		} else {
+###		    print "nice append. '$_'\n";
+		    push(@rand,$_);
+		    $x = "";
+		}
+	    }
+
 	    my $rand = $rand[rand @rand];
 
 	    &status("Reply.pl: SARing '($str)' to '$rand'.");
