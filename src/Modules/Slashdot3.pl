@@ -33,7 +33,7 @@ sub slashdotParse {
 }
 
 sub Slashdot {
-    my @results = &::getURL("http://www.slashdot.org/slashdot.xml");
+    my @results = &::getURL("http://slashdot.org/slashdot.xml");
     my $retval  = "i could not get the headlines.";
 
     if (scalar @results) {
@@ -48,7 +48,7 @@ sub Slashdot {
 sub slashdotAnnounce {
     my $file = "$::param{tempDir}/slashdot.xml";
 
-    my @Cxml = &::getURL("http://www.slashdot.org/slashdot.xml");
+    my @Cxml = &::getURL("http://slashdot.org/slashdot.xml");
     if (!scalar @Cxml) {
 	&::DEBUG("sdA: failure (Cxml == NULL).");
 	return;
