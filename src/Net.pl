@@ -182,21 +182,20 @@ sub getURLAsFile {
     my ($url,$file) = @_;
     my ($ua,$res,$req);
 
-    return unless &loadPerlModule("LWP::Simple");
-
-### PROXY NOT SUPPORTED WITH SIMPLE?
-###    $ua->proxy('http', $param{'httpProxy'}) if &IsParam("httpProxy");
-    my $time	= time();
+    return unless &loadPerlModule("LWP::UserAgent");
+    $ua = new LWP::UserAgent;
+    $ua->proxy('http', $param{'httpProxy'}) if &IsParam("httpProxy");
+    my $req = HTTP::Request->new('GET', $url);
+    my $time = time();
     &status("getURLAsFile: getting '$url' as '$file'");
-    my $retval	= getstore($url, $file);
+    my $res = $ua->request($req, $file);
     my $delta_time	= time() - $time;
     if ($delta_time) {
 	my $size = -s $file || 0;
 	my $rate = int($size / $delta_time / 1024);
 	&status("getURLAsFile: Done. ($rate kB/sec)");
     }
-
-    return $retval;
+    return $res;
 }
 
 1;
