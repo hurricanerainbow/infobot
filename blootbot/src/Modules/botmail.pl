@@ -19,15 +19,15 @@ sub parse {
 	return;
     }
 
-    if ($what =~ /^(add|for)\s+(.*)$/i) {
+    if ($what =~ /^(for|add)\s+(.*)$/i) {
 	&add( split(/\s+/, $2, 2) );
 
     } elsif ($what =~ /^check(\s+(.*))?$/i) {
 	&check( split(/\s+/, $1, 2) );
 
-    } elsif ($what =~ /^next$/i) {
-	# todo: read specific items? nah, will make this too complex.
-	&read($::who);
+    } elsif ($what =~ /^(read|next)$/i) {
+	# TODO: read specific items? nah, will make this too complex.
+	&next($::who);
 
     }
 }
@@ -53,24 +53,21 @@ sub check {
 }
 
 #####
-# Usage: botmail::read($recipient)
-sub read {
+# Usage: botmail::next($recipient)
+sub next {
     my($recipient) = @_;
 
-    # todo: simplify this select (use a diff function)
-    my $H = &::dbSelectHashref("*", "botmail", "srcwho",
+    my %hash = &::dbGetColNiceHash("botmail", "*",
 	"dstwho=".&::dbQuote(lc $recipient)
     );
 
-    my $t = $H->total;	# possible?
-
-    if ($t == 0) {
+    if (scalar (keys %hash) <= 1) {
 	&::msg($recipient, "You have no botmail.");
     } else {
-	my $ago = &::Time2String(time() - $H->{time});
-	&::msg($recipient, "From $H->{srcwho} ($H->{srcuh}) on $H->{time} [$ago]:");
-	&::msg($recipient, $H->{message});
-	&::dbDel("botmail", "id", $H->{id});
+	my $ago = &::Time2String(time() - $hash{'time'});
+	&::msg($recipient, "From $hash{srcwho} ($hash{srcuh}) on $hash{time} [$ago]:");
+	&::msg($recipient, $hash{'msg'});
+	#&::dbDel("botmail", "id", $hash{id});
     }
 }
 
@@ -92,7 +89,7 @@ sub add {
 	"dstwho=".&::dbQuote(lc $recipient)
     );
 
-    if (%hash) {
+    if (scalar (keys %hash) <= 1) {
 	&::msg($::who, "$recipient already has a message queued from you");
 	return;
     }
