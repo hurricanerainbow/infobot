@@ -9,7 +9,6 @@ package Debian;
 
 use strict;
 
-# format: "alias=real".
 my $announce	= 0;
 my $defaultdist	= "sid";
 my $refresh = &::getChanConfDefault("debianRefreshInterval",7)
@@ -19,6 +18,7 @@ my $debian_dir	= "$::bot_state_dir/debian";
 my $country	= "ca";
 my $protocol	= "http";
 
+# format: "alias=real".
 my %dists	= (
 	"unstable"	=> "sid",
 	"testing"	=> "sarge",
@@ -235,7 +235,7 @@ sub searchContents {
     $regex	=~ s/\?/./g;
 
     open(IN,"zegrep -h '$grepRE' $files |");
-    # wonderful abuse of last and next and unless ;)
+    # wonderful abuse of if, last, next, return, and, unless ;)
     while (<IN>) {
 	last if ($found > 100);
 
@@ -314,23 +314,24 @@ sub searchContents {
     my $prefix = "Debian Search of '$query' ";
     if (scalar @list) {	# @list.
 	&::pSReply( &::formListReply(0, $prefix, @list) );
+	return;
+    }
 
-    } else {		# !@list.
-	&::DEBUG("deb: ok, !\@list, searching desc for '$query'.") if ($debug);
-	my @list = &searchDesc($query);
+    # !@list.
+    &::DEBUG("deb: ok, !\@list, searching desc for '$query'.") if ($debug);
+    my @list = &searchDesc($query);
 
-	if (!scalar @list) {
-	    my $prefix = "Debian Package/File/Desc Search of '$query' ";
-	    &::pSReply( &::formListReply(0, $prefix, ) );
+    if (!scalar @list) {
+	my $prefix = "Debian Package/File/Desc Search of '$query' ";
+	&::pSReply( &::formListReply(0, $prefix, ) );
 
-	} elsif (scalar @list == 1) {	# list = 1.
-	    &::DEBUG("deb: list == 1; showing package info of '$list[0]'.");
-	    &infoPackages("info", $list[0]);
+    } elsif (scalar @list == 1) {	# list = 1.
+	&::DEBUG("deb: list == 1; showing package info of '$list[0]'.");
+	&infoPackages("info", $list[0]);
 
-	} else {				# list > 1.
-	    my $prefix = "Debian Desc Search of '$query' ";
-	    &::pSReply( &::formListReply(0, $prefix, @list) );
-	}
+    } else {				# list > 1.
+	my $prefix = "Debian Desc Search of '$query' ";
+	&::pSReply( &::formListReply(0, $prefix, @list) );
     }
 }
 
@@ -576,7 +577,7 @@ sub getPackageInfo {
     my $found = 0;
     my (%pkg, $pkg);
 
-    open(IN, "zcat $file 2>&1 |");
+    open(IN, "/bin/zcat $file 2>&1 |");
 
     my $done = 0;
     while (!eof IN) {
@@ -671,6 +672,7 @@ sub infoPackages {
     if (!scalar @files) {
 	&::status("Debian: no valid package found; checking incoming.");
 	@files = &validPackage($package, "incoming");
+
 	if (scalar @files) {
 	    &::status("Debian: cool, it exists in incoming.");
 	    $incoming++;
@@ -709,32 +711,32 @@ sub infoPackages {
 
     # 'fm'-like output.
     if ($query eq "info") {
-	if (scalar keys %pkg > 5) {
-	    $pkg{'info'}  = "\002(\002". $pkg{'desc'} ."\002)\002";
-	    $pkg{'info'} .= ", section ".$pkg{'section'};
-	    $pkg{'info'} .= ", is ".$pkg{'priority'};
-#	    $pkg{'info'} .= ". Version: \002$pkg{'version'}\002";
-	    $pkg{'info'} .= ". Version: \002$pkg{'version'}\002 ($dist)";
-	    $pkg{'info'} .= ", Packaged size: \002". int($pkg{'size'}/1024) ."\002 kB";
-	    $pkg{'info'} .= ", Installed size: \002$pkg{'installed'}\002 kB";
-
-	    if ($incoming) {
-		&::status("iP: info requested and pkg is in incoming, too.");
-		my %incpkg = &getPackageInfo($query, $debian_dir ."/Packages-incoming");
-
-		if (scalar keys %incpkg) {
-		   $pkg{'info'} .= ". Is in incoming ($incpkg{'file'}).";
-		} else {
-		    &::ERROR("iP: pkg $query is in incoming but we couldn't get any info?");
-		}
-	    }
-	} else {
+	if (scalar keys %pkg <= 5) {
 	    &::DEBUG("deb: running debianCheck() due to problems (".scalar(keys %pkg).").");
 	    &debianCheck();
 	    &::DEBUG("deb: end of debianCheck()");
 
 	    &::msg($::who,"Debian: Package appears to exist but I could not retrieve info about it...");
 	    return;
+	}
+
+	$pkg{'info'}  = "\002(\002". $pkg{'desc'} ."\002)\002";
+	$pkg{'info'} .= ", section ".$pkg{'section'};
+	$pkg{'info'} .= ", is ".$pkg{'priority'};
+#	$pkg{'info'} .= ". Version: \002$pkg{'version'}\002";
+	$pkg{'info'} .= ". Version: \002$pkg{'version'}\002 ($dist)";
+	$pkg{'info'} .= ", Packaged size: \002". int($pkg{'size'}/1024) ."\002 kB";
+	$pkg{'info'} .= ", Installed size: \002$pkg{'installed'}\002 kB";
+
+	if ($incoming) {
+	    &::status("iP: info requested and pkg is in incoming, too.");
+	    my %incpkg = &getPackageInfo($query, $debian_dir ."/Packages-incoming");
+
+	    if (scalar keys %incpkg) {
+		$pkg{'info'} .= ". Is in incoming ($incpkg{'file'}).";
+	    } else {
+		&::ERROR("iP: pkg $query is in incoming but we couldn't get any info?");
+	    }
 	}
     } 
 
@@ -954,10 +956,10 @@ sub validPackage {
 
 sub searchPackage {
     my ($dist, $query) = &getDistroFromStr($_[0]);
-    my $file = $debian_dir."/Packages-$dist.idx";
-    my @files;
-    my $error	= 0;
+    my $file	= $debian_dir."/Packages-$dist.idx";
     my $warn	= ($query =~ tr/A-Z/a-z/) ? 1 : 0;
+    my $error	= 0;
+    my @files;
 
     &::status("Debian: Search package matching '$query' in '$dist'.");
     unlink $file if ( -z $file );
@@ -1106,7 +1108,8 @@ sub debianCheck {
     while (defined($file = readdir DEBIAN)) {
 	next unless ($file =~ /(gz|bz2)$/);
 
-	my $exit = system("gzip -t '$debian_dir/$file'");
+	# todo: add bzip2 support (debian doesn't do .bz2 anyway)
+	my $exit = system("/bin/gzip -t '$debian_dir/$file'");
 	next unless ($exit);
 	&::DEBUG("deb: hmr... => ".(time() - (stat($file))[8])."'.");
 	next unless (time() - (stat($file))[8] > 3600);
