@@ -1,4 +1,4 @@
-
+	* src/core.pl: getChanConf checks _default too
 	* src/: "s/hasParam/IsChanConfOrWarn/"
 	* src/: add handling for channel specific factoids:
 	  "#botpark logs" -> http://ibot.rikers.org/botpark
