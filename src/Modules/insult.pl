@@ -1,6 +1,7 @@
 #
 # insult.pl: insult engine
-#       ???: ???
+#      TODO: move this code out to a common file like I did with DNS.
+#	     => use the command hooks system aswell
 #
 
 use strict;
@@ -9,7 +10,7 @@ package Insult;
 
 sub Insult {
     my ($insultwho) = @_;
-    return unless &loadPerlModule("Net::Telnet");
+    return unless &::loadPerlModule("Net::Telnet");
 
     my $t = new Net::Telnet(Timeout => 3);
     $t->Net::Telnet::open(Host => "insulthost.colorado.edu", Port => "1695");
@@ -21,7 +22,7 @@ sub Insult {
 	$line =~ s/^\s*You are/$insultwho is/i;
     }
 
-    &performStrictReply($line);
+    &::pSReply($line);
 }
 
 1;
