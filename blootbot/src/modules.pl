@@ -122,8 +122,7 @@ sub loadDBModules {
 	    exit 1;
 	}
 	&status("Loading SQLite support.");
-#	$f = "$bot_src_dir/dbi.pl";
-	$f = "$bot_src_dir/db_sqlite.pl";
+	$f = "$bot_src_dir/dbi.pl";
 	require $f;
 	$moduleAge{$f} = (stat $f)[9];
 
