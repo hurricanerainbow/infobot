@@ -142,8 +142,6 @@ sub on_ison {
     my $x2 = ($event->args)[1];
     $x2 =~ s/\s$//;
 
-#    &nick( $param{'ircNick'} );
-
     &DEBUG("on_ison: x1 = '$x1', x2 => '$x2'");
 }
 
@@ -151,7 +149,7 @@ sub on_endofmotd {
     $conn = shift(@_);
 
     # update IRCStats.
-    $ident = $param{'ircNick'};
+    $ident = $conn->nick();
     $ircstats{'ConnectTime'}	= time();
     $ircstats{'ConnectCount'}++;
     if (defined $ircstats{'DisconnectTime'}) {
@@ -208,7 +206,7 @@ sub on_endofmotd {
     $running = 1;
 
     # add ourself to notify.
-    $conn->ison( $param{'ircNick'} );
+    $conn->ison($conn->nick());
 
     # Q, as on quakenet.org.
     if (&IsParam("Q_pass")) {
@@ -564,7 +562,7 @@ sub on_join {
     return if ($netsplit);
 
     # who == bot.
-    if ($who eq $ident or $who =~ /^$ident$/i) {
+    if ($who eq $ident or $who =~ /^\Q$ident\E$/i) {
 	if (defined( my $whojoin = $cache{join}{$chan} )) {
 	    &msg($chan, "Okay, I'm here. (courtesy of $whojoin)");
 	    delete $cache{join}{$chan};
@@ -724,8 +722,8 @@ sub on_nick {
 	$ident	= $newnick;
     } else {
 	&status(">>> $b_cyan$nick$ob materializes into $b_green$newnick$ob");
-
-	if ($nick =~ /^\Q$param{'ircNick'}\E$/i) {
+	my $mynick=$conn->nick();
+	if ($nick =~ /^\Q$mynick\E$/i) {
 	    &getNickInUse();
 	}
     }
@@ -1007,10 +1005,11 @@ sub on_quit {
     delete $chanstats{lc $nick};
     ###
 
-    # does this work?
-    if ($nick !~ /^\Q$ident\E$/ and $nick =~ /^\Q$param{'ircNick'}\E$/i) {
+    # FIXME: does this work?
+    my $mynick = conn->nick();
+    if ($nick !~ /^\Q$ident\E$/ and $nick =~ /^\Q$mynick\E$/i) {
 	&status("nickchange: own nickname became free; changing.");
-	&nick( $param{'ircNick'} );
+	&nick($mynick);
     }
 }
 

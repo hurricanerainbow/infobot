@@ -103,7 +103,8 @@ sub hookMsg {
 
 	if ($message =~ /^($mask{nick})([\;\:\>\, ]+) */) {
 	    my $newmessage = $';
-	    if ($1 =~ /^\Q$ident\E$/i) {
+	    my $mynick = $conn->nick();
+	    if ($1 =~ /^\Q$mynick\E$/i) {
 		$message   = $newmessage;
 		$addressed = 1;
 	    } else {
