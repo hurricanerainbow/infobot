@@ -7,6 +7,8 @@
 
 if (&IsParam("useStrict")) { use strict; }
 
+use POSIX qw(_exit);
+
 sub openSHM {
     my $IPC_PRIVATE = 0;
     my $size = 2000;
@@ -64,15 +66,17 @@ sub shmWrite {
     }
 }
 
-#######
-# Helpers
-#
+##############
+### Helpers
+###
 
 # Usage: &addForked($name);
 # Return: 1 for success, 0 for failure.
 sub addForked {
-    my ($name) = @_;
+    my ($name)		= @_;
     my $forker_timeout	= 360;	# 6mins, in seconds.
+    $forker		= $name;
+
     if (!defined $name) {
 	&WARN("addForked: name == NULL.");
 	return 0;
@@ -129,10 +133,13 @@ sub addForked {
 }
 
 sub delForked {
-    my ($name) = @_;
+    my ($name)	= @_;
+
+    return if ($$ == $bot_pid);
+
     if (!defined $name) {
 	&WARN("delForked: name == NULL.");
-	return 0;
+	POSIX::_exit(0);
     }
 
     &showProc();	# just for informational purposes.
@@ -141,11 +148,13 @@ sub delForked {
 	my $timestr = &Time2String(time() - $forked{$name}{Time});
 	&status("fork: took $timestr for $name.");
 	&shmWrite($shm,"DELETE FORK $name");
-	return 1;
     } else {
 	&ERROR("delForked: forked{$name} does not exist. should not happen.");
-	return 0;
     }
+
+    &status("fork finished for '$name'.");
+
+    POSIX::_exit(0);
 }
 
 1;
