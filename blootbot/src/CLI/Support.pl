@@ -16,7 +16,8 @@ sub cliloop {
     $ident = $param{'ircUser'};
     $chan = $talkchannel = "_local";
     $addressed = 1;
-    $msgType = 'public';
+    $msgType = 'private';
+    $host = "local";
 
     # install libterm-readline-gnu-perl to get history support
     use Term::ReadLine;
