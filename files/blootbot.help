@@ -19,7 +19,7 @@ reply: There is a special tag, <reply>, that is used to override the usual respo
 
 alternation: The || symbol in an entry causes an blootbot to choose one of the replies at random. "X is Y||Z" will produce "X is Y" or "X is Z" randomly. 
 
-redirection: If a factoid x contains simply "<reply> see y", then when asked for x, I will deliver factoid y instead
+redirection: If a factoid x contains simply "<reply> see y", then when asked for x, I will deliver factoidor command result y instead.
 
 # now the commands...
 lobotomy: I can be given a lobotomy ([o] is required) if people start to abuse me.  To bring me back to life, give me an unlobotomy
