@@ -448,8 +448,8 @@ sub searchDesc {
 	my $prefix = "Debian Desc Search of '$query' ";
 	&main::performStrictReply( &main::formListReply(0, $prefix, ) );
     } elsif (scalar @list == 1) {	# list = 1.
-	&main::DEBUG("list == 1; showing package info of '$query'.");
-	&infoPackages("info", $query);
+	&main::DEBUG("list == 1; showing package info of '$list[0]'.");
+	&infoPackages("info", $list[0]);
     } else {				# list > 1.
 	my $prefix = "Debian Desc Search of '$query' ";
 	&main::performStrictReply( &main::formListReply(0, $prefix, @list) );
