@@ -52,8 +52,9 @@ sub Parse {
 	    return;
 	}
 
-	$chan = $chans[0];
+	$chan	= $chans[0];
 	&::DEBUG("Guessed $::who being on chan $chan");
+	$::chan	= $chan;	# hack for IsChanConf().
     }
 
     if (!defined $what or $what =~ /^\s*$/) {
@@ -81,7 +82,6 @@ sub Parse {
 	&read($2);
 
     } elsif ($what =~ /^(latest|new)(\s+(.*))?$/i) {
-	&::DEBUG("latest called... hrm");
 	&latest($3 || $chan, 1);
 
     } elsif ($what =~ /^list$/i) {
@@ -660,13 +660,19 @@ sub latest {
 	return;
     }
 
+    if (&::IsChanConf("newsNotifyAll") and !defined $t) {
+#	$::newsuser{$chan}{$::who} = 1;
+	$t = 1;
+    }
+
+    if (!defined $t) {
+	&::DEBUG("something went really wrong.");
+	&::msg($::who, "something went really wrong.");
+	return;
+    }
+
     my @new;
     foreach (keys %{ $::news{$chan} }) {
-	if (&::IsChanConf("newsNotifyAll") and !defined $t) {
-	    &::DEBUG("setting time for $::who to 1...");
-	    $::newsuser{$chan}{$::who} = 1;
-	    $t = 1;
-	}
 	next if (!defined $t);
 	next if ($t > $::news{$chan}{$_}{Time});
 
@@ -692,14 +698,24 @@ sub latest {
 	&::msg($::who, "+==== New news for \002$chan\002 (".
 		scalar(@new)." new items):");
 
-	my $timestr = &::Time2String( time() - $::newsuser{$chan}{$::who} );
-	&::msg($::who, "|= Last time read $timestr ago");
+	if ($::newsuser{$chan}{$::who}) {
+	    my $timestr = &::Time2String( time() - $::newsuser{$chan}{$::who} );
+	    &::msg($::who, "|= Last time read $timestr ago");
+	}
 
+	my @sorted;
 	foreach (@new) {
 	    my $i   = &newsS2N($_);
-	    my $age = time() - $::news{$chan}{$_}{Time};
+	    $sorted[$i] = $_;
+	}
+
+	for (my $i=0; $i<=scalar(@sorted); $i++) {
+	    my $news = $sorted[$i];
+	    next unless (defined $news);
+
+	    my $age = time() - $::news{$chan}{$news}{Time};
 	    &::msg($::who, sprintf("\002[\002%2d\002]\002 %s",
-		$i, $_) );
+		$i, $news) );
 #		$i, $_, &::Time2String($age) ) );
 	}
 
@@ -735,6 +751,7 @@ sub getNewsAll {
 
 sub newsS2N {
     my($what)	= @_;
+    my $item	= 0;
     my @items;
     my $no;
 

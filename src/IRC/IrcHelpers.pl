@@ -258,10 +258,9 @@ sub chanLimitVerify {
     if (defined $l and &IsChanConf("chanlimitcheck")) {
 	my $plus  = &getChanConfDefault("chanlimitcheckPlus", 5, $chan);
 	my $count = scalar(keys %{ $channels{$chan}{''} });
-	&DEBUG("plus = $plus, count = $count");
-	my $delta	= $count + $plus - $l;
-	$delta		=~ s/^\-//;
-	&DEBUG("    delta => $delta");
+
+	my $delta = $count + $plus - $l;
+	$delta    =~ s/^\-//;
 
 	if ($plus <= 3) {
 	    &WARN("clc: stupid to have plus at $plus, fix it!");

@@ -408,6 +408,8 @@ sub on_join {
     my ($user,$host) = split(/\@/, $event->userhost);
     $chan	= lc( ($event->to)[0] );	# CASING!!!!
     $who	= $event->nick();
+# doesn't work properly, for news :(
+#    $msgType	= "private";	# for &IsChanConf().
 
     $chanstats{$chan}{'Join'}++;
     $userstats{lc $who}{'Join'} = time() if (&IsChanConf("seenStats"));
@@ -474,6 +476,9 @@ sub on_join {
 	last;
     }
 
+    # no need to go further.
+    return if ($netsplit);
+
     ### ROOTWARN:
     &rootWarn($who,$user,$host,$chan)
 		if (&IsChanConf("rootWarn") &&
@@ -481,9 +486,14 @@ sub on_join {
 		    $channels{$chan}{'o'}{$ident});
 
     ### NEWS:
+    # why isn't this "enabled" just as someone joins?
+
     if (&IsChanConf("news") && &IsChanConf("newsKeepRead")) {
-	# todo: what if it hasn't been loaded?
-	&News::latest($chan);
+	if (!&loadMyModule("news")) {	# just in case.
+	    &DEBUG("could not load news.");
+	} else {
+	    &News::latest($chan);
+	}
     }
 
     ### chanlimit check.
@@ -819,7 +829,7 @@ sub on_targettoofast {
 ###    .* wait (\d+) second/) {
 	&status("on_ttf: X1 $msg") if (defined $msg);
 	my $sleep = 5;
-	&status("going to sleep for $sleep...");
+	&status("targettoofast: going to sleep for $sleep...");
 	sleep $sleep;
 	&joinNextChan();
 ### }
