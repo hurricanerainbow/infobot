@@ -1,3 +1,6 @@
+2005-02-18 00:00  timriker
+
+	* src/Factoids/Question.pl: minVolunteerLength now per channel
 	* src/core.pl: getChanConf checks _default too
 	* src/: "s/hasParam/IsChanConfOrWarn/"
 	* src/: add handling for channel specific factoids:

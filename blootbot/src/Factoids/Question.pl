@@ -33,8 +33,8 @@ sub doQuestion {
 
     if (!$addressed) {
 	return '' unless ($finalQMark);
-	return '' if (&IsParam("minVolunteerLength") == 0);
-	return '' if (length $query < $param{'minVolunteerLength'});
+	return '' unless &IsChanConf("minVolunteerLength");
+	return '' if (length $query < &::getChanConf('minVolunteerLength'));
     } else {
 	### TODO: this should be caught in Process.pl?
 	return '' unless ($talkok);
