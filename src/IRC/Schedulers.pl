@@ -56,29 +56,32 @@ sub setupSchedulers {
     # ONCE OFF.
 
     # REPETITIVE.
-    # 1 for run straight away, 2 for on next-run.
-    &uptimeLoop(1);
+    # 2 for on next-run.
     &randomQuote(2);
     &randomFactoid(2);
-    &logLoop(1);
-    &chanlimitCheck(1);
-    &netsplitCheck(1);	# mandatory
-    &floodLoop(1);	# mandatory
     &seenFlush(2);
     &leakCheck(2);	# mandatory
-    &ignoreCheck(1);	# mandatory
     &seenFlushOld(2);
-    &ircCheck(1);	# mandatory
-    &miscCheck(1);	# mandatory
     &miscCheck2(2);	# mandatory
-    &shmFlush(1);	# mandatory
     &slashdotLoop(2);
     &plugLoop(2);
     &kernelLoop(2);
     &wingateWriteFile(2);
     &factoidCheck(2);	# takes a couple of seconds on a 486. defer it
 # TODO: convert to new format... or nuke altogether.
-    &newsFlush(1);
+    &newsFlush(2);
+
+    # 1 for run straight away
+    &uptimeLoop(1);
+    &logLoop(1);
+    &chanlimitCheck(1);
+    &netsplitCheck(1);	# mandatory
+    &floodLoop(1);	# mandatory
+    &ignoreCheck(1);	# mandatory
+    &miscCheck(1);	# mandatory
+    &shmFlush(1);	# mandatory
+    sleep 1;
+    &ircCheck(1);	# mandatory
 
     # TODO: squeeze this into a one-liner.
 #    my $count = map { exists $sched{$_}{TIME} } keys %sched;
@@ -109,7 +112,7 @@ sub ScheduleThis {
 	return;
     }
 
-    #&DEBUG("Scheduling \&$codename() " . \&$codename . " for " . &Time2String($waittime),3);
+    &DEBUG("Scheduling \&$codename() " . \&$codename . " for " . &Time2String($waittime),3);
 
     my $retval = $conn->schedule($waittime, \&$codename, @args);
     $sched{$codename}{LABEL}	= $retval;
