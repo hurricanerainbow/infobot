@@ -50,7 +50,7 @@ sub ftpGet {
     if ($size = $ftp->size($file)) {
 	&status("FTP: file size is $size") if ($verbose_ftp);
 	my $thisfile	= $file || $lfile;
-	&DEBUG("lfile => '$lfile'.");
+
 	if ( -f $thisfile) {
 	    $lsize	= -s $thisfile;
 	    if ($_ != $lsize) {
@@ -76,7 +76,7 @@ sub ftpGet {
 	&status("FTP: getting $file.") if ($verbose_ftp);
 	$ftp->get($file);
     }
-    &DEBUG("FTP: remsize => '$size'.");
+
     if (defined $lsize) {
 	&DEBUG("FTP: locsize => '$lsize'.");
 	if ($size != $lsize) {
