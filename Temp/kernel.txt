@@ -1,3 +1,0 @@
- The latest stable version of the Linux kernel is: 2.2.16
- The latest beta version of the Linux kernel is: 2.4.0-test4
- The latest prepatch (alpha) version *appears* to be: 2.4.0-test5/pre6
