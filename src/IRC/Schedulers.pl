@@ -378,16 +378,16 @@ sub chanlimitCheck {
 	    &status("ChanLimit: setting for first time or from netsplit, for $chan");
 	}
 
-	if (exists $cache{chanlimitChange_$chan}) {
-	    if (time() - $cache{chanlimitChange_$chan} < 60) {
+	if (exists $cache{ "chanlimitChange_$chan" }) {
+	    if (time() - $cache{ "chanlimitChange_$chan" } < 60) {
 		&DEBUG("not going to change chanlimit!");
 		return;
 	    }
-	    delete $cache{chanlimitChange_$chan};
+	    delete $cache{ "chanlimitChange_$chan" };
 	}
 
 	&rawout("MODE $chan +l $newlimit");
-	$cache{chanlimitChange_$chan} = time();
+	$cache{ "chanlimitChange_$chan" } = time();
     }
 }
 

@@ -848,11 +848,10 @@ sub on_targettoofast {
 
     ### TODO: incomplete.
 ###    .* wait (\d+) second/) {
-	&status("on_ttf: X1 $msg") if (defined $msg);
+	&status("on_ttf: X1 $why") if (defined $why);
 	my $sleep = 5;
 	&status("targettoofast: going to sleep for $sleep...");
 	sleep $sleep;
-	&joinNextChan();
 ### }
 }
 
