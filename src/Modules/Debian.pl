@@ -17,6 +17,7 @@ my $refresh = &::getChanConfDefault("debianRefreshInterval",7)
 my $debug	= 0;
 my $debian_dir	= "$::bot_state_dir/debian";
 my $country	= "ca";
+my $protocol	= "http";
 
 my %dists	= (
 	"unstable"	=> "sid",
@@ -28,32 +29,32 @@ my %dists	= (
 
 my %urlcontents = (
 	"Contents-##DIST-i386.gz" =>
-		"ftp://ftp.$country.debian.org".
+		"$protocol://ftp.$country.debian.org".
 		"/debian/dists/##DIST/Contents-i386.gz",
 	"Contents-##DIST-i386-non-US.gz" =>
-		"ftp://non-us.debian.org".
+		"$protocol://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/Contents-i386.gz",
 );
 
 my %urlpackages = (
 	"Packages-##DIST-main-i386.gz" =>
-		"ftp://ftp.$country.debian.org".
+		"$protocol://ftp.$country.debian.org".
 		"/debian/dists/##DIST/main/binary-i386/Packages.gz",
 	"Packages-##DIST-contrib-i386.gz" =>
-		"ftp://ftp.$country.debian.org".
+		"$protocol://ftp.$country.debian.org".
 		"/debian/dists/##DIST/contrib/binary-i386/Packages.gz",
 	"Packages-##DIST-non-free-i386.gz" =>
-		"ftp://ftp.$country.debian.org".
+		"$protocol://ftp.$country.debian.org".
 		"/debian/dists/##DIST/non-free/binary-i386/Packages.gz",
 
 	"Packages-##DIST-non-US-main-i386.gz" =>
-		"ftp://non-us.debian.org".
+		"$protocol://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/main/binary-i386/Packages.gz",
 	"Packages-##DIST-non-US-contrib-i386.gz" =>
-		"ftp://non-us.debian.org".
+		"$protocol://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/contrib/binary-i386/Packages.gz",
 	"Packages-##DIST-non-US-non-free-i386.gz" =>
-		"ftp://non-us.debian.org".
+		"$protocol://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/non-free/binary-i386/Packages.gz",
 );
 
@@ -107,46 +108,41 @@ sub DebianDownload {
 	if ($url =~ /^ftp:\/\/(.*?)\/(\S+)\/(\S+)$/) {
 	    my ($host,$path,$thisfile) = ($1,$2,$3);
 
-### HACK 1
-#	    if ($file =~ /Contents-woody-i386-non-US/) {
-#		&::DEBUG("Skipping Contents-woody-i386-non-US.");
-#		$file =~ s/woody/potato/;
-#		$path =~ s/woody/potato/;
-#		next;
-#	    }
-
 	    if (!&::ftpGet($host,$path,$thisfile,$file)) {
 		&::WARN("deb: down: $file == BAD.");
 		$bad++;
 		next;
 	    }
 
-	    if (! -f $file) {
-		&::WARN("deb: down: ftpGet: !file");
+	} elsif ($url =~ /^http:\/\/\S+\/\S+$/) {
+
+	    if (!&::getURLAsFile($url,$file)) {
+		&::WARN("deb: down: http: $file == BAD.");
 		$bad++;
 		next;
 	    }
-
-### HACK2
-#	    if ($file =~ /Contents-potato-i386-non-US/) {
-#		&::DEBUG("hack: using potato's non-US contents for woody.");
-#		system("cp debian/Contents-potato-i386-non-US.gz debian/Contents-woody-i386-non-US.gz");
-#	    }
-
-	    my $exit = CORE::system("/bin/gzip -t $file >/dev/null 2>&1");
-	    if ($exit) {
-		&::WARN("deb: $file is corrupted :/");
-		unlink $file;
-		next;
-	    }
-
-	    &::DEBUG("deb: download: good.") if ($debug);
-	    $good++;
+	
 	} else {
 	    &::ERROR("Debian: invalid format of url => ($url).");
 	    $bad++;
 	    next;
 	}
+
+	if (! -f $file) {
+	    &::WARN("deb: down: http: !file");
+	    $bad++;
+	    next;
+	}
+
+	my $exit = CORE::system("/bin/gzip -t $file >/dev/null 2>&1");
+	if ($exit) {
+	    &::WARN("deb: $file is corrupted :/");
+	    unlink $file;
+	    next;
+	}
+
+	&::DEBUG("deb: download: good.") if ($debug);
+	$good++;
     }
 
     # ok... lets just run this.
