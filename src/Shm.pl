@@ -117,9 +117,16 @@ sub addForked {
 	$count++;
     }
 
-    if (exists $forked{$name}) {
+    if (exists $forked{$name} and !scalar keys %{ $forked{$name} }) {
+	&WARN("addF: forked{$name} exists but is empty; deleting.");
+	undef $forked{$name};
+    }
+
+    if (exists $forked{$name} and scalar keys %{ $forked{$name} }) {
 	my $time	= $forked{$name}{Time};
 	my $continue	= 0;
+
+	&DEBUG("PID => $forked{$name}{PID}");
 
 	if (-d "/proc/$forked{$name}{PID}") {
 	    &status("fork: still running; good. BAIL OUT.");
