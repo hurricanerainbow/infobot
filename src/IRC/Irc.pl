@@ -18,7 +18,7 @@ use vars qw($b_blue $ob);
 use vars qw(@ircServers);
 
 $nickserv	= 0;
-$maxlinelen	= 400;
+my $maxlinelen	= 400;
 
 sub ircloop {
     my $error	= 0;
