@@ -34,7 +34,7 @@ if ($@) {
 	"factoids"	=> "Factoids.pl",
 	"HTTPDtype"	=> "HTTPDtype.pl",
 	"insult"	=> "insult.pl",
-	"ircdcc"	=> "UserDCC.pl",
+	"UserDCC"	=> "UserDCC.pl",
 	"kernel"	=> "Kernel.pl",
 	"news"		=> "News.pl",
 	"nickometer"	=> "nickometer.pl",

@@ -340,7 +340,7 @@ sub process {
 
 	# allow administration of bot via messages (default is DCC CHAT only)
 	if (&IsFlag("A")) {
-	    &loadMyModule( $myModules{'ircdcc'} );
+	    &loadMyModule( $myModules{'UserDCC'} );
 	    $er = &userDCC();
 	    if (!defined $er) {
 		return 'SOMETHING 2';
