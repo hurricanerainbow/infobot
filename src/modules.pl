@@ -184,8 +184,6 @@ sub loadMyModulesNow {
 	    next;
 	}
 
-	&DEBUG("_ => $_");
-
 	if (!&IsParam($_) and !&IsChanConf($_)) {
 	    if (exists $myModules{$_}) {
 		&DEBUG("myModule: $myModules{$_} (1) not loaded.");
