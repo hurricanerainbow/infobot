@@ -449,10 +449,12 @@ sub isStale {
 
     return 1 unless ( -f $file);
     if ($file =~ /idx/) {
-	my $age	= time() - (stat($file))[9];
-	&DEBUG("stale: $age. (". &Time2String($age) .")");
+	my $age2 = time() - (stat($file))[9];
+	&DEBUG("stale: $age2. (". &Time2String($age2) .")");
     }
-    return 1 if (time() - (stat($file))[9] > $age*60*60*24);
+    $age *= 60*60*24 if ($age >= 0 and $age < 30);
+
+    return 1 if (time() - (stat($file))[9] > $age);
     return 0;
 }
 
