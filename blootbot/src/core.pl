@@ -85,7 +85,7 @@ sub doWarn {
 	&WARN("PERL: $_");
     }
 
-    $SIG{__WARN__} = 'doWarn';
+    $SIG{__WARN__} = 'doWarn';	# ???
 }
 
 # Usage: &IsParam($param);
@@ -228,6 +228,8 @@ sub startup {
 
 sub shutdown {
     # reverse order of &setup().
+    &DEBUG("shutdown called.");
+
     &closeDB();
     &closeSHM($shm);	# aswell. TODO: use this in &doExit?
     &closeLog();
