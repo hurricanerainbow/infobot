@@ -52,7 +52,6 @@ sub list {
 	my $res = $ua->request($req);
 	my %servers;
 	my $totalServers = 0;
-	my $totalPlayers = 0;
 	for my $line (split("\n",$res->content)) {
 		my ($serverport, $version, $flags, $ip, $comments) = split(" ",$line,5);
 		# not "(A4)18" to handle old dumb perl
@@ -63,10 +62,11 @@ sub list {
 		my $playerSize = hex($rogueSize) + hex($redSize) + hex($greenSize)
 				+ hex($blueSize) + hex($purpleSize) + hex($observerSize);
 		$servers{$serverport} = $playerSize;
+	  $servers{$version} += $playerSize;
+		$servers{'PLAYERS'} += $playerSize;
 		$totalServers += 1;
-		$totalPlayers += $playerSize;
 	}
-	$response .= "s=$totalServers p=$totalPlayers";
+	$response .= "s=$totalServers";
 	foreach my $key (sort {$servers{$b} <=> $servers{$a}} (keys(%servers))) {
 		if ($servers{$key} > 0) {
 			$response .= " $key($servers{$key})";
@@ -165,7 +165,6 @@ sub querytext {
 		# send game request
 		print S1 pack("n2", 0, 0x7167);
 
-		# FIXME the packets are wrong from here down
 		# get reply
 		return 'server read error' unless read(S1, $buffer, 46) == 46;
     my ($infolen,$infocode,$style,$maxPlayers,$maxShots,
