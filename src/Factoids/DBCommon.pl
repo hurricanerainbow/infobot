@@ -33,7 +33,7 @@ sub getFactoid {
 sub delFactoid {
     my ($faqtoid) = @_;
 
-    &dbDel("factoids", "factoid_key",$faqtoid);
+    &dbDel("factoids", {"factoid_key"=>$faqtoid});
     &status("DELETED $faqtoid");
  
     return 1;

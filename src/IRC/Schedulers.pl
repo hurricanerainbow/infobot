@@ -260,7 +260,7 @@ sub seenFlushOld {
 	while (my @row = $sth->fetchrow_array) {
 	    my ($nick,$time) = @row;
 
-	    &dbDel("seen","nick",$nick);
+	    &dbDel("seen",{"nick"=>$nick});
 	    $delete++;
 	}
 	$sth->finish;

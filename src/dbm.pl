@@ -230,10 +230,12 @@ sub dbSetRow {
 }
 
 #####
-# Usage: &dbDel($table, $primkey, $primval, [$key]);
+# Usage: &dbDel($table, $primhash_ref);
+#  Note: dbDel does dbQuote
 sub dbDel {
-    my ($table, $primkey, $primval, $key) = @_;
-    &DEBUG("dbDel($table, $primkey, $primval);");
+    my ($table, $phref) = @_;
+    # FIXME does not really handle more than one key!
+    my $primval = join(':', values %{$phref});
 
     if (!defined ${$table}{lc $primval}) {
 	&DEBUG("dbDel: lc $primval does not exist in $table.");
@@ -251,7 +253,7 @@ sub dbReplace {
     my ($table, $key, %hash) = @_;
     &DEBUG("dbReplace($table, $key, %hash);");
 
-    &dbDel($table, $key, $hash{$key}, %hash);
+    &dbDel($table, {$key=>$hash{$key}});
     &dbInsert($table, $hash{$key}, %hash);
     return 1;
 }
