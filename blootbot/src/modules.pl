@@ -1,6 +1,6 @@
 #
 #  modules.pl: pseudo-Module handler
-#      Author: xk <xk@leguin.openprojects.net>
+#      Author: dms
 #     Version: v0.2 (20000629)
 #     Created: 20000624
 #

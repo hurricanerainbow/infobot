@@ -1,7 +1,7 @@
 #
 #   db_dbm.pl: Extension on the factoid database.
 #  OrigAuthor: Kevin Lenzo  (c) 1997
-#  CurrAuthor: xk <xk@leguin.openprojects.net>
+#  CurrAuthor: dms <dms@users.sourceforge.net>
 #     Version: v0.6 (20000707)
 #   FModified: 19991020
 #

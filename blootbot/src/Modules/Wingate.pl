@@ -1,6 +1,6 @@
 #
 #  Wingate.pl: Wingate checker.
-#      Author: xk <xk@leguin.openprojects.net>
+#      Author: dms
 #     Version: v0.3 (20000526).
 #     Created: 20000116
 #        NOTE: based on wingate.pl by fooz.

@@ -1,6 +1,6 @@
 #
 #   Net.pl: FTP//HTTP helper
-#   Author: xk <xk@leguin.openprojects.net>
+#   Author: dms
 #  Version: v0.1 (20000309)
 #  Created: 20000309
 #

@@ -1,6 +1,6 @@
 #
 # Freshmeat.pl: Frontend to www.freshmeat.net
-#       Author: xk <xk@leguin.openprojects.net>
+#       Author: dms
 #      Version: v0.7c (20000606)
 #      Created: 19990930
 #

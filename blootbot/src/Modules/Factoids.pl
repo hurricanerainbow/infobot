@@ -1,6 +1,6 @@
 #
 #  Factoids.pl: Helpers for generating factoids statistics.
-#       Author: xk <xk@leguin.openprojects.net>
+#       Author: dms
 #      Version: v0.1 (20000514)
 #     Splitted: SQLExtras.pl
 #

@@ -1,6 +1,6 @@
 #
 #   Shm.pl: Shared Memory stuff.
-#    Author: xk <xk@leguin.openprojects.net>
+#    Author: dms
 #   Version: 20000201
 #   Created: 20000124
 #

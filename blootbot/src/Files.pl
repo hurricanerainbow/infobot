@@ -1,6 +1,6 @@
 #
 # Files.pl: Open and close, read and probably write files.
-#   Author: xk <xk@leguin.openprojects.net>
+#   Author: dms
 #  Version: v0.2 (2000502)
 #  Created: 19991221
 #

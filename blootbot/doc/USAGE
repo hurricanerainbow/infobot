@@ -360,7 +360,7 @@ Usage:
 Example:
 	> blootbot: join #blootbot
 	[blootbot] joining #blootbot
-	*** join/#debian blootbot (xk@router.home.org)
+	*** join/#debian blootbot (bot@router.home.org)
 	> blootbot: join #blootbot
 	[blootbot] I'm already on #blootbot...
 

@@ -1,6 +1,6 @@
 #
 # Topic.pl: Advanced topic management (maxtopiclen>=512)
-#   Author: xk <xk@leguin.openprojects.net>
+#   Author: dms
 #  Version: v0.8 (19990919).
 #  Created: 19990720
 #

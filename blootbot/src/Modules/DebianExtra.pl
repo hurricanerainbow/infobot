@@ -1,6 +1,6 @@
 #
 #  DebianExtra.pl: Extra stuff for debian
-#          Author: xk <xk@leguin.openprojects.net>
+#          Author: dms
 #         Version: v0.1 (20000520)
 #         Created: 20000520
 #

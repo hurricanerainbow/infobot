@@ -1,6 +1,6 @@
 #
 # logger.pl: logger functions!
-#    Author: xk <xk@leguin.openprojects.net>
+#    Author: dms
 #   Version: 19991205
 #      NOTE: Based on code by Kevin Lenzo & Patrick Cole  (c) 1997
 #

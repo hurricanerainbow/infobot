@@ -1,6 +1,6 @@
 #
 #  DumpVars.pl: Perl variables dumper.
-#   Maintained: xk <xk@leguin.openprojects.net>
+#   Maintained: dms
 #      Version: v0.1 (20000114)
 #      Created: 20000114
 #         NOTE: Ripped from ActivePerl "asp sample" example.

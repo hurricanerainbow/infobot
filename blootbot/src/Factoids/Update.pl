@@ -1,7 +1,7 @@
 #
 # Update.pl: Add or modify factoids in the db.
 #    Author: Kevin Lenzo
-#	     xk <xk@leguin.openprojects.net>
+#	     dms
 #   Version: 19991209
 #   Created: 1997
 #

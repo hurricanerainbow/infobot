@@ -1,6 +1,6 @@
 #
 # db_pgsql.pl: PostgreSQL database frontend.
-#      Author: xk <xk@leguin.openprojects.net>
+#      Author: dms <dms@users.sourceforge.net>
 #     Version: v0.1 (20000629)
 #     Created: 20000629
 #

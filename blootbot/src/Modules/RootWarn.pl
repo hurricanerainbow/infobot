@@ -1,6 +1,6 @@
 #
 # RootWarn.pl: Warn people about usage of root on IRC.
-#      Author: xk <xk@leguin.openprojects.net>
+#      Author: dms
 #     Version: v0.2c (19991125)
 #     Created: 19991008
 #
