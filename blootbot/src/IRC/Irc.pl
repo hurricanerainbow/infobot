@@ -654,7 +654,7 @@ sub joinNextChan {
 	my $rate	= sprintf("%.1f", $delta / @c);
 	delete $cache{joinTime};
 
-	&DEBUG("time taken to join all chans: $timestr; rate: $rate sec/join");
+	&status("time taken to join all chans: $timestr; rate: $rate sec/join");
     }
 
     # chanserv check: global channels, in case we missed one.

@@ -616,6 +616,7 @@ sub on_msg {
     $uh		= $event->userhost();
     $nuh	= $nick."!".$uh;
     $msgtime	= time();
+    $h		= $host;
 
     if ($nick eq $ident) { # hopefully ourselves.
 	if ($msg eq "TEST") {
@@ -795,8 +796,14 @@ sub on_ping {
 
 sub on_ping_reply {
     my ($self, $event) = @_;
-    my $nick = $event->nick;
-    my $lag = time() - ($event->args)[1];
+    my $nick	= $event->nick;
+    my $t	= ($event->args)[1];
+    if (!defined $t) {
+	&WARN("on_ping_reply: t == undefined.");
+	return;
+    }
+
+    my $lag = time() - $t;
 
     &status(">>> ${b_green}CTCP PING$ob reply from $b_cyan$nick$ob: $lag sec.");
 }
@@ -812,6 +819,7 @@ sub on_public {
     $msgType	= "public";
     # todo: move this out of hookMsg to here?
     ($user,$host) = split(/\@/, $uh);
+    $h		= $host;
 
     # rare case should this happen - catch it just in case.
     if ($bot_pid != $$) {

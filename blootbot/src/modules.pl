@@ -362,7 +362,7 @@ if ($@) {
 &showProc(" (Time::HiRes)");
 
 sub AUTOLOAD {
-    if (defined $::AUTOLOAD) {
+    if (!defined $AUTOLOAD and defined $::AUTOLOAD) {
 	&DEBUG("AUTOLOAD: hrm.. ::AUTOLOAD defined!");
     }
     return unless (defined $AUTOLOAD);

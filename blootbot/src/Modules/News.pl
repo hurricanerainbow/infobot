@@ -396,8 +396,8 @@ sub list {
     &::msg($who, "|= Last updated $timestr ago.");
     &::msg($who, " \037Num\037  \037Item ".(" "x40)." \037");
 
-    &DEBUG("list: expire = $expire");
-    &::DEBUG("list: eno    = $eno");
+#    &::DEBUG("news: list: expire = $expire");
+#    &::DEBUG("news: list: eno    = $eno");
 
     my $i = 1;
     foreach ( &getNewsAll() ) {
@@ -570,11 +570,14 @@ sub set {
     my($args) = @_;
     my($item, $what, $value);
 
+    if (!defined $args) {
+	&::DEBUG("news: set: args == NULL.");
+	return;
+    }
+
     $item = $1 if ($args =~ s/^(\S+)\s*//);
     $what = $1 if ($args =~ s/^(\S+)\s*//);
     $value = $args;
-
-    &::DEBUG("news: set called.");
 
     if ($item eq "") {
 	&::help("news set");
@@ -672,7 +675,7 @@ sub set {
     }
 
     my $auth = 0;
-    &::DEBUG("news: who => '$who'");
+#    &::DEBUG("news: who => '$who'");
     my $author = $::news{$chan}{$news}{Author};
     $auth++ if ($::who eq $author);
     $auth++ if (&::IsFlag("o"));
@@ -916,7 +919,7 @@ sub getNewsItem {
 	}
 
 	if (@items) {
-	    &::DEBUG("news: gNI: part_string->full_string: $what->$items[0]");
+#	    &::DEBUG("news: gNI: part_string->full_string: $what->$items[0]");
 	    return $items[0];
 	} else {
 	    &::DEBUG("news: gNI: No match for '$what'");
@@ -924,7 +927,7 @@ sub getNewsItem {
 	}
     }
 
-    &::ERROR("getNewsItem: Should not happen (what = $what)");
+    &::ERROR("news: gNI: should not happen (what = $what)");
     return;
 }
 

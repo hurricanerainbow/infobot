@@ -63,7 +63,7 @@ sub readUserFile {
 	    }
 
 	    if (!defined $nick) {
-		&WARN("invalid line: $_");
+		&WARN("DynaConfig: invalid line: $_");
 		next;
 	    }
 

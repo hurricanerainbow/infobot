@@ -73,7 +73,7 @@ sub parseCmdHook {
 	}
 
 	if ($hash{NoArgs} and $flatarg) {
-	    &DEBUG("cmd $ident does not take args; skipping.");
+	    &DEBUG("cmd $ident does not take args ('$flatarg'); skipping.");
 	    next;
 	}
 
@@ -317,7 +317,7 @@ sub Modules {
 		    }
 		}
 		my $topstr = "";
-		&DEBUG("tp => $tp");
+		&DEBUG("*stats: tp => $tp");
 		if (scalar @top) {
 		    $topstr = ".  Top ".scalar(@top).": ".join(', ', @top);
 		}
@@ -881,7 +881,7 @@ sub textstats_main {
 	}
 
 	my $topstr = "";
-	&DEBUG("tp => $tp");
+	&DEBUG("*stats: tp => $tp");
 	if (scalar @top) {
 	    $topstr = ".  Top ".scalar(@top).": ".join(', ', @top);
 	}
