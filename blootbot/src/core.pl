@@ -45,7 +45,7 @@ $wingaterun	= time();
 $firsttime	= 1;
 
 ### CHANGE TO STATIC.
-$bot_version = "blootbot 1.0.3 (20000930) -- $^O";
+$bot_version = "blootbot cvs (20001212) -- $^O";
 $noreply	= "NOREPLY";
 
 ##########
@@ -174,6 +174,8 @@ sub setup {
 
     &status("Setup: ". &countKeys("factoids") ." factoids.");
 
+    $param{tempDir} =~ s#\~/#$ENV{HOME}#;
+
     &status("Initial memory usage: $memusage kB");
 }
 
@@ -188,6 +190,15 @@ sub setupConfig {
     foreach ("ircNick", "ircUser", "ircName", "DBType", "tempDir") {
 	next if &IsParam($_);
 	&ERROR("Parameter $_ has not been defined.");
+	exit 1;
+    }
+
+    if ($param{tempDir} =~ s#\~/#$ENV{HOME}#) {
+	&status("Fixing up tempDir.");
+    }
+
+    if ($param{tempDir} =~ /~/) {
+	&ERROR("parameter tempDir still contains tilde.");
 	exit 1;
     }
 
