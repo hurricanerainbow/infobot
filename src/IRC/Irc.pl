@@ -102,7 +102,7 @@ sub irc {
     $conn = $irc->newconn(%args);
 
     if (!defined $conn) {
-	&ERROR("irc: conn was not created!defined!!!");
+	&ERROR("internal: perl IRC connection object does not exist.");
 	return 1;
     }
 
