@@ -112,7 +112,7 @@ sub parseCmdHook {
 	}
 
 	### FORKER,IDENTIFIER,CODEREF.
-	if (exists $hash{'Forker'}) {
+	if (($$ == $bot_pid) && exists $hash{'Forker'}) {
 	    $hash{'Identifier'} .= "-" if ($hash{'Forker'} eq "NULL");
 
 	    if (exists $hash{'ArrayArgs'}) {
@@ -215,7 +215,7 @@ sub parseCmdHook {
 	'Forker' => 1, 'Cmdstats' => 'Dict') );
 &addCmdHook("extra", 'slashdot', ('CODEREF' => 'Slashdot::Slashdot',
 	'Identifier' => 'slashdot', 'Forker' => 1,
-	'Cmdstats' => 'slashdot') );
+	'Cmdstats' => 'slashdot', 'Module' => 'slashdot') );
 &addCmdHook("extra", 'Plug', ('CODEREF' => 'Plug::Plug',
 	'Identifier' => 'Plug', 'Forker' => 1,
 	'Cmdstats' => 'Plug') );
@@ -257,7 +257,7 @@ sub parseCmdHook {
 	'Forker' => 1) );
 &addCmdHook("extra", 'scramble', ('CODEREF' => 'scramble::scramble',
 	'Identifier' => 'scramble', 'Cmdstats' => 'scramble',
-	'Forker' => 1) );
+	'Forker' => 1, 'Module' => 'scramble') );
 &addCmdHook("extra", 'md5(sum)?', ('CODEREF' => 'md5::md5',
 	'Identifier' => 'md5', 'Cmdstats' => 'md5',
 	'Forker' => 1) );
@@ -272,7 +272,7 @@ sub parseCmdHook {
 	'Forker' => 1, 'Help' => 'page') );
 &addCmdHook("extra", '(babel(fish)?|x|xlate|translate)', ('CODEREF' => 'babelfish::babelfish',
 	'Identifier' => 'babelfish', 'Cmdstats' => 'babelfish',
-	'Forker' => 1, 'Help' => 'babelfish') );
+	'Forker' => 1, 'Help' => 'babelfish', 'Module' => 'babelfish') );
 &addCmdHook("extra", 'wtf', ('CODEREF' => 'wtf::query',
 	'Identifier' => 'wtf', 'Cmdstats' => 'wtf',
 	'Forker' => 1, 'Help' => 'wtf') );
