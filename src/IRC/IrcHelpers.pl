@@ -91,12 +91,19 @@ sub hookMsg {
     if ($msgType =~ /private/) {
 	# private messages.
 	$addressed = 1;
+	if (&IsChanConf('addressCharacter')) {
+	    $addressCharacter = getChanConf('addressCharacter');
+	    if ($message =~ s/^\Q$addressCharacter\E//) {
+	        &msg($who, "please don't use the the addressCharacter when private messaging");
+	    }
+	}
     } else {
 	# public messages.
 	# addressing revamped by the xk.
 	### below needs to be fixed...
-	if (&IsParam("addressCharacter")) {
-	    if ($message =~ s/^\Q$param{'addressCharacter'}\E//) {
+	if (&IsChanConf('addressCharacter')) {
+	    $addressCharacter = getChanConf('addressCharacter');
+	    if ($message =~ s/^\Q$addressCharacter\E//) {
 		$addrchar  = 1;
 		$addressed = 1;
 	    }
