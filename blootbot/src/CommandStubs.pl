@@ -224,6 +224,12 @@ sub parseCmdHook {
 &addCmdHook("extra", 'bzfquery', ('CODEREF' => 'BZFlag::query',
 	'Identifier' => 'bzflag', 'Cmdstats' => 'BZFlag',
 	'Forker' => 1, 'Help' => 'bzflag') );
+&addCmdHook("extra", 'zfi', ('CODEREF' => 'zfi::query',
+	'Identifier' => 'zfi', 'Cmdstats' => 'zfi',
+	'Forker' => 1) );
+&addCmdHook("extra", 'zsi', ('CODEREF' => 'zsi::query',
+	'Identifier' => 'zsi', 'Cmdstats' => 'zsi',
+	'Forker' => 1) );
 
 ###
 ### END OF ADDING HOOKS.
