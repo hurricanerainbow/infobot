@@ -345,6 +345,9 @@ sub shutdown {
     &closeDB();
     &closeSHM($shm);	# aswell. TODO: use this in &doExit?
     &closeLog();
+    ### is this valid?
+    &writeUserFile();
+    &writeChanFile();
 }
 
 sub restart {
