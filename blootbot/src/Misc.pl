@@ -427,6 +427,11 @@ sub IsHostMatch {
 sub isStale {
     my ($file, $age) = @_;
 
+    if (!defined $age) {
+	&WARN("isStale: age == NULL.");
+	return 1;
+    }
+
     return 1 unless ( -f $file);
     return 1 if (time() - (stat($file))[9] > $age*60*60*24);
     my $delta = time() - (stat($file))[9];
