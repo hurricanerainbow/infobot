@@ -95,7 +95,7 @@ sub parseCmdHook {
 	if (exists $hash{'Forker'}) {
 	    $hash{'Identifier'} .= "-" if ($hash{'Forker'} eq "NULL");
 
-	    if (exists $hash{'FlatArg'} and $hash{'FlatArg'} == 0) {
+	    if (exists $hash{'ArrayArgs'}) {
 		&Forker($hash{'Identifier'}, sub { \&{$hash{'CODEREF'}}(@args) } );
 	    } else {
 		&Forker($hash{'Identifier'}, sub { \&{$hash{'CODEREF'}}($flatarg) } );
@@ -108,8 +108,7 @@ sub parseCmdHook {
 
 	    ### TODO: check if CODEREF exists.
 
-	    if (exists $hash{'FlatArg'} and $hash{'FlatArg'} == 0) {
-		&status("CmdHook: using args as array.");
+	    if (exists $hash{'ArrayArgs'}) {
 		&{$hash{'CODEREF'}}(@args);
 	    } else {
 		&{$hash{'CODEREF'}}($flatarg);
