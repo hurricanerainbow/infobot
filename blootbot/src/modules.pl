@@ -31,7 +31,6 @@ if ($@) {
 	"symdump"	=> "DumpVars2.pl",
 	"exchange"	=> "Exchange.pl",
 	"factoids"	=> "Factoids.pl",
-	"freshmeat"	=> "Freshmeat.pl",
 	"kernel"	=> "Kernel.pl",
 	"perlMath"	=> "Math.pl",
 	"news"		=> "News.pl",
