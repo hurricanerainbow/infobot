@@ -120,7 +120,8 @@ sub randomFactoid {
     while (1) {
 	($key,$val) = &randKey("factoids","factoid_key,factoid_value");
 ###	$val =~ tr/^[A-Z]/[a-z]/;	# blah is Good => blah is good.
-	last if ($val !~ /^</);
+	last if (defined $val and $val !~ /^</);
+
 	$error++;
 	if ($error == 5) {
 	    &ERROR("rF: tried 5 times but failed.");
@@ -299,14 +300,15 @@ sub newsFlush {
 	foreach $item (keys %{ $::news{$chan} }) {
 	    my $t = $::news{$chan}{$item}{Expire};
 
+	    my $tadd	= $::news{$chan}{$item}{Time};
+	    $oldest	= $tadd if ($oldest > $tadd);
+
 	    next if ($t == 0 or $t == -1);
 	    if ($t < 1000) {
 		&status("newsFlush: Fixed Expire time for $chan/$item, should not happen anyway.");
 		$::news{$chan}{$item}{Expire} = time() + $t*60*60*24;
 		next;
 	    }
-
-	    $oldest = $t if ($t < $oldest);
 
 	    next unless (time() > $t);
 	    # todo: show how old it was.
@@ -465,6 +467,22 @@ sub seenFlush {
 
     if ($param{'DBType'} =~ /^mysql|pg|postgres/i) {
 	foreach $nick (keys %seencache) {
+	    if (0) {
+	    my $retval = &dbReplace("seen", $nick, (
+			"nick" => $seencache{$nick}{'nick'},
+			"time" => $seencache{$nick}{'time'},
+			"host" => $seencache{$nick}{'host'},
+			"channel" => $seencache{$nick}{'chan'},
+			"message" => $seencache{$nick}{'msg'},
+	    ) );
+	    &DEBUG("retval => $retval.");
+	    delete $seencache{$nick};
+	    $flushed++;
+
+	    next;
+	    }
+	    ### OLD CODE...
+
 	    my $exists = &dbGet("seen","nick", $nick, "nick");
 
 	    if (defined $exists and $exists) {
@@ -627,7 +645,8 @@ sub ircCheck {
 	    &ircloop();
 	    delete $cache{connect};
 	} else {
-	    &DEBUG("possible lost in space; checking.");
+	    &status("IRCTEST: possible lost in space; checking. ".
+		scalar(localtime) );
 	    &msg($ident, "TEST");
 	    $cache{connect} = time();
 	}
@@ -703,7 +722,7 @@ sub miscCheck {
 	    next if (time() - $time < 60*60);
 
 	} else {
-	    &DEBUG("shm: $shmid is not ours or old blootbot => ($z)");
+#	    &DEBUG("shm: $shmid is not ours or old blootbot => ($z)");
 #	    next;
 	}
 
@@ -1073,7 +1092,7 @@ sub mkBackup {
 
     if ( -e "$file~" ) {
 	$backup++ if ( -s $file > -s "$file~");
-	$backup++ if ( (stat $file)[9] - (stat "$file~")[9] > $time);
+ 	$backup++ if ((stat $file)[9] - (stat "$file~")[9] > $time);
     } else {
 	$backup++;
     }
@@ -1082,6 +1101,7 @@ sub mkBackup {
     ### TODO: do internal copying.
     &status("Backup: $file to $file~");
     CORE::system("/bin/cp $file $file~");
+    CORE::system("/bin/touch $file~");	# needed!
 }
 
 1;
