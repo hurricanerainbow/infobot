@@ -45,7 +45,6 @@ $last{buflen}	= 0;
 $last{say}	= "";
 $last{msg}	= "";
 $userHandle	= "default";
-$msgtime	= time();
 $wingaterun	= time();
 $firsttime	= 1;
 $utime_userfile	= 0;
@@ -54,7 +53,14 @@ $ucount_userfile = 0;
 $utime_chanfile	= 0;
 $wtime_chanfile	= 0;
 $ucount_chanfile = 0;
-
+### more variables...
+$msgtime	= 0;
+$msgsize	= 0;
+$msgcount	= 0;
+$pubtime	= 0;
+$pubsize	= 0;
+$pubcount	= 0;
+###
 $bot_version	= "blootbot cvs (20010214) -- $^O";
 $noreply	= "NOREPLY";
 
@@ -414,10 +420,12 @@ sub restart {
 	### crappy bug in Net::IRC?
 	if (!$conn->connected and time - $msgtime > 900) {
 	    &status("reconnecting because of uncaught disconnect.");
-##	    $irc->start;
+###	    $irc->start;
 	    $conn->connect();
-	    return;
+###	    return;
 	}
+
+	&ircCheck();	# heh, evil!
 
 	&DCCBroadcast("-HUP called.","m");
 	&shutdown();
