@@ -78,9 +78,11 @@ sub update {
 			&status("orig factoid already had trailing symbol; not adding period.");
 			$rhs = $exists."  ".$rhs;
 		    }
-		} elsif ($exists =~ /\,\s*$/) {
+		} elsif ($exists =~ /[\,\.\-]\s*$/) {
+		    &VERB("U: current has trailing symbols; inserting whitespace + new.",2);
 		    $rhs = $exists." ".$rhs;
 		} elsif ($rhs =~ /^\./) {
+		    &VERB("U: new text has ^.; appending directly",2);
 		    $rhs = $exists.$rhs;
 		} else {
 		    $rhs = $exists.', or '.$rhs;
