@@ -93,7 +93,7 @@ sub openLog {
     }
 
     if (&IsParam("logType") and $param{'logType'} =~ /DAILY/i) {
-	my ($day,$month,$year) = (localtime(time()))[3,4,5];
+	my ($day,$month,$year) = (localtime time())[3,4,5];
 	$logDate = sprintf("%04d%02d%02d",$year+1900,$month+1,$day);
 	$file{log} .= "-".$logDate;
     }
@@ -123,12 +123,11 @@ sub compress {
     my $okay = 0;
 
     if (! -f $file) {
-	# ironically this does not get logged :)
 	&WARN("compress: file ($file) does not exist.");
 	return 0;
     }
 
-    if (-f "$file.gz" or -f "$file.bz2") {
+    if ( -f "$file.gz" or -f "$file.bz2" ) {
 	&WARN("compress: file.(gz|bz2) already exists.");
 	return 0;
     }
@@ -169,7 +168,7 @@ sub WARN {
 }
 
 sub FIXME {
-    &status("${b_cyan}!FIXME!$ob $_[0] (SHOULD NOT HAPPEN?)");
+    &status("${b_cyan}!FIXME!$ob $_[0]");
 }
 
 sub TODO {
@@ -191,20 +190,25 @@ sub status {
     my $status;
 
     if ($input eq $logold) {
+	# allow perl flooding
 	$logrepeat++ unless (/!WARN! PERL: Use of uninitialized/);
 
+	# todo: prevent massive repetitive throttling.
 	if ($logrepeat >= 3) {
 	    $logrepeat = 0;
 	    &status("LOG: repeat throttle.");
 	    sleep 1;
 	}
+    } else {
+	$logold = $input;
     }
-    $logold = $input;
 
     # if it's not a scalar, attempt to warn and fix.
-    if (ref($input) ne "") {
-	&status("status: 'input' is not scalar (".ref($input).").");
-	if (ref($input) eq "ARRAY") {
+    my $ref = ref $input;
+    if (defined $ref and $ref ne "") {
+	&status("status: 'input' is not scalar ($ref).");
+
+	if ($ref eq "ARRAY") {
 	    foreach (@$input) {
 		&WARN("status: '$_'.");
 	    }
@@ -213,12 +217,16 @@ sub status {
 
     # Something is using this w/ NULL.
     if (!defined $input or $input =~ /^\s*$/) {
-	$input = "Blank status call?";
+	$input = "Blank status call? HELP HELP HELP";
     }
-    $input =~ s/\n+$//;
-    $input =~ s/\002|037//g;	# bold,video,underline => remove.
 
-    # pump up the stats (or loglinenum).
+    for ($input) {
+	s/\n+$//;
+	s/\n/<NL>/g;
+	s/\002|037//g;	# bold,video,underline => remove.
+    }
+
+    # pump up the stats.
     $statcount++;
 
     # fix style of output if process is child.
@@ -229,19 +237,21 @@ sub status {
 
     ### LOG THROTTLING.
     ### TODO: move this _after_ printing?
-    my $time = time();
-    my $reset = 0;
-    if ($logtime != $time) {
-	$reset++;
-    } elsif ($logtime == $time) {
-	if ($logcount < 25) {		# too high?
+    my $time	= time();
+    my $reset	= 0;
+
+    if ($logtime == $time) {
+	if ($logcount < 25) {			# too high?
 	    $logcount++;
 	} else {
 	    sleep 1;
 	    &status("LOG: Throttling.");	# recursive?
 	    $reset++;
 	}
+    } else {	# $logtime != $time.
+	$reset++;
     }
+
     if ($reset) {
 	$logtime	= $time;
 	$logcount	= 0;
@@ -252,7 +262,7 @@ sub status {
 	$status = "!$statcount! ".$input;
 	if ($statcount > 1000) {
 	    print LOG "ERROR: FORKED PROCESS RAN AWAY; KILLING.\n";
-	    print LOG "VERB: ".(&Time2String(time() - $forkedtime))."\n";
+	    print LOG "VERB: ".(&Time2String($time - $forkedtime))."\n";
 	    exit 0;
 	}
     } else {
@@ -316,15 +326,17 @@ sub status {
     return unless (defined fileno LOG);
 
     # remove control characters from logging.
-    $input =~ s/\e\[[0-9;]+m//g;
-    $input =~ s/[\cA-\c_]//g;
+    for ($input) {
+	s/\e\[[0-9;]+m//g;	# escape codes.
+	s/[\cA-\c_]//g;		# control chars.
+    }
     $input = "FORK($$) ".$input if ($statcountfix);
 
     my $date;
     if (&IsParam("logType") and $param{'logType'} =~ /DAILY/i) {
-	$date = sprintf("%02d:%02d.%02d", (localtime(time()))[2,1,0]);
+	$date = sprintf("%02d:%02d.%02d", (localtime $time)[2,1,0]);
 
-	my ($day,$month,$year) = (localtime(time()))[3,4,5];
+	my ($day,$month,$year) = (localtime $time)[3,4,5];
 	my $newlogDate = sprintf("%04d%02d%02d",$year+1900,$month+1,$day);
 	if (defined $logDate and $newlogDate != $logDate) {
 	    &closeLog();
@@ -332,7 +344,7 @@ sub status {
 	    &openLog();
 	}
     } else {
-	$date = time();
+	$date	= $time;
     }
 
     print LOG sprintf("%s %s\n", $date, $input);

@@ -179,12 +179,13 @@ sub on_endofmotd {
     &status("End of motd. Now lets join some channels...");
     if (!scalar @joinchan) {
 	&WARN("joinchan array is empty!!!");
-	@joinchan = &getJoinChans();
+	@joinchan = &getJoinChans(1);
     }
 
     # unfortunately, Net::IRC does not implement this :(
-    &rawout("NOTIFY $ident");
-    &DEBUG("adding self to NOTIFY list.");
+    # invalid command... what is it?
+#    &rawout("NOTIFY $ident");
+#    &DEBUG("adding self to NOTIFY list.");
 
     &joinNextChan();
 }
@@ -787,8 +788,9 @@ sub on_public {
 
 sub on_quit {
     my ($self, $event) = @_;
-    my $nick = $event->nick();
-    my $reason = ($event->args)[0];
+    my $nick	= $event->nick();
+    my $reason	= ($event->args)[0];
+
     # hack for ICC.
     $msgType	= "public";
     $who	= $nick;
@@ -816,9 +818,10 @@ sub on_quit {
 	&DEBUG("on_quit: nuh{lc $nick} does not exist! FIXME");
     }
     delete $userstats{lc $nick} if (&IsChanConf("seenStats"));
+    delete $chanstats{lc $nick};
 
     # should fix chanstats inconsistencies bug #2.
-    if ($reason=~/^($mask{host})\s($mask{host})$/) {	# netsplit.
+    if ($reason =~ /^($mask{host})\s($mask{host})$/) {	# netsplit.
 	$reason = "NETSPLIT: $1 <=> $2";
 
 	if (&ChanConfList("chanlimitcheck") and !scalar keys %netsplit) {
@@ -839,7 +842,7 @@ sub on_quit {
     }
 
     if ($nick !~ /^\Q$ident\E$/ and $nick =~ /^\Q$param{'ircNick'}\E$/i) {
-	&status("own nickname became free; changing.");
+	&status("nickchange: own nickname became free; changing.");
 	&nick($param{'ircNick'});
     }
 }

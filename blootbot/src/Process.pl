@@ -63,8 +63,8 @@ sub process {
 	    }
 
 	    if (&validChan($thischan)) {
-		&msg($who,"I'm already on $thischan...");
-		return;
+		&msg($who,"warn: I'm already on $thischan, joining  anyway...");
+#		return;
 	    }
 	}
 	$cache{join}{$thischan} = $who;	# used for on_join self.

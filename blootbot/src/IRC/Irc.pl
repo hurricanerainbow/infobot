@@ -580,6 +580,14 @@ sub joinNextChan {
 	}
 
     } else {
+	if (exists $cache{joinTime}) {
+	    my $delta	= time() - $cache{joinTime};
+	    my $timestr = &Time2String($delta);
+	    my $rate	= sprintf("%.1f", $delta / &getJoinChans() );
+	    delete $cache{joinTime};
+
+	    &DEBUG("time taken to join all chans: $timestr; rate: $rate sec/join");
+	}
 	# chanserv check: global channels, in case we missed one.
 
 	foreach ( &ChanConfList("chanServ_ops") ) {
@@ -683,10 +691,12 @@ sub clearIRCVars {
     undef %channels;
     undef %floodjoin;
 
-    @joinchan	= &getJoinChans();
+    @joinchan		= &getJoinChans(1);
+    $cache{joinTime}	= time();
 }
 
 sub getJoinChans {
+    my($show)	= @_;
     my @chans;
     my @skip;
 
@@ -710,11 +720,14 @@ sub getJoinChans {
 	push(@chans, $_);
     }
 
+    my $str;
     if (scalar @skip) {
-	&status("gJC: channels not auto-joining: @skip");
+	$str = "gJC: channels not auto-joining: @skip";
     } else {
-	&status("gJC: auto-joining all chans.");
+	$str = "gJC: auto-joining all chans.";
     }
+
+    &status($str) if ($show);
 
     return @chans;
 }
