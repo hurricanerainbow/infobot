@@ -238,8 +238,21 @@ sub karma {
 
 sub ispell {
     my $query = shift;
+    my $binary;
+    my @binaries = (
+	'/usr/bin/aspell',
+	'/usr/bin/ispell',
+	'/usr/bin/spell'
+    );
 
-    if (! -x "/usr/bin/ispell") {
+    foreach (@binaries) {
+	if (-x $_) {
+	    $binary=$_;
+	    last;
+	}
+    }
+
+    if (!$binary) {
 	&msg($who, "no binary found.");
 	return;
     }
@@ -251,7 +264,7 @@ sub ispell {
 
     my $reply = "I can't find alternate spellings for '$query'";
 
-    foreach (`/bin/echo '$query' | /usr/bin/ispell -a -S`) {
+    foreach (`/bin/echo '$query' | $binary -a -S`) {
 	chop;
 	last if !length;		# end of query.
 
