@@ -10,16 +10,16 @@
 #####
 # Usage: &setFactInfo($faqtoid, $key, $val);
 sub setFactInfo {
-    &dbSet("factoids", 
+    &sqlSet("factoids", 
 	{ factoid_key => $_[0] },
-	{ $_[1] => $_[2] }	# dbquote done in dbset!
+	{ $_[1] => $_[2] }
     );
 }   
 
 #####
 # Usage: &getFactInfo($faqtoid, [$what]);
 sub getFactInfo {
-    return &dbGet("factoids", $_[1], "factoid_key=".&dbQuote($_[0]) );
+    return &sqlSelect("factoids", $_[1], { factoid_key => $_[0] } );
 }
 
 #####
@@ -33,7 +33,7 @@ sub getFactoid {
 sub delFactoid {
     my ($faqtoid) = @_;
 
-    &dbDel("factoids", {"factoid_key"=>$faqtoid});
+    &sqlDelete("factoids", { factoid_key => $faqtoid } );
     &status("DELETED $faqtoid");
  
     return 1;
@@ -83,8 +83,8 @@ sub AddModified {
     }
     shift(@modifiedlist) while (scalar @modifiedlist > 3);
 
-    &setFactInfo($faqtoid,"modified_by",   join(",",@modifiedlist));
-    &setFactInfo($faqtoid,"modified_time", time());
+    &setFactInfo($faqtoid, "modified_by",   join(",",@modifiedlist));
+    &setFactInfo($faqtoid, "modified_time", time());
 
     return 1;
 }
