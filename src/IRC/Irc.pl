@@ -350,7 +350,8 @@ sub performReply {
 
     # FIXME need real throttling....
     if (length($reply) > $maxlinelen - 30) {
-	$reply = substr($reply, 0, $maxlinelen - 33) . "...";
+	$reply = substr($reply, 0, $maxlinelen - 33);
+	$reply =~ s/ [^ ]*?$/ .../;
     }
     &checkMsgType($reply);
 
@@ -396,7 +397,8 @@ sub performStrictReply {
 
     # FIXME need real throttling....
     if (length($reply) > $maxlinelen - 30) {
-	$reply = substr($reply, 0, $maxlinelen - 33) . "...";
+	$reply = substr($reply, 0, $maxlinelen - 33);
+	$reply =~ s/ [^ ]*?$/ .../;
     }
     &checkMsgType($reply);
 
