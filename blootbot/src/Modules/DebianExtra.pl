@@ -29,7 +29,7 @@ sub Parse {
 	# invalid.
 	$msg = "error: could not parse $args";
     }
-    &::performStrictReply($retval);
+    &::performStrictReply($msg);
 }
 
 sub debianBugs {
