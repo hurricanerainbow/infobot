@@ -250,7 +250,7 @@ sub main {
 				$nick = $line;
 				$nick =~ s/^&lt\;([^\/]*?)\/\#.*?&gt\; .*$/$1/;
 				$channel = $line;
-				$channel =~ s/^&lt\;[^\/]*?\/\#(.*?)&gt\; .*$/$1/;
+				$channel =~ s/^&lt\;[^\/]*?\/(\#.*?)&gt\; .*$/$1/;
 
 				# $nick =~ tr/[A-Z]/[a-z]/;
 				# <======= move this into another function when getting nick colour
