@@ -149,8 +149,10 @@ sub setup {
     &openLog();		# write, append.
 
     foreach ("debian","Temp") {
+	my $dir = "$bot_base_dir/$_/";
+	next if ( -d $dir);
 	&status("Making dir $_");
-	mkdir "$bot_base_dir/$_/", 0755;
+	mkdir $dir, 0755;
     }
 
     # read.
