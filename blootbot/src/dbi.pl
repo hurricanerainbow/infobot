@@ -227,18 +227,17 @@ sub dbSelectManyHash {
     my $sql;   
 
     $sql = "SELECT $select ";
-    $sql .= "FROM $from "       if $from;
-    $sql .= "WHERE $where "     if $where;
-    $sql .= "$other"            if $other;
-    $debug_sql  = $sql;
+    $sql .= "FROM $from "	if $from;
+    $sql .= "WHERE $where "	if $where;
+    $sql .= "$other"		if $other;
 
-    sqlConnect();
-    my $c = $I{dbh}->prepare($sql);
+#    sqlConnect();
+    my $c = $dbh->prepare($sql);
     # $c->execute or print "\n<P><B>SQL Hashref Error</B><BR>\n";
 
     unless ($c->execute) {
-        apacheLog($sql);
-        #kill 9,$$;
+#	apacheLog($sql);
+	#kill 9,$$;
     }
 
     return $c;
