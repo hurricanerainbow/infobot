@@ -717,14 +717,20 @@ sub IsNickInAnyChan {
 
 # Usage: &validChan($chan);
 sub validChan {
+    # todo: use $c instead?
     my ($chan) = @_;
+
+    if (!defined $chan or $chan =~ /^\s*$/) {
+	return 0;
+    }
 
     if (lc $chan ne $chan) {
 	&WARN("validChan: lc chan != chan. ($chan); fixing.");
 	$chan =~ tr/A-Z/a-z/;
     }
 
-    if (exists $channels{$chan}) {
+    # it's possible that this check creates the hash if empty.
+    if (defined $channels{$chan} or exists $channels{$chan}) {
 	if ($chan eq "_default") {
 #	    &WARN("validC: chan cannot be _default! returning 0!");
 	    return 0;

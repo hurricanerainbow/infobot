@@ -321,7 +321,7 @@ sub chanLimitVerify {
 sub chanServCheck {
     ($chan) = @_;
 
-    if (!defined $chan or $chan =~ /^$/) {
+    if (!defined $chan or $chan =~ /^\s*$/) {
 	&WARN("chanServCheck: chan == NULL.");
 	return 0;
     }
@@ -341,7 +341,11 @@ sub chanServCheck {
 	&rawout("WHO NickServ");
 	return 0;
     }
-    return 0 if (exists $channels{$chan}{'o'}{$ident});
+    # check for first hash then for next hash.
+    # todo: a function for &ischanop()? &isvoice()?
+    if (exists $channels{$chan} and exists $channels{$chan}{'o'}{$ident}) {
+	return 0;
+    }
 
     &status("ChanServ ==> Requesting ops for $chan. (chanServCheck)");
     &rawout("PRIVMSG ChanServ :OP $chan $ident");

@@ -37,7 +37,7 @@ sub setupSchedulers {
     &freshmeatLoop(2);
     &kernelLoop(2);
     &wingateWriteFile(2);
-    &factoidCheck(1);
+    &factoidCheck(2);	# takes a couple of seconds on a 486. defer it
     &newsFlush(1);
 
 #    my $count = map { exists $sched{$_}{TIME} } keys %sched;
