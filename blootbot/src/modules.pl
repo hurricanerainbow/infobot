@@ -175,16 +175,16 @@ sub loadMyModulesNow {
 	$loaded++;
     }
 
-    &status("Modules: Loaded/Total [$loaded/$total]");
+    &status("Module: Loaded/Total [$loaded/$total]");
 }
 
 ### rename to moduleReloadAll?
 sub reloadAllModules {
-    &status("Modules: reloading all.");
+###    &status("Module: reloading all.");
     foreach (map { substr($_,2) } keys %moduleAge) {
         &reloadModule($_);
     }
-    &status("Modules: reloading done.");
+###    &status("Module: reloading done.");
 }
 
 ### rename to modulesReload?
@@ -193,12 +193,12 @@ sub reloadModule {
     my $file	= (grep /\/$mod/, keys %INC)[0];
 
     if (!defined $file) {
-###	&DEBUG("rM: mod '$mod' was not found in \%INC.");
+	&WARN("rM: Cannot reload $mod ($file) since it was not loaded anyway.");
 	return;
     }
 
     if (! -f $file) {
-	&DEBUG("rM: file '$file' does not exist?");
+	&ERROR("rM: file '$file' does not exist?");
 	return;
     }
 
@@ -218,7 +218,7 @@ sub reloadModule {
     } else {
 	my $basename = $file;
 	$basename =~ s/^.*\///;
-	&status("Modules: reloaded $basename");
+	&status("Module: reloaded $basename");
 	$moduleAge{$file} = $age;
     }
 }
@@ -232,9 +232,8 @@ local %perlModulesMissing = ();
 
 sub loadPerlModule {
     return 0 if (exists $perlModulesMissing{$_[0]});
-    return 1 if (exists $perlModulesLoaded{$_[0]});
-
     &reloadModule($_[0]);
+    return 1 if (exists $perlModulesLoaded{$_[0]});
 
     eval "use $_[0]";
     if ($@) {
@@ -268,7 +267,11 @@ sub loadMyModule {
     }
     my $modulefile = "$bot_src_dir/Modules/$modulebase";
 
-    return 1 if (grep /$modulefile/, keys %INC);
+    # call reloadModule() which checks age of file and reload.
+    if (grep /\/$modulebase$/, keys %INC) {
+	&reloadModule($modulebase);
+	return;
+    }
 
     if (! -f $modulefile) {
 	&ERROR("lMM: module ($modulebase) does not exist.");
