@@ -105,7 +105,7 @@ sub userDCC {
     # backlog.
     if ($message =~ /^backlog(\s+(.*))?$/i) {
 	return unless (&hasFlag("o"));
-	return unless (&IsChanConfOrWarn("backlog"));
+	return unless (&IsParam("backlog"));
 	my $num = $2;
 	my $max = $param{'backlog'};
 
