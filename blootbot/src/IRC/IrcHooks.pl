@@ -231,6 +231,8 @@ sub on_dcc {
     my $type = uc( ($event->args)[1] );
     my $nick = lc $event->nick();
 
+    &status("on_dcc type=$type nick=$nick sock=$sock");
+
     # pity Net::IRC doesn't store nuh. Here's a hack :)
     if (!exists $nuh{lc $nick}) {
 	$conn->whois($nick);
@@ -241,14 +243,16 @@ sub on_dcc {
     if ($type eq 'SEND') {	# GET for us.
 	# incoming DCC SEND. we're receiving a file.
 	my $get = ($event->args)[2];
+	&status("DCC: not Initializing GET from $nick to '$param{tempDir}/$get'");
 	# FIXME: do we want to get anything?
 	return;
-	&status("DCC: Initializing GET from $nick to '$param{tempDir}/$get'");
-	open(DCCGET,">$param{tempDir}/$get");
-	$conn->new_get($event, \*DCCGET);
+	#open(DCCGET,">$param{tempDir}/$get");
+	#$conn->new_get($event, \*DCCGET);
 
     } elsif ($type eq 'GET') {	# SEND for us?
-	&status("DCC: Initializing SEND for $nick.");
+	&status("DCC: not Initializing SEND for $nick.");
+	# FIXME: do we want to do anything?
+	return;
 	$conn->new_send($event->args);
 
     } elsif ($type eq 'CHAT') {
