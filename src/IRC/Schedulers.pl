@@ -191,7 +191,7 @@ sub logLoop {
 	}
 
 	&closeLog();
-	system("/bin/mv '$param{'logfile'}' '$file{log}'");
+	CORE::system("/bin/mv '$param{'logfile'}' '$file{log}'");
 	&compress($file{log});
 	&openLog();
 	&status("cycling log file.");
@@ -494,7 +494,7 @@ sub leakCheck {
 	$delete++;
     }
 
-    &DEBUG("$delete nuh{} items deleted; now have ".
+    &status("leakC: $delete nuh{} items deleted; now have ".
 				scalar(keys %nuh) ) if ($delete);
 }
 
@@ -630,13 +630,13 @@ sub miscCheck {
 	}
 
 	&status("SHM: nuking shmid $shmid");
-	system("/usr/bin/ipcrm shm $shmid >/dev/null");
+	CORE::system("/usr/bin/ipcrm shm $shmid >/dev/null");
     }
 
     # debian check.
     opendir(DEBIAN, "$bot_base_dir/debian");
     foreach ( grep /gz$/, readdir(DEBIAN) ) {
-	my $exit = system("gzip -t $bot_base_dir/debian/$_");
+	my $exit = CORE::system("gzip -t $bot_base_dir/debian/$_");
 	next unless ($exit);
 
 	&status("debian: unlinking file => $_");
@@ -659,7 +659,7 @@ sub miscCheck {
 
 	### TODO: do internal copying.
 	&status("Backup: $f to $f~");
-	system("/bin/cp $f $f~");
+	CORE::system("/bin/cp $f $f~");
     }
 
     ### check modules if they've been modified. might be evil.
