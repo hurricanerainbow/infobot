@@ -429,18 +429,28 @@ sub on_join {
 	my $ban	= $_;
 	s/\?/./g;
 	s/\*/\\S*/g;
-	next unless ($nuh =~ /^$_$/i);
+	my $mask	= $_;
+	next unless ($nuh =~ /^$mask$/i);
 
 	### TODO: check $channels{$chan}{'b'} if ban already exists.
 	foreach (keys %{ $channels{$chan}{'b'} }) {
 	    &DEBUG(" bans_on_chan($chan) => $_");
 	}
 
-	&DEBUG("ban($ban, $chan);");
+	my $reason = "no reason";
+	foreach ($chan, "*") {
+	    next unless (exists $bans{$_});
+	    next unless (exists $bans{$_}{$mask});
+
+	    my @array	= @{ $bans{$_}{$mask} };
+	    $reason	||= $array[4];
+	    last;
+	}
+	&DEBUG("on_join: ban: reason => '$reason'.");
+
 	&ban($ban, $chan);
-	### TODO: get ban message from ban list.
-	&DEBUG("kick($who, $chan, NULL);");
-	&kick($who, $chan, "NULL");
+	&kick($who, $chan, $reason);
+
 	last;
     }
 
