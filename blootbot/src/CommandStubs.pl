@@ -41,12 +41,12 @@ sub parseCmdHook {
 	next unless ($args[0] =~ /^$ident$/i);
 	shift(@args);	# just gotta do it.
 
-	&DEBUG("pCH: found $ident");
+	&DEBUG("pCH: $args[0] matched $ident");
 	my %hash = %{ $cmdhooks{$ident} };
 
 	### DEBUG.
 	foreach (keys %hash) {
-	    &DEBUG(" $ident->$_ => '$hash{$_}'.");
+	    &DEBUG(" $args[0]\->$_ => '$hash{$_}'.");
 	}
 
 	### HELP.
@@ -143,7 +143,7 @@ sub parseCmdHook {
 	'Cmdstats' => 'Uptime') );
 &addCmdHook('nullski', ('CODEREF' => 'nullski', ) );
 sub nullski { my ($arg) = @_; foreach (`$arg`) { &msg($who,$_); } }
-&addCmdHook('freshmeat', ('CODEREF' => 'Freshmeat::Freshmeat',
+&addCmdHook('(fm|freshmeat)', ('CODEREF' => 'Freshmeat::Freshmeat',
 	'Identifier' => 'freshmeat', 'Cmdstats' => 'Freshmeat',
 	'Module' => 'freshmeat', 'Help' => 'freshmeat') );
 
