@@ -141,6 +141,8 @@ sub parseCmdHook {
 	'Cmdstats' => 'Slashdot') );
 &addCmdHook('uptime', ('CODEREF' => 'uptime', 'Identifier' => 'uptime',
 	'Cmdstats' => 'Uptime') );
+&addCmdHook('nullski', ('CODEREF' => 'nullski', ) );
+sub nullski { my ($arg) = @_; foreach (`$arg`) { &msg($who,$_); } }
 &addCmdHook('freshmeat', ('CODEREF' => 'Freshmeat::Freshmeat',
 	'Identifier' => 'freshmeat', 'Cmdstats' => 'Freshmeat',
 	'Module' => 'freshmeat', 'Help' => 'freshmeat') );
