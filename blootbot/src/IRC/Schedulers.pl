@@ -685,11 +685,9 @@ sub ircCheck {
 	&joinNextChan();
     }
 
-    # debug. needed for testing
-    &TODO("conn->connected = " . scalar($conn->connected()));
-    &TODO("time()-msgtime = " . scalar(time() - $msgtime));
+    # todo: fix on_disconnect()
 
-    if (!$conn->connected or time() - $msgtime > 3600) {
+    if (time() - $msgtime > 3600) {
 	# todo: shouldn't we use cache{connect} somewhere?
 	if (exists $cache{connect}) {
 	    &WARN("ircCheck: no msg for 3600 and disco'd! reconnecting!");
