@@ -209,13 +209,15 @@ sub rawout {
 
 sub say {
     my ($msg) = @_;
+    my $mynick = $conn->nick();
     if (!defined $msg) {
 	$msg ||= "NULL";
 	&WARN("say: msg == $msg.");
 	return;
     }
 
-    &status("</$talkchannel> $msg");
+
+    &status("<$mynick/$talkchannel> $msg");
     if (&whatInterface() =~ /IRC/) {
 	$msg	= "zero" if ($msg =~ /^0+$/);
 	my $t	= time();
