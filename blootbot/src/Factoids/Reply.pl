@@ -136,8 +136,10 @@ sub getReply {
     ### $ SUBSTITUTION.
     ###
 
-    $reply = &substVars($reply);
-    
+#    &DEBUG("Reply: reply => $reply");
+    $reply = &substVars($reply,1);
+#    &DEBUG("Reply: reply => $reply");
+
     $reply;
 }
 

@@ -322,7 +322,7 @@ sub newsFlush {
 	    $i++;
 	}
 
-	&status("NEWS (newsflush) {$chan}: deleted [$i/$total] news entries.");
+	&status("NEWS (newsflush) {$chan}: deleted [$i/$total] news entries.") if ($i);
 	$none{$chan} = 1 if ($total == $i);
     }
 

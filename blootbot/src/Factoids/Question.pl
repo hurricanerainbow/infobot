@@ -195,7 +195,7 @@ sub factoidArgs {
 
 	next unless (@vals);
 
-	&DEBUG("vals => @vals");
+#	&DEBUG("vals => @vals");
 
 	&status("Question: factoid Arguments for '$str'");
 	# todo: use getReply() - need to modify it :(
@@ -205,7 +205,8 @@ sub factoidArgs {
 
 	foreach ( split(',', $1) ) {
 	    my $val = $vals[$i];
-	    &DEBUG("val => $val");
+#	    &DEBUG("val => $val");
+
 	    if (!defined $val) {
 		&status("factArgs: vals[$i] == undef; not SARing '$_' for '$str'");
 		next;
@@ -214,7 +215,10 @@ sub factoidArgs {
 	    my $done = 0;
 	    my $old = $result;
 	    while (1) {
-		$result = &substVars($result,1);
+#		&DEBUG("Q: result => $result (1)");
+		$result = &substVars($result);
+#		&DEBUG("Q: result => $result (1)");
+
 		last if ($old eq $result);
 		$old = $result;
 		$done++;
