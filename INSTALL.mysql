@@ -36,4 +36,4 @@ FULL FACTOID DATABASE:
 You can get the data from the MySQL database that the apt bot uses on
 #debian at freenode (irc.freenode.net), at:
 
-    http://emu.res.cmu.edu/~apt/blootbot/apt.sql.bz2
+    http://lain.cheme.cmu.edu/~apt/blootbot/apt.sql.bz2
