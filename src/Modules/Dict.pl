@@ -57,11 +57,13 @@ sub Dict {
 	# body.
 	push(@results, &Dict_Wordnet($socket,$query));
 	push(@results, &Dict_Foldoc($socket,$query));
+	push(@results, &Dict_web1913($socket,$query));
 	# end.
 
 	print $socket "QUIT\n";
 	close $socket;
 
+	&::DEBUG(join(";;\n",@results));
 	my $total = scalar @results;
 
 	if ($total == 0) {
@@ -106,7 +108,7 @@ sub Dict_Wordnet {
 	chop;	# remove \n
 	chop;	# remove \r
 
-	&::DEBUG("got '$_'");
+	&::DEBUG("wordnet '$_'");
 	if (/^552 no match/) {
 	    # no match.
 	    return;
@@ -157,7 +159,7 @@ sub Dict_Foldoc {
 	chop;	# remove \n
 	chop;	# remove \r
 
-	&::DEBUG("got '$_'");
+	&::DEBUG("foldoc '$_'");
 	if (/^552 /) {
 	    # no match
 	    return;
@@ -192,6 +194,57 @@ sub Dict_Foldoc {
 
     return if (!scalar @results);
     #pop @results;	# last def is date of entry.
+
+    return @results;
+}
+
+sub Dict_web1913 {
+    my ($socket,$query) = @_;
+    my @results;
+
+    &::status("Dict: asking web1913.");
+    print $socket "DEFINE web1913 \"$query\"\n";
+
+    my $string;
+    while (<$socket>) {
+	# remove \n
+	chop;
+	# remove \r
+	chop;
+	&::DEBUG("web1913 '$_'");
+
+	# no match.
+	return if /^552/;
+
+	# stats; end of def.
+	last if (/^250/);
+
+	# definition and/or retrieval
+	next if (/^151/ or /^150/);
+
+	# each line.
+	s/^\s+|\s+$//g;
+
+	# sub def separator.
+	if ($_ eq "" or $_ =~ /^\.$/) {
+	    # sub def.
+	    $string =~ s/^\s+|\s+$//g;
+	    $string =~ s/[{}]//g;
+
+	    next if ($string eq "");
+
+	    push(@results, $string);
+	    $string = "";
+	}
+
+	$string .= $_." ";
+    }
+
+    &::status("Dict: web1913: found ". scalar(@results) ." defs.");
+
+    return if (!scalar @results);
+    # last def is date of entry.
+    #pop @results;
 
     return @results;
 }
