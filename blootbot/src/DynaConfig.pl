@@ -628,38 +628,41 @@ sub chanSet {
 
     my $update	= 0;
 
-    if (defined $what and $what =~ s/^\+(\S+)/$1/) {
-	my $was	= $chanconf{$chan}{$1};
-	if (defined $was and $was eq "1") {
-	    &pSReply("setting $what for $chan already 1.");
-	    return;
+    ### ".chanset +blah"
+    ### ".chanset +blah 10"		-- error.
+    if (defined $what and $what =~ s/^([+-])(\S+)/$2/) {
+	my $state	= ($1 eq "+") ? 1 : 0;
+	my $was		= $chanconf{$chan}{$what};
+
+	if ($state) {			# add/set.
+	    if (defined $was and $was eq "1") {
+		&pSReply("setting $what for $chan already 1.");
+		return;
+	    }
+
+	    $was	= ($was) ? "; was '$was'" : "";
+	    $val	= 1;
+
+	} else {			# delete/unset.
+	    if (!defined $was) {
+		&pSReply("setting $what for $chan is not set.");
+		return;
+	    }
+
+	    if ($was eq "0") {
+		&pSReply("setting $what for $chan already 0.");
+		return;
+	    }
+
+	    $was	= ($was) ? "; was '$was'" : "";
+	    $val	= 0;
 	}
 
-	$was	= ($was) ? "; was '$was'" : "";
-	&pSReply("Setting $what for $chan to '1'$was.");
-
-	$chanconf{$chan}{$what} = 1;
-
+	$chanconf{$chan}{$what}	= $val;
+	&pSReply("Setting $what for $chan to '$val'$was.");
 	$update++;
-    } elsif (defined $what and $what =~ s/^\-(\S+)/$1/) {
-	my $was	= $chanconf{$chan}{$1};
-	# hrm...
-	if (!defined $was) {
-	    &pSReply("setting $what for $chan is not set.");
-	    return;
-	}
 
-	if ($was eq "0") {
-	    &pSReply("setting $what for $chan already 0.");
-	    return;
-	}
-
-	$was	= ($was) ? "; was '$was'" : "";
-	&pSReply("Setting $what for $chan to '0'$was.");
-
-	$chanconf{$chan}{$what} = 0;
-
-	$update++;
+    ### ".chanset blah testing"
     } elsif (defined $val) {
 	my $was	= $chanconf{$chan}{$what};
 	if (defined $was and $was eq $val) {
@@ -672,7 +675,15 @@ sub chanSet {
 	$chanconf{$chan}{$what} = $val;
 
 	$update++;
+
+    ### ".chanset"
+    ### ".chanset blah"
     } else {				# read only.
+	if (!defined $what) {
+	    &WARN("chanset/DC: what == undefine.");
+	    return;
+	}
+
 	if (exists $chanconf{$chan}{$what}) {
 	    &pSReply("$what for $chan is '$chanconf{$chan}{$what}'");
 	} else {
@@ -683,32 +694,6 @@ sub chanSet {
     if ($update) {
 	$utime_chanfile = time();
 	$ucount_chanfile++;
-	return;
-    }
-
-    ### TODO: move to UserDCC again.
-    if ($cmd eq "chanset" and !defined $what) {
-	&DEBUG("showing channel conf.");
-
-	foreach $chan ($chan, "_default") {
-	    &pSReply("chan: $chan");
-	    ### TODO: merge 2 or 3 per line.
-	    my @items;
-	    my $str = "";
-	    foreach (sort keys %{ $chanconf{$chan} }) {
-		my $newstr = join(', ', @items);
-		if (length $newstr > 60) {
-		    &pSReply("    $str");
-		    @items = ();
-		}
-		$str = $newstr;
-		push(@items, "$_ => $chanconf{$chan}{$_}");
-	    }
-
-	    &pSReply("    $str") if (@items);
-	}
-
-	return;
     }
 
     return;
