@@ -165,23 +165,23 @@ sub parseCmdHook {
 	'Forker' => 1, 'Identifier' => 'debianExtra',
 	'Cmdstats' => 'Debian Bugs') );
 &addCmdHook("extra", 'dauthor', ('CODEREF' => 'Debian::searchAuthor',
-	'Forker' => 1, 'Identifier' => 'debian',
+	'Forker' => 1, 'Identifier' => 'Debian',
 	'Cmdstats' => 'Debian Author Search', 'Help' => "dauthor" ) );
 &addCmdHook("extra", '(d|search)desc', ('CODEREF' => 'Debian::searchDescFE',
-	'Forker' => 1, 'Identifier' => 'debian',
+	'Forker' => 1, 'Identifier' => 'Debian',
 	'Cmdstats' => 'Debian Desc Search', 'Help' => "ddesc" ) );
 &addCmdHook("extra", 'dnew', ('CODEREF' => 'DebianNew',
-	'Identifier' => 'debian' ) );
+	'Identifier' => 'Debian' ) );
 &addCmdHook("extra", 'dincoming', ('CODEREF' => 'Debian::generateIncoming',
-	'Forker' => 1, 'Identifier' => 'debian' ) );
+	'Forker' => 1, 'Identifier' => 'Debian' ) );
 &addCmdHook("extra", 'dstats', ('CODEREF' => 'Debian::infoStats',
-	'Forker' => 1, 'Identifier' => 'debian',
+	'Forker' => 1, 'Identifier' => 'Debian',
 	'Cmdstats' => 'Debian Statistics' ) );
 &addCmdHook("extra", 'd?contents', ('CODEREF' => 'Debian::searchContents',
-	'Forker' => 1, 'Identifier' => 'debian',
+	'Forker' => 1, 'Identifier' => 'Debian',
 	'Cmdstats' => 'Debian Contents Search', 'Help' => "contents" ) );
 &addCmdHook("extra", 'd?find', ('CODEREF' => 'Debian::DebianFind',
-	'Forker' => 1, 'Identifier' => 'debian',
+	'Forker' => 1, 'Identifier' => 'Debian',
 	'Cmdstats' => 'Debian Search', 'Help' => "find" ) );
 &addCmdHook("extra", 'insult', ('CODEREF' => 'Insult::Insult',
 	'Forker' => 1, 'Identifier' => 'insult', 'Help' => "insult" ) );

@@ -156,7 +156,7 @@ sub doQuestion {
 
     ### TODO: Use &Forker(); move function to Debian.pl
     if (&IsChanConf("debianForFactoid")) {
-	&loadMyModule($myModules{'debian'});
+	&loadMyModule($myModules{'Debian'});
 	$result = &Debian::DebianFind($query);	# ???
 	### TODO: debian module should tell, through shm, that it went
 	###	  ok or not.
