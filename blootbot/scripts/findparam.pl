@@ -7,37 +7,38 @@ my(%param, %conf, %both);
 foreach (`find -name "*.pl"`) {
     chop;
     my $file = $_;
+    my $debug = 0;
 
     open(IN, $file);
     while (<IN>) {
 	chop;
 
 	if (/IsParam\(['"](\S+?)['"]\)/) {
-#	    print "File: $file: IsParam: $1\n";
+	    print "File: $file: IsParam: $1\n" if $debug;
 	    $param{$1}++;
 	    next;
 	}
 
 	if (/hasParam\(['"](\S+?)['"]\)/) {
-#	    print "File: $file: hasParam: $1\n";
+	    print "File: $file: hasParam: $1\n" if $debug;
 	    $param{$1}++;
 	    next;
 	}
 
 	if (/getChanConfDefault\(['"](\S+?)['"]/) {
-#	    print "File: $file: gCCD: $1\n";
+	    print "File: $file: gCCD: $1\n" if $debug;
 	    $both{$1}++;
 	    next;
 	}
 
 	if (/getChanConf\(['"](\S+?)['"]\)/) {
-#	    print "File: $file: gCC: $1\n";
+	    print "File: $file: gCC: $1\n" if $debug;
 	    $conf{$1}++;
 	    next;
 	}
 
 	if (/IsChanConf\(['"](\S+?)['"]\)/) {
-#	    print "File: $file: ICC: $1\n";
+	    print "File: $file: ICC: $1\n" if $debug;
 	    $conf{$1}++;
 	    next;
 	}
@@ -45,7 +46,7 @@ foreach (`find -name "*.pl"`) {
 	# command hooks => hasParam => both.
 	# note: this does not support multiple lines.
 	if (/\'Identifier\'[\s\t]=>[\s\t]+\'(\S+?)\'/) {
-#	    print "File: $file: command hook: $1\n";
+	    print "File: $file: command hook: $1\n" if $debug;
 	    $both{$1}++;
 	    next;
 	}
