@@ -278,7 +278,7 @@ sub Modules {
 	return;
     }
 
-    my $debiancmd	 = 'conflicts?|depends?|desc|file|info|provides?';
+    my $debiancmd	 = 'conflicts?|depends?|desc|file|d?info|provides?';
     $debiancmd		.= '|recommends?|suggests?|maint|maintainer';
 
     if ($message =~ /^($debiancmd)(\s+(.*))?$/i) {
