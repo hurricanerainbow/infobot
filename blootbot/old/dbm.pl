@@ -7,35 +7,44 @@
 #
 
 use strict;
+no strict 'refs';
 
 package main;
 
 use vars qw(%factoids %param);
 
 {
+    # FIXME we don't handle multiply indexes tables
+    # perhaps we should combine the keys with a ':' or something?
+    # the spaces below separate the keys from the rest
+    # of the fields.
+    # Tim Riker thinks that freshmeat below should be a single index
     my %formats = (
 	'factoids', [
 	    'factoid_key',
-	    'factoid_value',
+
+	    'requested_by',
+	    'requested_time',
+	    'requested_count',
 	    'created_by',
 	    'created_time',
 	    'modified_by',
 	    'modified_time',
-	    'requested_by',
-	    'requested_time',
-	    'requested_count',
 	    'locked_by',
-	    'locked_time'
+	    'locked_time',
+	    'factoid_value'
 	],
 	'freshmeat', [
 	    'projectname_short',
 	    'latest_version',
+
 	    'license',
 	    'url_homepage',
 	    'desc_short'
 	],
 	'rootwarn', [
 	    'nick',
+
 	    'attempt',
 	    'time',
 	    'host',
@@ -43,33 +52,41 @@ use vars qw(%factoids %param);
 	],
 	'seen', [
 	    'nick',
+
 	    'time',
 	    'channel',
 	    'host',
-	    'messagecount',
-	    'hehcount',
-	    'karma',
 	    'message'
 	],
 	'stats', [
 	    'nick',
 	    'type',
-	    'counter',
-	    'time'
+	    'channel',
+
+	    'time',
+	    'counter'
+	],
+	'botmail', [
+	    'srcwho',
+	    'dstwho',
+
+	    'srcuh',
+	    'time',
+	    'msg'
 	]
     );
 
     sub openDB {
 	use DB_File;
-	foreach (keys %formats) {
-	    next unless (&IsParam($_));
+	foreach my $table (keys %formats) {
+	    next unless (&IsParam($table));
 
-	    my $file = "$param{'DBName'}-$_";
+	    my $file = "$param{'DBName'}-$table";
 
-	    if (dbmopen(%{ $_ }, $file, 0666)) {
-		&status("Opened DBM $_ ($file).");
+	    if (dbmopen(%{"$table"}, $file, 0666)) {
+		&status("Opened DBM $table ($file).");
 	    } else {
-		&ERROR("Failed open to DBM $_ ($file).");
+		&ERROR("Failed open to DBM $table ($file).");
 		&shutdown();
 		exit 1;
 	    }
@@ -77,14 +94,14 @@ use vars qw(%factoids %param);
     }
 
     sub closeDB {
-	foreach (keys %formats) {
-	    next unless (&IsParam($_));
+	foreach my $table (keys %formats) {
+	    next unless (&IsParam($table));
 
-	    if (dbmclose(%{ $_ })) {
-		&status("Closed DBM $_ successfully.");
+	    if (dbmclose(%{ $table })) {
+		&status("Closed DBM $table successfully.");
 		next;
 	    }
-	    &ERROR("Failed closing DBM $_.");
+	    &ERROR("Failed closing DBM $table.");
 	}
     }
 
@@ -136,6 +153,8 @@ sub dbGet {
 	return(@retval);
     }
 
+    # FIXME this should be in $select order
+    # and it's now in field order
     &DEBUG("dbGet: select=>'$select'.");
     my @array = split "$;", ${"$table"}{lc $val};
     unshift(@array,$val);
@@ -225,39 +244,16 @@ sub dbUpdate {
 #####
 # Usage: &dbSetRow($table, @values);
 sub dbSetRow {
-    my ($table, @values) = @_;
-    &DEBUG("dbSetRow(@_);");
-    my $key = lc $values[0];
-
-    my @format = &dbGetColInfo($table);
-    if (!scalar @format) {
-	return 0;
-    }
-
-    if (defined ${$table}{$key}) {
-	&WARN("dbSetRow: $table {$key} already exists?");
-    }
-
-    if (scalar @values != scalar @format) {
-	&WARN("dbSetRow: scalar values != scalar ${table} format.");
-    }
-
-    for (0 .. $#format) {
-	# @array? this is not defined anywhere. please fix, timriker!!!
-	if (defined $array[$_] and $array[$_] ne "") {
-	    &DEBUG("dbSetRow: array[$_] != NULL($array[$_]).");
-	}
-	$array[$_] = $values[$_];
-    }
-
-    ${$table}{$key}	= join $;, @array;
+    &FIXME("STUB: &dbSetRow(@_)");
 }
 
 #####
-# Usage: &dbDel($table, $primkey, $primval, [$key]);
+# Usage: &dbDel($table, $primhash_ref);
+#  Note: dbDel does dbQuote
 sub dbDel {
-    my ($table, $primkey, $primval, $key) = @_;
-    &DEBUG("dbDel($table, $primkey, $primval);");
+    my ($table, $phref) = @_;
+    # FIXME does not really handle more than one key!
+    my $primval = join(':', values %{$phref});
 
     if (!defined ${$table}{lc $primval}) {
 	&DEBUG("dbDel: lc $primval does not exist in $table.");
@@ -275,7 +271,7 @@ sub dbReplace {
     my ($table, $key, %hash) = @_;
     &DEBUG("dbReplace($table, $key, %hash);");
 
-    &dbDel($table, $key, $hash{$key}, %hash);
+    &dbDel($table, {$key=>$hash{$key}});
     &dbInsert($table, $hash{$key}, %hash);
     return 1;
 }
