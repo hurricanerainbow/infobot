@@ -669,6 +669,7 @@ sub ircCheck {
     }
 
     if ($ident !~ /^\Q$param{ircNick}\E$/) {
+	# this does not work unfortunately.
 	&WARN("ircCheck: ident($ident) != param{ircNick}($param{IrcNick}).");
 	if (! &IsNickInAnyChan( $param{ircNick} ) ) {
 	    &DEBUG("$param{ircNick} not in use... changing!");
@@ -747,9 +748,9 @@ sub miscCheck {
     }
 
     # make backup of important files.
-    &mkBackup( $bot_misc_dir."/blootbot.chan", 60*60*24*1);
-    &mkBackup( $bot_misc_dir."/blootbot.users", 60*60*24*1);
-    &mkBackup( $bot_base_dir."/blootbot-news.txt", 60*60*24*1);
+    &mkBackup( $bot_misc_dir."/blootbot.chan", 60*60*24*7);
+    &mkBackup( $bot_misc_dir."/blootbot.users", 60*60*24*7);
+    &mkBackup( $bot_base_dir."/blootbot-news.txt", 60*60*24*7);
 
     # flush cache{lobotomy}
     foreach (keys %{ $cache{lobotomy} }) {
@@ -846,16 +847,16 @@ sub shmFlush {
 
 ### this is semi-scheduled
 sub getNickInUse {
+    if ($ident eq $param{'ircNick'}) {
+	&status("okay, got my nick back.");
+	return;
+    }
+
     if (@_) {
 	&ScheduleThis(30, "getNickInUse");
 	return if ($_[0] eq "2");	# defer.
     } else {
 	delete $sched{"getNickInUse"}{RUNNING};
-    }
-
-    if ($ident eq $param{'ircNick'}) {
-	&status("okay, got my nick back.");
-	return;
     }
 
     &status("Trying to get my nick back.");

@@ -404,12 +404,11 @@ sub on_invite {
 }
 
 sub on_join {
-    my ($self, $event) = @_;
-    my ($user,$host) = split(/\@/, $event->userhost);
-    $chan	= lc( ($event->to)[0] );	# CASING!!!!
-    $who	= $event->nick();
-# doesn't work properly, for news :(
-#    $msgType	= "private";	# for &IsChanConf().
+    my ($self, $event)	= @_;
+    my ($user,$host)	= split(/\@/, $event->userhost);
+    $chan		= lc( ($event->to)[0] ); # CASING!!!!
+    $who		= $event->nick();
+    $msgType		= "public";
 
     $chanstats{$chan}{'Join'}++;
     $userstats{lc $who}{'Join'} = time() if (&IsChanConf("seenStats"));
@@ -478,6 +477,19 @@ sub on_join {
 
     # no need to go further.
     return if ($netsplit);
+    # who == bot.
+    if ($who eq $ident or $who =~ /^$ident$/i) {
+	if (defined( my $whojoin = $cache{join}{$chan} )) {
+	    &msg($chan, "Okay, I'm here. (courtesy of $whojoin)");
+	    delete $cache{join}{$chan};
+	}
+
+	### TODO: move this to &joinchan()?
+	$cache{jointime}{$chan} = &gettimeofday();
+	rawout("WHO $chan");
+
+	return;
+    }
 
     ### ROOTWARN:
     &rootWarn($who,$user,$host,$chan)
@@ -486,8 +498,6 @@ sub on_join {
 		    $channels{$chan}{'o'}{$ident});
 
     ### NEWS:
-    # why isn't this "enabled" just as someone joins?
-
     if (&IsChanConf("news") && &IsChanConf("newsKeepRead")) {
 	if (!&loadMyModule("news")) {	# just in case.
 	    &DEBUG("could not load news.");
@@ -499,21 +509,8 @@ sub on_join {
     ### chanlimit check.
     &chanLimitVerify($chan);
 
-    # used to determine sync time.
-    if ($who =~ /^$ident$/i) {
-	if (defined( my $whojoin = $cache{join}{$chan} )) {
-	    &msg($chan, "Okay, I'm here. (courtesy of $whojoin)");
-	    delete $cache{join}{$chan};
-	}
-
-	### TODO: move this to &joinchan()?
-	$cache{jointime}{$chan} = &gettimeofday();
-	rawout("WHO $chan");
-    } else {
-	### TODO: this may go wild on a netjoin :)
-	### WINGATE:
-	&wingateCheck();
-    }
+    ### wingate:
+    &wingateCheck();
 }
 
 sub on_kick {
@@ -582,6 +579,9 @@ sub on_msg {
     }
 
     &hookMsg('private', undef, $nick, $msg);
+    $who	= "";
+    $chan	= "";
+    $msgType	= "";
 }
 
 sub on_names {
@@ -614,11 +614,20 @@ sub on_nick {
 	    $channels{$chan}{$mode}{$newnick} = $channels{$chan}{$mode}{$nick};
 	}
     }
+    # todo: do %flood* aswell.
+
     &DeleteUserInfo($nick,keys %channels);
     $nuh{lc $newnick} = $nuh{lc $nick};
     delete $nuh{lc $nick};
 
     # successful self-nick change.
+    if ($ident eq "$nick-" or "$ident-" eq $nick) {
+	&DEBUG("on_nick: well... we need this bug fixed.");
+	&DEBUG("ident => $ident");
+	&DEBUG("nick => $nick");
+	$ident = $newnick;
+    }
+
     if ($nick eq $ident) {
 	&status(">>> I materialized into $b_green$newnick$ob from $nick");
 	$ident = $newnick;
@@ -632,7 +641,7 @@ sub on_nick_taken {
     my $nick = $self->nick;
     my $newnick = substr($nick,0,7)."-";
 
-    &status("nick taken; changing to temporary nick.");
+    &status("nick taken; changing to temporary nick ($nick -> $newnick).");
     &nick($newnick);
     &getNickInUse(1);
 }
@@ -688,9 +697,11 @@ sub on_other {
 
 sub on_part {
     my ($self, $event) = @_;
-    my $chan = lc( ($event->to)[0] );	# CASING!!!
-    my $nick = $event->nick;
+    $chan	= lc( ($event->to)[0] );	# CASING!!!
+    my $nick	= $event->nick;
     my $userhost = $event->userhost;
+    $who	= $nick;
+    $msgType	= "public";
 
     if (exists $floodjoin{$chan}{$nick}{Time}) {
 	delete $floodjoin{$chan}{$nick};
@@ -724,11 +735,14 @@ sub on_ping_reply {
 
 sub on_public {
     my ($self, $event) = @_;
-    my $msg  = ($event->args)[0];
-    my $chan = lc( ($event->to)[0] );	# CASING.
-    my $nick = $event->nick;
-    $uh      = $event->userhost();
-    $nuh     = $nick."!".$uh;
+    my $msg 	= ($event->args)[0];
+    $chan	= lc( ($event->to)[0] );	# CASING.
+    my $nick	= $event->nick;
+    $who	= $nick;
+    $uh		= $event->userhost();
+    $nuh	= $nick."!".$uh;
+    $msgType	= "public";
+    # todo: move this out of hookMsg to here?
     ($user,$host) = split(/\@/, $uh);
 
     if ($bot_pid != $$) {
@@ -763,12 +777,19 @@ sub on_public {
 
     &hookMsg('public', $chan, $nick, $msg);
     $chanstats{$chan}{'PublicMsg'}++;
+    $who	= "";
+    $chan	= "";
+    $msgType	= "";
 }
 
 sub on_quit {
     my ($self, $event) = @_;
     my $nick = $event->nick();
     my $reason = ($event->args)[0];
+    # hack for ICC.
+    $msgType	= "public";
+    $who	= $nick;
+    $chan	= $reason;	# not in split!
 
     my $count	= 0;
     foreach (keys %channels) {

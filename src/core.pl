@@ -175,41 +175,53 @@ sub getChanConfList {
 # Return: 1 for enabled, 0 for passive disable, -1 for active disable.
 sub IsChanConf {
     my($param)	= shift;
+    my $debug	= 0;	# knocked tons of bugs with this! :)
 
     if (!defined $param) {
-	&WARN("param == NULL.");
+	&WARN("IsChanConf: param == NULL.");
 	return 0;
+    }
+
+    if ($chan =~ tr/A-Z/a-z/) {
+	&WARN("IsChanConf: lowercased chan.");
     }
 
     ### TODO: VERBOSITY on how chanconf returned 1 or 0 or -1.
     my %chan	= &getChanConfList($param);
-    if (!defined $msgType) {
-#	&DEBUG("icc: !def msgType...");
-	return $chan{_default} || 0;
+    if (!defined $msgType or $msgType eq "") {
+	if ($chan{$chan}) {
+	    &DEBUG("ICC: !msgType: $chan{$chan} (_default/$param)") if ($debug);
+	} elsif ($chan{_default}) {
+	    &DEBUG("ICC: !msgType: $chan{_default} (_default/$param)") if ($debug);
+	} else {
+	    &DEBUG("ICC: !msgType: 0 ($param)") if ($debug);
+	}
+
+	return $chan{$chan} || $chan{_default} || 0;
     }
 
     if ($msgType eq "public") {
-	if ($chan{lc $chan}) {
-#	    &DEBUG("iCC: public: $chan/$param");
+	if ($chan{$chan}) {
+	    &DEBUG("ICC: public: $chan{$chan} ($chan/$param)") if ($debug);
 	} elsif ($chan{_default}) {
-#	    &DEBUG("iCC: public: _default/$param")
+	    &DEBUG("ICC: public: $chan{_default} (_default/$param)") if ($debug);
 	} else {
-#	    &DEBUG("iCC: public: 0/$param");
+	    &DEBUG("ICC: public: 0 ($param)") if ($debug);
 	}
 
-	return $chan{lc $chan} || $chan{_default} || 0;
+	return $chan{$chan} || $chan{_default} || 0;
     }
 
     if ($msgType eq "private") {
 	if ($chan{_default}) {
-#	    &DEBUG("iCC: private: _default/$param");
-	} elsif ($chan{lc $chan}) {
-#	    &DEBUG("iCC: private: $chan/$param");
+	    &DEBUG("ICC: private: $chan{_default} (_default/$param)") if ($debug);
+	} elsif ($chan{$chan}) {
+	    &DEBUG("ICC: private: $chan{$chan} ($chan/$param) (hack)") if ($debug);
 	} else {
-#	    &DEBUG("iCC: private: 0/$param");
+	    &DEBUG("ICC: private: 0 ($param)") if ($debug);
 	}
 
-	return $chan{lc $chan} || $chan{_default} || 0;
+	return $chan{$chan} || $chan{_default} || 0;
     }
 
 ### debug purposes only.
@@ -218,7 +230,7 @@ sub IsChanConf {
 #	&DEBUG("   $_ => $chan{$_}");
 #    }
 
-    &DEBUG("icc: returning 0...");
+    &DEBUG("ICC: no-match: 0/$param (msgType = $msgType)");
 
     return 0;
 }

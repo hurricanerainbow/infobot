@@ -484,9 +484,11 @@ sub nick {
     my ($nick) = @_;
 
     if ($nick =~ /^$mask{nick}$/) {
+	&DEBUG("Changing nick to $nick (from $ident)");
 	rawout("NICK ".$nick);
 	return 1;
     }
+    &DEBUG("nick failed... why oh why (nick => $nick)");
 
     return 0;
 }

@@ -99,6 +99,8 @@ sub Parse {
 
     } elsif ($what =~ /^(un)?notify$/i) {
 	my $state = ($1) ? 0 : 1;
+	&::DEBUG("chan => $chan");
+	&::DEBUG("::chan => $::chan");
 
 	# todo: don't notify even if "news" is called.
 	if (!&::IsChanConf("newsNotifyAll")) {
@@ -354,7 +356,8 @@ sub list {
 	}
     }
 
-    &::msg($::who, "|==== News for \002$chan\002:");
+    my $count = scalar keys %{ $::news{$chan} };
+    &::msg($::who, "|==== News for \002$chan\002: ($count items)");
     my $newest	= 0;
     foreach (keys %{ $::news{$chan} }) {
 	my $t	= $::news{$chan}{$_}{Time};
@@ -656,12 +659,17 @@ sub latest {
 
     my $t = $::newsuser{$chan}{$::who};
     if (defined $t and ($t == 0 or $t == -1)) {
-	&::DEBUG("not displaying any new news for $::who");
+	if ($flag) {
+	    &::msg($::who, "if you want to read news, try /msg $::ident news or /msg $::ident news notify");
+	} else {
+	    &::DEBUG("not displaying any new news for $::who");
+	}
+
 	return;
     }
 
+    my $x = &::IsChanConf("newsNotifyAll");
     if (&::IsChanConf("newsNotifyAll") and !defined $t) {
-#	$::newsuser{$chan}{$::who} = 1;
 	$t = 1;
     }
 
@@ -679,24 +687,28 @@ sub latest {
 	push(@new, $_);
     }
 
+    # !scalar @new, $flag
     if (!scalar @new and $flag) {
 	&::msg($::who, "no new news for $chan.");
 	return;
     }
 
+    # scalar @new, !$flag
+    my $unread	= scalar @new;
+    my $total	= scalar keys %{ $::news{$chan} };
     if (!$flag) {
-	my $unread	= scalar @new;
-	my $total	= scalar keys %{ $::news{$chan} };
 	return unless ($unread);
 
-	&::msg($::who, "There are unread news in $chan ($unread unread, $total total). /msg $::ident news latest.  If you don't want further news notification, /msg $::ident news unnotify");
+	my $reply = "There are unread news in $chan ($unread unread, $total total). /msg $::ident news latest.";
+	$reply	 .= "  If you don't want further news notification, /msg $::ident news unnotify" if ($unread == $total);
+	&::msg($::who, $reply);
 
 	return;
     }
 
+    # scalar @new, $flag
     if (scalar @new) {
-	&::msg($::who, "+==== New news for \002$chan\002 (".
-		scalar(@new)." new items):");
+	&::msg($::who, "+==== New news for \002$chan\002 ($unread new; $total total):");
 
 	if ($::newsuser{$chan}{$::who}) {
 	    my $timestr = &::Time2String( time() - $::newsuser{$chan}{$::who} );
