@@ -518,7 +518,8 @@ sub FactoidStuff {
 	    my $result = &getFactoid($from);
 	    if (defined $result) {
 		my $author = &getFactInfo($from, "created_by");
-		if (&IsFlag("m") and $author =~ /^\Q$who\E\!/i) {
+
+		if (&IsFlag("m") or $author =~ /^\Q$who\E\!/i) {
 		    &msg($who, "It's not yours to modify.");
 		    return;
 		}
