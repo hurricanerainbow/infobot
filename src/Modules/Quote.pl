@@ -30,6 +30,7 @@ sub Quote {
 
     my ($reply);
     foreach my $result (@results) {
+	chomp $result;
 	# get rid of the quotes
 	$result =~ s/\"//g;
 
