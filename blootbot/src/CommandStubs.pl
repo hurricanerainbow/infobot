@@ -1,5 +1,5 @@
 #
-# Infobot user extension stubs
+# User Command Extension Stubs
 #
 
 if (&IsParam("useStrict")) { use strict; }
@@ -47,12 +47,12 @@ sub Modules {
 	&Forker("babelfish", sub { &babel::babelfish(lc $1, lc $2, $3); } );
 
 	$cmdstats{'BabelFish'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # cookie (random). xk++
     if ($message =~ /^(cookie|random)(\s+(.*))?$/i) {
-	return 'NOREPLY' unless (&hasParam("cookie"));
+	return $noreply unless (&hasParam("cookie"));
 
 	my $arg = $3;
 
@@ -86,69 +86,69 @@ sub Modules {
 	}
 
 	$cmdstats{'Random Cookie'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     if ($message =~ /^d?bugs$/i) {
-	return 'NOREPLY' unless (&hasParam("debianExtra"));
+	return $noreply unless (&hasParam("debianExtra"));
 
 	&Forker("debianExtra", sub { &debianBugs(); } );
 
 	$cmdstats{'Debian Bugs'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Debian Author Search.
     if ($message =~ /^dauthor(\s+(.*))?$/i) {
-	return 'NOREPLY' unless (&hasParam("debian"));
+	return $noreply unless (&hasParam("debian"));
 
 	my $query = $2;
 	if (!defined $query) {
 	    &help("dauthor");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	&Forker("debian", sub { &Debian::searchAuthor($query); } );
 
 	$cmdstats{'Debian Author Search'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Debian Incoming Search.
     if ($message =~ /^dincoming$/i) {
-	return 'NOREPLY' unless (&hasParam("debian"));
+	return $noreply unless (&hasParam("debian"));
 
 	&Forker("debian", sub { &Debian::generateIncoming(); } );
 
 	$cmdstats{'Debian Incoming Search'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Debian Distro(Package) Stats
     if ($message =~ /^dstats(\s+(.*))?$/i) {
-	return 'NOREPLY' unless (&hasParam("debian"));
+	return $noreply unless (&hasParam("debian"));
 	my $dist = $2 || $Debian::defaultdist;
 
 	&Forker("debian", sub { &Debian::infoStats($dist); } );
 
 	$cmdstats{'Debian Statistics'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Debian Contents search.
     if ($message =~ /^d?contents(\s+(.*))?$/i) {
-	return 'NOREPLY' unless (&hasParam("debian"));
+	return $noreply unless (&hasParam("debian"));
 
 	my $query = $2;
 	if (!defined $query) {
 	    &help("contents");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	&Forker("debian", sub { &Debian::searchContents($query); } );
 
 	$cmdstats{'Debian Contents Search'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Debian Package info.
@@ -157,11 +157,11 @@ sub Modules {
 
 	if (!defined $string) {
 	    &help("find");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	&Forker("debian", sub { &Debian::DebianFind($string); } );
-	return 'NOREPLY';
+	return $noreply;
     }
 
     if (&IsParam("debian")) {
@@ -176,13 +176,13 @@ sub Modules {
 		&help($1);
 	    }
 
-	    return 'NOREPLY';
+	    return $noreply;
 	}
     }
 
     # Dict. xk++
     if ($message =~ /^dict(\s+(.*))?$/i) {
-	return 'NOREPLY' unless (&hasParam("dict"));
+	return $noreply unless (&hasParam("dict"));
 
 	my $query = $2;
 	$query =~ s/^[\s\t]+//;
@@ -191,82 +191,82 @@ sub Modules {
 
 	if (!defined $query) {
 	    &help("dict");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if (length $query > 30) {
 	    &msg($who,"dictionary word is too long.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	&Forker("dict", sub { &Dict::Dict($query); } );
 
 	$cmdstats{'Dict'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Freshmeat. xk++
     if ($message =~ /^(fm|freshmeat)(\s+(.*))?$/i) {
-	return 'NOREPLY' unless (&hasParam("freshmeat"));
+	return $noreply unless (&hasParam("freshmeat"));
 
 	my $query = $3;
 
 	if (!defined $query) {
 	    &help("freshmeat");
 	    &msg($who, "I have \002".&countKeys("freshmeat")."\002 entries.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	&loadMyModule($myModules{'freshmeat'});
 	&Freshmeat::Freshmeat($query);
 
 	$cmdstats{'Freshmeat'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # google searching. Simon++
     if (&IsParam("wwwsearch") and $message =~ /^(?:search\s+)?($W3Search_regex)\s+for\s+['"]?(.*?)['"]?\s*\?*$/i) {
-	return 'NOREPLY' unless (&hasParam("wwwsearch"));
+	return $noreply unless (&hasParam("wwwsearch"));
 
 	&Forker("wwwsearch", sub { &W3Search::W3Search($1,$2,$param{'wwwsearch'}); } );
 
 	$cmdstats{'WWWSearch'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # insult server. patch thanks to michael@limit.org
     if ($message =~ /^insult(\s+(\S+))?$/) {
-	return 'NOREPLY' unless (&hasParam("insult"));
+	return $noreply unless (&hasParam("insult"));
 
 	my $person	= $2;
 	if (!defined $person) {
 	    &help("insult");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	&Forker("insult", sub { &Insult::Insult($person); } );
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Kernel. xk++
     if ($message =~ /^kernel$/i) {
-	return 'NOREPLY' unless (&hasParam("kernel"));
+	return $noreply unless (&hasParam("kernel"));
 
 	&Forker("kernel", sub { &Kernel::Kernel(); } );
 
 	$cmdstats{'Kernel'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # LART. originally by larne/cerb.
     if ($message =~ /^lart(\s+(.*))?$/i) {
-	return 'NOREPLY' unless (&hasParam("lart"));
+	return $noreply unless (&hasParam("lart"));
 	my ($target) = &fixString($2);
 
 	if (!defined $target) {
 	    &help("lart");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 	my $extra = 0;
 
@@ -279,11 +279,11 @@ sub Modules {
 	    } else {
 		&msg($who, "error: invalid format or missing arguments.");
 		&help("lart");
-		return 'NOREPLY';
+		return $noreply;
 	    }
 	}
 
-	my $line = &getRandomLineFromFile($infobot_misc_dir. "/infobot.lart");
+	my $line = &getRandomLineFromFile($bot_misc_dir. "/blootbot.lart");
 	if (defined $line) {
 	    if ($target =~ /^(me|you|itself|\Q$ident\E)$/i) {
 		$line =~ s/WHO/$who/g;
@@ -297,44 +297,44 @@ sub Modules {
 	    &status("lart: error reading file?");
 	}
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Search factoid extensions by 'author'. xk++
     if ($message =~ /^listauth(\s+(\S+))?$/i) {
-	return 'NOREPLY' unless (&hasParam("search"));
+	return $noreply unless (&hasParam("search"));
 
 	my $query = $2;
 
 	if (!defined $query) {
 	    &help("listauth");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	&loadMyModule($myModules{'factoids'});
 	&performStrictReply( &CmdListAuth($query) );
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # list{keys|values}. xk++. Idea taken from #linuxwarez@EFNET
     if ($message =~ /^list(\S+)( (.*))?$/i) {
-	return 'NOREPLY' unless (&hasParam("search"));
+	return $noreply unless (&hasParam("search"));
 
 	my $thiscmd	= lc($1);
 	my $args	= $3;
 
 	$thiscmd =~ s/^vals$/values/;
-	return 'NOREPLY' if ($thiscmd ne "keys" && $thiscmd ne "values");
+	return $noreply if ($thiscmd ne "keys" && $thiscmd ne "values");
 
 	# Usage:
 	if (!defined $args) {
 	    &help("list". $thiscmd);
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if (length $args == 1) {
 	    &msg($who,"search string is too short.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	### chews up to 4megs => use forker :)
@@ -343,12 +343,12 @@ sub Modules {
 #	&Search::Search($thiscmd, $args);
 
 	$cmdstats{'Factoid Search'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Nickometer. Adam Spiers++
     if ($message =~ /^(?:lame|nick)ometer(?: for)? (\S+)/i) {
-	return 'NOREPLY' unless (&hasParam("nickometer"));
+	return $noreply unless (&hasParam("nickometer"));
 
 	my $term = (lc $1 eq 'me') ? $who : $1;
 	$term =~ s/\?+\s*//;
@@ -370,38 +370,38 @@ sub Modules {
 	    &msg($who, "the 'lame nick-o-meter' reading for $term is $percentage, $who");
 	}
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Quotes. mu++
     if ($message =~ /^quote(\s+(\S+))?$/i) {
-	return 'NOREPLY' unless (&hasParam("quote"));
+	return $noreply unless (&hasParam("quote"));
 
 	my $query = $2;
 
 	if ($query eq "") {
 	    &help("quote");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	&Forker("quote", sub { &Quote::Quote($query); } );
 
 	$cmdstats{'Quote'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # rootWarn. xk++
     if ($message =~ /^rootWarn$/i) {
-	return 'NOREPLY' unless (&hasParam("rootWarn"));
+	return $noreply unless (&hasParam("rootWarn"));
 
 	&loadMyModule($myModules{'rootwarn'});
 	&performStrictReply( &CmdrootWarn() );
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # seen.
     if ($message =~ /^seen(\s+(\S+))?$/) {
-	return 'NOREPLY' unless (&hasParam("seen"));
+	return $noreply unless (&hasParam("seen"));
 
 	my $person = $2;
 	if (!defined $person) {
@@ -411,7 +411,7 @@ sub Modules {
 	    &msg($who,"there ". &fixPlural("is",$i) ." \002$i\002 ".
 		"seen ". &fixPlural("entry",$i) ." that I know of.");
 
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	my @seen;
@@ -432,7 +432,7 @@ sub Modules {
 		&DEBUG("seen: _ => '$_'.");
 	    }
 	    &performReply("i haven't seen '$person'");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	# valid seen.
@@ -464,30 +464,30 @@ sub Modules {
 	}
 
 	&performStrictReply($reply);
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # slashdot headlines: from Chris Tessone.
     if ($message =~ /^slashdot$/i) {
-	return 'NOREPLY' unless (&hasParam("slashdot"));
+	return $noreply unless (&hasParam("slashdot"));
 
 	&Forker("slashdot", sub { &Slashdot::Slashdot() });
 
 	$cmdstats{'Slashdot'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Topic management. xk++
     # may want to add a flag(??) for topic in the near future. -xk
     if ($message =~ /^topic(\s+(.*))?$/i) {
-	return 'NOREPLY' unless (&hasParam("topic"));
+	return $noreply unless (&hasParam("topic"));
 
 	my $chan	= $talkchannel;
 	my @args	= split(/ /, $2);
 
 	if (!scalar @args) {
 	    &msg($who,"Try 'help topic'");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	$chan		= lc(shift @args) if ($msgType eq 'private');
@@ -497,37 +497,37 @@ sub Modules {
 	if ($msgType eq 'public' && $thiscmd =~ /^#/) {
 	    &msg($who, "error: channel argument is not required.");
 	    &msg($who, "\002Usage\002: topic <CMD>");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	# topic over private:
 	if ($msgType eq 'private' && $chan !~ /^#/) {
 	    &msg($who, "error: channel argument is required.");
 	    &msg($who, "\002Usage\002: topic #channel <CMD>");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if (&validChan($chan) == 0) {
 	    &msg($who,"error: invalid channel \002$chan\002");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	# for semi-outsiders.
 	if (!&IsNickInChan($who,$chan)) {
 	    &msg($who, "Failed. You ($who) are not in $chan, hey?");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	# now lets do it.
 	&loadMyModule($myModules{'topic'});
 	&Topic($chan, $thiscmd, join(' ', @args));
 	$cmdstats{'Topic'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Countdown.
     if ($message =~ /^countdown(\s+(\S+))?$/i) {
-	return 'NOREPLY' unless (&hasParam("countdown"));
+	return $noreply unless (&hasParam("countdown"));
 
 	my $query = $2;
 
@@ -536,25 +536,25 @@ sub Modules {
 
 	$cmdstats{'Countdown'}++;
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # User Information Services. requested by Flugh.
     if ($message =~ /^uinfo(\s+(.*))?$/i) {
-	return 'NOREPLY' unless (&hasParam("userinfo"));
+	return $noreply unless (&hasParam("userinfo"));
 	&loadMyModule($myModules{'userinfo'});
 
 	my $arg = $1;
 	if (!defined $arg or $arg eq "") {
 	    &help("uinfo");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if ($arg =~ /^set(\s+(.*))?$/i) {
 	    $arg = $2;
 	    if (!defined $arg) {
 		&help("userinfo set");
-		return 'NOREPLY';
+		return $noreply;
 	    }
 
 	    &UserInfoSet(split /\s+/, $arg, 2);
@@ -562,7 +562,7 @@ sub Modules {
 	    $arg = $2;
 	    if (!defined $arg) {
 		&help("userinfo unset");
-		return 'NOREPLY';
+		return $noreply;
 	    }
 
 	    &UserInfoSet($arg, "");
@@ -571,16 +571,16 @@ sub Modules {
 	}
 
 	$cmdstats{'UIS'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # Uptime. xk++
     if ($message =~ /^uptime$/i) {
-	return 'NOREPLY' unless (&hasParam("uptime"));
+	return $noreply unless (&hasParam("uptime"));
 
 	my $count = 1;
  	&msg($who, "- Uptime for $ident -");
-	&msg($who, "Now: ". &Time2String(&uptimeNow()) ." running $infobot_version");
+	&msg($who, "Now: ". &Time2String(&uptimeNow()) ." running $bot_version");
 	foreach (&uptimeGetInfo()) {
 	    /^(\d+)\.\d+ (.*)/;
 	    my $time = &Time2String($1);
@@ -591,12 +591,12 @@ sub Modules {
 	}
 
 	$cmdstats{'Uptime'}++;
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # wingate.
     if ($message =~ /^wingate$/i) {
-	return 'NOREPLY' unless (&hasParam("wingate"));
+	return $noreply unless (&hasParam("wingate"));
 
 	my $reply = "Wingate statistics: scanned \002"
 			.scalar(keys %wingate)."\002 hosts";
@@ -608,17 +608,17 @@ sub Modules {
 
 	&performStrictReply("$reply.");
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # convert.
     if ($message =~ /^convert(\s+(.*))?$/i) {
-	return 'NOREPLY' unless (&hasParam("units"));
+	return $noreply unless (&hasParam("units"));
 
 	my $str = $2;
 	if (!defined $str) {
 	    &help("convert");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	my ($from,$to);
@@ -627,12 +627,12 @@ sub Modules {
 	if (!defined $from or !defined $to or $to eq "" or $from eq "") {
 	    &msg($who, "Invalid format!");
 	    &help("convert");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	&Forker("units", sub { &Units::convertUnits($from, $to); } );
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # do nothing and let the other routines have a go

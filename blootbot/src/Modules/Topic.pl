@@ -174,13 +174,13 @@ sub Topic {
     ### CMD: ADD:
     if ($args eq "") {
 	&help("topic add");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # heh, joeyh. 19990819. -xk
     if ($who =~ /\|\|/) {
 	&msg($who, "error: you have an invalid nick, loser!");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     my @prev = &topicDecipher($chan);
@@ -197,12 +197,12 @@ sub Topic {
 
     if ($topiccount == 0) {
 	&msg($who, "No topic set.");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     if ($args eq "") {
 	&help("topic del");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     $args =  ",".$args.",";
@@ -214,7 +214,7 @@ sub Topic {
 
     if ($args !~ /[\,\-\d]/) {
 	&msg($who, "error: Invalid argument ($args).");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     foreach (split ",", $args) {
@@ -231,13 +231,13 @@ sub Topic {
 	    push(@delete, $1);
 	} else {
 	    &msg($who, "error: Invalid sub-argument ($_).");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	foreach (@delete) {
 	  if ($_ > $topiccount || $_ < 1) {
 	    &msg($who, "error: argument out of range. (max: $topiccount)");
-	    return 'NOREPLY';
+	    return $noreply;
 	  }
 	  # skip if already deleted.
 	  # only checked if x-y range is given.
@@ -263,7 +263,7 @@ sub Topic {
     my @topics	= &topicDecipher($chan);
     if (!scalar @topics) {
 	&msg($who, "No topics for \002$chan\002.");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     &msg($who, "Topics for \002$chan\002:");
@@ -284,7 +284,7 @@ sub Topic {
 
     if ($args eq "") {
 	&help("topic mod");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # a warning message instead of halting. we kind of trust the user now.
@@ -298,7 +298,7 @@ sub Topic {
 
 	if ($flags !~ /^(g)?$/) {
 	  &msg($who, "error: Invalid flags to regex.");
-	  return 'NOREPLY';
+	  return $noreply;
 	}
 
 	my $topic = $topic{$chan}{'Current'};
@@ -311,7 +311,7 @@ sub Topic {
 	} else {
 	  &msg($who, "warning: regex not found in topic.");
 	}
-	return 'NOREPLY';
+	return $noreply;
     }
 
     &msg($who, "error: Invalid regex. Try s/1/2/, s#3#4#...");
@@ -321,7 +321,7 @@ sub Topic {
 
     if ($args eq "") {
 	&help("topic mv");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     if ($args =~ /^(first|last|\d+)\s+(before|after|swap)\s+(first|last|\d+)$/i) {
@@ -332,7 +332,7 @@ sub Topic {
 
 	if ($topiccount == 1) {
 	  &msg($who, "error: impossible to move the only subtopic, dumbass.");
-	  return 'NOREPLY';
+	  return $noreply;
 	}
 
 	# Is there an easier way to do this?
@@ -343,12 +343,12 @@ sub Topic {
 
 	if ($from > $topiccount || $to > $topiccount || $from < 1 || $to < 1) {
 	  &msg($who, "error: <from> or <to> is out of range.");
-	  return 'NOREPLY';
+	  return $noreply;
 	}
 
 	if ($from == $to) {
 	  &msg($who, "error: <from> and <to> are the same.");
-	  return 'NOREPLY';
+	  return $noreply;
 	}
 
 	if ($action =~ /^(swap)$/i) {
@@ -358,7 +358,7 @@ sub Topic {
 
 	  $_ = "Swapped #\002$from\002 with #\002$to\002.";
 	  &topicNew($chan, &topicCipher(@subtopics), $_, $topicUpdate);
-	  return 'NOREPLY';
+	  return $noreply;
 	}
 
 	# action != swap:
@@ -387,7 +387,7 @@ sub Topic {
 	$_ = "Moved #\002$from\002 $action #\002$to\002.";
 	&topicNew($chan, &topicCipher(@subtopics), $_, $topicUpdate);
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     &msg($who, "Invalid arguments.");
@@ -408,7 +408,7 @@ sub Topic {
     ### CMD: HISTORY:
     if (!scalar @{$topic{$chan}{'History'}}) {
 	&msg($who, "Sorry, no topics in history list.");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     &msg($who, "History of topics on \002$chan\002:");
@@ -425,14 +425,14 @@ sub Topic {
     ### CMD: RESTORE:
     if ($args eq "") {
 	&help("topic restore");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # following needs to be verified.
     if ($args =~ /^last$/i) {
 	if (${$topic{$chan}{'History'}}[0] eq $topic{$chan}{'Current'}) {
 	    &msg($who,"error: cannot restore last topic because it's mine.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 	$args = 1;
     }
@@ -440,13 +440,13 @@ sub Topic {
     if ($args =~ /\d+/) {
 	if ($args > $#{$topic{$chan}{'History'}} || $args < 1) {
 	    &msg($who, "error: argument is out of range.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	$_ = "Changing topic according to request.";
 	&topicNew($chan, ${$topic{$chan}{'History'}}[$args-1], $_, $topicUpdate);
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     &msg($who, "error: argument is not positive integer.");
@@ -471,13 +471,13 @@ sub Topic {
     if ($cmd ne "" and $cmd !~ /^help/i) {
 	&msg($who, "Invalid command [$cmd].");
 	&msg($who, "Try 'help topic'.");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     &help("topic");
   }
 
-  return 'NOREPLY';
+  return $noreply;
 }
 
 1;
