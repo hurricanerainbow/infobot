@@ -1,6 +1,6 @@
 #
 # Unit defintions
-# 18 May 2001  M-J. Dominus <mjd-perl-units+@plover.com>. 
+# 18 May 2001  M-J. Dominus <mjd-perl-units+@plover.com>.
 # This file is in the PUBLIC DOMAIN.
 # All rights abandoned.
 #
@@ -122,7 +122,7 @@ fldram  1|8 floz
 minim   1|60 fldram
 cup     8 floz
 cu      cup
-gill    1|2 cup 
+gill    1|2 cup
 pint    two cups
 quart   two pints
 pottle  two quarts     # Yup!
@@ -168,9 +168,9 @@ britpt     britpint
 britquart  2 britpint
 britqt     britquart
 britgallon 4 britquart
-britgal    britgallon    
+britgal    britgallon
 britpeck   2 britgal
-britfirkin 9 britgal  
+britfirkin 9 britgal
 britkilderkin  two britfirkins
 kilderkin britkilderkin  # kilderkin is British only
 britbucket 4 britgal     # That's `britbucket,' not `bit bucket'.
@@ -184,17 +184,15 @@ peck    8 dry quarts
 bushel  4 pecks
 bu      bushel
 seam    8bu
-bag     3bu 
+bag     3bu
 
-
-imperial 1.201          # For `imperial pint,' etc.  
-
+imperial 1.201          # For `imperial pint,' etc.
 
 # MASS (also WEIGHT)
 #
 # To avoid confusing the end user, we will pretend that `pound' is
-# a unit of mass, interconvertible with `grams'.  If you want 
-# pounds of force, see `lbf,' below.  In this section, `pound' 
+# a unit of mass, interconvertible with `grams'.  If you want
+# pounds of force, see `lbf,' below.  In this section, `pound'
 # really means `mass of an object that weighs one-pound at the surface
 # of the Earth.'  That is, in this program, `slug' has its usual
 # meaning, and `pound' is synonymous aith `slug'.
@@ -208,14 +206,15 @@ ounce         437.5 grains
 oz            ounce
 pound         16 oz
 lb            pound
-slug          lb         
+slug          lb
 hundredweight 112 lb  # This is the `long' hundredweight, analagous to
                       # the long ton.  There is also a `short' hundredwight,
                       # but it's just a hectlb, so I put this one in instead.
-cwt           hundredweight    
+cwt           hundredweight
 quarter       5 cwts
 longton       20 cwt
-ton           longton
+#ton           longton # use shortton my default Tim Riker <Tim@Rikers.org>
+ton           shortton # the american ton, see metriton and longton
 short         100|112   # Convert long tons, cwts, and quarters to short.
 shortton      short ton
 stone         14 lb
@@ -227,7 +226,7 @@ dram          3 scruples
 apothounce    480 grains
 apothoz       apothounce
 apothpound    12 apothoz
-apothlb       apothpound  
+apothlb       apothpound
 # Troy measures (for gold and precious stones)
 pennyweight   24 grains
 troyoz        480 grains # We can't define `troy' as a constant,
@@ -250,7 +249,7 @@ hour		60 min
 hr		hour
 day		24 hrs
 dy		day                  # This will denote mean solar days
-siderealday     0.99726957 dys    
+siderealday     0.99726957 dys
 week		7 days
 wk		week
 month		30 days
@@ -318,7 +317,7 @@ coulomb       Coulomb
 coul          Coulomb
 C             Coulomb
 electron      1.60217733e-19 C  # Charge on the electron; implies electron-volts
-e             electron 
+e             electron
 abcoulomb     10C
 statcoulomb   3.335635e-11 abcoulomb
 
@@ -330,7 +329,7 @@ N             newton
 dyne          g cm/s2
 grav          9.8 m/s2  # Acceleration due to gravity
 gee           grav
-# Actually the accleration varies with altitude and latitude, 
+# Actually the accleration varies with altitude and latitude,
 # from 9.78039 m/s2 at the equator to 9.83217 m/s2 at the poles.
 # This mean value corresponds to a latitude of about 38 degrees.
 lbf           lb grav
@@ -408,7 +407,7 @@ maxwell       Maxwell
 Mx            Maxwell
 Gauss         1.0e-4 T
 gauss         Gauss
-# We won't use G for Gauss because it is more important to 
+# We won't use G for Gauss because it is more important to
 # use it for the universal gravitational constant
 
 # Capacitance
@@ -442,7 +441,7 @@ Mev           megaeV
 Gev           gigaeV
 Tev           teraeV
 energy        c2 # You can ask for `1 gram energy' and get
-                 # the amount of energy equivalent to 
+                 # the amount of energy equivalent to
                  # 1 gram according to e=mc2.
                  # Check: 1amu energy == 931.16 Mev?
 Franklin      (10/c) C cm/sec
@@ -495,11 +494,11 @@ planckmass    2.17671e-8 kg
 plancktime    5.39056e-44 sec
 # Let's reserve `Planck' for a while longer until I can decide if
 # they'd be useful in `planck time' etc.
-permeability  4*pi*1.0e-7 H/m     # Magnetic permeability of vacuum constant 
-permittivity  8.854187817e-12 F/m # Electric permittivity of vacuum constant 
+permeability  4*pi*1.0e-7 H/m     # Magnetic permeability of vacuum constant
+permittivity  8.854187817e-12 F/m # Electric permittivity of vacuum constant
 protonmass    1.6726231e-27 kg
 neutronmass   1.6749286e-27 kg
-electronmass  9.1093897e-31 kg 
+electronmass  9.1093897e-31 kg
 finestructure 7.29735308e-3 # Rl
 # Electron charge is up above under `electrostatic'.
 # There's no reason to get too obscure here because if someone wants
@@ -511,7 +510,7 @@ finestructure 7.29735308e-3 # Rl
 rad		radian
 circle		2 pi radians
 revolution      circle       # For revolutions / sec
-rev             revolution 
+rev             revolution
 rpm		revolutions per minute
 quadrant        1|4 circle
 degree		1|360 circle
@@ -626,9 +625,9 @@ farthing             1|4 penny
 hapenny              half penny
 twopence             two pence
 tuppence             two pence
-thruppence           3 pence   
-threepence           3 pence   
-sixpence             6 pence   
+thruppence           3 pence
+threepence           3 pence
+sixpence             6 pence
 crown                5 shillings  # Implies `half crown'
 guinea               21 shillings
 florin               2 shillings
