@@ -337,7 +337,7 @@ sub loadMyModule {
 	    &shutdown() if (defined $shm and defined $dbh);
 	} else {			# child.
 	    &DEBUG("b4 delfork 1");
-	    &delForked($modulebase);
+	    &delForked($modulename);
 	}
 
 	exit 1;
@@ -348,7 +348,7 @@ sub loadMyModule {
 	&ERROR("cannot load my module: $modulebase");
 	if ($bot_pid != $$) {	# child.
 	    &DEBUG("b4 delfork 2");
-	    &delForked($modulebase);
+	    &delForked($modulename);
 	    exit 1;
 	}
 

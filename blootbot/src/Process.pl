@@ -190,6 +190,8 @@ sub process {
 	my $found = 0;
 
 	foreach (keys %channels) {
+	    # don't test for $channel{_default} elsewhere !!!
+	    next if (/^\s*$/ || /^_?default$/);
 	    next unless (&IsNickInChan($who,$_));
 
 	    $found++;
