@@ -13,7 +13,7 @@ sub Search {
     my ($type, $str) = @_;
     my $start_time = &::timeget();
     my @list;
-    my $maxshow = &::getChanConfDefault('maxListReplyCount', 15, $chan);
+    my $maxshow = &::getChanConfDefault('maxListReplyCount', 15, $::chan);
 
     $type =~ s/s$//;	# nice work-around.
 
