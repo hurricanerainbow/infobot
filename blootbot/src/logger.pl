@@ -347,6 +347,7 @@ sub status {
 
     # remove control characters from logging to LOGFILE.
     for ($input) {
+	last if (&IsParam("logColors"));
 	s/\e\[[0-9;]+m//g;	# escape codes.
 	s/[\cA-\c_]//g;		# control chars.
     }

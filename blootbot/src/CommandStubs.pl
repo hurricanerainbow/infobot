@@ -14,6 +14,7 @@ use vars qw(%channels %cache %mask %userstats %myModules %cmdstats
 use vars qw($total $x $type $i $good);
 
 $babel_lang_regex = "fr|sp|es|po|pt|it|ge|de|gr|en|zh|ja|jp|ko|kr|ru";
+$w3search_regex   = "google";
 
 ### COMMAND HOOK IMPLEMENTATION.
 # addCmdHook("SECTION", 'TEXT_HOOK',
@@ -294,7 +295,7 @@ sub Modules {
     }
 
     # google searching. Simon++
-    if ($message =~ /^(?:search\s+)?(\S+)\s+for\s+['"]?(.*?)["']?\s*\?*$/i) {
+    if ($message =~ /^(?:search\s+)?($w3search_regex)\s+for\s+['"]?(.*?)["']?\s*\?*$/i) {
 	return unless (&hasParam("wwwsearch"));
 
 	&Forker("wwwsearch", sub { &W3Search::W3Search($1,$2); } );
@@ -431,8 +432,8 @@ sub Modules {
 	    $args	=~ s/^["']|["']$//g;
 	}
 
-	if (length $args == 1) {
-	    &msg($who,"search string is too short.");
+	if (length $args < 2 && &IsFlag("o") ne "o") {
+	    &msg($who, "search string is too short.");
 	    return;
 	}
 
