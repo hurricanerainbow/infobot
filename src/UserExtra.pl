@@ -795,6 +795,7 @@ sub userCommands {
     if ($message =~ /^statu?s$/i) {
 	my $startString	= scalar(gmtime $^T);
 	my $upString	= &Time2String(time() - $^T);
+	my ($auser,$asystem,$cuser,$csystem) = times;
 	my $factoids	= &countKeys("factoids");
 	my $forks = 0;
 	foreach (keys %forked) {
@@ -823,7 +824,7 @@ sub userCommands {
 	  "I'm using about \002$memusage\002 ".
 	  "kB of memory. With \002$forks\002 active ".
 		&fixPlural("fork",$forks).
-	  "."
+	  ". uptimes $auser,$asystem,$cuser,$csystem"
 	);
 
 	return;
