@@ -35,12 +35,8 @@ sub doQuestion {
 
     if (!$addressed) {
 	return '' unless ($finalQMark);
-
-	if (&IsParam("minVolunteerLength") == 0 or
-		length($query) < $param{'minVolunteerLength'})
-	{
-	    return '';
-	}
+	return '' if (&IsParam("minVolunteerLength") == 0);
+	return '' if (length($query) < $param{'minVolunteerLength'});
     } else {
 	### TODO: this should be caught in Process.pl?
 	return '' unless ($talkok);
@@ -74,24 +70,33 @@ sub doQuestion {
     $query =~ s/^\s+|\s+$//g;
 
     # valid factoid.
-    if (defined( $result = &getReply($query) )) {
+    my @query;
+    push(@query, $query);
+    if ($query =~ s/[\!\.]$//) {
+	&DEBUG("Question: Pushing query without trailing symbols.");
+	push(@query,$query);
+    }
+
+    foreach $query (@query) {
+	$result = &getReply($query);
+	next if ($result eq "");
+
 	# 'see also' factoid redirection support.
 	if ($result =~ /^see( also)? (.*?)\.?$/) {
 	    my $newr = &getReply($2);
 	    $result  = $newr	if ($newr ne "");
 	}
 
-	return $result if ($result ne "");
-
-	### TODO: Use &Forker(); move function to Freshmeat.pl.
-	if (&IsParam("freshmeatForFactoid")) {
-	    &loadMyModule($myModules{'freshmeat'});
-	    $result = &Freshmeat::showPackage($query);
-	    return $result unless ($result eq $noreply);
-	}
-
-	&DEBUG("Question: hrm... result => '$result'.");
+	return $result;
     }
+
+    ### TODO: Use &Forker(); move function to Freshmeat.pl.
+    if (&IsParam("freshmeatForFactoid")) {
+	&loadMyModule($myModules{'freshmeat'});
+	$result = &Freshmeat::showPackage($query);
+	return $result unless ($result eq $noreply);
+    }
+    &DEBUG("Question: hrm... result => '$result' for '$query'.");
 
     if ($questionWord ne "" or $finalQMark) {
 	# if it has not been explicitly marked as a question
