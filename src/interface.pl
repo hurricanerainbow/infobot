@@ -26,14 +26,19 @@ sub cliloop {
     $addressed = 1;
     $msgType = 'public';
 
-    print ">>> ";
-    while (<STDIN>) {
+    # install libterm-readline-gnu-perl to get history support
+    use Term::ReadLine;
+    $term = new Term::ReadLine 'blootbot';
+    $prompt = "$who> ";
+    #$OUT = $term->OUT || STDOUT;
+    while ( defined ($_ = $term->readline($prompt)) ) {
 	$orig{message} = $_;
 	$message = $_;
 	chomp $message;
+	last if ($message =~ m/^quit$/);
 	$_ = &process() if $message;
-	print ">>> ";
     }
+    &doExit();
 }
 
 1;
