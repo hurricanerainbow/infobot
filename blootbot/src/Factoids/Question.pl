@@ -43,7 +43,7 @@ sub doQuestion {
 
     # dangerous; common preambles should be stripped before here
     if ($query =~ /^forget /i or $query =~ /^no, /) {
-	return $noreply if (exists $bots{$nuh});
+	return if (exists $bots{$nuh});
     }
 
     # convert to canonical reference form
@@ -78,14 +78,13 @@ sub doQuestion {
 
     # valid factoid.
     if ($query =~ s/[\!\.]$//) {
-	&DEBUG("Question: Pushing query without trailing symbols.");
 	push(@query,$query);
     }
 
     for (my$i=0; $i<scalar(@query); $i++) {
-	$query = $query[$i];
+	$query	= $query[$i];
 	$result = &getReply($query);
-	next if ($result eq "");
+	next if (!defined $result or $result eq "");
 
 	# 'see also' factoid redirection support.
 	if ($result =~ /^see( also)? (.*?)\.?$/) {
@@ -104,7 +103,7 @@ sub doQuestion {
     if (&IsParam("freshmeatForFactoid")) {
 	&loadMyModule($myModules{'freshmeat'});
 	$result = &Freshmeat::showPackage($query);
-	return $result unless ($result eq $noreply);
+	return $result if (defined $result);
     }
 
     ### TODO: Use &Forker(); move function to Debian.pl
@@ -113,13 +112,14 @@ sub doQuestion {
 	$result = &Debian::DebianFind($query);	# ???
 	### TODO: debian module should tell, through shm, that it went
 	###	  ok or not.
-###	return $result unless ($result eq $noreply);
+###	return $result if (defined $result);
     }
 
     if ($questionWord ne "" or $finalQMark) {
 	# if it has not been explicitly marked as a question
 	if ($addressed and $reply eq "") {
-	    &status("notfound: <$who> ".join(' :: ', @query));
+	    &status("notfound: <$who> ".join(' :: ', @query))
+						if ($finalQMark);
 
 	    return '' unless (&IsParam("friendlyBots"));
 

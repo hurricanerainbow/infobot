@@ -25,10 +25,7 @@ sub openDB {
 }
 
 sub closeDB {
-    if (!$dbh) {
-	&WARN("closeDB: connection already closed?");
-	return 0;
-    }
+    return 0 unless ($dbh);
 
     &status("Closed MySQL connection to $param{'SQLHost'}.");
     $dbh->disconnect();
@@ -362,7 +359,7 @@ sub delFactoid {
     my ($faqtoid) = @_;
 
     &dbDel("factoids", "factoid_key",$faqtoid);
-    &status("DELETED $faqtoid");
+    &status("DELETED '$faqtoid'");
 
     return 1;
 }

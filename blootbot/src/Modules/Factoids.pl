@@ -16,7 +16,7 @@ sub CmdFactInfo {
 
     if ($faqtoid eq "") {
 	&help("factinfo");
-	return $noreply;
+	return;
     }
 
     my $i = 0;
@@ -30,7 +30,7 @@ sub CmdFactInfo {
     # factoid does not exist.
     if (scalar @factinfo <= 1) {
 	&performReply("there's no such factoid as \002$faqtoid\002");
-	return $noreply;
+	return;
     }
 
     # fix for problem observed by asuffield.
@@ -41,7 +41,7 @@ sub CmdFactInfo {
 	    &DEBUG("factinfo{$_} => '$factinfo{$_}'.");
 	}
 ###	&delFactoid($faqtoid);
-	return $noreply;
+	return;
     }
 
     # created:
@@ -132,11 +132,11 @@ sub CmdFactInfo {
     # factoid was inserted not through the bot.
     if (!scalar @array) {
 	&performReply("no extra info on \002$faqtoid\002");
-	return $noreply;
+	return;
     }
 
     &performStrictReply("$factinfo{'factoid_key'} -- ". join("; ", @array) .".");
-    return $noreply;
+    return;
 }
 
 sub CmdFactStats {

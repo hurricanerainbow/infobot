@@ -15,9 +15,9 @@ sub Insult {
     $t->Net::Telnet::open(Host => "insulthost.colorado.edu", Port => "1695");
     my $line = $t->Net::Telnet::getline(Timeout => 4);
 
-    $line = "No luck, $main::who" unless (defined $line);
+    $line = "No luck, $::who" unless (defined $line);
 
-    if ($insultwho ne $main::who) { 
+    if ($insultwho ne $::who) { 
 	$line =~ s/^\s*You are/$insultwho is/i;
     }
 

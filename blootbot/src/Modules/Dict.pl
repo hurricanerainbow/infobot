@@ -18,7 +18,7 @@ my $proto	= getprotobyname('tcp');
 
 sub Dict {
     my ($query) = @_;
-###    return unless &main::loadPerlModule("IO::Socket");
+###    return unless &::loadPerlModule("IO::Socket");
     my $socket = new IO::Socket;
     my @results;
 
@@ -58,7 +58,7 @@ sub Dict {
 	my $total = scalar @results;
 
 	if (defined $num and ($num > $total or $num < 0)) {
-	    &msg($main::who, "error: choice in definition is out of range.");
+	    &msg($::who, "error: choice in definition is out of range.");
 	    return;
 	}
 
@@ -69,7 +69,7 @@ sub Dict {
 	    } else {
 		# suggested by larne and others.
 		my $prefix = "Dictionary '$query' ";
-		$retval = &main::formListReply(1, $prefix, @results);
+		$retval = &::formListReply(1, $prefix, @results);
 	    }
 	} elsif ($total == 1) {
 	    $retval = "Dictionary '$query' ".$results[0];
@@ -78,14 +78,14 @@ sub Dict {
 	}
     }
 
-    &main::performStrictReply($retval);
+    &::performStrictReply($retval);
 }
 
 sub Dict_Wordnet {
     my ($socket, $query) = @_;
     my @results;
 
-    &main::status("Dict: asking Wordnet.");
+    &::status("Dict: asking Wordnet.");
     print $socket "DEFINE wn \"$query\"\n";
 
     my $def		= "";
@@ -104,14 +104,14 @@ sub Dict_Wordnet {
 	} elsif (/^\s+(\S+ )?(\d+)?: (.*)/) {	# start of sub def.
 	    my $text = $3;
 	    $def =~ s/\s+$//;
-###	    &main::DEBUG("def => '$def'.");
+###	    &::DEBUG("def => '$def'.");
 	    push(@results, $def)		if ($def ne "");
 	    $def = $text;
 
 	    if (0) {	# old non-fLR format.
 		$def = "$query $wordtype: $text" if (defined $text);
 		$wordtype = substr($1,0,-1)	if (defined $1);
-###		&main::DEBUG("_ => '$_'.") if (!defined $text);
+###		&::DEBUG("_ => '$_'.") if (!defined $text);
 	    }
 
 	} elsif (/^\s+(.*)/) {
@@ -121,7 +121,7 @@ sub Dict_Wordnet {
 	}
     }
 
-    &main::status("Dict: wordnet: found ". scalar(@results) ." defs.");
+    &::status("Dict: wordnet: found ". scalar(@results) ." defs.");
 
     return if (!scalar @results);
 
@@ -132,7 +132,7 @@ sub Dict_Foldoc {
     my ($socket,$query) = @_;
     my @results;
 
-    &main::status("Dict: asking Foldoc.");
+    &::status("Dict: asking Foldoc.");
     print $socket "DEFINE foldoc \"$query\"\n";
 
     my $firsttime = 1;
@@ -165,7 +165,7 @@ sub Dict_Foldoc {
 	$string .= $_." ";
     }
 
-    &main::status("Dict: foldoc: found ". scalar(@results) ." defs.");
+    &::status("Dict: foldoc: found ". scalar(@results) ." defs.");
 
     return if (!scalar @results);
     pop @results;	# last def is date of entry.

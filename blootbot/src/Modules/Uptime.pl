@@ -49,6 +49,7 @@ sub uptimeGetInfo {
 
   # fixed up bad implementation :)
   # should be no problems, even if uptime or pid is duplicated.
+  ## WARN: run away forks may get through here, have to fix.
   foreach $uptime (sort {$b <=> $a} keys %uptime) {
     foreach $pid (keys %{$uptime{$uptime}}) {
 	next if (exists $done{$pid});
@@ -68,7 +69,7 @@ sub uptimeWriteFile {
   my $file = $file{utm};
 
   if ($$ != $bot_pid) {
-    &WARN("uptime: forked process doing weird things! FIXME");
+    &FIXME("uptime: forked process doing weird things!");
     exit 0;
   }
 

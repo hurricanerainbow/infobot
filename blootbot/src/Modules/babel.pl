@@ -50,10 +50,10 @@ sub babelfish {
     my $toenglish = "${lang}_en";
 
     if ($direction eq 'to') {
-	&main::performStrictReply( translate($phrase, $tolang, $req, $ua) );
+	&::performStrictReply( translate($phrase, $tolang, $req, $ua) );
 	return;
     } elsif ($direction eq 'from') {
-	&main::performStrictReply( translate($phrase, $toenglish, $req, $ua) );
+	&::performStrictReply( translate($phrase, $toenglish, $req, $ua) );
 	return;
     }
 
@@ -68,7 +68,7 @@ sub babelfish {
 	$last_english = $phrase = translate($phrase, $toenglish, $req, $ua);
     }
 
-    &main::performStrictReply($last_english);
+    &::performStrictReply($last_english);
 }
 
 sub translate {

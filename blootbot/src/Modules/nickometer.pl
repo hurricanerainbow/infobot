@@ -15,7 +15,7 @@ my $score	= 0;
 my $verbose	= 0;
 
 sub nickometer ($) {
-  return unless &loadPerlModule("Getopt::Std");
+#  return unless &loadPerlModule("Getopt::Std");
   return unless &loadPerlModule("Math::Trig");
 
   local $_ = shift;

@@ -149,7 +149,7 @@ sub getReply {
 		# fix the person.
 	    } else {
 		if ($reply =~ /^you are / or $reply =~ / you are /) {
-		    return $noreply if ($addressed);
+		    return if ($addressed);
 		}
 	    }
 	}

@@ -49,10 +49,10 @@ BEGIN {
 ################################################################
 
 { my $defs_read = 0;
-  $defs_read += read_defs("$main::bot_misc_dir/unittab");
+  $defs_read += read_defs("$::bot_misc_dir/unittab");
 
   unless ($defs_read) {
-    &main::ERROR("Could not read any of the initialization files UNITTAB");
+    &::ERROR("Could not read any of the initialization files UNITTAB");
     return;
   }
 }
@@ -77,22 +77,22 @@ sub convertUnits {
   trim($from);
   if ($from =~ s/^\s*\#\s*//) {
     if (definition_line($from)) {
-      &main::DEBUG("Defined.");
+      &::DEBUG("Defined.");
     } else {
-      &main::DEBUG("Error: $PARSE_ERROR.");
+      &::DEBUG("Error: $PARSE_ERROR.");
     }
-    &main::DEBUG("FAILURE 1.");
+    &::DEBUG("FAILURE 1.");
     return;
   }
   unless ($from =~ /\S/) {
-    &main::DEBUG("FAILURE 2");
+    &::DEBUG("FAILURE 2");
     return;
   }
 
   my $hu = parse_unit($from);
   if (is_Zero($hu)) {
-    &main::DEBUG($PARSE_ERROR);
-    &main::msg($main::who, $PARSE_ERROR);
+    &::DEBUG($PARSE_ERROR);
+    &::msg($::who, $PARSE_ERROR);
     return;
   }
 
@@ -102,23 +102,23 @@ sub convertUnits {
   redo unless $to =~ /\S/;
   $wu = parse_unit($to);
   if (is_Zero($wu)) {
-    &main::DEBUG($PARSE_ERROR);
+    &::DEBUG($PARSE_ERROR);
   }
 
   my $quot = unit_divide($hu, $wu);
   if (is_dimensionless($quot)) {
     my $q = $quot->{_};
     if ($q == 0) {
-	&main::performStrictReply("$to is an invalid unit?");
+	&::performStrictReply("$to is an invalid unit?");
 	return;
     }
     # yet another powers hack.
     $from =~ s/(\D+)(\d)/$1\^$2/g;
     $to   =~ s/(\D+)(\d)/$1\^$2/g;
 
-    &main::performStrictReply(sprintf("$from is approximately \002%.6g\002 $to", $q));
+    &::performStrictReply(sprintf("$from is approximately \002%.6g\002 $to", $q));
   } else {
-    &main::performStrictReply("$from cannot be correctly converted to $to.");
+    &::performStrictReply("$from cannot be correctly converted to $to.");
 
 #    print 
 #      "conformability (Not the same dimension)\n",
@@ -214,7 +214,7 @@ sub unit_multiply {
 sub unit_divide {
   my ($a, $b) = @_;
   if ($b->{_} == 0) {
-    &main::DEBUG("Division by zero error");
+    &::DEBUG("Division by zero error");
     return;
   }
   my $r = {%$a};
@@ -491,13 +491,13 @@ sub parse_unit {
       # Now look for `goto' actions
       my $goto = $actions[$STATE]{$result_type};
       unless ($goto && $goto->[0] eq 'goto') {
-	&main::ERROR("No post-reduction goto in state $STATE for $result_type.");
+	&::ERROR("No post-reduction goto in state $STATE for $result_type.");
 	return;
       }
       print STDERR "goto $goto->[1]\n" if $DEBUG_p;
       $STATE = $goto->[1];
     } else {
-      &main::ERROR("Bad primary $primary");
+      &::ERROR("Bad primary $primary");
       return;
     }
   }

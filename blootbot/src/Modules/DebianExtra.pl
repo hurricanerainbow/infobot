@@ -10,7 +10,7 @@ use strict;
 my $bugs_url = "http://master.debian.org/~wakkerma/bugs";
 
 sub debianBugs {
-    my @results = &main::getURL($bugs_url);
+    my @results = &::getURL($bugs_url);
     my ($date, $rcbugs, $remove);
     my ($bugs_closed, $bugs_opened) = (0,0);
 
@@ -29,14 +29,14 @@ sub debianBugs {
 			"It's good to see " :
 			"Oh no, the bug count is rising -- ";
 
-	&main::performStrictReply(
+	&::performStrictReply(
 		"Debian bugs statistics, last updated on $date... ".
 		"There are \002$rcbugs\002 release-critical bugs;  $xtxt".
 		"\002$bugs_closed\002 bugs closed, opening \002$bugs_opened\002 bugs.  ".
 		"About \002$remove\002 packages will be removed."
 	);
     } else {
-	&main::msg($main::who, "Couldn't retrieve data for debian bug stats.");
+	&::msg($::who, "Couldn't retrieve data for debian bug stats.");
     }
 }
 

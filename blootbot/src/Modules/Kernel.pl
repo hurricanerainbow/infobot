@@ -18,7 +18,7 @@ my $proto	= getprotobyname('tcp');
 ###local $SIG{ALRM} = sub { die "alarm\n" };
 
 sub kernelGetInfo {
-###    return unless &main::loadPerlModule("IO::Socket");
+###    return unless &::loadPerlModule("IO::Socket");
 
     my $socket    = new IO::Socket;
 
@@ -57,22 +57,22 @@ sub kernelGetInfo {
 sub Kernel {
     my @now = &kernelGetInfo();
     if (!scalar @now) {
-	&main::msg($main::who, "failed.");
+	&::msg($::who, "failed.");
 	return;
     }
 
     foreach (@now) {
-	&main::msg($main::who, $_);
+	&::msg($::who, $_);
     }
 }
 
 sub kernelAnnounce {
-    my $file = "$main::param{tempDir}/kernel.txt";
+    my $file = "$::param{tempDir}/kernel.txt";
     my @now  = &kernelGetInfo();
     my @old;
 
     if (!scalar @now) {
-	&main::DEBUG("kA: failure to retrieve.");
+	&::DEBUG("kA: failure to retrieve.");
 	return;
     }
 
@@ -100,26 +100,14 @@ sub kernelAnnounce {
     }
 
     if (scalar @now != scalar @old) {
-	&main::DEBUG("kA: scalar mismatch; removing and exiting.");
+	&::DEBUG("kA: scalar mismatch; removing and exiting.");
 	unlink $file;
 	return;
     }
 
     if (!scalar @new) {
-	&main::DEBUG("kA: no new kernels.");
+	&::DEBUG("kA: no new kernels.");
 	return;
-    }
-
-    my $chan;
-    my @chans = split(/[\s\t]+/, lc $main::param{'kernelAnnounce'});
-    @chans    = keys(%main::channels) unless (scalar @chans);
-    foreach $chan (@chans) {
-	next unless (&main::validChan($chan));
-
-	&main::status("sending kernel update to $chan.");
-	foreach (@new) {
-            &main::notice($chan, "Kernel: $_");
-	}
     }
 
     open(OUT, ">$file");
@@ -127,6 +115,8 @@ sub kernelAnnounce {
 	print OUT "$_\n";
     }
     close OUT;
+
+    return @new;
 }
 
 1;

@@ -16,17 +16,17 @@ sub W3Search {
     my ($where, $what, $type) = @_;
     my $retval = "$where can't find \002$what\002";
 
-    return unless &main::loadPerlModule("WWW::Search");
+    return unless &::loadPerlModule("WWW::Search");
 
     if (defined $type) {
-	&main::DEBUG("W3S: type => $type");
+	&::DEBUG("W3S: type => $type");
     }
 
     my @matches = grep { lc($_) eq lc($where) ? $_ : undef } @W3Search_engines;
     if (@matches) {
 	$where = shift @matches;
     } else {
-	&main::msg($main::who, "i don't know how to check '$where'");
+	&::msg($::who, "i don't know how to check '$where'");
     }
 
     my $Search	= new WWW::Search($where);
@@ -37,7 +37,7 @@ sub W3Search {
 #		search_parse_debug => 2,
 #	}
     );
-    $Search->http_proxy($main::param{'httpProxy'}) if (&main::IsParam("httpProxy"));
+    $Search->http_proxy($::param{'httpProxy'}) if (&::IsParam("httpProxy"));
     my $max = $Search->maximum_to_retrieve(10);	# DOES NOT WORK.
 
     my (%results, $count, $r);
@@ -51,7 +51,7 @@ sub W3Search {
 	    next if (exists $results{$hostname});
 	    $results{$hostname} = $url;
 	} else {
-	    &main::DEBUG("W3S: url isn't good? ($url).");
+	    &::DEBUG("W3S: url isn't good? ($url).");
 	}
 
 	last if ++$count >= $maxshow;
@@ -62,7 +62,7 @@ sub W3Search {
 		join(' or ', map { $results{$_} } sort keys %results);
     }
 
-    &main::performStrictReply($retval);
+    &::performStrictReply($retval);
 }
 
 1;

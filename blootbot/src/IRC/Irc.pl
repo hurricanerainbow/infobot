@@ -10,10 +10,11 @@ if (&IsParam("useStrict")) { use strict; }
 # static scalar variables.
 $mask{ip}	= '(\d+)\.(\d+)\.(\d+)\.(\d+)';
 $mask{host}	= '[\d\w\_\-\/]+\.[\.\d\w\_\-\/]+';
-$mask{chan}	= '[\#\&\+]\S*';
+$mask{chan}	= '[\#\&]\S*';
 my $isnick1	= 'a-zA-Z\[\]\{\}\_\`\^\|\\\\';
 my $isnick2	= '0-9\-';
 $mask{nick}	= "[$isnick1]{1}[$isnick1$isnick2]*";
+$mask{nuh}	= '\S*!\S*\@\S*';
 
 sub ircloop {
     my $error	= 0;
@@ -157,7 +158,7 @@ sub rawout {
 
 sub say {
     my ($msg) = @_;
-    if (!defined $msg or $msg eq $noreply) {
+    if (!defined $msg) {
 	$msg ||= "NULL";
 	&DEBUG("say: msg == $msg.");
 	return;
@@ -184,7 +185,7 @@ sub msg {
 	return;
     }
 
-    if (!defined $msg or $msg eq $noreply) {
+    if (!defined $msg) {
 	$msg ||= "NULL";
 	&DEBUG("msg: msg == $msg.");
 	return;
@@ -235,7 +236,9 @@ sub notice{
 
 
 sub DCCBroadcast {
-    my ($txt) = @_;
+    my ($txt,$flag) = @_;
+
+    ### FIXME: flag not supported yet.
 
     foreach (keys %{$dcc{'CHAT'}}) {
 	$conn->privmsg($dcc{'CHAT'}{$_}, $txt);
@@ -282,6 +285,10 @@ sub performReply {
 sub performAddressedReply {
     return unless ($addressed);
     &performReply(@_);
+}
+
+sub pSReply {
+    &performStrictReply(@_);
 }
 
 # Usage: &performStrictReply($reply);
@@ -511,6 +518,14 @@ sub GetNickInChans {
     return @array;
 }
 
+# Usage: &GetNicksInChan($chan);
+sub GetNicksInChan {
+    my ($chan) = @_;
+    my @array;
+
+    return keys %{ $channels{$chan}{''} };
+}
+
 sub IsNickInChan {
     my ($nick,$chan) = @_;
 
@@ -584,29 +599,36 @@ sub clearIRCVars {
     &DEBUG("clearIRCVars() called!");
     undef %channels;
     undef %floodjoin;
-    @joinchan = split /[\t\s]+/, $param{'join_channels'};
+
+    @joinchan	= &getJoinChans();
 }
 
-sub makeChanList {
-    my ($str)	= @_;
-    my $inverse	= 0;
+sub getJoinChans {
     my @chans;
+    my @skip;
 
-    if ($str eq "ALL") {
-	return(keys %channels);
-    } elsif ($str =~ s/^ALL but //i) {
-	@chans = keys %channels;
-	foreach (split /[\s\t\,]+/, lc $str) {
-	    @chans = grep !/^$_$/, @chans;
+    foreach (keys %chanconf) {
+	my $val = $chanconf{$_}{autojoin};
+	my $skip = 0;
+	if (defined $val) {
+	    $skip++ if ($val eq "0");
+	} else {
+	    $skip++;
 	}
-    } else {
-	foreach (split /[\s\t\,]+/, lc $str) {
-	    next unless (&validChan($_));
-	    push(@chans, $_);
+
+	if ($skip) {
+	    push(@skip, $_);
+	    next;
 	}
+
+	push(@chans, $_);
     }
 
-    @chans;
+    if (scalar @skip) {
+	&status("channels not auto-joining: @skip");
+    }
+
+    return @chans;
 }
 
 sub closeDCC {
@@ -667,6 +689,12 @@ sub joinfloodCheck {
     }
 
     &DEBUG("jfC: $delete deleted.") if ($delete);
+}
+
+sub getHostMask {
+    my($n) = @_;
+
+    &FIXME("getHostMask...");
 }
 
 1;
