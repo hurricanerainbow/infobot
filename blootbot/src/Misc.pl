@@ -439,8 +439,6 @@ sub isStale {
 
     return 1 unless ( -f $file);
     return 1 if (time() - (stat($file))[9] > $age*60*60*24);
-    my $delta = time() - (stat($file))[9];
-    my $hage  = $age*60*60*24;
     return 0;
 }
 
@@ -616,7 +614,7 @@ sub hasProfanity {
 sub hasParam {
     my ($param) = @_;
 
-    if (&IsChanConf($param)) {
+    if (&IsChanConf($param) or &IsParam($param)) {
 	return 1;
     } else {
 	### TODO: specific reason why it failed.
