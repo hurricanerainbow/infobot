@@ -326,6 +326,8 @@ sub tell {
 	my $done = 0;
 	$done++ if &parseCmdHook("main", $tell_obj);
 	$done++ if &parseCmdHook("extra", $tell_obj);
+	$message	= $tell_obj;
+	$done++ unless (&Modules());
 
 	&DEBUG("setting old values of who and msgType.");
 	$who		= $oldwho;
