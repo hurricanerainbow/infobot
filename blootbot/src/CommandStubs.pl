@@ -192,7 +192,7 @@ sub parseCmdHook {
 	'Identifier' => 'search', Module => 'Factoids',
 	'Help' => 'listauth') );
 &addCmdHook("extra", 'quote', ('CODEREF' => 'Quote::Quote',
-	'Forker' => 1, 'Identifier' => 'quote',
+	'Forker' => 1, 'Identifier' => 'Quote',
 	'Help' => 'quote', 'Cmdstats' => 'Quote') );
 &addCmdHook("extra", 'countdown', ('CODEREF' => 'countdown',
 	'Module' => 'countdown', 'Identifier' => 'countdown',
