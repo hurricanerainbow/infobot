@@ -64,22 +64,29 @@ sub shmWrite {
 
     return if (&IsParam("noSHM"));
 
-    # NULL hack.
-    ### TODO: create shmClear to deal with this.
-    if ($str !~ /^$/) {
-	my $read = &shmRead($key);
-	$read =~ s/\0+//g;
-
-	if ($str eq "") {
-	    $str = time().": ";		# time stamping, null.
-	} elsif ($read eq "") {
-	    $str = time().": ";		# timestamping.
-	} else {
-	    $str = $read ."||". $str;
-	}
+    if (length($str) > $size) {
+	&status("ERROR: length(str) (..)>$size...");
+	return;
     }
 
-    if (!shmwrite($key,$str,$position,$size)) {
+    if (length($str) == 0) {
+	# does $size overwrite the whole lot?
+	# if not, set to 2000.
+	if (!shmwrite($key, '', $position, $size)) {
+	    &ERROR("shmWrite: failed: $!");
+	}
+	return;
+    }
+
+    my $read = &shmRead($key);
+    $read =~ s/\0+//g;
+    if ($read eq "") {
+	$str = sprintf("%s:%d:%d: ", $param{ircNick}, $bot_pid, time());
+    } else {
+	$str = $read ."||". $str;
+    }
+
+    if (!shmwrite($key, '', $position, $size)) {
 	&ERROR("shmWrite: failed: $!");
     }
 }
@@ -227,8 +234,14 @@ sub shmFlush {
     my $time;
     my $shmmsg = &shmRead($shm);
     $shmmsg =~ s/\0//g;         # remove padded \0's.
-    if ($shmmsg =~ s/^(\d+): //) {
-	$time	= $1;
+    return if (length($shmmsg) == 0);
+    if ($shmmsg =~ s/^(\S+):(\d+):(\d+): //) {
+	my $n	= $1;
+	my $pid	= $2;
+	$time	= $3;
+    } else {
+	&status("warn: shmmsg='$shmmsg'.");
+	return;
     }
 
     foreach (split '\|\|', $shmmsg) {
