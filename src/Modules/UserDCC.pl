@@ -125,6 +125,27 @@ sub userDCC {
 	return $noreply;
     }
 
+    # part.
+    if ($message =~ /^part(\s+(\S+))?$/i) {
+	return $noreply unless (&hasFlag("o"));
+	my $jchan = $2;
+
+	if ($jchan !~ /^$mask{chan}$/) {
+	    &msg($who, "error, invalid chan.");
+	    &help("part");
+	    return $noreply;
+	}
+
+	if (!&validChan($jchan)) {
+	    &msg($who, "error, I'm not on that chan.");
+	    return $noreply;
+	}
+
+	&msg($jchan, "Leaving. (courtesy of $who).");
+	&part($jchan);
+	return $noreply;
+    }
+
     # ignore.
     if ($message =~ /^ignore(\s+(\S+))?$/i) {
 	return $noreply unless (&hasFlag("o"));
