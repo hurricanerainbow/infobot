@@ -60,7 +60,6 @@ sub setupSchedulers {
     &uptimeLoop(1);
     &randomQuote(2);
     &randomFactoid(2);
-    &randomFreshmeat(2);
     &logLoop(1);
     &chanlimitCheck(1);
     &netsplitCheck(1);	# mandatory
@@ -75,7 +74,6 @@ sub setupSchedulers {
     &shmFlush(1);	# mandatory
     &slashdotLoop(2);
     &plugLoop(2);
-    &freshmeatLoop(2);
     &kernelLoop(2);
     &wingateWriteFile(2);
     &factoidCheck(2);	# takes a couple of seconds on a 486. defer it
@@ -176,29 +174,6 @@ sub randomFactoid {
 	### FIXME: Use &getReply() on above to format factoid properly?
 	$good++;
     }
-}
-
-sub randomFreshmeat {
-    my $interval = &getChanConfDefault("randomFreshmeatInterval", 60);
-
-    if (@_) {
-	&ScheduleThis($interval, "randomFreshmeat");
-	return if ($_[0] eq "2");	# defer.
-    }
-
-    my @chans = &ChanConfList("randomFreshmeat");
-    return unless (scalar @chans);
-
-    &Forker("freshmeat", sub {
-	my $retval = &Freshmeat::randPackage();
-
-	foreach (@chans) {
-	    next unless (&validChan($_));
-
-	    &status("sending random Freshmeat to $_.");
-	    &say($_, $line);
-	}
-    } );
 }
 
 sub logLoop {
@@ -922,27 +897,6 @@ sub plugLoop {
 
 	    &::status("sending plug update to $_.");
 	    &notice($_, "Plug: $line");
-	}
-    } );
-}
-
-sub freshmeatLoop {
-    if (@_) {
-	&ScheduleThis(60, "freshmeatLoop");
-	return if ($_[0] eq "2");
-    }
-
-    my @chans = &ChanConfList("freshmeatAnnounce");
-    return unless (scalar @chans);
-
-    &Forker("freshmeat", sub {
-	my $data = &Freshmeat::freshmeatAnnounce();
-
-	foreach (@chans) {
-	    next unless (&::validChan($_));
-
-	    &::status("sending freshmeat update to $_.");
-	    &msg($_, $data);
 	}
     } );
 }

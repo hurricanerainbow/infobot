@@ -827,7 +827,6 @@ sub rehashConfVars {
 # registered flags... not used yet.
 my @regFlagsChan = (
 	"autojoin",
-	"freshmeat",
 	"limitcheckInterval",
 	"limitcheckPlus",
 	"allowConv",
