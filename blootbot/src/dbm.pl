@@ -7,6 +7,7 @@
 #
 
 use strict;
+no strict 'refs';
 
 package main;
 
@@ -61,15 +62,15 @@ use vars qw(%factoids %param);
 
     sub openDB {
 	use DB_File;
-	foreach (keys %formats) {
-	    next unless (&IsParam($_));
+	foreach my $table (keys %formats) {
+	    next unless (&IsParam($table));
 
-	    my $file = "$param{'DBName'}-$_";
+	    my $file = "$param{'DBName'}-$table";
 
-	    if (dbmopen(%{ $_ }, $file, 0666)) {
-		&status("Opened DBM $_ ($file).");
+	    if (dbmopen(%{"$table"}, $file, 0666)) {
+		&status("Opened DBM $table ($file).");
 	    } else {
-		&ERROR("Failed open to DBM $_ ($file).");
+		&ERROR("Failed open to DBM $table ($file).");
 		&shutdown();
 		exit 1;
 	    }
@@ -77,14 +78,14 @@ use vars qw(%factoids %param);
     }
 
     sub closeDB {
-	foreach (keys %formats) {
-	    next unless (&IsParam($_));
+	foreach my $table (keys %formats) {
+	    next unless (&IsParam($table));
 
-	    if (dbmclose(%{ $_ })) {
-		&status("Closed DBM $_ successfully.");
+	    if (dbmclose(%{ $table })) {
+		&status("Closed DBM $table successfully.");
 		next;
 	    }
-	    &ERROR("Failed closing DBM $_.");
+	    &ERROR("Failed closing DBM $table.");
 	}
     }
 
@@ -225,32 +226,7 @@ sub dbUpdate {
 #####
 # Usage: &dbSetRow($table, @values);
 sub dbSetRow {
-    my ($table, @values) = @_;
-    &DEBUG("dbSetRow(@_);");
-    my $key = lc $values[0];
-
-    my @format = &dbGetColInfo($table);
-    if (!scalar @format) {
-	return 0;
-    }
-
-    if (defined ${$table}{$key}) {
-	&WARN("dbSetRow: $table {$key} already exists?");
-    }
-
-    if (scalar @values != scalar @format) {
-	&WARN("dbSetRow: scalar values != scalar ${table} format.");
-    }
-
-    for (0 .. $#format) {
-	# @array? this is not defined anywhere. please fix, timriker!!!
-	if (defined $array[$_] and $array[$_] ne "") {
-	    &DEBUG("dbSetRow: array[$_] != NULL($array[$_]).");
-	}
-	$array[$_] = $values[$_];
-    }
-
-    ${$table}{$key}	= join $;, @array;
+    &FIXME("STUB: &dbSetRow(@_)");
 }
 
 #####
