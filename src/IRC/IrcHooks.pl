@@ -4,6 +4,7 @@
 #     Version: 20000126
 #        NOTE: Based on code by Kevin Lenzo & Patrick Cole  (c) 1997
 #
+use vars qw(%chanconf);
 
 # GENERIC. TO COPY.
 sub on_generic {
@@ -1234,8 +1235,8 @@ sub on_banned {
     my @args	= $event->args;
     my $chan	= $args[1];
 
-    &status(">>> banned/$b_blue$chan$ob $b_cyan$args[0]$ob");
-    #FIXME if $args[0] == me then kill autojoin!
+    &status(">>> banned/$b_blue$chan$ob $b_cyan$args[0]$ob, removing autojoin for $chan");
+    delete $chanconf{$chan}{autojoin};
     &joinNextChan();
 }
 
@@ -1243,8 +1244,10 @@ sub on_badchankey {
     $conn = shift(@_);
     my ($event) = @_;
     my @args	= $event->args;
+    my $chan	= $args[1];
 
-    &DEBUG("on_badchankey: args => @args");
+    &DEBUG("on_badchankey: args => @args, removing autojoin for $chan");
+    delete $chanconf{$chan}{autojoin};
     &joinNextChan();
 }
 
@@ -1255,6 +1258,15 @@ sub on_useronchan {
 
     &DEBUG("on_useronchan: args => @args");
     &joinNextChan();
+}
+
+# TODO not used yet
+sub on_stdin {
+    &FIXME("on_stdin");
+
+    my $line = <STDIN>;
+    chomp($line);
+    &FIXME("on_stdin: line => \"$line\"");
 }
 
 1;
