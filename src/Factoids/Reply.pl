@@ -18,7 +18,7 @@ use vars qw(%lang %lastWho);
 sub getReply {
     my($message) = @_;
     my($lhs,$mhs,$rhs);
-    my($result,$reply);
+    my($reply);
     $orig{message} = $message;
 
     if (!defined $message or $message =~ /^\s*$/) {

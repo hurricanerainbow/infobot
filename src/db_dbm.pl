@@ -151,7 +151,7 @@ sub dbGet {
 	my $str = $format[$_];
 	next unless (grep /^$str$/, split(/\,/, $select));
 	$array[$_] ||= '';
-	&DEBUG("dG: pushing '$array[$_]'.");
+	&DEBUG("dG: pushing $format[$_]=>'$array[$_]'.");
 	push(@retval, $array[$_]);
     }
 
@@ -333,9 +333,9 @@ sub randKey {
 ##### $select is misleading???
 # Usage: &searchTable($table, $returnkey, $primkey, $str);
 sub searchTable {
+    my ($table, $primkey, $key, $str) = @_;
     &FIXME("STUB: searchTable($table, $primkey, $key, $str)");
     return;
-    my ($table, $primkey, $key, $str) = @_;
     &DEBUG("searchTable($table, $primkey, $key, $str)");
 
     if (!scalar &dbGetColInfo($table)) {
