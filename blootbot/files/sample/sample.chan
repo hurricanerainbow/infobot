@@ -16,7 +16,7 @@
     +rootWarn
     rootWarnMode aggressive
 
-#testbot
+#botpark
     +autojoin
 
 _default

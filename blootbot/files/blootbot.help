@@ -69,16 +69,16 @@ babelfish: E: x en de your cars rock
 
 -chan: D: Leave a channel permanently
 -chan: U: ## -#channel
--chan: E: ## -#testbot
+-chan: E: ## -#botpark
 
 +chan: D: Join a channel permanently
 +chan: U: ## #channel
-+chan: E: ## #testbot
++chan: E: ## #botpark
 
 chaninfo: D: Display channel statistics on Op, Ban, Deop, Unban, Part, Join, SignOff, PublicMsg, Kick and Topic
 chaninfo: U: ## [#channel]
 chaninfo: E: ##
-chaninfo: E: ## #testbot
+chaninfo: E: ## #botpark
 
 chanset: D: set a variable for a channel
 chanset: U: ## [#chan] [what] [val]
@@ -124,7 +124,7 @@ crypt: E: ## 69 changeme
 cycle: D: Causes me to cycle in the channel it's said, or in the named channel
 cycle: U: ## [channel]
 cycle: E: ##
-cycle: E: ## #testbot
+cycle: E: ## #botpark
 
 dauthor: D: Find Debian package maintainers, and list the packages they maintain
 dauthor: U: ## <string> [dist]
@@ -197,8 +197,8 @@ ignore: E: ## [mask chan expire comment]
 ircstats: ircstats dumps some status information on the bot's IRC connection
 
 join: U: ## <#chan> [key]
-join: E: ## #testbot
-join: E: ## #testbot rules
+join: E: ## #botpark
+join: E: ## #botpark rules
 
 karma: Karma is a community rating system.  Use "X++" to increase the karma, or "X--" to decrease it.  Ask for ratings using "karma for X?"
 
@@ -207,7 +207,7 @@ kernel: U: ##
 
 kick: U: ## <nick> [#chan] [message]
 kick: E: ## oznoid
-kick: E: ## larne #testbot
+kick: E: ## larne #botpark
 kick: E: ## john #foo go away!
 
 lart: D: Luser Attitude Readjustment Tool
@@ -241,8 +241,8 @@ lock: N: Requires factoid extension (extra) support enabled.
 
 mode: set modes for a channel
 mode: U: ## <#chan> <mode>
-mode: E: ## #testbot +t
-mode: E: ## #testbot -i
+mode: E: ## #botpark +t
+mode: E: ## #botpark -i
 
 news: D: News functions
 news: U: ## [chan] <add,del,mod,set,latest,read,help>
@@ -281,7 +281,7 @@ news mod: E: news mod test s/test/Test/g
 nickometer: D: Measures the lame-ness of a nick or channel
 nickometer: U: ## {nick,channel}
 nickometer: E: ## unknown_lamer
-nickometer: E: ## #testbot
+nickometer: E: ## #botpark
 
 nslookup: D: Query DNS
 nslookup: U: ## <host|ip>
@@ -294,7 +294,7 @@ ord: E: ## c
 
 part: D: Leave a channel (DCC only)
 part: U: ## <#channel>
-part: E: ## #testbot
+part: E: ## #botpark
 part: NOTE: /kick is an alternative
 
 quote: D: Frontend to yahoo's online stock market share listing
