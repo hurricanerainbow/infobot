@@ -307,7 +307,12 @@ sub chanlimitCheck {
 
 	if (!exists $channels{$_}{'o'}{$ident}) {
 	    &ERROR("chanlimitcheck: dont have ops on $_.");
+	    ### TODO: check chanserv?
 	    next;
+	}
+
+	if (!defined $limit) {
+	    &DEBUG("setting limit for first time or from netsplit for $_");
 	}
 
 	&rawout("MODE $_ +l $newlimit");
@@ -334,16 +339,21 @@ sub netsplitCheck {
     }
 
     # %netsplit hash checker.
+    my $count	= scalar keys %netsplit;
     foreach (keys %netsplit) {
 	if (&IsNickInAnyChan($_)) {
 	    &DEBUG("netsplitC: $_ is in some chan; removing from netsplit list.");
 	    delete $netsplit{$_};
 	}
-	next unless (time() - $netsplit{$_} > 60*60*2); # 2 hours.
-	next if (&IsNickInAnyChan($_));
+	next unless (time() - $netsplit{$_} > 60*10);
 
-	&DEBUG("netsplitC: $_ didn't come back from netsplit in 2 hours; removing from netsplit list.");
+	&DEBUG("netsplitC: $_ didn't come back from netsplit; removing from netsplit list.");
 	delete $netsplit{$_};
+    }
+
+    if ($count and !scalar keys %netsplit) {
+	&DEBUG("ok, netsplit is hopefully gone. reinstating chanlimit check.");
+	&chanlimitCheck();
     }
 }
 
