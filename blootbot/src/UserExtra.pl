@@ -462,13 +462,27 @@ sub userCommands {
     }
 
     # crypt.
-    if ($message =~ /^crypt\s+(\S+)\s*(?:,| )\s*(\S+)/) {
-	# word salt.
-	&pSReply(crypt($1, $2));
+    if ($message =~ /^crypt(\s+(.*))?$/i) {
+	my @args	= split /\s+/, $2;
+
+	if (!scalar @args or scalar @args > 2) {
+	    &help("crypt");
+	    return;
+	}
+
+	if (scalar @args == 2) {
+	    if (length $args[0] != 2) {
+		&msg($who, "invalid format...");
+		return;
+	    }
+
+	    &pSReply( crypt($args[1], $args[0]) );
+	} else {
+	    &pSReply( &mkcrypt($args[0]) );
+	}
+
 	return;
     }
-
-
 
     # cycle.
     if ($message =~ /^(cycle)(\s+(\S+))?$/i) {
