@@ -34,7 +34,7 @@ use vars qw(%channels %chanstats %cmdstats %count %ircstats %param
 &addCmdHook("main", 'tell|explain', ('CODEREF' => 'tell',
 	Help => 'tell', Identifier => 'allowTelling',
 	Cmdstats => 'Tell') );
-&addCmdHook("main", 'news', ('CODEREF' => 'News::Parse',
+&addCmdHook("main", 'News', ('CODEREF' => 'News::Parse',
 	Module => 'News', 'Cmdstats' => 'News' ) );
 &addCmdHook("main", 'countrystats', ('CODEREF' => 'countryStats',
 #	Forker => "NULL",

@@ -577,8 +577,8 @@ sub on_join {
     );
 
     ### NEWS:
-    if (&IsChanConf('news') && &IsChanConf('newsKeepRead')) {
-	if (!&loadMyModule('news')) {	# just in case.
+    if (&IsChanConf('News') && &IsChanConf('newsKeepRead')) {
+	if (!&loadMyModule('News')) {	# just in case.
 	    &DEBUG('could not load news.');
 	} else {
 	    &News::latest($chan);
