@@ -560,7 +560,7 @@ sub checkMsgType {
 sub validExec {
     my ($str) = @_;
 
-    if ($str =~ /[\'\"\|]/) {	# invalid.
+    if ($str =~ /[\`\'\"\|]/) {	# invalid.
 	return 0;
     } else {			# valid.
 	return 1;
