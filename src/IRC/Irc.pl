@@ -6,7 +6,9 @@
 #
 
 use strict;
+
 no strict 'refs';
+no strict 'subs'; # IN/STDIN
 
 use vars qw(%floodjoin %nuh %dcc %cache %conns %channels %param %mask
 	%chanconf %orig %ircPort %ircstats %last %netsplit);
@@ -16,6 +18,9 @@ use vars qw($notcount $nottime $notsize $msgcount $msgtime $msgsize
 		$pubcount $pubtime $pubsize);
 use vars qw($b_blue $ob);
 use vars qw(@ircServers);
+
+use open ':utf8';
+use open ':std';
 
 $nickserv	= 0;
 my $maxlinelen	= 400;
@@ -170,10 +175,9 @@ sub irc {
 
     $ircstats{'Server'}	= "$server:$port";
 
-    #&DEBUG("foo" . <STDIN>);
-    #open(FH, "<:utf8", "input");
-    #$irc->addfh(<STDIN>, \&on_stdin, "r");
-    #close(STDIN);
+    $irc->addfh(STDIN, \&on_stdin, "r");
+
+    &status("starting main loop");
 
     $irc->start;
 }
