@@ -257,7 +257,7 @@ sub performReply {
     &checkMsgType($reply);
 
     if ($msgType eq 'public') {
-	if (rand() < 0.5) {
+	if (rand() < 0.5 or $reply =~ /[\.\?]$/) {
 	    $reply = "$orig{who}: ".$reply;
 	} else {
 	    $reply = "$reply, ".$orig{who};
