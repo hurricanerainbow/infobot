@@ -1,16 +1,10 @@
-Infobot:
-    License: As perl (GPL & Artistic)
-	- Kevin A. Lenzo [oznoid] <lenzo@cs.cmu.edu>
-	- Patrick Cole [ltd] <???>
-
 Blootbot:
     License: Artistic
     Main Author:
-	- David Sobon <dms@users.sourceforge.net>
-    Webpage, Random/Fix Patches:
-	- Danny Jabbour [GmLB] <danny@opticaldelusion.org>
-    Misc:
 	- Tim Riker <Tim@Rikers.org>
+    Other Contributors:
+	- David Sobon <dms@users.sourceforge.net>
+	- Danny Jabbour [GmLB] <danny@opticaldelusion.org>
 
 Module-Reload: (idea taken)
     License: Artistic
@@ -20,6 +14,11 @@ Module-Reload: (idea taken)
 Module-Units:
     License: GPL
 	- M-J. Dominus <mjd-perl-units-id-iut+buobvys+@plover.com>
+
+Infobot:
+    License: As perl (GPL & Artistic)
+	- Kevin A. Lenzo [oznoid] <lenzo@cs.cmu.edu>
+	- Patrick Cole [ltd] <???>
 
 Patches:
 	- ...
