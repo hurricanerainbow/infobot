@@ -406,7 +406,7 @@ sub on_join {
     }
 
     if ($netsplit and !$netsplittime) {
-	&status("ok.... re-running chanlimitCheck in 60.");
+	&DEBUG("on_join: ok.... re-running chanlimitCheck in 60.");
 	$conn->schedule(60, sub {
 		&chanlimitCheck();
 		$netsplittime = undef;
@@ -448,21 +448,7 @@ sub on_join {
 		    $channels{$chan}{'o'}{$ident});
 
     ### chanlimit check.
-    my $l = $channels{$chan}{'l'};
-    if (defined $l and &IsChanConf("chanlimitcheck")) {
-	my $plus = &getChanConfDefault("chanlimitcheckPlus", 5, $chan);
-	my $nowl = scalar(keys %{ $channels{$chan}{''} });
-
-	if ($plus <= 3) {
-	    &WARN("clc: stupid to have plus at $plus, fix it!");
-	}
-
-	### check if we have ops.
-	if ($nowl > $l - 3 and $plus > 3) {
-	    &WARN("clc: nowl($nowl) > l($l) - 3");
-	    &rawout("MODE $chan +l ".($nowl+$plus) );
-	}
-    }
+    &chanLimitVerify($chan);
 
     # used to determine sync time.
     if ($who =~ /^$ident$/i) {
@@ -725,10 +711,15 @@ sub on_quit {
 
     foreach (keys %channels) {
 	# fixes inconsistent chanstats bug #1.
-	next unless (&IsNickInChan($nick,$_));
+	if (!&IsNickInChan($nick,$_)) {
+	    &DEBUG("on_quit: nick $nick was not in chan $_.");
+	    next;
+	}
 	$chanstats{$_}{'SignOff'}++;
     }
+
     &DeleteUserInfo($nick, keys %channels);
+
     if (exists $nuh{lc $nick}) {
 	delete $nuh{lc $nick};
     } else {
@@ -739,6 +730,11 @@ sub on_quit {
     # should fix chanstats inconsistencies bug #2.
     if ($reason=~/^($mask{host})\s($mask{host})$/) {	# netsplit.
 	$reason = "NETSPLIT: $1 <=> $2";
+
+	if (&ChanConfList("chanlimitcheck") and !scalar keys %netsplit) {
+	    &DEBUG("on_quit: netsplit detected; disabling chan limit.");
+	    &rawout("MODE $chan -l");
+	}
 
 	$netsplit{lc $nick} = time();
 	if (!exists $netsplitservers{$1}{$2}) {
@@ -1119,6 +1115,31 @@ sub hookMsg {
     }
 
     return;
+}
+
+sub chanLimitVerify {
+    my($chan)	= @_;
+    my $l	= $channels{$chan}{'l'};
+
+    # only change it if it's not set.
+    if (defined $l and &IsChanConf("chanlimitcheck")) {
+	my $plus = &getChanConfDefault("chanlimitcheckPlus", 5, $chan);
+	my $nowl = scalar(keys %{ $channels{$chan}{''} });
+	my $delta	= $nowl - $l;
+	$delta		=~ s/^\-//;
+
+	if ($plus <= 3) {
+	    &WARN("clc: stupid to have plus at $plus, fix it!");
+	}
+
+	### todo: check if we have ops.
+	### todo: if not, check if nickserv/chanserv is avail.
+	### todo: unify code with chanlimitcheck()
+	if ($delta > 3) {
+	    &WARN("clc: nowl($nowl) > l($l) - 3");
+	    &rawout("MODE $chan +l ".($nowl+$plus) );
+	}
+    }
 }
 
 1;
