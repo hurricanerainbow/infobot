@@ -480,7 +480,7 @@ sub userDCC {
 	&DEBUG("after joinnextchan");
 
 	&status("USER reset $who");
-	&msg($who,"resetted");
+	&msg($who,"reset complete");
 
 	return;
     }
