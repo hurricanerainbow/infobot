@@ -84,9 +84,8 @@ may code for any new variations.
 
 =head1 CHANGES
 
-2.22
-Fixed up changed format from google
-reformatted code
+2.21.1
+Parsing update from Tim Riker <Tim@Rikers.org>
 
 2.21
 Minor code correction for empty returned titles
@@ -148,7 +147,7 @@ require Exporter;
 @EXPORT = qw();
 @EXPORT_OK = qw();
 @ISA = qw(WWW::Search Exporter);
-$VERSION = '2.22';
+$VERSION = '2.21';
 
 $MAINTAINER = 'Jim Smyser <jsmyser@bigfoot.com>';
 $TEST_CASES = <<"ENDTESTCASES";
@@ -167,177 +166,170 @@ sub undef_to_emptystring {
 return defined($_[0]) ? $_[0] : "";
 }
 # private
-sub native_setup_search {
-    my($self, $native_query, $native_options_ref) = @_;
-    $self->user_agent('user');
-    $self->{_next_to_retrieve}		= 0;
-    $self->{'_num_hits'}		= 100;
-
-    if (!defined $self->{_options}) {
-	$self->{_options} = {
-		'search_url' => 'http://www.google.com/search',
-		'num' => $self->{'_num_hits'},
-	};
-    }
-
-    my($options_ref) = $self->{_options};
-
-    if (defined $native_options_ref) {
-	# Copy in new options.
-	foreach (keys %$native_options_ref) {
-	    $options_ref->{$_} = $native_options_ref->{$_};
-	}
-    }
-
-    # Process the options.
-    my($options) = '';
-    foreach (keys %$options_ref) {
-	# printf STDERR "option: $_ is " . $options_ref->{$_} . "\n";
-	next if (generic_option($_));
-	$options .= $_ . '=' . $options_ref->{$_} . '&';
-    }
-
-    $self->{_debug} = $options_ref->{'search_debug'};
-    $self->{_debug} = 2 if ($options_ref->{'search_parse_debug'});
-    $self->{_debug} = 0 if (!defined $self->{_debug});
-
-    # Finally figure out the url.
-    $self->{_base_url} =
-    $self->{_next_url} =
-    $self->{_options}{'search_url'} .
-    "?" . $options .
-    "q=" . $native_query;
-}
+sub native_setup_search
+    {
+     my($self, $native_query, $native_options_ref) = @_;
+     $self->user_agent('user');
+     $self->{_next_to_retrieve} = 0;
+     $self->{'_num_hits'} = 100;
+         if (!defined($self->{_options})) {
+         $self->{_options} = {
+         'search_url' => 'http://www.google.com/search',
+         'num' => $self->{'_num_hits'},
+         };
+         };
+     my($options_ref) = $self->{_options};
+     if (defined($native_options_ref)) {
+     # Copy in new options.
+     foreach (keys %$native_options_ref) {
+     $options_ref->{$_} = $native_options_ref->{$_};
+     };
+     };
+     # Process the options.
+     my($options) = '';
+     foreach (keys %$options_ref) {
+     # printf STDERR "option: $_ is " . $options_ref->{$_} . "\n";
+     next if (generic_option($_));
+     $options .= $_ . '=' . $options_ref->{$_} . '&';
+     };
+     $self->{_debug} = $options_ref->{'search_debug'};
+     $self->{_debug} = 2 if ($options_ref->{'search_parse_debug'});
+     $self->{_debug} = 0 if (!defined($self->{_debug}));
+               
+     # Finally figure out the url.
+     $self->{_base_url} =
+     $self->{_next_url} =
+     $self->{_options}{'search_url'} .
+     "?" . $options .
+     "q=" . $native_query;
+     }
           
 # private
 sub begin_new_hit {
-    my($self) = shift;
-    my($old_hit) = shift;
-    my($old_raw) = shift;
-
-    if (defined $old_hit) {
-	$old_hit->raw($old_raw) if (defined $old_raw);
-	push(@{$self->{cache}}, $old_hit);
-    }
-
-    return (new WWW::SearchResult, '');
-}
-
+     my($self) = shift;
+     my($old_hit) = shift;
+     my($old_raw) = shift;
+     if (defined($old_hit)) {
+     $old_hit->raw($old_raw) if (defined($old_raw));
+     push(@{$self->{cache}}, $old_hit);
+     };
+     return (new WWW::SearchResult, '');
+     }
 sub native_retrieve_some {
-    my ($self) = @_;
-    # fast exit if already done
-    return undef if (!defined $self->{_next_url});
+     my ($self) = @_;
+     # fast exit if already done
+     return undef if (!defined($self->{_next_url}));
+     # get some
+     print STDERR "Fetching " . $self->{_next_url} . "\n" if ($self->{_debug});
+     my($response) = $self->http_request('GET', $self->{_next_url});
+     $self->{response} = $response;
+     if (!$response->is_success) {
+     return undef;
+     };
 
-    # get some
-    print STDERR "Fetching " . $self->{_next_url} . "\n" if ($self->{_debug});
-    my($response) = $self->http_request('GET', $self->{_next_url});
-    $self->{response} = $response;
+     # parse the output
+     my($HEADER, $HITS, $TRAILER, $POST_NEXT) = (1..10);
+     my($hits_found) = 0;
+     my($state) = ($HEADER);
+     my($hit) = undef;
+     my($raw) = '';
+     foreach ($self->split_lines($response->content())) {
+     next if m@^$@; # short circuit for blank lines
 
-    return undef if (!$response->is_success);
-
-    # parse the output
-    my($HEADER, $HITS, $TRAILER, $POST_NEXT) = (1..10);
-    my($hits_found) = 0;
-    my($state) = ($HEADER);
-    my($hit) = undef;
-    my($raw) = '';
-
-    foreach ($self->split_lines($response->content())) {
-	next if m@^$@; # short circuit for blank lines
-
-	if ($state == $HEADER && m/about <b>([\d,]+)<\/b>/) {
-	    my($n) = $1;
-	    $self->approximate_result_count($n);
-	    print STDERR "Found Total: $n\n" if ($self->{_debug});
-	    $state = $HITS;
-
-	} elsif ($state == $HITS &&
-		m|<a href=(\S+)\>(.*?)</a><br><font size=-1><font color=\"#008000\"><.*?>|i
-	) {
-
-	    my ($url, $title) = ($1,$2);
-	    ($hit, $raw) = $self->begin_new_hit($hit, $raw);
-	    print STDERR "**Found HIT1 Line**\n" if ($self->{_debug});
-	    $raw .= $_;
-	    $url =~ s/(>.*)//g;
-	    $hit->add_url(strip_tags($url));
-	    $hits_found++;
-	    $title = "No Title" if ($title =~ /^\s+/);
-	    $hit->title(strip_tags($title));
-	    $state = $HITS;
-
-	} elsif ($state == $HITS &&
-		m@^<p><a href=/url\?sa=U&start=\d+&q=([^<]+)\&.*?>(.*)</a><font size=-1><br>(.*)@i ||
-		m@^<p><a href=(\S+)>(.*)</a>.*?<font size=-1>(.*)@i
-	) {
-	    print STDERR "**Found HIT2 Line**\n" if ($self->{_debug});
-
-	    ($hit, $raw) = $self->begin_new_hit($hit, $raw);
-
-	    my ($url, $title) = ($1,$2);
-	    $mDesc = $3;
-
-	    $url =~ s/\/url\?sa=\w&start=\d+&q=//g;
-	    $url =~ s/\?lang=(\S+)$//g;
-	    $url =~ s/&(.*)//g;
-	    $url =~ s/(>.*)//g;
-	    $url =~ s/\/$//g;	# kill trailing slash.
-
-	    $raw .= $_;
-	    $hit->add_url(strip_tags($url));
-	    $hits_found++;
-
-	    $title = "No Title" if ($title =~ /^\s+/);
-	    $hit->title(strip_tags($title));
-
-	    $mDesc =~ s/<.*?>//g;
-###	    $mDesc =  $mDesc . '<br>' if not $mDesc =~ m@<br>@;
-	    $hit->description($mDesc) if (defined $hit);
-	    $state = $HITS;
-
-# description parsing
-	} elsif ($state == $HITS && m@<b>(\.\.(.+))</b> @i
-	) {
-	    print STDERR "**Parsing Description Line**\n" if ($self->{_debug});
-	    $raw .= $_;
-	    # uhm...
-	    $sDesc = $1 || "";
-     
-	    $sDesc =~ s/<.*?>//g;
-	    $mDesc ||= "";
-	    $sDesc = $mDesc . $sDesc;
-#	    $hit->description($sDesc) if $sDesc =~ m@^\.@;
-	    $sDesc = '';
-	    $state = $HITS;
-
-	} elsif ($state == $HITS && m@<div>@i
-	) {
-	    ($hit, $raw) = $self->begin_new_hit($hit, $raw);
-	    print STDERR "**Found Last Line**\n" if ($self->{_debug});
-	    # end of hits
-	    $state = $TRAILER;
-
-	} elsif ($state == $TRAILER && 
-		m|<a href=([^<]+)><img src=/nav_next.gif.*?>.*?|i
-	) {
-	    my($relative_url) = $1;
-	    print STDERR "**Fetching >>Next<< Page**\n" if ($self->{_debug});
-	    $self->{_next_url} = 'http://www.google.com' . $relative_url;
-	    $state = $POST_NEXT;
-	}
-    }
-
-    if ($state != $POST_NEXT) {
-	# No "Next" Tag
-	$self->{_next_url} = undef;
-	$self->begin_new_hit($hit, $raw) if ($state == $HITS);
-	$self->{_next_url} = undef;
-    }
-
-    # ZZZzzzzZZZZzzzzzzZZZZZZzzz
-    $self->user_agent_delay if (defined($self->{_next_url}));
-    return $hits_found;
-}
-
+  if ($state == $HEADER && m/about <b>([\d,]+)<\/b>/) 
+     {
+     my($n) = $1;
+     $self->approximate_result_count($n);
+     print STDERR "Found Total: $n\n" ;
+     $state = $HITS;
+     } 
+  if ($state == $HITS &&
+     m|<p><a href=([^\>]*)\>(.*?)</a\><br\>|i) {
+     my ($url, $title) = ($1,$2);
+     ($hit, $raw) = $self->begin_new_hit($hit, $raw);
+     print STDERR "**Found HIT0 Line** $url - $title\n" if ($self->{_debug});
+     $raw .= $_;
+     $url =~ s/(>.*)//g;
+     $hit->add_url(strip_tags($url));
+     $hits_found++;
+     $title = "No Title" if ($title =~ /^\s+/);
+     $hit->title(strip_tags($title));
+     $state = $HITS;
+     } 
+  elsif ($state == $HITS &&
+     m|<a href=(.*)\>(.*?)</a><font size=-1><br><font color=green><.*?>|i) {
+     my ($url, $title) = ($1,$2);
+     ($hit, $raw) = $self->begin_new_hit($hit, $raw);
+     print STDERR "**Found HIT1 Line**\n" if ($self->{_debug});
+     $raw .= $_;
+     $url =~ s/(>.*)//g;
+     $hit->add_url(strip_tags($url));
+     $hits_found++;
+     $title = "No Title" if ($title =~ /^\s+/);
+     $hit->title(strip_tags($title));
+     $state = $HITS;
+     } 
+  elsif ($state == $HITS &&
+     m@^<p><a href=/url\?sa=U&start=\d+&q=([^<]+)\&.*?>(.*)</a><font size=-1><br>(.*)@i ||
+     m@^<p><a href=([^<]+)>(.*)</a>.*?<font size=-1><br>(.*)@i)
+     {
+     ($hit, $raw) = $self->begin_new_hit($hit, $raw);
+     print STDERR "**Found HIT2 Line**\n" if ($self->{_debug});
+     my ($url, $title) = ($1,$2);
+     $mDesc = $3;
+     $url =~ s/\/url\?sa=\w&start=\d+&q=//g;
+     $url =~ s/&(.*)//g;
+     $url =~ s/(>.*)//g;
+     $raw .= $_;
+     $hit->add_url(strip_tags($url));
+     $hits_found++;
+     $title = "No Title" if ($title =~ /^\s+/);
+     $hit->title(strip_tags($title));
+     $mDesc =~ s/<.*?>//g;
+     $mDesc =  $mDesc . '<br>' if not $mDesc =~ m@<br>@;
+     $hit->description($mDesc) if (defined($hit));
+     $state = $HITS;
+     } 
+  elsif ($state == $HITS && m@^(\.\.(.+))@i) 
+     {
+     print STDERR "**Parsing Description Line**\n" if ($self->{_debug});
+     $raw .= $_;
+     $sDesc = $1;
+     $sDesc ||= '';
+     $sDesc =~ s/<.*?>//g;
+     $sDesc = $mDesc . $sDesc;
+     $hit->description($sDesc) if $sDesc =~ m@^\.@;
+     $sDesc = '';
+     $state = $HITS;
+     } 
+  elsif ($state == $HITS && m@<div class=nav>@i) 
+     {
+     ($hit, $raw) = $self->begin_new_hit($hit, $raw);
+     print STDERR "**Found Last Line**\n" if ($self->{_debug});
+     # end of hits
+     $state = $TRAILER;
+     } 
+  elsif ($state == $TRAILER && 
+     m|<a href=([^<]+)><IMG SRC=/nav_next.gif.*?>.*?|i) 
+     {
+     my($relative_url) = $1;
+     print STDERR "**Fetching >>Next<< Page**\n" if ($self->{_debug});
+     $self->{_next_url} = 'http://www.google.com' . $relative_url;
+     $state = $POST_NEXT;
+     } else {
+     };
+     };
+  if ($state != $POST_NEXT) {
+     # No "Next" Tag
+     $self->{_next_url} = undef;
+     if ($state == $HITS) {
+     $self->begin_new_hit($hit, $raw);
+     };
+     $self->{_next_url} = undef;
+     };
+     # ZZZzzzzZZZZzzzzzzZZZZZZzzz
+     $self->user_agent_delay if (defined($self->{_next_url}));
+     return $hits_found;
+     }
 1;
 
