@@ -723,8 +723,8 @@ sub userDCC {
 	    return;
 	}
 
-	my $u		= &getUser($who);
-	my $crypt	= &mkcrypt($args[0]);
+	my $u = &getUser($who);
+	my $crypt = &mkcrypt($args[0]);
 
 	&pSReply("Set your passwd to '$crypt'");
 	$users{$u}{PASS} = $crypt;
@@ -754,7 +754,8 @@ sub userDCC {
 	    return;
 	}
 
-	if (scalar @args == 1) {	# del pass.
+	if (scalar @args == 1) {
+	    # del pass.
 	    if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
 		&pSReply("cannot remove passwd of others.");
 		return;
@@ -795,10 +796,12 @@ sub userDCC {
 
 	my $chflag;
 	my $user;
-	if ($args[0] =~ /^$mask{nick}$/i) {	# <nick>
+	if ($args[0] =~ /^$mask{nick}$/i) {
+	    # <nick>
 	    $user	= &getUser($args[0]);
 	    $chflag	= $args[1];
-	} else {				# <flags>
+	} else {
+	    # <flags>
 	    $user	= &getUser($who);
 	    &DEBUG("user $who... nope.") unless (defined $user);
 	    $user	= &getUser($verifyUser);
@@ -1312,7 +1315,7 @@ sub userDCC {
 
 	if ($str eq "+") {
 	    if (scalar @args != 2) {
-		&pSReply(".+host requires hostmask argument.");
+		&pSReply("+user requires hostmask argument.");
 		return;
 	    }
 	} elsif (scalar @args != 1) {
@@ -1320,29 +1323,30 @@ sub userDCC {
 	    return;
 	}
 
-	if ($state) {			# adduser.
+	if ($state) {
+	    # adduser.
 	    if (scalar @args == 1) {
 		$args[1]	= &getHostMask($args[0]);
 		&pSReply("Attemping to guess $args[0]'s hostmask...");
 
 		# crude hack... crappy Net::IRC
 		$conn->schedule(5, sub {
-	# hopefully this is right.
-	my $nick = (keys %{ $cache{nuhInfo} })[0];
-	if (!defined $nick) {
-	    &pSReply("couldn't get nuhinfo... adding user without a hostmask.");
-	    &userAdd($nick);
-	    return;
-	}
+		    # hopefully this is right.
+		    my $nick = (keys %{ $cache{nuhInfo} })[0];
+		    if (!defined $nick) {
+			&pSReply("couldn't get nuhinfo... adding user without a hostmask.");
+			&userAdd($nick);
+			return;
+		    }
+		    my $mask = &makeHostMask( $cache{nuhInfo}{$nick}{NUH} );
 
-	my $mask = &makeHostMask( $cache{nuhInfo}{$nick}{NUH} );
-
-	if ( &userAdd($nick, $mask) ) {	# success.
-		&pSReply("Added $nick with flags $users{$nick}{FLAGS}");
-		my @hosts = keys %{ $users{$nick}{HOSTS} };
-		&pSReply("hosts: @hosts");
-	}
-});
+		    if ( &userAdd($nick, $mask) ) {
+			# success.
+			&pSReply("Added $nick with flags $users{$nick}{FLAGS}");
+			my @hosts = keys %{ $users{$nick}{HOSTS} };
+			&pSReply("hosts: @hosts");
+		    }
+		});
 		return;
 	    }
 
