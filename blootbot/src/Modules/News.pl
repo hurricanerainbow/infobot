@@ -690,13 +690,10 @@ sub set {
 
 sub latest {
     my($tchan, $flag) = @_;
-    &::DEBUG("news: latest(): who => $who, ::who => $::who");
 
     # hack hack hack.
     $chan	||= $tchan;
     $who	= $::who;
-
-    &::DEBUG("news: latest(): who => $who, ::who => $::who");
 
     # todo: if chan = undefined, guess.
 #    if (!exists $::news{$chan}) {

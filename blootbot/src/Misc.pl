@@ -467,15 +467,21 @@ sub isStale {
 
 # Usage: &makeHostMask($host);
 sub makeHostMask {
-    my ($host) = @_;
+    my ($host)	= @_;
+    my $nu	= "";
+
+    if ($host =~ s/^(\S+!\S+\@)//) {
+	&DEBUG("mHM: detected nick!user\@ for host arg; fixing");
+	$nu = $1;
+    }
 
     if ($host =~ /^$mask{ip}$/) {
-	return "$1.$2.$3.*";
+	return $nu."$1.$2.$3.*";
     }
 
     my @array = split(/\./, $host);
-    return $host if (scalar @array <= 3);
-    return "*.".join('.',@{array}[1..$#array]);
+    return $nu.$host if (scalar @array <= 3);
+    return $nu."*.".join('.',@{array}[1..$#array]);
 }
 
 # Usage: &makeRandom(int);

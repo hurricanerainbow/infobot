@@ -134,7 +134,13 @@ sub process {
 	}
 
 	# todo: use &getUser()?
-	my $first	= (scalar keys %users < 2) ? 1 : 0;
+	my $first	= 1;
+	foreach (keys %users) {
+	    if ($users{$_}{FLAGS} =~ /n/) {
+		$first = 0;
+		last;
+	    }
+	}
 
 	if (!exists $users{$who} and !$first) {
 	    &pSReply("nick $who is not in user list.");

@@ -552,7 +552,11 @@ sub userAdd {
     $utime_userfile = time();
     $ucount_userfile++;
 
-    $users{$nick}{HOSTS}{$mask} = 1;
+    if (defined $mask and $mask !~ /^\s*$/) {
+	&DEBUG("userAdd: mask => $mask");
+	$users{$nick}{HOSTS}{$mask} = 1;
+    }
+
     $users{$nick}{FLAGS}	||= $users{_default}{FLAGS};
 
     return 1;
