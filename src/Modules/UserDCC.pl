@@ -1105,7 +1105,7 @@ sub userDCC {
 	    $comment = "added by $who";
 	}
 
-	if ( &ignoreAdd($mask, $chan, $time, $comment) ) {
+	if ( &ignoreAdd($mask, $chan, $time, $comment) > 1) {
 	    &pSReply("added $mask to ignore list.");
 	} else {
 	    &pSReply("warn: $mask already in ignore list; written over anyway. FIXME");
