@@ -255,15 +255,15 @@ sub seenFlushOld {
 	}
 
 	my $sth = $dbh->prepare($query);
-	$sth->execute;
+	if ($sth->execute) {
+	    while (my @row = $sth->fetchrow_array) {
+		my ($nick,$time) = @row;
 
-	while (my @row = $sth->fetchrow_array) {
-	    my ($nick,$time) = @row;
-
-	    &dbDel("seen",{"nick"=>$nick});
-	    $delete++;
+		&dbDel("seen",{"nick"=>$nick});
+		$delete++;
+	    }
+	    $sth->finish;
 	}
-	$sth->finish;
     } elsif ($param{'DBType'} =~ /^dbm/i) {
 	my $time = time();
 
