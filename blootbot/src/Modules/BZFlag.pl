@@ -26,7 +26,7 @@ BEGIN {
 
 sub BZFlag::BZFlag {
 	my ($message) = @_;
-  my ($retval);
+	my ($retval);
 	if ($no_BZFlag) {
 		&main::status("BZFlag module requires Socket.");
 		return 'BZFlag module not active';
@@ -35,7 +35,7 @@ sub BZFlag::BZFlag {
 		$retval = &query($1,$2);
 	} elsif ($message =~ /^bzflist$/xi) {
 		$retval = &list();
-  } else {
+	} else {
 		$retval = "BZFlag: unhandled command \"$message\"";
 	}
 	&::performStrictReply($retval);
@@ -50,9 +50,9 @@ sub BZFlag::list {
 
 	my $req = HTTP::Request->new('GET', 'http://db.bzflag.org/db/?action=LIST');
 	my $res = $ua->request($req);
-  my %servers;
-  my $totalServers = 0;
-  my $totalPlayers = 0;
+	my %servers;
+	my $totalServers = 0;
+	my $totalPlayers = 0;
 	for my $line (split("\n",$res->content)) {
 		my ($serverport, $version, $flags, $ip, $comments) = split(" ",$line,5);
 		# not "(A4)18" to handle old dumb perl
@@ -62,16 +62,16 @@ sub BZFlag::list {
 				unpack("A4A4A4A4A4A4A4A2A2A2A2A2A2A2A2A2A2A2A2A2", $flags);
 		my $playerSize = hex($rogueSize) + hex($redSize) + hex($greenSize)
 				+ hex($blueSize) + hex($purpleSize) + hex($observerSize);
-	  $servers{$serverport} = $playerSize;
-	  $totalServers += 1;
-	  $totalPlayers += $playerSize;
+		$servers{$serverport} = $playerSize;
+		$totalServers += 1;
+		$totalPlayers += $playerSize;
 	}
-  $response .= "s=$totalServers p=$totalPlayers";
-  foreach my $key (sort {$servers{$b} <=> $servers{$a}} (keys(%servers))) {
+	$response .= "s=$totalServers p=$totalPlayers";
+	foreach my $key (sort {$servers{$b} <=> $servers{$a}} (keys(%servers))) {
 		if ($servers{$key} > 0) {
 			$response .= " $key($servers{$key})";
 		}
-  }
+	}
 	&::performStrictReply($response);
 	return;
 }
@@ -85,9 +85,9 @@ sub BZFlag::list17 {
 
 	my $req = HTTP::Request->new('GET', 'http://list.bzflag.org:5156/');
 	my $res = $ua->request($req);
-  my %servers;
-  my $totalServers = 0;
-  my $totalPlayers = 0;
+	my %servers;
+	my $totalServers = 0;
+	my $totalPlayers = 0;
 	for my $line (split("\n",$res->content)) {
 		my ($serverport, $version, $flags, $ip, $comments) = split(" ",$line,5);
 		# not "(A4)18" to handle old dumb perl
@@ -99,16 +99,16 @@ sub BZFlag::list17 {
 				unpack("A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4", $flags);
 		my $playerSize = hex($rogueSize) + hex($redSize) + hex($greenSize)
 				+ hex($blueSize) + hex($purpleSize);
-	  $servers{$serverport} = $playerSize;
-	  $totalServers += 1;
-	  $totalPlayers += $playerSize;
+		$servers{$serverport} = $playerSize;
+		$totalServers += 1;
+		$totalPlayers += $playerSize;
 	}
-  $response .= "s=$totalServers p=$totalPlayers";
-  foreach my $key (sort {$servers{$b} <=> $servers{$a}} (keys(%servers))) {
+	$response .= "s=$totalServers p=$totalPlayers";
+	foreach my $key (sort {$servers{$b} <=> $servers{$a}} (keys(%servers))) {
 		if ($servers{$key} > 0) {
 			$response .= " $key($servers{$key})";
 		}
-  }
+	}
 	&::performStrictReply($response);
 	return;
 }
@@ -153,11 +153,11 @@ sub BZFlag::querytext {
 
 	# quit if version isn't valid
 	return 'not a bzflag server' if ($magic ne "BZFS");
-  # check version
-  if ($major == 1 && $minor == 9) {
-	  $revision = $something * 10 + $revision;
-	  return 'read error' unless read(S1, $buffer, 1) == 1;
-	  my ($id) = unpack("C", $buffer);
+	# check version
+	if ($major == 1 && $minor == 9) {
+		$revision = $something * 10 + $revision;
+		return 'read error' unless read(S1, $buffer, 1) == 1;
+		my ($id) = unpack("C", $buffer);
 
 		# send game request
 		print S1 pack("n2", 0, 0x7167);
@@ -181,8 +181,8 @@ sub BZFlag::querytext {
 
 		# get the teams
 		return 'bad count data' unless $countcode == 0x7170;
-    return 'count read error' unless read(S1, $buffer, 5) == 5;
-    ($countlen,$countcode,$numTeams) = unpack("n n C", $buffer);
+		return 'count read error' unless read(S1, $buffer, 5) == 5;
+		($countlen,$countcode,$numTeams) = unpack("n n C", $buffer);
 		for (1..$numTeams) {
 			return 'team read error' unless read(S1, $buffer, 8) == 8;
 			my ($team,$size,$won,$lost) = unpack("n4", $buffer);
@@ -210,10 +210,10 @@ sub BZFlag::querytext {
 		# close socket
 		close(S1);
 	} elsif ($major == 1 && $minor == 0 && $something == 7) {
-	  # old servers send a reconnect port number
-	  return 'read error' unless read(S1, $buffer, 2) == 2;
-	  my ($reconnect) = unpack("n", $buffer);
-    $minor = $minor * 10 + $something;
+		# old servers send a reconnect port number
+		return 'read error' unless read(S1, $buffer, 2) == 2;
+		my ($reconnect) = unpack("n", $buffer);
+		$minor = $minor * 10 + $something;
 		# quit if rejected
 		return 'rejected by server' if ($reconnect == 0);
 
@@ -272,8 +272,8 @@ sub BZFlag::querytext {
 
 		# close socket
 		close(S);
-  } else {
-	  $response = 'incompatible version';
+	} else {
+		$response = 'incompatible version';
 	}
 
 	return $response;
@@ -282,7 +282,7 @@ sub BZFlag::querytext {
 sub BZFlag::query {
 	my ($servernameport) = @_;
 	&::performStrictReply(&querytext($servernameport));
-  return;
+	return;
 }
 
 1;
