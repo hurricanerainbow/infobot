@@ -733,10 +733,10 @@ sub on_nick_taken {
     &status("nick taken ($nick); preparing nick change.");
 
     $conn->whois($nick);
-    $conn->schedule(5, sub {
+    #$conn->schedule(5, sub {
 	&status("nick taken; changing to temporary nick ($nick -> $newnick).");
 	&nick($newnick);
-    } );
+    #} );
 }
 
 sub on_notice {
@@ -977,9 +977,6 @@ sub on_quit {
 
     my $chans = join(' ', &getNickInChans($nick) );
     &status(">>> $b_cyan$nick$ob has signed off IRC $b_red($ob$reason$b_red)$ob [$chans]");
-    if ($nick =~ /^\Q$ident\E$/) {
-	&ERROR("^^^ THIS SHOULD NEVER HAPPEN (10).");
-    }
 
     ###
     ### ok... lets clear out the cache
@@ -995,12 +992,12 @@ sub on_quit {
     delete $chanstats{lc $nick};
     ###
 
-    # FIXME: broken for multiple connects
-    #my $mynick = $conn->nick();
-    #if ($nick !~ /^\Q$ident\E$/ and $nick =~ /^\Q$mynick\E$/i) {
-	#&status("nickchange: own nickname became free; changing.");
-	#&nick($mynick);
-    #}
+    # if we have a temp nick, and whoever is camping on our main nick leaves
+    # revert to main nick. Note that Net::IRC only knows our main nick
+    if ($nick eq $conn->nick()) {
+	&status("nickchange: own nick \"$nick\" became free; changing.");
+	&nick($mynick);
+    }
 }
 
 sub on_targettoofast {
