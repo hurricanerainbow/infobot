@@ -1058,7 +1058,7 @@ sub on_topic {
 	&status(">>> topic/$b_blue$chan$ob by $b_cyan$nick$ob -> $topic");
     } else {						# join.
 	my ($nick, $chan, $topic) = $event->args;
-	if (&IsChanConf("topic")) {
+	if (&IsChanConf('Topic')) {
 	    $topic{$chan}{'Current'}	= $topic;
 	    &topicAddHistory($chan,$topic);
 	}

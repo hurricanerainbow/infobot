@@ -410,7 +410,7 @@ sub Modules {
     # Topic management. xk++
     # may want to add a userflags for topic. -xk
     if ($message =~ /^topic(\s+(.*))?$/i) {
-	return unless (&hasParam("topic"));
+	return unless (&hasParam('Topic'));
 
 	my $chan	= $talkchannel;
 	my @args	= split / /, $2 || "";
@@ -449,7 +449,7 @@ sub Modules {
 	}
 
 	# now lets do it.
-	&loadMyModule($myModules{'topic'});
+	&loadMyModule($myModules{'Topic'});
 	&Topic($chan, $thiscmd, join(' ', @args));
 	$cmdstats{'Topic'}++;
 	return;
