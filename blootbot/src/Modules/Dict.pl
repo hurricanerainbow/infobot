@@ -3,6 +3,7 @@
 #   Author: dms
 #  Version: v0.6c (20000924).
 #  Created: 19990914.
+#  Updates: Copyright (c) 2005 - Tim Riker <Tim@Rikers.org>
 #
 # see http://luetzschena-stahmeln.de/dictd/
 # for a list of dict servers
@@ -106,29 +107,33 @@ sub Dict_Wordnet {
 	chop;	# remove \r
 
 	&::DEBUG("got '$_'");
-	if ($_ eq ".") {				# end of def.
-	    push(@results, $def);
-	} elsif (/^250 /) {				# stats.
-	    last;
-	} elsif (/^552 no match/) {			# no match.
+	if (/^552 no match/) {
+	    # no match.
 	    return;
+	} elsif (/^250 ok/) {
+            # stats.
+	    last;
+	} elsif ($_ eq ".") {
+	    # end of def.
+	    push(@results, $def);
 	} elsif (/^\s+(\S+ )?(\d+)?: (.*)/) {	# start of sub def.
 	    my $text = $3;
 	    $def =~ s/\s+$//;
-###	    &::DEBUG("def => '$def'.");
+	    #&::DEBUG("def => '$def'.");
 	    push(@results, $def)		if ($def ne "");
 	    $def = $text;
 
 	    if (0) {	# old non-fLR format.
 		$def = "$query $wordtype: $text" if (defined $text);
 		$wordtype = substr($1,0,-1)	if (defined $1);
-###		&::DEBUG("_ => '$_'.") if (!defined $text);
+		#&::DEBUG("_ => '$_'.") if (!defined $text);
 	    }
-
 	} elsif (/^\s+(.*)/) {
 	    s/^\s{2,}/ /;
 	    $def	.= $_;
 	    $def =~ s/\[.*?\]$//g;
+	} else {
+	    &::DEBUG("ignored '$_'");
 	}
     }
 
@@ -147,40 +152,46 @@ sub Dict_Foldoc {
     print $socket "DEFINE foldoc \"$query\"\n";
 
     my $firsttime = 1;
-    my $string;
+    my $def;
     while (<$socket>) {
 	chop;	# remove \n
 	chop;	# remove \r
 
 	&::DEBUG("got '$_'");
-	return if /^552 /;		# no match.
-
-	if ($firsttime) {
-	    $firsttime-- if ($_ eq "");
+	if (/^552 /) {
+	    # no match
+	    return;
+	} elsif (/^250 ok/) {
+	    #end
+	    last;
+	} elsif (/^\.$/) {
+	    #end of def
+	    next if ($def eq "");
+	    $def =~ s/^\s+|\s+$//g;	# sub def.
+	    push(@results, $def);
+	    $def = "";
 	    next;
+	} elsif (/^\s+(.*)/) {
+	    # each line.
+	    s/[{}]//g;
+	    s/^\s+|\s+$//g;
+	    $def .= $_." ";
+	} elsif ($_ eq "") {			# sub def separator.
+	    if ($firsttime) {
+		$firsttime--;
+		next;
+	    }
+	    $def =~ s/^\s+|\s+$//g;	# sub def.
+	    $def =~ s/[{}]//g;
+	} else {
+	    &::DEBUG("ignored '$_'");
 	}
-
-	last if (/^250/ or /^\.$/);	# stats; end of def.
-
-	s/^\s+|\s+$//g;			# each line.
-
-	if ($_ eq "") {			# sub def separator.
-	    $string =~ s/^\s+|\s+$//g;	# sub def.
-	    $string =~ s/[{}]//g;
-
-	    next if ($string eq "");
-
-	    push(@results, $string);
-	    $string = "";
-	}
-
-	$string .= $_." ";
     }
 
     &::status("Dict: foldoc: found ". scalar(@results) ." defs.");
 
     return if (!scalar @results);
-    pop @results;	# last def is date of entry.
+    #pop @results;	# last def is date of entry.
 
     return @results;
 }
