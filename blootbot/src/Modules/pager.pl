@@ -46,13 +46,13 @@ sub pager::page {
 	# allow optional trailing : ie: page foo[:] hello
 	$to =~ s/:$//;
 
-	my $tofactoid = &::getFactoid("${to}'s pager");
+	my $tofactoid = &::getFactoid(lc "${to}'s pager");
 	if ($tofactoid =~ /(\S+@\S+)/) {
 		my $toaddr = $1;
 		$toaddr =~ s/^mailto://;
 		# TODO require sender-locked factoid?
 
-		my $fromfactoid = &::getFactoid("${from}'s pager");
+		my $fromfactoid = &::getFactoid(lc "${from}'s pager");
 
 		my $fromaddr;
 		if ($fromfactoid =~ /(\S+@\S+)/) {
