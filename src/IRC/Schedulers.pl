@@ -261,7 +261,7 @@ sub seenFlushOld {
 	my $time = time();
 
 	foreach (keys %seen) {
-	    my $delta_time = $time - &dbGet("seen", "NULL", $_, "time");
+	    my $delta_time = $time - &dbGet("seen", "time", "nick='$_'");
 	    next unless ($delta_time > $max_time);
 
 	    &DEBUG("seenFlushOld: ".&Time2String($delta_time) );
@@ -523,8 +523,8 @@ sub seenFlush {
 
     if ($param{'DBType'} =~ /^mysql|pg|postgres/i) {
 	foreach $nick (keys %seencache) {
-	    my $retval = &dbReplace("seen", "nick", $nick, (
-###			"nick" => $seencache{$nick}{'nick'},
+	    my $retval = &dbReplace("seen", (
+			"nick" => $seencache{$nick}{'nick'},
 			"time" => $seencache{$nick}{'time'},
 			"host" => $seencache{$nick}{'host'},
 			"channel" => $seencache{$nick}{'chan'},
@@ -539,7 +539,7 @@ sub seenFlush {
 	    ### old code.
 	    ###
 
-	    my $exists = &dbGet("seen","nick", $nick, "nick");
+	    my $exists = &dbGet("seen", "nick", "nick='$nick'");
 
 	    if (defined $exists and $exists) {
 		&dbUpdate("seen", "nick", $nick, (
@@ -736,11 +736,6 @@ sub ircCheck {
 
 	delete $channels{''};
     }
-
-    &DEBUG("ircstats...");
-    &DEBUG("  pubsleep: $pubsleep");
-    &DEBUG("  msgsleep: $msgsleep");
-    &DEBUG("  notsleep: $notsleep");
 
     ### USER FILE.
     if ($utime_userfile > $wtime_userfile and time() - $wtime_userfile > 3600) {
@@ -1052,6 +1047,7 @@ sub factoidCheck {
 
     my @list	= &searchTable("factoids", "factoid_key", "factoid_key", " #DEL#");
     my $stale	= &getChanConfDefault("factoidDeleteDelay", 30) *60*60*24;
+    &DEBUG("stale => $stale");
     my $time	= time();
 
     foreach (@list) {
@@ -1081,9 +1077,10 @@ sub factoidCheck {
 	my $agestr = &Time2String($time - $age);
 	&DEBUG("safedel: Removing '$_' for good. [$agestr old]");
 
+	last;
+
 	&delFactoid($_);
     }
-
 }
 
 sub dccStatus {

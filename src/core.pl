@@ -19,9 +19,9 @@ use vars qw(
 	$flag_quit $msgType
 	$utime_userfile	$wtime_userfile	$ucount_userfile
 	$utime_chanfile	$wtime_chanfile	$ucount_chanfile
-	$pubsize $pubcount $pubtime $pubsleep
-	$msgsize $msgcount $msgtime $msgsleep
-	$notsize $notcount $nottime $notsleep
+	$pubsize $pubcount $pubtime
+	$msgsize $msgcount $msgtime
+	$notsize $notcount $nottime
 );
 
 # dynamic hash.
@@ -59,13 +59,13 @@ $ucount_chanfile = 0;
 ### more variables...
 $msgtime	= time();
 $msgsize	= 0;
-$msgcount	= $msgsleep	= 0;
+$msgcount	= 0;
 $pubtime	= 0;
 $pubsize	= 0;
-$pubcount	= $pubsleep	= 0;
+$pubcount	= 0;
 $nottime	= 0;
 $notsize	= 0;
-$notcount	= $notsleep	= 0;
+$notcount	= 0;
 ###
 if ( -d "CVS" ) {
     use POSIX qw(strftime);
@@ -375,6 +375,7 @@ sub setup {
     $param{tempDir} =~ s#\~/#$ENV{HOME}/#;
 
     &status("Initial memory usage: $memusage kB");
+    &status("-------------------------------------------------------");
 }
 
 sub setupConfig {

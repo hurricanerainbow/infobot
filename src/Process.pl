@@ -287,19 +287,20 @@ sub process {
 	    return;
 	}
 
-	if (lc($term) eq lc($who)) {
+	if (lc $term eq lc $who) {
 	    &msg($who, "please don't karma yourself");
 	    return;
 	}
 
-	my $karma = &dbGet("karma", "nick",$term,"karma") || 0;
+	my $karma = &dbGet("stats", "counter", "nick='$term' and type='karma'") || 0;
 	if ($inc eq '++') {
 	    $karma++;
 	} else {
 	    $karma--;
 	}
 
-	&dbSet("karma", "nick",$term,"karma",$karma);
+	&dbSet("stats", "nick",$term, "type","karma");
+#	&dbSet("stats", "nick",$term, "type","karma");
 
 	return;
     }
@@ -408,7 +409,7 @@ sub FactoidStuff {
 		return;
 	    }
 
-	    if (&IsParam("factoidDeleteDelay")) {
+	    if (&IsParam("factoidDeleteDelay") or &IsChanConf("factoidDeleteDelay")) {
 		if ($faqtoid =~ / #DEL#$/ and !&IsFlag("o")) {
 		    &msg($who, "cannot delete it ($faqtoid).");
 		    return;
@@ -417,12 +418,12 @@ sub FactoidStuff {
 		&status("forgot (safe delete): <$who> '$faqtoid' =is=> '$result'");
 		### TODO: check if the "backup" exists and overwrite it
 		my $check = &getFactoid("$faqtoid #DEL#");
-		&DEBUG("Process: check => '$check'.");
 
-		if (!$check) {
+		if (!defined $check or $check =~ /^\s*$/) {
 		    if ($faqtoid !~ / #DEL#$/) {
-			&DEBUG("Process: backing up $faqtoid to '$new'.");
 			my $new = $faqtoid." #DEL#";
+			&DEBUG("Process: backing up $faqtoid to '$new'.");
+
 			# this looks weird but does it work?
 			&setFactInfo($faqtoid, "factoid_key", $new);
 			&setFactInfo($new, "modified_by", $who);
@@ -455,7 +456,10 @@ sub FactoidStuff {
     if ($message =~ s/^un(forget|delete)\s+//i) {
 	return 'unforget: no addr' unless ($addressed);
 
-	if (!&IsParam("factoidDeleteDelay")) {
+	my $i = 0;
+	$i++ if (&IsParam("factoidDeleteDelay"));
+	$i++ if (&IsChanConf("factoidDeleteDelay"));
+	if (!$i) {
 	    &performReply("safe delete has been disable so what is there to undelete?");
 	    return;
 	}
@@ -475,7 +479,6 @@ sub FactoidStuff {
 	    return;
 	}
 
-	&DEBUG("unforget: check => $check");
 	if (defined $check) {
 	    &performReply("cannot undeleted '$faqtoid' because it already exists?");
 	    return;
