@@ -713,11 +713,11 @@ sub latest {
     }
 
     my $t = $::newsuser{$chan}{$who};
-    if (defined $t) {
-	&::DEBUG("newsuser: $chan/$who == $t");
-    } else {
-	&::DEBUG("newsuser: $chan/$who == undefined");
-    }
+#    if (defined $t) {
+#	&::DEBUG("newsuser: $chan/$who == $t");
+#    } else {
+#	&::DEBUG("newsuser: $chan/$who == undefined");
+#    }
 
     if (defined $t and ($t == 0 or $t == -1)) {
 	if ($flag) {

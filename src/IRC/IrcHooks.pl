@@ -55,6 +55,7 @@ sub on_chat {
     $orig{message}	= $msg;
     $nuh		= $nuh{$who};
     $uh			= (split /\!/, $nuh)[1];
+    $h			= (split /\@/, $uh)[1];
     $addressed		= 1;
     $msgType		= 'chat';
 

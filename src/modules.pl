@@ -362,6 +362,10 @@ if ($@) {
 &showProc(" (Time::HiRes)");
 
 sub AUTOLOAD {
+    if (defined $::AUTOLOAD) {
+	&DEBUG("AUTOLOAD: hrm.. ::AUTOLOAD defined!");
+    }
+    return unless (defined $AUTOLOAD);
     return if ($AUTOLOAD =~ /__/);	# internal.
 
     my $str = join(', ', @_);
