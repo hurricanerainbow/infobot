@@ -582,6 +582,11 @@ sub on_join {
 	}
     }
 
+    ### botmail:
+    if (&IsChanConf("botmail")) {
+	&botmail::check(lc $who);
+    }
+
     ### wingate:
     &wingateCheck();
 }

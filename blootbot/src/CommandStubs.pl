@@ -247,6 +247,8 @@ sub parseCmdHook {
 &addCmdHook("extra", '(ex)?change', ('CODEREF' => 'Exchange::query',
 	'Identifier' => 'exchange', 'Cmdstats' => 'exchange',
 	'Forker' => 1) );
+&addCmdHook("extra", 'botmail', ('CODEREF' => 'botmail::parse',
+	'Identifier' => 'botmail' ) );
 
 ###
 ### END OF ADDING HOOKS.

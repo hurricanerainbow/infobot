@@ -55,6 +55,7 @@ if ($@) {
 	"zfi"		=> "zfi.pl",
 	"zippy"		=> "Zippy.pl",
 	"zsi"		=> "zsi.pl",
+	"botmail"	=> "botmail.pl",
 );
 ### THIS IS NOT LOADED ON RELOAD :(
 my @myModulesLoadNow;
