@@ -541,6 +541,7 @@ sub on_join {
 	if (defined( my $whojoin = $cache{join}{$chan} )) {
 	    &msg($chan, "Okay, I'm here. (courtesy of $whojoin)");
 	    delete $cache{join}{$chan};
+	    &joinNextChan();	# hack.
 	}
 
 	### TODO: move this to &joinchan()?

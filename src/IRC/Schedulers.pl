@@ -726,7 +726,9 @@ sub ircCheck {
     my $inow	= scalar( keys %channels );
     if ($iconf > 2 and $inow * 2 <= $iconf) {
 	&FIXME("ircCheck: current channels * 2 <= config channels. FIXME.");
-	@joinchan	= @x;
+	&FIXME("ircCheck: iconf = $iconf");
+	&FIXME("ircCheck: inow  = $inow");
+#	@joinchan	= @x;
 	&joinNextChan();
     }
 
