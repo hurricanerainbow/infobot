@@ -56,7 +56,7 @@ sub doStatement {
 	my($lhs, $mhs, $rhs) = ($`, $&, $');
 
 	# allows factoid arguments to be updated. -lear.
-	$lhs =~ s/^(CMD: )?(.*)/$1||"" . lc $2/e;
+	$lhs =~ s/^(cmd: )?(.*)/$1||"" . lc $2/e;
 
 	# discard article.
 	$lhs =~ s/^(the|da|an?)\s+//i;

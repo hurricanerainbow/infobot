@@ -552,7 +552,7 @@ sub Topic {
 	&do_info($chan);
 
     } else {
-	### CMD: HELP:
+	### HELP:
 	if ($cmd ne "" and $cmd !~ /^help/i) {
 	    &msg($who, "Invalid command [$cmd].");
 	    &msg($who, "Try 'help topic'.");

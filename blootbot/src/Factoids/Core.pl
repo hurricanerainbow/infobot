@@ -146,7 +146,6 @@ sub FactoidStuff {
 	}
 
 	$faqtoid =~ tr/A-Z/a-z/;
-	$faqtoid =~ s/^cmd:/CMD:/; # basic command forgetting
 	my $result = &getFactoid($faqtoid);
 
 	# if it doesn't exist, well... it doesn't!
@@ -306,7 +305,6 @@ sub FactoidStuff {
 	}
 
 	$faqtoid =~ tr/A-Z/a-z/;
-	$faqtoid =~ s/^cmd:/CMD:/; # basic command undeleteing
 	my $result = &getFactoid($faqtoid." #DEL#");
 	my $check  = &getFactoid($faqtoid);
 

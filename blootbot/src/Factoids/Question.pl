@@ -188,7 +188,7 @@ sub factoidArgs {
     # TODO: cache this, update cache when altered. !!! !!! !!!
 #    my $t = &timeget();
     my ($first) = split(/\s+/, $str);
-    my @list = &searchTable("factoids", "factoid_key", "factoid_key", "^CMD: $first ");
+    my @list = &searchTable("factoids", "factoid_key", "factoid_key", "^cmd: $first ");
 #    my $delta_time = &timedelta($t);
 #    &DEBUG("factArgs: delta_time = $delta_time s");
 #    &DEBUG("factArgs: list => ".scalar(@list) );
@@ -200,7 +200,7 @@ sub factoidArgs {
     foreach (sort { length($b) <=> length($a) } @list) {
 	next if (/#DEL#/);	# deleted.
 
-	s/^CMD: //i;
+	s/^cmd: //i;
 #	&DEBUG("factarg: '$str' =~ /^$_\$/");
 	my $arg = $_;
 
@@ -230,7 +230,7 @@ sub factoidArgs {
 	&status("Question: factoid Arguments for '$str'");
 	# TODO: use getReply() - need to modify it :(
 	my $i	= 0;
-	my $q	= "CMD: $_";
+	my $q	= "cmd: $_";
 	my $r	= &getFactoid($q);
 	if (!defined $r) {
 	    &DEBUG("question: !result... should this happen?");

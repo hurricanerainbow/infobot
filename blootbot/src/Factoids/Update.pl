@@ -61,7 +61,7 @@ sub update {
 
 	my @list;
 	my $count = 0;
-	$lhs =~ s/^/CMD: /;
+	$lhs =~ s/^/cmd: /;
 	while ($lhs =~ s/\$(\S+)/(.*?)/) {
 	    push(@list, "\$$1");
 	    $count++;
