@@ -148,8 +148,11 @@ sub FactoidStuff {
 	if (defined $result) {
 	    my $author	= &getFactInfo($faqtoid, "created_by");
 	    my $count	= &getFactInfo($faqtoid, "requested_count") || 0;
-	    my $limit	= &getChanConfDefault("factoidPreventForgetLimit", 
-				100, $chan);
+	    my $limit	= &getChanConfDefault(
+				"factoidPreventForgetLimit", 100, $chan);
+	    my $limitage = &getChanConfDefault(
+				"factoidPreventForgetLimitTime", 180, $chan);
+	    my $age	= time() - &getFactInfo($faqtoid, "created_time");
 
 	    if (IsFlag("r") ne "r") {
 		&msg($who, "you don't have access to remove factoids");
@@ -157,16 +160,52 @@ sub FactoidStuff {
 	    }
 
 	    return 'locked factoid' if (&IsLocked($faqtoid) == 1);
+	    my $isop = (&IsFlag("o") eq "o") ? 1 : 0;
+
+	    ### lets go do some checking.
+
+	    # factoidPreventForgetLimitTime:
+	    if (!$isop and $age/(60*60*24) > $limitage) {
+		&msg($who, "cannot remove factoid since it is protected by Time.");
+		return;
+	    }
 
 	    # factoidPreventForgetLimit:
-	    if ($limit and $count > $limit and (&IsFlag("o") ne "o")) {
+	    if (!$isop and $limit and $count > $limit) {
 		&msg($who, "will not delete '$faqtoid', count > limit ($count > $limit)");
 		return;
 	    }
 
-	    # prevent/minimize abuse.
+	    # this may eat some memory.
+	    # prevent deletion if other factoids redirect to it.
+	    # todo: use hash instead of array.
+	    my @list;
+	    if (&getChanConf("factoidPreventForgetRedirect")) {
+		&status("Factoids/Core: forget: checking for redirect factoids");
+		@list = &searchTable("factoids", "factoid_key",
+				"factoid_value", "^<REPLY> see ");
+	    }
+
+	    my $match = 0;
+	    for (@list) {
+		my $f = $_;
+		my $v = &getFactInfo($f, "factoid_value");
+		my $fsafe = quotemeta($faqtoid);
+		next unless ($v =~ /^<REPLY> ?see( also)? $fsafe\.?$/i);
+
+		&DEBUG("Factoids/Core: match! ($f || $faqtoid)");
+
+		$match++;
+	    }
+	    # todo: warn for op aswell, but allow force delete.
+	    if (!$isop and $match) {
+		&msg($who, "uhm, other (redirection) factoids depend on this one.");
+		return;
+	    }
+
+	    # minimize abuse.
 	    my $faqauth = &getFactInfo($faqtoid, "created_by");
-	    if (&IsFlag("o") ne "o" and &IsHostMatch($faqauth) != 2) {
+	    if (!$isop and &IsHostMatch($faqauth) != 2) {
 		$cache{forget}{$h}++;
 
 		# warn.
@@ -186,7 +225,7 @@ sub FactoidStuff {
 	    # lets do it!
 
 	    if (&IsParam("factoidDeleteDelay") or &IsChanConf("factoidDeleteDelay")) {
-		if ($faqtoid =~ / #DEL#$/ and !&IsFlag("o")) {
+		if (!$isop and $faqtoid =~ / #DEL#$/) {
 		    &msg($who, "cannot delete it ($faqtoid).");
 		    return;
 		}

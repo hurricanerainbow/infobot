@@ -513,6 +513,9 @@ sub ignoreAdd {
 
     $ignore{$chan}{$mask} = [$expire, time(), $who, $comment];
 
+    # todo: improve this.
+    &status("ignore: Added $mask for $chan to expire $expire, by $who, for $comment");
+
     if ($exist) {
 	$utime_userfile = time();
 	$ucount_userfile++;

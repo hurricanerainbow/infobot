@@ -442,6 +442,15 @@ sub read {
 
     my $item	= &getNewsItem($str);
     if (!defined $item or !scalar keys %{ $::news{$chan}{$item} }) {
+	# todo: numerical check.
+	if ($str =~ /^(\d+) (\d+)$/ or
+	    $str =~ /^(\d+)-(\d+)$/ or
+	    $str =~ /^-(\d+)$/ or $str =~ /^(\d+)-$/ or 0
+	) {
+	    &::notice($who, "We don't support multiple requests of news items, sorry.");
+	    return;
+	}
+
 	&::notice($who, "No news item called '$str'");
 	return;
     }
