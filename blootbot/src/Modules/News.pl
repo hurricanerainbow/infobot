@@ -396,8 +396,8 @@ sub list {
     &::msg($::who, "|= Last updated $timestr ago.");
     &::msg($::who, " \037Num\037  \037Item ".(" "x40)." \037");
 
-    &DEBUG("list: expire = $expire");
-    &DEBUG("list: eno    = $eno");
+    &::DEBUG("list: expire = $expire");
+    &::DEBUG("list: eno    = $eno");
 
     my $i = 1;
     foreach ( &getNewsAll() ) {
