@@ -39,11 +39,10 @@ sub check {
     $recipient ||= $::who;
 
     # todo: simplify this select (use a diff function)
-    my @from = &::dbGet("botmail", "srcwho",
-	"dstwho=".&::dbQuote(lc $recipient)
-    );
-    my $t	= scalar @from;
-    my $from	= join(", ", @from);
+    my %from = &::dbGetCol("botmail", "srcwho",
+	"dstwho=".&::dbQuote(lc $recipient),2);
+    my $t	= keys %from;
+    my $from	= join(", ", keys %from);
 
     if ($t == 0) {
 	&::msg($recipient, "You have no botmail.");
@@ -67,7 +66,7 @@ sub next {
 	my $ago = &::Time2String(time() - $hash{'time'});
 	&::msg($recipient, "From $hash{srcwho} ($hash{srcuh}) on $hash{time} [$ago]:");
 	&::msg($recipient, $hash{'msg'});
-	#&::dbDel("botmail", "id", $hash{id});
+	#&::dbDel("botmail", "id", $hash{id}); # FIXME need a way to delete from 2 keys (hash)
     }
 }
 
