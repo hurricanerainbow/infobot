@@ -32,7 +32,7 @@ sub Freshmeat {
     }
     $renewtable++ if (&main::countKeys("freshmeat") < 10);
 
-    if ($renewtable and $$ == $main::blootbot_pid) {
+    if ($renewtable and $$ == $main::bot_pid) {
 	&main::Forker("freshmeat", sub {
 		&downloadIndex();
 		&Freshmeat($sstr);
