@@ -130,7 +130,7 @@ sub userDCC {
 
     # kick.
     if ($message =~ /^mode(\s+(.*))?$/) {
-	return unless (&hasFlag("m"));
+	return unless (&hasFlag("n"));
 	my ($chan,$mode) = split /\s+/,$2,2;
 
 	if ($chan eq "") {
@@ -191,12 +191,16 @@ sub userDCC {
     # unlobotomy.
     if ($message =~ /^(unlobotomy|benoisy)$/i) {
 	return unless (&hasFlag("o"));
+
 	if ($lobotomized) {
 	    &performReply("i have been unlobotomized, woohoo");
 	    $lobotomized = 0;
+	    delete $cache{lobotomy};
+#	    undef $cache{lobotomy};	# ??
 	} else {
 	    &performReply("i'm not lobotomized");
 	}
+
 	return;
     }
 
@@ -482,7 +486,7 @@ sub userDCC {
 	my($what,$val) = split /[\s\t]+/, $args, 2;
 
 	### TODO: "cannot set values without +m".
-	return unless (&hasFlag("m"));
+	return unless (&hasFlag("n"));
 
 	# READ ONLY.
 	if (defined $what and $what !~ /^[-+]/ and !defined $val and $no_chan) {
@@ -534,7 +538,7 @@ sub userDCC {
     }
 
     if ($message =~ /^(chanunset|\-chan)(\s+(.*))?$/) {
-	return unless (&hasFlag("m"));
+	return unless (&hasFlag("n"));
 	my $args	= $3;
 	my $no_chan	= 0;
 
@@ -623,10 +627,9 @@ sub userDCC {
 	    return;
 	}
 
-	my $u = &getUser($who);
+	my $u		= &getUser($who);
+	my $crypt	= &mkcrypt($args[0]);
 
-	my $salt = join '',('.','/',0..9,'A'..'Z','a'..'z')[rand 64, rand 64];
-	my $crypt = crypt($args[0], $salt);
 	&pSReply("Set your passwd to '$crypt'");
 	$users{$u}{PASS} = $crypt;
 
@@ -656,7 +659,7 @@ sub userDCC {
 	}
 
 	if (scalar @args == 1) {	# del pass.
-	    if (!&IsFlag("m") and $who !~ /^\Q$verifyUser\E$/i) {
+	    if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
 		&pSReply("cannto remove passwd of others.");
 		return;
 	    }
@@ -676,8 +679,7 @@ sub userDCC {
 	    return;
 	}
 
-	my $salt = join '',('.','/',0..9,'A'..'Z','a'..'z')[rand 64, rand 64];
-	my $crypt = crypt($args[1], $salt);
+	my $crypt	= &mkcrypt($args[1]);
 	&pSReply("Set $u's passwd to '$crypt'");
 	$users{$u}{PASS} = $crypt;
 
@@ -719,7 +721,7 @@ sub userDCC {
 
 	&DEBUG("who => $who");
 	&DEBUG("verifyUser => $verifyUser");
-	if (!&IsFlag("m") and $who !~ /^\Q$verifyUser\E$/i) {
+	if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
 	    &pSReply("cannto change attributes of others.");
 	    return "REPLY";
 	}
@@ -802,7 +804,7 @@ sub userDCC {
 	    return;
 	}
 
-	if (!&IsFlag("m") and $who !~ /^\Q$verifyUser\E$/i) {
+	if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
 	    &pSReply("cannto change nick of others.");
 	    return "REPLY" if ($who eq "_default");
 	    return;
@@ -839,7 +841,7 @@ sub userDCC {
 
 	my ($user,$mask);
 	if ($args[0] =~ /^$mask{nick}$/i) {	# <nick>
-	    return unless (&hasFlag("m"));
+	    return unless (&hasFlag("n"));
 	    $user	= &getUser($args[0]);
 	    $mask	= $args[1];
 	} else {				# <mask>
@@ -860,7 +862,7 @@ sub userDCC {
 	    return;
 	}
 
-	if (!&IsFlag("m") and $who !~ /^\Q$verifyUser\E$/i) {
+	if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
 	    &pSReply("cannto change masks of others.");
 	    return;
 	}
@@ -968,7 +970,7 @@ sub userDCC {
 	    $reason	= $1;
 	}
 
-	if (!&IsFlag("m") and $who !~ /^\Q$verifyUser\E$/i) {
+	if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
 	    &pSReply("cannto change masks of others.");
 	    return;
 	}
