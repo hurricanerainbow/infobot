@@ -78,8 +78,9 @@ sub perlMath {
     }
 
     for ($locMsg) {
-	s/\bpi\b/3.1415/g;
+	s/\bpi\b/3.14159265/g;
 	s/ to the / ** /g;
+	s/\^/ ** /g;
 	s/\btimes\b/\*/g;
 	s/\bdiv(ided by)? /\/ /g;
 	s/\bover /\/ /g;

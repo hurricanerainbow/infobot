@@ -10,7 +10,7 @@
 
 use strict;
 
-my $pi		= 3.1415;
+my $pi		= 3.14159265;
 my $score	= 0;
 my $verbose	= 0;
 
