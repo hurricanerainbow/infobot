@@ -65,6 +65,10 @@ mile    5280 feet
 mi      mile
 #nautical 1.151         # For `nautical mile'
 nautical       1.150779447892
+statute 1
+# pilots need this :)
+nm      1 nautical mile
+sm      1 statute mile
 parsec  1.91615e13 mi
 #parsec 3.08568025e16 m	# better?
 # light year will be implied by `year' and `light' below
@@ -216,9 +220,9 @@ cwt           hundredweight
 quarter       5 cwts
 longton       20 cwt
 #ton           longton # use shortton my default Tim Riker <Tim@Rikers.org>
-ton           shortton # the american ton, see metriton and longton
 short         100|112   # Convert long tons, cwts, and quarters to short.
-shortton      short ton
+shortton      short longton
+ton           short longton # the american ton, see metriton and longton
 stone         14 lb
 cental        100 lb
 wey           252 lb
