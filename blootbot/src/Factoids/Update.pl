@@ -63,7 +63,8 @@ sub update {
     }
 
     # factoid arguments handler.
-    if (&IsChanConf("factoidArguments") and $lhs =~ /\$/) {
+    # must start with a non-variable
+    if (&IsChanConf("factoidArguments") and $lhs =~ /^[^\$]+.*\$/) {
 	&status("Update: Factoid Arguments found.");
 	&status("Update: orig lhs => '$lhs'.");
 	&status("Update: orig rhs => '$rhs'.");
@@ -79,16 +80,14 @@ sub update {
 
 	if ($count >= 10) {
 	    &msg($who, "error: could not SAR properly.");
-	    &DEBUG("error: lhs => '$lhs'.");
-	    &DEBUG("error: rhs => '$rhs'.");
+	    &DEBUG("error: lhs => '$lhs' rhs => '$rhs'.");
 	    return;
 	}
 
 	my $z = join(',',@list);
 	$rhs =~ s/^/($z): /;
 
-	&status("Update: new  lhs => '$lhs'.");
-	&status("Update: new  rhs => '$rhs'.");
+	&status("Update: new lhs => '$lhs' rhs => '$rhs'.");
     }
 
     # the fun begins.
@@ -189,8 +188,12 @@ sub update {
 
 	$count{'Update'}++;
 	&status("update: <$who> \'$lhs\' =$mhs=> \'$rhs\'; was \'$exists\'");
-	&AddModified($lhs,$nuh);
-	&setFactInfo($lhs, "factoid_value", $rhs);
+	&sqlReplace("factoids", {
+		factoid_key	=> $lhs,
+		modified_by	=> $nuh,
+		modified_time	=> time(),
+		factoid_value	=> $rhs,
+	} );
 
 	if (!defined $rhs or $rhs eq "") {
 	    &ERROR("Update: rhs1 == NULL.");
@@ -219,11 +222,12 @@ sub update {
 	$count{'Update'}++;
 	&status("update: <$who> \'$lhs\' =$mhs=> \'$rhs\'; was \'$exists\'");
 
-	# todo: use sqlReplace.
-	#&delFactoid($lhs); # breaks dbm. leave it and use modified_* - Tim Riker <Tim@Rikers.org>
-	&setFactInfo($lhs,"modified_by", $nuh);
-	&setFactInfo($lhs,"modified_time", time());
-	&setFactInfo($lhs,"factoid_value", $rhs);
+	&sqlReplace("factoids", {
+		factoid_key	=> $lhs,
+		modified_by	=> $nuh,
+		modified_time	=> time(),
+		factoid_value	=> $rhs,
+	} );
 
 	if (!defined $rhs or $rhs eq "") {
 	    &ERROR("Update: rhs1 == NULL.");
