@@ -86,36 +86,9 @@ sub getReply {
 	$done = 0;
 
 	# EG: (blah1|blah2|blah3|) => blah1
-	while ($result =~ /\((.*\|.*?)\)/) {
-	    my $str = $1;
-	    my @rand;
+	while ($result =~ /.*\((.*\|.*?)\).*/) {
+	    $result = &smart_replace($result);
 
-	    if ($done == 1) {
-		&status("Cool. recursive SAR factoids rock :-)");
-	    }
-
-	    my $x = "";
-	    foreach (split /\|/, $str) {
-		$x = $x.$_;
-
-		if (/^\(/ or ($x ne $_ and !/\)$/)) {   # start or mid.
-		    $x = $x."|";
-###		    print "start or mid. ($x)\n";
-		} elsif (/\)$/) {               # end.
-###		    print "end; pushing '$x$_', (was $x)\n";
-		    push(@rand,$x);
-		    $x = "";
-		} else {
-###		    print "nice append. '$_'\n";
-		    push(@rand,$_);
-		    $x = "";
-		}
-	    }
-
-	    my $rand = $rand[rand @rand];
-
-	    &status("Reply.pl: SARing '($str)' to '$rand'.");
-	    $result =~ s/\(\Q$str\E\)/$rand/;
 	    $done++;
 	    last if ($done >= 10);	# just in case.
 	}
@@ -279,5 +252,63 @@ sub getReply {
 
     $reply;
 }
+
+sub smart_replace {
+    my ($string) = @_;
+    my ($l,$r) = (0,0);		# l = left,  r = right.
+    my ($s,$t) = (0,0);		# s = start, t = marker.
+    my $i = 0;
+    my @rand;
+    my $old = $string;
+
+    foreach (split //, $string) {
+
+	if ($_ eq "(") {
+###	    print "( l=>$l, r=>$r\n";
+
+	    if (!$l and !$r) {
+#		print "STARTING at $i\n";
+		$s = $i;
+		$t = $i;
+	    }
+
+	    $l++;
+	    $r--;
+	}
+
+	if ($_ eq ")") {
+###	    print ") l=>$l, r=>$r\n";
+
+	    $r++;
+	    $l--;
+
+	    if (!$l and !$r) {
+		my $substr = substr($old,$s,$i-$s+1);
+#		print "STOP at $i $substr\n";
+		push(@rand, substr($old,$t+1,$i-$t-1) );
+
+		my $rand = $rand[rand @rand];
+		&status("Reply.pl: SARing '$substr' to '$rand'.");
+		$string =~ s/\Q$substr\E/$rand/;
+		undef @rand;
+	    }
+	}
+
+	if ($_ eq "|" and $l+$r== 0 and $l==1) {
+#	    print "| at $i (l=>$l,r=>$r)\n";
+	    push(@rand, substr($old,$t+1,$i-$t-1) );
+	    $t = $i;
+	}
+
+	$i++;
+    }
+
+    if ($old eq $string) {
+	&WARN("smart_replace: no subst made.");
+    }
+
+    return $string;
+}
+
 
 1;
