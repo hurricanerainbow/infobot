@@ -281,9 +281,9 @@ sub newsFlush {
 	return if ($_[0] eq "2");	# defer.
     }
 
-    if (&IsChanConf("news") > 0) {
+    if (&ChanConfList("news")) {
     } else {
-	&DEBUG("newsFlush: news disabled?");
+	&DEBUG("newsFlush: news disabled? (chan => $chan)");
 	return;
     }
 
