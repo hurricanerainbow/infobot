@@ -566,7 +566,7 @@ sub leakCheck {
 	delete $sched{"leakCheck"}{RUNNING};
     }
 
-    # flood.
+    # flood. this is dealt with in floodLoop()
     foreach $blah1 (keys %flood) {
 	foreach $blah2 (keys %{ $flood{$blah1} }) {
 	    $count += scalar(keys %{ $flood{$blah1}{$blah2} });
@@ -581,7 +581,7 @@ sub leakCheck {
 	    $count += scalar(keys %{ $floodjoin{$blah1}{$blah2} });
 	}
     }
-    &DEBUG("leak: hash flood has $count total keys.",2);
+    &DEBUG("leak: hash floodjoin has $count total keys.",2);
 
     # floodwarn.
     $count = scalar(keys %floodwarn);
@@ -598,6 +598,11 @@ sub leakCheck {
 	}
     }
 
+    # chanstats
+    $count = scalar(keys %chanstats);
+    &DEBUG("leak: hash chanstats has $count total keys.",2);
+
+    # nuh.
     my $delete	= 0;
     foreach (keys %nuh) {
 	next if (&IsNickInAnyChan($_));
@@ -647,8 +652,8 @@ sub ircCheck {
     }
 
     my @x	= &getJoinChans();
-    my $iconf = scalar( @x );
-    my $inow  = scalar( keys %channels );
+    my $iconf	= scalar( @x );
+    my $inow	= scalar( keys %channels );
     if ($iconf > 2 and $inow * 2 <= $iconf) {
 	&FIXME("ircCheck: current channels * 2 <= config channels. FIXME.");
 	@joinchan	= @x;
@@ -1160,8 +1165,10 @@ sub mkBackup {
     }
     return unless ($backup);
 
+    my $age = &Time2String(time() - (stat $file)[9]);
+
     ### TODO: do internal copying.
-    &status("Backup: $file to $file~");
+    &status("Backup: $file ($age)");
     CORE::system("/bin/cp $file $file~");
 }
 

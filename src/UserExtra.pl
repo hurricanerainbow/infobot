@@ -147,15 +147,12 @@ sub chaninfo {
     $reply .= ".  At the moment, ". &IJoin(@array);
 
     # Step 3:
-    ### TODO: what's wrong with the following?
+    my %new;
     foreach (keys %userstats) {
-	next if (exists $userstats{$_}{'Count'});
-	delete $userstats{$_};
-	$delete++;
+	next unless (exists $userstats{$_}{'Count'});
+	$new{$_} = $userstats{$_}{'Count'};
     }
-    &DEBUG("chanstats: delete: $delete... nowtotal => ".scalar(keys %userstats) );
 
-    my %new = map { $userstats{$_}{'Count'} => $_ } keys %userstats;
     my($count) = (sort { $b <=> $a } keys %new)[0];
     if ($count) {
 	$reply .= ".  \002$new{$count}\002 has said the most with a total of \002$count\002 messages";
