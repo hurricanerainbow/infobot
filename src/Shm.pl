@@ -98,8 +98,14 @@ sub addForked {
 	### TODO: use &time2string()?
 	&WARN("Fork: looks like we lost '$_', executed $time ago");
 
-	if ( -d "/proc/$forked{$name}{PID}") {
-	    my $pid = $forked{$name}{PID};
+	my $pid = $forked{$name}{PID};
+	# don't kill parent!
+	if ($pid == $$) {
+	    &status("Fork: pid == \$\$ ($$)");
+	    next;
+	}
+
+	if ( -d "/proc/$pid") {
 	    &status("Fork: killing $name ($pid)");
 	    kill 9, $pid;
 	}
