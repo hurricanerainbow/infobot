@@ -81,15 +81,34 @@ sub doQuestion {
 	$questionWord = "where";
     }
 
+    my @link;
     for (my$i=0; $i<scalar(@query); $i++) {
 	$query	= $query[$i];
 	$result = &getReply($query);
 	next if (!defined $result or $result eq "");
 
 	# 'see also' factoid redirection support.
-	if ($result =~ /^see( also)? (.*?)\.?$/) {
-	    my $newr = &getReply($2);
+
+	while ($result =~ /^see( also)? (.*?)\.?$/) {
+	    my $link	= $2;
+
+	    if (grep /^$link$/i, @link) {
+		&status("recursive link found; bailing out.");
+		last;
+	    }
+
+	    if (scalar @link >= 5) {
+		&status("recursive link limit reached.");
+		last;
+	    }
+
+	    push(@link, $link);
+	    my $newr = &getReply($link);
 	    $result  = $newr	if ($newr ne "");
+	}
+
+	if (@link) {
+	    &status("'$query' linked to: ".join(" => ", @link) );
 	}
 
 	if ($i != 0) {
