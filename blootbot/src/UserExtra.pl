@@ -31,7 +31,8 @@ use vars qw(%channels %chanstats %cmdstats);
 	Forker => "NULL", ) );
 &addCmdHook("main", 'tell|explain', ('CODEREF' => 'tell', 
 	Help => 'tell', Identifier => 'allowTelling', ) );
-&addCmdHook("main", 'news', ('CODEREF' => 'News::Parse', ) );
+&addCmdHook("main", 'news', ('CODEREF' => 'News::Parse', 
+	Module => 'news', Identifier => 'news') );
 
 &status("CMD: loaded ".scalar(keys %hooks_main)." MAIN command hooks.");
 
