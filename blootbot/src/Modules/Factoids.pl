@@ -5,7 +5,10 @@
 #     Splitted: SQLExtras.pl
 #
 
-if (&IsParam("useStrict")) { use strict; }
+use strict;
+
+use vars qw($dbh $who);
+use vars qw(%param);
 
 ###
 # Usage: &CmdFactInfo($faqtoid, $query);
@@ -671,6 +674,7 @@ sub CmdFactStats {
 
     } elsif ($type =~ /^(2|too)long$/i) {
 	my @list;
+	my $query;
 
 	# factoid_key.
 	$query = "SELECT factoid_key FROM factoids WHERE length(factoid_key) >= $param{'maxKeySize'}";
@@ -679,14 +683,16 @@ sub CmdFactStats {
 	while (my @row = $sth->fetchrow_array) {
 	    push(@list,$row[0]);
 	}
+	$sth->finish;
 
 	# factoid_value.
-	my $query = "SELECT factoid_key,factoid_value FROM factoids WHERE length(factoid_value) >= $param{'maxDataSize'}";
+	$query = "SELECT factoid_key,factoid_value FROM factoids WHERE length(factoid_value) >= $param{'maxDataSize'}";
 	$sth = $dbh->prepare($query);
 	$sth->execute;
 	while (my @row = $sth->fetchrow_array) {
 	    push(@list,sprintf("\002%s\002 - %s", length($row[1]), $row[0]));
 	}
+	$sth->finish;
 
 	if (scalar @list == 0) {
 	    return "good. no factoids exceed length.";
