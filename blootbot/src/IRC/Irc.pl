@@ -354,6 +354,8 @@ sub mode {
 	return;
     }
 
+    &DEBUG("MODE $chan $modes");
+
     rawout("MODE $chan $modes");
 }
 
