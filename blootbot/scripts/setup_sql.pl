@@ -116,7 +116,7 @@ if ($param{'DBType'} =~ /mysql/i) {
 
 	$query = "CREATE TABLE karma (".
 		"nick VARCHAR(20) NOT NULL,".
-		"karma SMALLINT UNSIGNED,".
+		"karma SMALLINT,".
 
 		"PRIMARY KEY (nick)".
 	")";
