@@ -7,21 +7,29 @@
 
 if (&IsParam("useStrict")) { use strict; }
 
+#####
+# openDB($dbname, $sqluser, $sqlpass, $nofail);
 sub openDB {
-    my $connectstr="dbi:Pg:dbname=$param{DBName};";
-    $connectstr.=";host=$param{SQLHost}" if(defined $param{'SQLHost'});
-    $dbh = DBI->connect($connectstr, $param{'SQLUser'}, $param{'SQLPass'});
+    my($dbname, $sqluser, $sqlpass, $nofail) = @_;
+    my $connectstr = "dbi:Pg:dbname=$dbname;";
+    my $hoststr	   = "";
+    if (exists $param{'SQLHost'} and $param{'SQLHost'}) {
+	$hoststr     = " to $param{'SQLHost'}";
+	$connectstr .= ";host=$param{SQLHost}";
+    }
+    $dbh = DBI->connect($connectstr, $sqluser, $sqlpass);
 
-    if (!$dbh->err) {
-	&status("Opened pgSQL connection".
-		(exists $param{'SQLHost'} ? " to ".$param{'SQLHost'} : ""));
+    if ($dbh and !$dbh->err) {
+	&status("Opened pgSQL connection$hoststr");
     } else {
-	&ERROR("cannot connect to $param{'SQLHost'}.");
-	&ERROR("pgSQL: ".$dbh->errstr);
+	&ERROR("cannot connect$hoststr.");
+	&ERROR("pgSQL: ".$dbh->errstr) if ($dbh);
 
 	&closePID();
 	&closeSHM($shm);
 	&closeLog();
+
+	return 0 if ($nofail);
 
 	exit 1;
     }

@@ -9,19 +9,28 @@ package main;
 
 if (&IsParam("useStrict")) { use strict; }
 
+#####
+# &openDB($dbname, $sqluser, $sqlpass, $nofail);
 sub openDB {
-    my ($db, $user, $pass) = @_;
-    my $dsn = "DBI:mysql:$db:$param{'SQLHost'}";
+    my ($db, $user, $pass, $no_fail) = @_;
+    my $dsn = "DBI:mysql:$db";
+    my $hoststr = "";
+    if (exists $param{'SQLHost'} and $param{'SQLHost'}) {
+	$dsn    .= ":$param{SQLHost}";
+	$hoststr = " to $param{'SQLHost'}";
+    }
     $dbh    = DBI->connect($dsn, $user, $pass);
 
     if ($dbh) {
-	&status("Opened MySQL connection to $param{'SQLHost'}");
+	&status("Opened MySQL connection$hoststr");
     } else {
-	&ERROR("cannot connect to $param{'SQLHost'}.");
+	&ERROR("cannot connect$hoststr.");
 	&ERROR("since mysql is not available, shutting down bot!");
 	&closePID();
 	&closeSHM($shm);
 	&closeLog();
+
+	return if ($no_fail);
 
 	exit 1;
     }
@@ -30,7 +39,10 @@ sub openDB {
 sub closeDB {
     return 0 unless ($dbh);
 
-    &status("Closed MySQL connection to $param{'SQLHost'}.");
+    my $hoststr = "";
+    $hoststr = " to $param{'SQLHost'}" if (exists $param{'SQLHost'});
+
+    &status("Closed MySQL connection$hoststr.");
     $dbh->disconnect();
 
     return 1;
