@@ -35,7 +35,7 @@ sub plugParse {
 }
 
 sub Plug {
-    my @results = &::getURL("http://www.plug.org/plug.xml");
+    my @results = &::getURL("http://www.plug.org/index.xml");
     my $retval  = "i could not get the headlines.";
 
     if (scalar @results) {
