@@ -266,12 +266,12 @@ sub chanLimitVerify {
 	    &WARN("clc: stupid to have plus at $plus, fix it!");
 	}
 
-	if (exists $cache{chanlimitChange_$chan}) {
-	    if (time() - $cache{chanlimitChange_$chan} < 60) {
+	if (exists $cache{ "chanlimitChange_$chan" }) {
+	    if (time() - $cache{ "chanlimitChange_$chan" } < 60) {
 		&DEBUG("not going to change chanlimit!");
 		return;
 	    }
-	    delete $cache{chanlimitChange_$chan};
+	    delete $cache{ "chanlimitChange_$chan" };
 	}
 
 	### todo: check if we have ops.
