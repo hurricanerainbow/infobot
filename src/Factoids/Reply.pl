@@ -61,18 +61,11 @@ sub getReply {
 	### FIXME: old mysql doesn't support
 	### "requested_count=requested_count+1".
 	$count++;
-	### BROKEN!!! - Tim Riker <Tim@Rikers.org> says it's fixed now
-	if (0) {	# old code.
-	    &setFactInfo($lhs,"requested_by", $nuh);
-	    &setFactInfo($lhs,"requested_time", time());
-	    &setFactInfo($lhs,"requested_count", $count);
-	} else {
-	    &dbSet("factoids", {'factoid_key' => $lhs}, {
+	&dbSet("factoids", {'factoid_key' => $lhs}, {
 		requested_by	=> $nuh,
 		requested_time	=> time(),
 		requested_count	=> $count
-	    } );
-	}
+	} );
 
 	# todo: rename $real to something else!
 	my $real   = 0;
