@@ -355,7 +355,7 @@ sub floodLoop {
     }
 
     my $time		= time();
-    my $interval	= &getChanConfDefault("floodCycle","",60);
+    my $interval	= &getChanConfDefault("floodCycle",60);
 
     foreach $who (keys %flood) {
 	foreach (keys %{$flood{$who}}) {
@@ -439,6 +439,10 @@ sub seenFlush {
 	&DEBUG("seenFlush: NO VALID FACTOID SUPPORT?");
     }
 
+    if ($stats{'count_old'} ||= 1) {
+	&DEBUG("had to set count_old to 1.");
+    }
+
     &status("Flushed $flushed seen entries.")		if ($flushed);
     &VERB(sprintf("  new seen: %03.01f%% (%d/%d)",
 	$stats{'new'}*100/$stats{'count_old'},
@@ -504,10 +508,10 @@ sub ignoreCheck {
 	my $chan = $_;
 
 	foreach (keys %{ $ignore{$chan} }) {
-	    my @array = $ignore{$chan}{$_};
+	    my @array = \@{ $ignore{$chan}{$_} };
 
 	    foreach (@array) {
-		&DEBUG("  => $_");
+		&DEBUG("ignore:  => $_");
 	    }
 
 	    next;
@@ -545,6 +549,7 @@ sub ircCheck {
 
     if ($ident !~ /^\Q$param{ircNick}\E$/) {
 	&WARN("ircCheck: ident($ident) != param{ircNick}($param{IrcNick}).");
+	### TODO: schedule check for own nick if taken?
     }
 
     &joinNextChan();
@@ -737,16 +742,17 @@ sub kernelLoop {
 }
 
 sub wingateCheck {
-    return unless &IsParam("wingate");
-    return unless ($param{'wingate'} =~ /^(.*\s+)?$chan(\s+.*)?$/i);
+    return unless &IsChanConf("wingate");
 
     ### FILE CACHE OF OFFENDING WINGATES.
     foreach (grep /^$host$/, @wingateBad) {
 	&status("Wingate: RUNNING ON $host BY $who");
-	&ban("*!*\@$host", "") if &IsParam("wingateBan");
+	&ban("*!*\@$host", "") if &IsChanConf("wingateBan");
 
-	next unless (&IsParam("wingateKick"));
-	&kick($who, "", $param{'wingateKick'})
+	my $reason	= &getChanConf("wingateKick");
+
+	next unless ($reason);
+	&kick($who, "", $reason)
     }
 
     ### RUN CACHE OF TRIED WINGATES.
@@ -863,7 +869,7 @@ sub scheduleList {
 }
 
 sub getChanConfDefault {
-    my($what, $chan, $default) = @_;
+    my($what, $default, $chan) = @_;
 
     if (exists $param{$what}) {
 	&DEBUG("backward-compat: found param{$what} instead.");

@@ -77,6 +77,8 @@ sub irc {
 
 	my $resolve = inet_ntoa($packed);
 	&status("  resolved to $resolve.");
+	### warning in Sys/Hostname line 78???
+	### caused inside Net::IRC?
     }
 
     $irc = new Net::IRC;
@@ -662,7 +664,7 @@ sub closeDCC {
 sub joinfloodCheck {
     my($who,$chan,$userhost) = @_;
 
-    return unless (&IsParam("joinfloodCheck"));
+    return unless (&IsChanConf("joinfloodCheck"));
 
     if (exists $netsplit{lc $who}) {	# netsplit join.
 	&DEBUG("jfC: $who was in netsnipe; not checking.");

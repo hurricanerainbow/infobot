@@ -139,7 +139,7 @@ sub on_endofmotd {
     $ircstats{'ConnectTime'}	= time();
     $ircstats{'ConnectCount'}++;
 
-    if (&IsParam("wingate")) {
+    if (&IsChanConf("wingate")) {
 	my $file = "$bot_base_dir/$param{'ircUser'}.wingate";
 	open(IN, $file);
 	while (<IN>) {
@@ -370,7 +370,7 @@ sub on_join {
     $who	= $event->nick();
 
     $chanstats{$chan}{'Join'}++;
-    $userstats{lc $who}{'Join'} = time() if (&IsParam("seenStats"));
+    $userstats{lc $who}{'Join'} = time() if (&IsChanConf("seenStats"));
 
     &joinfloodCheck($who, $chan, $event->userhost);
 
@@ -610,7 +610,7 @@ sub on_part {
     $chanstats{$chan}{'Part'}++;
     &DeleteUserInfo($nick,$chan);
     &clearChanVars($chan) if ($nick eq $ident);
-    if (!&IsNickInAnyChan($nick) and &IsParam("seenStats")) {
+    if (!&IsNickInAnyChan($nick) and &IsChanConf("seenStats")) {
 	delete $userstats{lc $nick};
     }
 
@@ -664,12 +664,12 @@ sub on_public {
     $msgtime = time();
     $lastWho{$chan} = $nick;
     ### TODO: use $nick or lc $nick?
-    if (&IsParam("seenStats")) {
+    if (&IsChanConf("seenStats")) {
 	$userstats{lc $nick}{'Count'}++;
 	$userstats{lc $nick}{'Time'} = time();
     }
 
-#    if (&IsParam("hehCounter")) {
+#    if (&IsChanConf("hehCounter")) {
 #	#...
 #    }
 
@@ -693,7 +693,7 @@ sub on_quit {
     } else {
 	&DEBUG("on_quit: nuh{lc $nick} does not exist! FIXME");
     }
-    delete $userstats{lc $nick} if (&IsParam("seenStats"));
+    delete $userstats{lc $nick} if (&IsChanConf("seenStats"));
 
     # should fix chanstats inconsistencies bug #2.
     if ($reason=~/^($mask{host})\s($mask{host})$/) {	# netsplit.
@@ -708,8 +708,9 @@ sub on_quit {
 
     &status(">>> $b_cyan$nick$ob has signed off IRC $b_red($ob$reason$b_red)$ob");
     if ($nick =~ /^\Q$ident\E$/) {
-	&DEBUG("!!! THIS SHOULD NEVER HAPPEN. FIXME HOPEFULLY");
+	&DEBUG("^^^ THIS SHOULD NEVER HAPPEN.");
     }
+
     if ($nick !~ /^\Q$ident\E$/ and $nick =~ /^\Q$param{'ircNick'}\E$/i) {
 	&status("own nickname became free; changing.");
 	&nick($param{'ircNick'});
@@ -755,13 +756,13 @@ sub on_topic {
 	#	this may be fixed at a later date with topic queueing.
 	###
 
-	$topic{$chan}{'Current'} = $topic if (1 and &IsParam("topic") == 1);
+	$topic{$chan}{'Current'} = $topic if (1 and &IsChanConf("topic") == 1);
 	$chanstats{$chan}{'Topic'}++;
 
 	&status(">>> topic/$b_blue$chan$ob by $b_cyan$nick$ob -> $topic");
     } else {						# join.
 	my ($nick, $chan, $topic) = $event->args;
-	if (&IsParam("topic")) {
+	if (&IsChanConf("topic")) {
 	    $topic{$chan}{'Current'}	= $topic;
 	    &topicAddHistory($chan,$topic);
 	}
@@ -1033,8 +1034,8 @@ sub hookMsg {
 	&DEBUG("unknown msgType => $msgType.");
     }
 
-    if ((!$skipmessage or &IsParam("seenStoreAll")) and
-	&IsParam("seen") and
+    if ((!$skipmessage or &IsChanConf("seenStoreAll")) and
+	&IsChanConf("seen") and
 	$msgType =~ /public/
     ) {
 	$seencache{$who}{'time'} = time();
@@ -1060,10 +1061,10 @@ sub hookMsg {
     }
 
     if (defined $nuh) {
-	if (defined $userHandle) {
-	    &DEBUG("line 1074: remove verifyUser");
+	if (!defined $userHandle) {
+	    &DEBUG("line 1074: need verifyUser?");
+	    &verifyUser($who, $nuh);
 	}
-	$userHandle = &verifyUser($who, $nuh);
     } else {
 	&DEBUG("hookMsg: 'nuh' not defined?");
     }
