@@ -5,7 +5,11 @@
 #      NOTE: Based on code by Kevin Lenzo & Patrick Cole  (c) 1997
 #
 
-#use strict;
+use strict;
+
+use vars qw(%file %mask %param %cmdstats %myModules);
+use vars qw($msgType $who $bot_pid $nuh $shm $force_public_reply
+	$no_timehires $bot_data_dir $addrchar);
 
 sub help {
     my $topic = shift;
@@ -164,29 +168,31 @@ sub IJoin {
 #####
 # Usage: &Time2String(seconds);
 sub Time2String {
-    my $time = shift;
-    my $retval;
-
-    return("NULL s") if (!defined $time or $time !~ /\d+/);
-
+    my ($time) = @_;
     my $prefix = "";
+    my (@s, @t);
+
+    return "NULL" if (!defined $time);
+    return $time  if ($time !~ /\d+/);
+
     if ($time < 0) {
 	$time	= - $time;
 	$prefix = "- ";
     }
 
-    my $s = int($time) % 60;
-    my $m = int($time / 60) % 60;
-    my $h = int($time / 3600) % 24;
-    my $d = int($time / 86400);
+    $t[0] = int($time) % 60;
+    $t[1] = int($time / 60) % 60;
+    $t[2] = int($time / 3600) % 24;
+    $t[3] = int($time / 86400);
 
-    my @data;
-    push(@data, sprintf("\002%d\002d", $d)) if ($d != 0);
-    push(@data, sprintf("\002%d\002h", $h)) if ($h != 0);
-    push(@data, sprintf("\002%d\002m", $m)) if ($m != 0);
-    push(@data, sprintf("\002%d\002s", $s)) if ($s != 0 or !@data);
+    push(@s, "$t[3]d") if ($t[3] != 0);
+    push(@s, "$t[2]h") if ($t[2] != 0);
+    push(@s, "$t[1]m") if ($t[1] != 0);
+    push(@s, "$t[0]s") if ($t[0] != 0 or !@s);
 
-    return $prefix.join(' ', @data);
+    my $retval = $prefix.join(' ', @s);
+    $retval =~ s/(\d+)/\002$1\002/g;
+    return $retval;
 }
 
 ###
