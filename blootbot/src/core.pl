@@ -326,10 +326,14 @@ sub getChanConf {
 	if (0 and $c[0] ne $c) {
 	    &WARN("c ne chan ($c[0] ne $chan)");
 	}
+	if (!defined $chanconf{$c[0]}{$param} and ($c ne '_default')) {
+	    return &getChanConf($param, '_default');
+	}
+	#&DEBUG("gCC: $param,$c \"" . $chanconf{$c[0]}{$param} . '"');
 	return $chanconf{$c[0]}{$param};
     }
 
-#    &DEBUG("gCC: returning _default... ");
+    #&DEBUG("gCC: returning _default... " . $chanconf{"_default"}{$param});
     return $chanconf{"_default"}{$param};
 }
 
