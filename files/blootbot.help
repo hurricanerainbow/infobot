@@ -172,6 +172,9 @@ hex: D: Convert ascii to hex
 hex: U: ## <string>
 hex: E: ## carrot
 
+ignore: D: FIXME
+ignore: E: ## [mask chan expire comment]
+
 ircstats: ircstats dumps some status information on the bot's IRC connection
 
 join: U: ## <#chan> [key]
