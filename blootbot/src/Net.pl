@@ -18,8 +18,8 @@ sub ftpGet {
 
     &status("FTP: opening connection to $host.") if ($verbose_ftp);
     my $ftp = Net::FTP->new($host,
-	'Timeout'	=> 600,
-	'BlockSize'	=> 1024,
+	'Timeout'	=> 1*60,
+###	'BlockSize'	=> 1024,	# ???
     );
 
     if ($@) {
@@ -108,10 +108,10 @@ sub ftpList {
     return unless &loadPerlModule("Net::FTP");
 
     &status("FTP: opening connection to $host.") if ($verbose_ftp);
-    my $ftp = Net::FTP->new($host,'Timeout'=>600);
+    my $ftp = Net::FTP->new($host,'Timeout'=>60);
 
     if ($@) {
-	&ERROR("FTP: $@.");
+###	&ERROR("FTP: $@.");
 	return;
     }
 
