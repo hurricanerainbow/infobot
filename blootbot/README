@@ -117,7 +117,7 @@ through DCC CHAT. /chat <BOT NICK>.  All commands must be prepended by
 	- User Information Services.
 	- new wingate caching/file-read code.
 	- disabling IRC/factoid support code.
-	- PG/DBM supports need to be worked and thoroughly tested.
+	- PG supports need to be worked and thoroughly tested.
 
 
 CONTRIBUTIONS

@@ -89,53 +89,18 @@ sub loadDBModules {
     my $f;
     # todo: use function to load module.
 
-    if ($param{'DBType'} =~ /^mysql$/i) {
+    if ($param{'DBType'} =~ /^(mysql|SQLite|pgsql)$/i) {
 	eval "use DBI";
 	if ($@) {
-	    &ERROR("libdbd-mysql-perl is not installed!");
+	    &ERROR("No support for DBI::" . $param{'DBType'} . ", exiting!");
 	    exit 1;
 	}
-	&status("Loading MySQL support.");
+	&status("Loading " . $param{'DBType'} . " support.");
 	$f = "$bot_src_dir/dbi.pl";
 	require $f;
 	$moduleAge{$f} = (stat $f)[9];
 
-	&showProc(" (DBI::mysql)");
-
-    } elsif ($param{'DBType'} =~ /^pgsql$/i) {
-	eval "use DBI";
-	if ($@) {
-	    &ERROR("libpgperl is not installed!");
-	    exit 1;
-	}
-	&status("Loading pgsql support.");
-	$f = "$bot_src_dir/dbi.pl";
-	require $f;
-	$moduleAge{$f} = (stat $f)[9];
-
-	&showProc(" (DBI::pgsql)");
-
-    } elsif ($param{'DBType'} =~ /^sqlite$/i) {
-	eval "use DBI";
-	if ($@) {
-	    &ERROR("libdbd-sqlite-perl is not installed!");
-	    exit 1;
-	}
-	&status("Loading SQLite support.");
-	$f = "$bot_src_dir/dbi.pl";
-	require $f;
-	$moduleAge{$f} = (stat $f)[9];
-
-	&showProc(" (DBI::SQLite)");
-
-    } elsif ($param{'DBType'} =~ /^dbm$/i) {
-	&status("Loading dbm support.");
-	$f = "$bot_src_dir/dbm.pl";
-	require $f;
-	$moduleAge{$f} = (stat $f)[9];
-
-	&showProc(" (dbm.pl)");
-
+	&showProc(" (DBI::" . $param{'DBType'} . ")");
     } else {
 	&WARN("DB support DISABLED.");
 	return;

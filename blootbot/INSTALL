@@ -24,7 +24,6 @@ Method of installation.
         - MySQL, read INSTALL.mysql (supported)
         - SQLite, read INSTALL.sqlite (supported)
         - PgSQL, read INSTALL.pgsql (unsupported, may work)
-        - Berkeley DBM, read INSTALL.dbm (unsupported, may work)
 
 - There are "bugs" in the perl modules.  Read INSTALL.patches on how to fix.
 
