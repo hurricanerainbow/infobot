@@ -815,11 +815,12 @@ sub userCommands {
 	  "kB of memory."
 	);
 
-	# todo: make dbGetColNiceHash().
+	# todo: use dbGetColNiceHash().
 	my %hash = &dbGetCol("stats", "nick,counter", "type='cmdstats'".
 #			" ORDER BY counter DESC LIMIT 3", 1);
 			" ORDER BY counter DESC", 1);
 
+if (0) {
 	foreach (keys %hash) {
 	    my $i = $_;
 	    foreach (keys %{ $hash{$i} }) {
@@ -827,6 +828,7 @@ sub userCommands {
 	    }
 	}
 	&DEBUG("end of cmdstats.");
+}
 
 	return;
     }

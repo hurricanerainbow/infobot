@@ -16,6 +16,7 @@ my $refresh = &::getChanConfDefault("debianRefreshInterval",7)
 			* 60 * 60 * 24;
 my $debug	= 0;
 my $debian_dir	= "$::bot_state_dir/debian";
+my $country	= "ca";
 
 my %dists	= (
 	"unstable"	=> "sid",
@@ -27,7 +28,7 @@ my %dists	= (
 
 my %urlcontents = (
 	"Contents-##DIST-i386.gz" =>
-		"ftp://ftp.us.debian.org".
+		"ftp://ftp.$country.debian.org".
 		"/debian/dists/##DIST/Contents-i386.gz",
 	"Contents-##DIST-i386-non-US.gz" =>
 		"ftp://non-us.debian.org".
@@ -36,13 +37,13 @@ my %urlcontents = (
 
 my %urlpackages = (
 	"Packages-##DIST-main-i386.gz" =>
-		"ftp://ftp.us.debian.org".
+		"ftp://ftp.$country.debian.org".
 		"/debian/dists/##DIST/main/binary-i386/Packages.gz",
 	"Packages-##DIST-contrib-i386.gz" =>
-		"ftp://ftp.us.debian.org".
+		"ftp://ftp.$country.debian.org".
 		"/debian/dists/##DIST/contrib/binary-i386/Packages.gz",
 	"Packages-##DIST-non-free-i386.gz" =>
-		"ftp://ftp.us.debian.org".
+		"ftp://ftp.$country.debian.org".
 		"/debian/dists/##DIST/non-free/binary-i386/Packages.gz",
 
 	"Packages-##DIST-non-US-main-i386.gz" =>
@@ -782,7 +783,7 @@ sub infoStats {
     }
 
     my %stats;
-    my %total;
+    my %total = (maint => 0, isize => 0, csize => 0);
     my $file;
     foreach $file (keys %urlpackages) {
 	$file =~ s/##DIST/$dist/g;	# won't work for incoming.
