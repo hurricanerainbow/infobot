@@ -76,7 +76,8 @@ sub loadCoreModules {
 sub loadDBModules {
     &status("Loading DB modules...");
 
-    $moduleAge{"$bot_src_dir/modules.pl"} = time();
+    my $f = "$bot_src_dir/modules.pl";
+    $moduleAge{$f} = (stat $f)[9];
 
     if ($param{'DBType'} =~ /^mysql$/i) {
 	eval "use DBI";
@@ -87,8 +88,9 @@ sub loadDBModules {
 	&showProc(" (DBI // mysql)");
 
 	&status("  using MySQL support.");
-	require "$bot_src_dir/db_mysql.pl";
-	$moduleAge{"$bot_src_dir/db_mysql.pl"} = time();
+	$f = "$bot_src_dir/db_mysql.pl";
+	require $f;
+	$moduleAge{$f} = (stat $f)[9];
 
     } elsif ($param{'DBType'} =~ /^pgsql$/i) {
 #	eval "use Pg";
@@ -248,6 +250,8 @@ sub reloadModule {
 
 	if ($age < $moduleAge{$file}) {
 	    &WARN("rM: we're not gonna downgrade '$file'; use touch.");
+	    &DEBUG("age => $age");
+	    &DEBUG("mA{$file} => $moduleAge{$file}");
 	    return;
 	}
 
