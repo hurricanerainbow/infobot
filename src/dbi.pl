@@ -88,7 +88,8 @@ sub sqlSelectMany {
 	return;
     }
 
-    $query .= " WHERE ".&hashref2where($where_href) if ($where_href);
+    my $where = ($where_href) ? &hashref2where($where_href) : "";
+    $query .= " WHERE $where"	if ($where);
     $query .= "$other"		if $other;
 
     if (!($sth = $dbh->prepare($query))) {
@@ -99,7 +100,6 @@ sub sqlSelectMany {
     &SQLDebug($query);
     if (!$sth->execute) {
 	&ERROR("sqlSelectMany: execute: '$query'");
-	$sth->finish;
 	return;
     }
 
@@ -113,8 +113,11 @@ sub sqlSelectMany {
 #   Todo: Always return array?
 sub sqlSelect {
     my $sth	= &sqlSelectMany(@_);
+    if (!defined $sth) {
+	&WARN("sqlSelect failed.");
+	return;
+    }
     my @retval	= $sth->fetchrow_array;
-
     $sth->finish;
 
     if (scalar @retval > 1) {
@@ -134,6 +137,10 @@ sub sqlSelect {
 sub sqlSelectColHash {
     my ($table, $select, $where_href, $type) = @_;
     my $sth	= &sqlSelectMany($table, $select, $where_href);
+    if (!defined $sth) {
+	&WARN("sqlSelectColhash failed.");
+	return;
+    }
     my %retval;
 
     if (defined $type and $type == 2) {
@@ -171,6 +178,10 @@ sub sqlSelectColHash {
 #   Note: useful for returning only one/first row of data.
 sub sqlSelectRowHash {
     my $sth	= &sqlSelectMany(@_);
+    if (!defined $sth) {
+	&WARN("sqlSelectRowHash failed.");
+	return;
+    }
     my $retval	= $sth->fetchrow_hashref();
     $sth->finish;
 
@@ -186,10 +197,10 @@ sub sqlSelectRowHash {
 #
 
 #####
-#  Usage: &sqlSet($table, $data_href, $where_href);
+#  Usage: &sqlSet($table, $where_href, $data_href);
 # Return: 1 for success, undef for failure.
 sub sqlSet {
-    my ($table, $data_href, $where_href) = @_;
+    my ($table, $where_href, $data_href) = @_;
 
     if (!defined $table or $table =~ /^\s*$/) {
 	&WARN("sqlSet: table == NULL.");
@@ -201,19 +212,23 @@ sub sqlSet {
 	return;
     }
 
-    my $where  = &hashref2where($where_href) if ($where_href);
-    my $update = &hashref2update($data_href) if ($data_href);
-    my (@k,@v) = &hashref2array($data_href);
+    my $k = (keys %{ $where_href })[0];
+    my $result = &sqlSelect($table, $k, $where_href);
+    &DEBUG("result is not defined :(") if (!defined $result);
 
-    if (!@k or !@v) {
-	&WARN("sqlSet: keys or vals is NULL.");
-	return;
-    }
-
-    my $result = &sqlGet($table, join(',', @k), $where);
-    if (defined $result) {
+    if (1 or defined $result) {
 	&sqlUpdate($table, $data_href, $where_href);
     } else {
+	&DEBUG("doing insert...");
+
+	# hack.
+	my %hash = %{ $where_href };
+	# add data_href values...
+	foreach (keys %{ $data_href }) {
+	    $hash{ $_ } = ${ $data_href }{$_};
+	}
+
+	$data_href = \%hash;
 	&sqlInsert($table, $data_href);
     }
 
@@ -249,7 +264,10 @@ sub sqlInsert {
 	return;
     }
 
-    my (@k,@v) = &hashref2array($data_href);
+    my ($k_aref, $v_aref) = &hashref2array($data_href);
+    my @k = @{ $k_aref };
+    my @v = @{ $v_aref };
+
     if (!@k or !@v) {
 	&WARN("sqlInsert: keys or vals is NULL.");
 	return;
@@ -257,7 +275,7 @@ sub sqlInsert {
 
     &sqlRaw("Insert($table)", sprintf(
 	"INSERT %s INTO %s (%s) VALUES (%s)",
-	$other, $table, join(',',@k), join(',',@v)
+	($other || ""), $table, join(',',@k), join(',',@v)
     ) );
 
     return 1;
@@ -273,7 +291,10 @@ sub sqlReplace {
 	return;
     }
 
-    my (@k,@v) = &hashref2array($data_href);
+    my ($k_aref, $v_aref) = &hashref2array($data_href);
+    my @k = @{ $k_aref };
+    my @v = @{ $v_aref };
+
     if (!@k or !@v) {
 	&WARN("sqlReplace: keys or vals is NULL.");
 	return;
@@ -375,8 +396,13 @@ sub sqlRawReturn {
 sub hashref2where {
     my ($href) = @_;
 
+    if (!defined $href) {
+	&WARN("hashref2where: href == NULL.");
+	return;
+    }
+
     if (ref($href) ne "HASH") {
-	&WARN("hashref2where: href is not HASH ref.");
+	&WARN("hashref2where: href is not HASH ref (href => $href)");
 	return;
     }
 
@@ -418,7 +444,7 @@ sub hashref2update {
 	$hash{$k} = $v;
     }
 
-    return join(', ', map { $_ => $hash{$_} } sort keys %hash);
+    return join(', ', map { $_."=".$hash{$_} } sort keys %hash);
 }
 
 sub hashref2array {
