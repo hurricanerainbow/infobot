@@ -189,7 +189,7 @@ sub loadMyModulesNow {
 
 	if (!&IsParam($_) and !&IsChanConf($_)) {
 	    if (exists $myModules{$_}) {
-		&DEBUG("myModule: $myModules{$_} (1) not loaded.");
+		&status("myModule: $myModules{$_} (1) not loaded.");
 	    } else {
 		&DEBUG("myModule: $_ (2) not loaded.");
 	    }
