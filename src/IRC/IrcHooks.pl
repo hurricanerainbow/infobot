@@ -150,10 +150,23 @@ sub on_dcc {
     # pity Net::IRC doesn't store nuh. Here's a hack :)
     $self->whois($nick);
 
-    if ($type eq 'SEND') {
+    if ($type eq 'SEND') {	# GET for us.
 	# incoming DCC SEND. we're receiving a file.
-	$self->new_get($event, \*FH);
+	my $get = ($event->args)[2];
+	open(DCCGET,">$get");
+
+	$self->new_get($nick,
+		($event->args)[2],
+		($event->args)[3],
+		($event->args)[4],
+		($event->args)[5],
+		\*DCCGET
+	);
+    } elsif ($type eq 'GET') {	# SEND for us?
+	&DEBUG("starting get.");
+	$self->new_send($event->args);
     } elsif ($type eq 'CHAT') {
+	&DEBUG("starting chat.");
 	$self->new_chat($event);
     } else {
 	&status("${b_green}DCC $type$ob unknown ...");
@@ -202,6 +215,11 @@ sub on_dcc_open {
 	    $self->privmsg($sock,"Enter Password, $userHandle.");
 	} else {
 	    $self->privmsg($sock,"Welcome to blootbot DCC CHAT interface, $userHandle.");
+	}
+    } elsif ($type eq 'SEND') {
+	&DEBUG("Starting DCC receive.");
+	foreach ($event->args) {
+	    &DEBUG("  => '$_'.");
 	}
     } else {
 	&status("${b_green}DCC $type$ob unknown ...");
