@@ -8,7 +8,7 @@
 package Debian;
 
 use strict;
-no strict 'refs'; # FIXME dstats aborts if set
+no strict 'refs'; # FIXME: dstats aborts if set
 
 my $announce	= 0;
 my $defaultdist	= "sid";
@@ -691,7 +691,7 @@ sub infoPackages {
 
     if (! -f $files[0]) {
 	&::WARN("files[0] ($files[0]) doesn't exist.");
-	&::msg($::who, "WARNING: $files[0] does not exist? FIXME");
+	&::msg($::who, "FIXME: $files[0] does not exist?");
 	return 'NULL';
     }
 
@@ -1111,7 +1111,7 @@ sub debianCheck {
     while (defined($file = readdir DEBIAN)) {
 	next unless ($file =~ /(gz|bz2)$/);
 
-	# todo: add bzip2 support (debian doesn't do .bz2 anyway)
+	# TODO: add bzip2 support (debian doesn't do .bz2 anyway)
 	my $exit = system("/bin/gzip -t '$debian_dir/$file'");
 	next unless ($exit);
 	&::DEBUG("deb: hmr... => ".(time() - (stat($file))[8])."'.");

@@ -71,7 +71,7 @@ sub getReply {
 		requested_count	=> $count
 	} );
 
-	# todo: rename $real to something else!
+	# TODO: rename $real to something else!
 	my $real   = 0;
 #	my $author = &getFactInfo($lhs,"created_by") || '';
 #	$real++ if ($author =~ /^\Q$who\E\!/);
@@ -240,7 +240,7 @@ sub substVars {
     my($reply,$flag) = @_;
 
     # $date, $time.
-    # todo: support localtime.
+    # TODO: support localtime.
     my $date	=  scalar(gmtime());
     $date	=~ s/\:\d+(\s+\w+)\s+\d+$/$1/;
     $reply	=~ s/\$date/$date/gi;

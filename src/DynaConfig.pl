@@ -443,7 +443,7 @@ sub writeChanFile {
 ##### USER COMMANDS.
 #####
 
-# todo: support multiple flags, eg: "+o-m"
+# TODO: support multiple flags, eg: "+o-m"
 sub IsFlag {
     my $flags = shift;
     my ($ret, $f, $o) = "";
@@ -575,7 +575,7 @@ sub ignoreAdd {
 
     $ignore{$chan}{$mask} = [$expire, time(), $who, $comment];
 
-    # todo: improve this.
+    # TODO: improve this.
     if ($expire == 0) {
 	&status("ignore: Added $mask for $chan to NEVER expire, by $who, for $comment");
     } else {

@@ -62,9 +62,7 @@ exit 0;  # just so you don't look farther down in this file :)
 
 # --- support routines
 
-# FIXME.
-#   add arguments, basically '-h' and '--help', heh.
-#
+# FIXME: add arguments, basically '-h' and '--help', heh.
 
 # added by the xk
 sub duperuncheck {

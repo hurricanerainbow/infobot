@@ -3,7 +3,8 @@
 # WARN: this file does not reload on HUP.
 #
 
-# use strict;	# TODO
+# TODO:
+# use strict;
 
 use vars qw($who $msgType $conn $chan $message $ident $talkchannel
 	$bot_version $babel_lang_regex $bot_data_dir);
@@ -850,7 +851,7 @@ sub do_text_counters {
     if (!defined $arg or $arg =~ /^\s*$/) {
 	# this is way fucking ugly.
 
-	# TODO convert $where to hash
+	# TODO: convert $where to hash
 	my %hash = &sqlSelectColHash("stats", "nick,counter",
 			{ },
 			$where." ORDER BY counter DESC LIMIT 3", 1
@@ -878,7 +879,7 @@ sub do_text_counters {
 	    &pSReply("zero counter for \037$type\037.");
 	}
     } else {
-	# TODO convert $where to hash and use a sqlSelect
+	# TODO: convert $where to hash and use a sqlSelect
 	my $x = (&sqlRawReturn("SELECT SUM(counter) FROM stats".
 			" WHERE $where AND nick=".&sqlQuote($arg) ))[0];
 
@@ -888,7 +889,7 @@ sub do_text_counters {
 	}
 
 	# defined.
-	# TODO convert $where to hash
+	# TODO: convert $where to hash
 	my @array = &sqlSelect("stats", "nick", undef,
 			$where." ORDER BY counter", 1
 	);
@@ -962,7 +963,7 @@ sub textstats_main {
 	return;
     }
 
-    # TODO add nick to where_href
+    # TODO: add nick to where_href
     my %hash = &sqlSelectColHash("stats", "type,counter",
 		$where_href, " AND nick=".&sqlQuote($arg)
     );
@@ -975,7 +976,7 @@ sub textstats_main {
     foreach (keys %hash) {
 	&DEBUG("_stats: hash{$_} => $hash{$_}");
 	# ranking.
-	# TODO convert $where to hash
+	# TODO: convert $where to hash
 	my @array = &sqlSelect("stats", "nick", undef,
 		$where." ORDER BY counter", 1);
 	$good = 0;

@@ -157,7 +157,7 @@ sub process {
 	    return;
 	}
 
-	# todo: use &getUser()?
+	# TODO: use &getUser()?
 	my $first	= 1;
 	foreach (keys %users) {
 	    if ($users{$_}{FLAGS} =~ /n/) {

@@ -40,7 +40,7 @@ sub Parse {
     }
 
     if (defined $what and $what =~ s/^($::mask{chan})\s*//) {
-	# todo: check if the channel exists aswell.
+	# TODO: check if the channel exists aswell.
 	$chan	= lc $1;
 
 	if (!&::IsNickInChan($who, $chan)) {
@@ -118,7 +118,7 @@ sub Parse {
     } elsif ($what =~ /^(un)?notify$/i) {
 	my $state = ($1) ? 0 : 1;
 
-	# todo: don't notify even if "news" is called.
+	# TODO: don't notify even if "news" is called.
 	if (!&::IsChanConf("newsNotifyAll")) {
 	    &::DEBUG("news: chan => $chan, ::chan => $::chan.");
 	    &::notice($who, "not available for this channel or disabled altogether.");
@@ -167,7 +167,7 @@ sub readNews {
     while (<NEWS>) {
 	chop;
 
-	# todo: allow commands.
+	# TODO: allow commands.
 
 	if (/^[\s\t]+(\S+):[\s\t]+(.*)$/) {
 	    if (!defined $item) {
@@ -218,7 +218,7 @@ sub writeNews {
 	return;
     }
 
-    # todo: add commands to output file.
+    # TODO: add commands to output file.
     my $c = 0;
     my($cc,$ci,$cu) = (0,0,0);
 
@@ -243,7 +243,7 @@ sub writeNews {
 	}
     }
 
-    # todo: show how many users we wrote down.
+    # TODO: show how many users we wrote down.
     if (&::getChanConfList("newsKeepRead")) {
 	# old users are removed in newsFlush(), perhaps it should be
 	# done here.
@@ -353,7 +353,7 @@ sub del {
 	$auth++ if (&::IsFlag("o"));
 
 	if (!$auth) {
-	    # todo: show when it'll expire.
+	    # TODO: show when it'll expire.
 	    &::notice($who, "Sorry, you cannot remove items; just let them expire on their own.");
 	    return;
 	}
@@ -420,7 +420,7 @@ sub list {
 	    next;
 	}
 
-	# todo: show request stats aswell.
+	# TODO: show request stats aswell.
 	&::msg($who, sprintf("\002[\002%2d\002]\002%s %s",
 				$i, $chr, $subtopic));
 	$i++;
@@ -452,7 +452,7 @@ sub read {
 
     my $item	= &getNewsItem($str);
     if (!defined $item or !scalar keys %{ $::news{$chan}{$item} }) {
-	# todo: numerical check.
+	# TODO: numerical check.
 	if ($str =~ /^(\d+)[-, ](\d+)$/ or
 	    $str =~ /^-(\d+)$/ or
 	    $str =~ /^(\d+)-$/ or 0
@@ -536,9 +536,9 @@ sub mod {
 	}
 
 	### TODO: use m### to make code safe!
-	# todo: make code safer.
+	# TODO: make code safer.
 	my $done = 0;
-	# todo: use eval to deal with flags easily.
+	# TODO: use eval to deal with flags easily.
 	if ($flags eq "") {
 	    $done++ if (!$done and $mod_news  =~ s/\Q$op\E/$np/);
 	    $done++ if (!$done and $mod_nnews =~ s/\Q$op\E/$np/);
@@ -642,7 +642,7 @@ sub set {
     }
 
     if ($what eq "Expire") {
-	# todo: use do_set().
+	# TODO: use do_set().
 
 	my $time = 0;
 	my $plus = ($value =~ s/^\+//g);
@@ -706,12 +706,12 @@ sub set {
     }
 
     if (!$auth) {
-	# todo: show when it'll expire.
+	# TODO: show when it'll expire.
 	&::notice($who, "Sorry, you cannot set items. (author $author owns it)");
 	return;
     }
 
-    # todo: clean this up.
+    # TODO: clean this up.
     my $old = $::news{$chan}{$news}{$what};
     if (defined $old) {
 	&::DEBUG("news: old => $old.");
@@ -727,7 +727,7 @@ sub latest {
     $chan = $tchan;
     $who  = $::who;
 
-    # todo: if chan = undefined, guess.
+    # TODO: if chan = undefined, guess.
 #    if (!exists $::news{$chan}) {
     if (!exists $::channels{$chan}) {
 	&::notice($who, "invalid chan $chan") if ($flag);
@@ -844,7 +844,7 @@ sub latest {
 	    } );
 	}
 
-	# todo: implement throttling via schedule into &notice() / &msg().
+	# TODO: implement throttling via schedule into &notice() / &msg().
 	$::conn->schedule(int((2+$i)/2), sub {
 	    &::notice($who, "|= to read, do \002news $chan read <#>\002 or \002news $chan read <keyword>\002");
 	} );
@@ -989,7 +989,7 @@ sub do_set {
 	return;
     }
 
-    &::DEBUG("news: do_set: TODO...");
+    &::TODO("news: do_set:");
 }
 
 sub stats {

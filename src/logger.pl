@@ -376,7 +376,7 @@ sub debug_perl {
 	return;
     }
 
-    # todo: better filename.
+    # TODO: better filename.
     open(OUT, ">>debug.log");
     print OUT "DEBUG: $str\n";
 
@@ -386,8 +386,8 @@ sub debug_perl {
 	chop;
 	$i++;
 	# bleh. this tries to duplicate status().
-	# todo: statcountfix
-	# todo: rename to log_*someshit*
+	# TODO: statcountfix
+	# TODO: rename to log_*someshit*
 	if ($i == $line) {
 	    my $msg = "$file: $i:!$_";
 	    printf "%s[%6d]%s %s\n", $_green, $statcount, $ob, $msg;

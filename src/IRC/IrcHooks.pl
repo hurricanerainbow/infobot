@@ -69,7 +69,7 @@ sub on_chat {
 
 	### TODO: prevent users without CRYPT chatting.
 	if (!defined $crypto) {
-	    &DEBUG("todo: dcc close chat");
+	    &TODO("dcc close chat");
 	    &msg($who, "nope, no guest logins allowed...");
 	    return;
 	}
@@ -344,7 +344,7 @@ sub on_dcc_open_chat {
     my $crypto	= $users{$userHandle}{PASS};
     $dcc{'CHAT'}{$nick} = $sock;
 
-    # todo: don't make DCC CHAT established in the first place.
+    # TODO: don't make DCC CHAT established in the first place.
     if ($userHandle eq "_default") {
 	&dccsay($nick, "_default/guest not allowed");
 	$sock->close();
@@ -694,7 +694,7 @@ sub on_nick {
 	    $channels{$chan}{$mode}{$newnick} = $channels{$chan}{$mode}{$nick};
 	}
     }
-    # todo: do %flood* aswell.
+    # TODO: do %flood* aswell.
 
     &delUserInfo($nick, keys %channels);
     $nuh{lc $newnick} = $nuh{lc $nick};
@@ -735,6 +735,7 @@ sub on_nick_taken {
 
 sub on_notice {
     my ($self, $event) = @_;
+    #$conn = $self; <- ugly hack or elegant solution?
     my $nick = $event->nick();
     my $chan = ($event->to)[0];
     my $args = ($event->args)[0];
@@ -855,7 +856,7 @@ sub on_public {
     $uh		= $event->userhost();
     $nuh	= $nick."!".$uh;
     $msgType	= "public";
-    # todo: move this out of hookMsg to here?
+    # TODO: move this out of hookMsg to here?
     ($user,$host) = split(/\@/, $uh);
     $h		= $host;
 
