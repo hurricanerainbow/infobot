@@ -3,20 +3,20 @@
 # WARN: this file does not reload on HUP.
 #
 
-#use strict; # TODO: ${"hooks_$hashname"}{$ident}
+#use strict; # TODO: sub { \&{ $hash{'CODEREF'} }($flatarg) };
 
 use vars qw($who $msgType $conn $chan $message $ident $talkchannel
 	$bot_version $bot_data_dir);
 use vars qw(@vernick @vernicktodo);
 use vars qw(%channels %cache %mask %userstats %myModules %cmdstats
-	%hooks_extra %lang %ver);
+	%cmdhooks %lang %ver);
 # TODO: FIX THE FOLLOWING:
 use vars qw($total $x $type $i $good %wingateToDo);
 
 my $w3search_regex   = "google";
 
 ### COMMAND HOOK IMPLEMENTATION.
-# addCmdHook("SECTION", 'TEXT_HOOK',
+# addCmdHook('TEXT_HOOK',
 #	(CODEREF	=> 'Blah',
 #	Forker		=> 1,
 #	Module		=> 'blah.pl'		# preload module.
@@ -27,21 +27,21 @@ my $w3search_regex   = "google";
 ###
 
 sub addCmdHook {
-    my ($hashname, $ident, %hash) = @_;
+    my ($ident, %hash) = @_;
 
-    if (exists ${"hooks_$hashname"}{$ident}) {
-###	&WARN("aCH: cmd hooks \%$hashname{$ident} already exists.");
+    if (exists $cmdhooks{$ident}) {
+	&WARN("aCH: \$cmdhooks{$ident} already exists.");
 	return;
     }
 
     &VERB("aCH: added $ident",2);	# use $hash{'Identifier'}?
     ### hrm... prevent warnings?
-    ${"hooks_$hashname"}{$ident} = \%hash;
+    $cmdhooks{$ident} = \%hash;
 }
 
 # RUN IF ADDRESSED.
 sub parseCmdHook {
-    my ($hashname, $line) = @_;
+    my ($line) = @_;
     $line =~ s/^\s+|\s+$//g;	# again.
     $line =~ /^(\S+)(\s+(.*))?$/;
     my $cmd	= $1;	# command name is whitespaceless.
@@ -51,8 +51,8 @@ sub parseCmdHook {
 
     &shmFlush();
 
-    if (!defined %{"hooks_$hashname"}) {
-	&WARN("cmd hooks \%$hashname does not exist.");
+    if (!defined %cmdhooks) {
+	&WARN('%cmdhooks does not exist.');
 	return 0;
     }
 
@@ -61,7 +61,7 @@ sub parseCmdHook {
 	return 0;
     }
 
-    foreach (keys %{"hooks_$hashname"}) {
+    foreach (keys %cmdhooks) {
 	# rename to something else! like $id or $label?
 	my $ident = $_;
 
@@ -72,8 +72,8 @@ sub parseCmdHook {
 	    next;
 	}
 
-	&status("hooks($hashname): $cmd matched '$ident' '$flatarg'");
-	my %hash = %{ ${"hooks_$hashname"}{$ident} };
+	&status("cmdhooks: $cmd matched '$ident' '$flatarg'");
+	my %hash = %{ $cmdhooks{$ident} };
 
 	if (!scalar keys %hash) {
 	    &WARN("CmdHook: hash is NULL?");
@@ -156,139 +156,6 @@ sub parseCmdHook {
     return 1 if ($done);
     return 0;
 }
-
-###
-### START ADDING HOOKS.
-###
-&addCmdHook("extra", 'd?bugs', ('CODEREF' => 'DebianExtra::Parse',
-	'Forker' => 1, 'Identifier' => 'DebianExtra',
-	'Cmdstats' => 'Debian Bugs') );
-&addCmdHook("extra", 'dauthor', ('CODEREF' => 'Debian::searchAuthor',
-	'Forker' => 1, 'Identifier' => 'Debian',
-	'Cmdstats' => 'Debian Author Search', 'Help' => "dauthor" ) );
-&addCmdHook("extra", '(d|search)desc', ('CODEREF' => 'Debian::searchDescFE',
-	'Forker' => 1, 'Identifier' => 'Debian',
-	'Cmdstats' => 'Debian Desc Search', 'Help' => "ddesc" ) );
-&addCmdHook("extra", 'dnew', ('CODEREF' => 'DebianNew',
-	'Identifier' => 'Debian' ) );
-&addCmdHook("extra", 'dincoming', ('CODEREF' => 'Debian::generateIncoming',
-	'Forker' => 1, 'Identifier' => 'Debian' ) );
-&addCmdHook("extra", 'dstats', ('CODEREF' => 'Debian::infoStats',
-	'Forker' => 1, 'Identifier' => 'Debian',
-	'Cmdstats' => 'Debian Statistics' ) );
-&addCmdHook("extra", 'd?contents', ('CODEREF' => 'Debian::searchContents',
-	'Forker' => 1, 'Identifier' => 'Debian',
-	'Cmdstats' => 'Debian Contents Search', 'Help' => "contents" ) );
-&addCmdHook("extra", 'd?find', ('CODEREF' => 'Debian::DebianFind',
-	'Forker' => 1, 'Identifier' => 'Debian',
-	'Cmdstats' => 'Debian Search', 'Help' => "find" ) );
-&addCmdHook("extra", 'insult', ('CODEREF' => 'Insult::Insult',
-	'Forker' => 1, 'Identifier' => 'insult', 'Help' => "insult" ) );
-&addCmdHook("extra", 'kernel', ('CODEREF' => 'Kernel::Kernel',
-	'Forker' => 1, 'Identifier' => 'Kernel',
-	'Cmdstats' => 'Kernel', 'NoArgs' => 1) );
-&addCmdHook("extra", 'listauth', ('CODEREF' => 'CmdListAuth',
-	'Identifier' => 'Search', Module => 'Factoids',
-	'Help' => 'listauth') );
-&addCmdHook("extra", 'quote', ('CODEREF' => 'Quote::Quote',
-	'Forker' => 1, 'Identifier' => 'Quote',
-	'Help' => 'quote', 'Cmdstats' => 'Quote') );
-&addCmdHook("extra", 'countdown', ('CODEREF' => 'countdown',
-	'Module' => 'countdown', 'Identifier' => 'countdown',
-	'Cmdstats' => 'countdown') );
-&addCmdHook("extra", 'lart', ('CODEREF' => 'lart',
-	'Identifier' => 'lart', 'Help' => 'lart') );
-&addCmdHook("extra", 'convert', ('CODEREF' => 'convert',
-	'Forker' => 1, 'Identifier' => 'Units',
-	'Help' => 'convert') );
-&addCmdHook("extra", '(cookie|random)', ('CODEREF' => 'cookie',
-	'Forker' => 1, 'Identifier' => 'Factoids') );
-&addCmdHook("extra", 'u(ser)?info', ('CODEREF' => 'userinfo',
-	'Identifier' => 'UserInfo', 'Help' => 'userinfo',
-	'Module' => 'UserInfo') );
-&addCmdHook("extra", 'RootWarn', ('CODEREF' => 'CmdrootWarn',
-	'Identifier' => 'RootWarn', 'Module' => 'RootWarn') );
-&addCmdHook("extra", 'seen', ('CODEREF' => 'seen', 'Identifier' =>
-	'seen') );
-&addCmdHook("extra", 'Dict', ('CODEREF' => 'Dict::Dict',
-	'Identifier' => 'Dict', 'Help' => 'dict',
-	'Forker' => 1, 'Cmdstats' => 'Dict') );
-&addCmdHook("extra", 'slashdot', ('CODEREF' => 'Slashdot::Slashdot',
-	'Identifier' => 'slashdot', 'Forker' => 1,
-	'Cmdstats' => 'slashdot', 'Module' => 'slashdot') );
-&addCmdHook("extra", 'Plug', ('CODEREF' => 'Plug::Plug',
-	'Identifier' => 'Plug', 'Forker' => 1,
-	'Cmdstats' => 'Plug') );
-&addCmdHook("extra", 'Uptime', ('CODEREF' => 'uptime', 'Identifier' => 'Uptime',
-	'Cmdstats' => 'Uptime') );
-&addCmdHook("extra", 'nullski', ('CODEREF' => 'nullski', ) );
-&addCmdHook("extra", 'verstats', ('CODEREF' => 'do_verstats' ) );
-&addCmdHook("extra", 'Weather', ('CODEREF' => 'Weather::Weather',
-	'Identifier' => 'Weather', 'Help' => 'weather',
-	'Cmdstats' => 'Weather', 'Forker' => 1) );
-&addCmdHook("extra", 'metar', ('CODEREF' => 'Weather::Metar',
-	'Identifier' => 'Weather', 'Help' => 'weather',
-	'Cmdstats' => 'Weather', 'Forker' => 1) );
-&addCmdHook("extra", 'bzflist', ('CODEREF' => 'BZFlag::list',
-	'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag',
-	'Forker' => 1) );
-&addCmdHook("extra", 'bzflist17', ('CODEREF' => 'BZFlag::list17',
-	'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag',
-	'Forker' => 1) );
-&addCmdHook("extra", 'bzfquery', ('CODEREF' => 'BZFlag::query',
-	'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag',
-	'Forker' => 1) );
-&addCmdHook("extra", 'zfi', ('CODEREF' => 'zfi::query',
-	'Identifier' => 'zfi', 'Cmdstats' => 'zfi',
-	'Forker' => 1) );
-&addCmdHook("extra", '(zippy|yow)', ('CODEREF' => 'zippy::get',
-	'Identifier' => 'Zippy', 'Cmdstats' => 'Zippy',
-	'Forker' => 1) );
-&addCmdHook("extra", 'zsi', ('CODEREF' => 'zsi::query',
-	'Identifier' => 'zsi', 'Cmdstats' => 'zsi',
-	'Forker' => 1) );
-&addCmdHook("extra", '(ex)?change', ('CODEREF' => 'Exchange::query',
-	'Identifier' => 'Exchange', 'Cmdstats' => 'Exchange',
-	'Forker' => 1) );
-&addCmdHook("extra", '(botmail|message)', ('CODEREF' => 'botmail::parse',
-	'Identifier' => 'botmail', 'Cmdstats' => 'botmail') );
-&addCmdHook("extra", 'HTTPDtype', ('CODEREF' => 'HTTPDtype::HTTPDtype',
-	'Identifier' => 'HTTPDtype', 'Cmdstats' => 'HTTPDtype',
-	'Forker' => 1) );
-&addCmdHook("extra", 'scramble', ('CODEREF' => 'scramble::scramble',
-	'Identifier' => 'scramble', 'Cmdstats' => 'scramble',
-	'Forker' => 1, 'Module' => 'scramble') );
-&addCmdHook("extra", 'md5(sum)?', ('CODEREF' => 'md5::md5',
-	'Identifier' => 'md5', 'Cmdstats' => 'md5',
-	'Forker' => 1) );
-&addCmdHook("extra", 'Rss', ('CODEREF' => 'Rss::Rss',
-	'Identifier' => 'Rss', 'Cmdstats' => 'Rss',
-	'Forker' => 1, 'Help' => 'rss') );
-&addCmdHook("extra", 'wiki(pedia)?', ('CODEREF' => 'wikipedia::wikipedia',
-	'Identifier' => 'wikipedia', 'Cmdstats' => 'wikipedia',
-	'Forker' => 1, 'Help' => 'wikipedia') );
-&addCmdHook("extra", 'page', ('CODEREF' => 'pager::page',
-	'Identifier' => 'pager', 'Cmdstats' => 'pager',
-	'Forker' => 1, 'Help' => 'page') );
-&addCmdHook("extra", '(babel(fish)?|x|xlate|translate)', ('CODEREF' => 'babelfish::babelfish',
-	'Identifier' => 'babelfish', 'Cmdstats' => 'babelfish',
-	'Forker' => 1, 'Help' => 'babelfish', 'Module' => 'babelfish') );
-&addCmdHook("extra", 'wtf', ('CODEREF' => 'wtf::query',
-	'Identifier' => 'wtf', 'Cmdstats' => 'wtf',
-	'Forker' => 1, 'Help' => 'wtf') );
-&addCmdHook("extra", '[ia]?spell', ('CODEREF' => 'spell::query',
-	'Identifier' => 'spell', 'Cmdstats' => 'spell',
-	'Forker' => 1, 'Help' => 'spell') );
-&addCmdHook("extra", 'dns|d?nslookup', ('CODEREF' => 'dns::query',
-	'Identifier' => 'dns', 'Cmdstats' => 'dns',
-	'Forker' => 1, 'Help' => 'dns') );
-&addCmdHook("extra", 'piglatin', ('CODEREF' => 'piglatin::piglatin',
-	'Identifier' => 'piglatin', 'Cmdstats' => 'piglatin',
-	'Forker' => 1) );
-###
-### END OF ADDING HOOKS.
-###
-&status("CMD: loaded ".scalar(keys %hooks_extra)." EXTRA command hooks.");
 
 sub Modules {
     if (!defined $message) {
@@ -1037,4 +904,157 @@ sub nullski {
     #foreach (`$arg`) { &msg($who,$_); }
 }
 
+%cmdhooks=();
+###
+### START ADDING HOOKS.
+###
+&addCmdHook('chan(stats|info)', ('CODEREF' => 'chaninfo', ) );
+&addCmdHook('cmd(stats|info)', ('CODEREF' => 'cmdstats', ) );
+&addCmdHook('sched(stats|info)', ('CODEREF' => 'scheduleList', ) );
+&addCmdHook('factinfo', ('CODEREF' => 'factinfo',
+	'Cmdstats' => 'Factoid Info', Module => 'Factoids', ) );
+&addCmdHook('factstats?', ('CODEREF' => 'factstats',
+	'Cmdstats' => 'Factoid Stats', Help => "factstats",
+	Forker => 1, 'Identifier' => 'Factoids', ) );
+&addCmdHook('help', ('CODEREF' => 'help',
+	'Cmdstats' => 'Help', ) );
+&addCmdHook('karma', ('CODEREF' => 'karma', ) );
+&addCmdHook('tell|explain', ('CODEREF' => 'tell',
+	Help => 'tell', Identifier => 'allowTelling',
+	Cmdstats => 'Tell') );
+&addCmdHook('News', ('CODEREF' => 'News::Parse',
+	Module => 'News', 'Cmdstats' => 'News' ) );
+&addCmdHook('countrystats', ('CODEREF' => 'countryStats',
+#	Forker => "NULL",
+ ) );
+
+&addCmdHook('d?bugs', ('CODEREF' => 'DebianExtra::Parse',
+	'Forker' => 1, 'Identifier' => 'DebianExtra',
+	'Cmdstats' => 'Debian Bugs') );
+&addCmdHook('dauthor', ('CODEREF' => 'Debian::searchAuthor',
+	'Forker' => 1, 'Identifier' => 'Debian',
+	'Cmdstats' => 'Debian Author Search', 'Help' => "dauthor" ) );
+&addCmdHook('(d|search)desc', ('CODEREF' => 'Debian::searchDescFE',
+	'Forker' => 1, 'Identifier' => 'Debian',
+	'Cmdstats' => 'Debian Desc Search', 'Help' => "ddesc" ) );
+&addCmdHook('dnew', ('CODEREF' => 'DebianNew',
+	'Identifier' => 'Debian' ) );
+&addCmdHook('dincoming', ('CODEREF' => 'Debian::generateIncoming',
+	'Forker' => 1, 'Identifier' => 'Debian' ) );
+&addCmdHook('dstats', ('CODEREF' => 'Debian::infoStats',
+	'Forker' => 1, 'Identifier' => 'Debian',
+	'Cmdstats' => 'Debian Statistics' ) );
+&addCmdHook('d?contents', ('CODEREF' => 'Debian::searchContents',
+	'Forker' => 1, 'Identifier' => 'Debian',
+	'Cmdstats' => 'Debian Contents Search', 'Help' => "contents" ) );
+&addCmdHook('d?find', ('CODEREF' => 'Debian::DebianFind',
+	'Forker' => 1, 'Identifier' => 'Debian',
+	'Cmdstats' => 'Debian Search', 'Help' => "find" ) );
+&addCmdHook('insult', ('CODEREF' => 'Insult::Insult',
+	'Forker' => 1, 'Identifier' => 'insult', 'Help' => "insult" ) );
+&addCmdHook('kernel', ('CODEREF' => 'Kernel::Kernel',
+	'Forker' => 1, 'Identifier' => 'Kernel',
+	'Cmdstats' => 'Kernel', 'NoArgs' => 1) );
+&addCmdHook('listauth', ('CODEREF' => 'CmdListAuth',
+	'Identifier' => 'Search', Module => 'Factoids',
+	'Help' => 'listauth') );
+&addCmdHook('quote', ('CODEREF' => 'Quote::Quote',
+	'Forker' => 1, 'Identifier' => 'Quote',
+	'Help' => 'quote', 'Cmdstats' => 'Quote') );
+&addCmdHook('countdown', ('CODEREF' => 'countdown',
+	'Module' => 'countdown', 'Identifier' => 'countdown',
+	'Cmdstats' => 'countdown') );
+&addCmdHook('lart', ('CODEREF' => 'lart',
+	'Identifier' => 'lart', 'Help' => 'lart') );
+&addCmdHook('convert', ('CODEREF' => 'convert',
+	'Forker' => 1, 'Identifier' => 'Units',
+	'Help' => 'convert') );
+&addCmdHook('(cookie|random)', ('CODEREF' => 'cookie',
+	'Forker' => 1, 'Identifier' => 'Factoids') );
+&addCmdHook('u(ser)?info', ('CODEREF' => 'userinfo',
+	'Identifier' => 'UserInfo', 'Help' => 'userinfo',
+	'Module' => 'UserInfo') );
+&addCmdHook('RootWarn', ('CODEREF' => 'CmdrootWarn',
+	'Identifier' => 'RootWarn', 'Module' => 'RootWarn') );
+&addCmdHook('seen', ('CODEREF' => 'seen', 'Identifier' =>
+	'seen') );
+&addCmdHook('Dict', ('CODEREF' => 'Dict::Dict',
+	'Identifier' => 'Dict', 'Help' => 'dict',
+	'Forker' => 1, 'Cmdstats' => 'Dict') );
+&addCmdHook('slashdot', ('CODEREF' => 'Slashdot::Slashdot',
+	'Identifier' => 'slashdot', 'Forker' => 1,
+	'Cmdstats' => 'slashdot') );
+&addCmdHook('Plug', ('CODEREF' => 'Plug::Plug',
+	'Identifier' => 'Plug', 'Forker' => 1,
+	'Cmdstats' => 'Plug') );
+&addCmdHook('Uptime', ('CODEREF' => 'uptime', 'Identifier' => 'Uptime',
+	'Cmdstats' => 'Uptime') );
+&addCmdHook('nullski', ('CODEREF' => 'nullski', ) );
+&addCmdHook('verstats', ('CODEREF' => 'do_verstats' ) );
+&addCmdHook('Weather', ('CODEREF' => 'Weather::Weather',
+	'Identifier' => 'Weather', 'Help' => 'weather',
+	'Cmdstats' => 'Weather', 'Forker' => 1) );
+&addCmdHook('metar', ('CODEREF' => 'Weather::Metar',
+	'Identifier' => 'Weather', 'Help' => 'weather',
+	'Cmdstats' => 'Weather', 'Forker' => 1) );
+&addCmdHook('bzflist', ('CODEREF' => 'BZFlag::list',
+	'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag',
+	'Forker' => 1) );
+&addCmdHook('bzflist17', ('CODEREF' => 'BZFlag::list17',
+	'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag',
+	'Forker' => 1) );
+&addCmdHook('bzfquery', ('CODEREF' => 'BZFlag::query',
+	'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag',
+	'Forker' => 1) );
+&addCmdHook('zfi', ('CODEREF' => 'zfi::query',
+	'Identifier' => 'zfi', 'Cmdstats' => 'zfi',
+	'Forker' => 1) );
+&addCmdHook('(zippy|yow)', ('CODEREF' => 'zippy::get',
+	'Identifier' => 'Zippy', 'Cmdstats' => 'Zippy',
+	'Forker' => 1) );
+&addCmdHook('zsi', ('CODEREF' => 'zsi::query',
+	'Identifier' => 'zsi', 'Cmdstats' => 'zsi',
+	'Forker' => 1) );
+&addCmdHook('(ex)?change', ('CODEREF' => 'Exchange::query',
+	'Identifier' => 'Exchange', 'Cmdstats' => 'Exchange',
+	'Forker' => 1) );
+&addCmdHook('(botmail|message)', ('CODEREF' => 'botmail::parse',
+	'Identifier' => 'botmail', 'Cmdstats' => 'botmail') );
+&addCmdHook('HTTPDtype', ('CODEREF' => 'HTTPDtype::HTTPDtype',
+	'Identifier' => 'HTTPDtype', 'Cmdstats' => 'HTTPDtype',
+	'Forker' => 1) );
+&addCmdHook('scramble', ('CODEREF' => 'scramble::scramble',
+	'Identifier' => 'scramble', 'Cmdstats' => 'scramble',
+	'Forker' => 1, 'Module' => 'scramble') );
+&addCmdHook('md5(sum)?', ('CODEREF' => 'md5::md5',
+	'Identifier' => 'md5', 'Cmdstats' => 'md5',
+	'Forker' => 1) );
+&addCmdHook('Rss', ('CODEREF' => 'Rss::Rss',
+	'Identifier' => 'Rss', 'Cmdstats' => 'Rss',
+	'Forker' => 1, 'Help' => 'rss') );
+&addCmdHook('wiki(pedia)?', ('CODEREF' => 'wikipedia::wikipedia',
+	'Identifier' => 'wikipedia', 'Cmdstats' => 'wikipedia',
+	'Forker' => 1, 'Help' => 'wikipedia') );
+&addCmdHook('page', ('CODEREF' => 'pager::page',
+	'Identifier' => 'pager', 'Cmdstats' => 'pager',
+	'Forker' => 1, 'Help' => 'page') );
+&addCmdHook('(babel(fish)?|x|xlate|translate)', ('CODEREF' => 'babelfish::babelfish',
+	'Identifier' => 'babelfish', 'Cmdstats' => 'babelfish',
+	'Forker' => 1, 'Help' => 'babelfish', 'Module' => 'babelfish') );
+&addCmdHook('wtf', ('CODEREF' => 'wtf::query',
+	'Identifier' => 'wtf', 'Cmdstats' => 'wtf',
+	'Forker' => 1, 'Help' => 'wtf') );
+&addCmdHook('[ia]?spell', ('CODEREF' => 'spell::query',
+	'Identifier' => 'spell', 'Cmdstats' => 'spell',
+	'Forker' => 1, 'Help' => 'spell') );
+&addCmdHook('dns|d?nslookup', ('CODEREF' => 'dns::query',
+	'Identifier' => 'dns', 'Cmdstats' => 'dns',
+	'Forker' => 1, 'Help' => 'dns') );
+&addCmdHook('piglatin', ('CODEREF' => 'piglatin::piglatin',
+	'Identifier' => 'piglatin', 'Cmdstats' => 'piglatin',
+	'Forker' => 1) );
+###
+### END OF ADDING HOOKS.
+###
+&status("CMD: loaded ".scalar(keys %cmdhooks)." command hooks.");
 1;

@@ -229,7 +229,7 @@ sub process {
     # User Processing, for all users.
     if ($addressed) {
 	my $retval;
-	return 'returned from pCH'   if &parseCmdHook("main",$message);
+	return 'SOMETHING parseCmdHook' if &parseCmdHook($message);
 
 	$retval	= &userCommands();
 	return unless (defined $retval);
@@ -329,10 +329,6 @@ sub process {
     # here's where the external routines get called.
     # if they return anything but null, that's the "answer".
     if ($addressed) {
-	if ( &parseCmdHook("extra",$message) ) {
-	    return 'DID SOMETHING IN PCH.';
-	}
-
 	my $er = &Modules();
 	if (!defined $er) {
 	    return 'SOMETHING 1';
