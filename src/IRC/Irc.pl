@@ -288,7 +288,7 @@ sub notice {
     } else {
 	$notcount	= 0;
 	$nottime	= $t;
-	$notsize	= length $msg;
+	$notsize	= length $txt;
     }
 
     $conn->notice($target, $txt);
