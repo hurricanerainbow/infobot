@@ -30,7 +30,7 @@ if ($@) {
 	"DebianExtra"	=> "DebianExtra.pl",
 	"Dict"		=> "Dict.pl",
 	"DumpVars"	=> "DumpVars.pl",
-	"exchange"	=> "Exchange.pl",
+	"Exchange"	=> "Exchange.pl",
 	"factoids"	=> "Factoids.pl",
 	"HTTPDtype"	=> "HTTPDtype.pl",
 	"insult"	=> "insult.pl",
