@@ -20,26 +20,33 @@ my %dists	= (
 my %urlcontents = (
 	"debian/Contents-##DIST-i386.gz" =>
 		"ftp://ftp.us.debian.org".
-		"/debian/dists/##DIST/Contents-i386.gz",#all but woody?
+		"/debian/dists/##DIST/Contents-i386.gz", #woody = BROKEN
 
-	"debian/Contents-##DIST-i386-non-US.gz" =>	# OK, no hacks
+	"debian/Contents-##DIST-i386-non-US.gz" =>
 		"ftp://non-us.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/Contents-i386.gz",
 );
 
 my %urlpackages = (
-	"debian/Packages-##DIST-main-i386.gz" =>	# OK
+	"debian/Packages-##DIST-main-i386.gz" =>
 		"ftp://ftp.us.debian.org".
 		"/debian/dists/##DIST/main/binary-i386/Packages.gz",
-	"debian/Packages-##DIST-contrib-i386.gz" =>	# OK
+	"debian/Packages-##DIST-contrib-i386.gz" =>
 		"ftp://ftp.us.debian.org".
 		"/debian/dists/##DIST/contrib/binary-i386/Packages.gz",
-	"debian/Packages-##DIST-non-free-i386.gz" =>	# OK
+	"debian/Packages-##DIST-non-free-i386.gz" =>
 		"ftp://ftp.us.debian.org".
 		"/debian/dists/##DIST/non-free/binary-i386/Packages.gz",
-	"debian/Packages-##DIST-non-US-i386.gz" =>	# SLINK ONLY
+
+	"debian/Packages-##DIST-non-US-main-i386.gz" =>
 		"ftp://non-us.debian.org".
-		"/debian-non-US/dists/##DIST/non-US/binary-i386/Packages.gz",
+		"/debian-non-US/dists/##DIST/non-US/main/binary-i386/Packages.gz",
+	"debian/Packages-##DIST-non-US-contrib-i386.gz" =>
+		"ftp://non-us.debian.org".
+		"/debian-non-US/dists/##DIST/non-US/contrib/binary-i386/Packages.gz",
+	"debian/Packages-##DIST-non-US-non-free-i386.gz" =>
+		"ftp://non-us.debian.org".
+		"/debian-non-US/dists/##DIST/non-US/non-free/binary-i386/Packages.gz",
 );
 
 #####################
@@ -54,14 +61,10 @@ sub DebianDownload {
     my $bad	= 0;
     my $good	= 0;
 
-    &main::status("Debian: Downloading files for '$dist'.");
-
     if (! -d "debian/") {
 	&main::status("Debian: creating debian dir.");
 	mkdir("debian/",0755);
     }
-
-    %urls = &fixNonUS($dist, %urls);
 
     # fe dists.
     # Download the files.
@@ -83,6 +86,7 @@ sub DebianDownload {
 	next unless ($update);
 
 	if ($good + $bad == 0) {
+	    &main::status("Debian: Downloading files for '$dist'.");
 	    &main::msg($main::who, "Updating debian files... please wait.");
 	}
 
@@ -107,6 +111,11 @@ sub DebianDownload {
 		&main::DEBUG("deb: down: ftpGet: !file");
 		$bad++;
 		next;
+	    }
+
+	    if ($file =~ /Contents-potato-i386-non-US/) {
+		&main::DEBUG("hack: using potato's non-US contents for woody.");
+		system("cp debian/Contents-potato-i386-non-US.gz debian/Contents-woody-i386-non-US.gz");
 	    }
 
 	    &main::DEBUG("deb: download: good.");
@@ -173,7 +182,7 @@ sub searchContents {
     my @files;
     foreach (keys %urlcontents) {
 	s/##DIST/$dist/g;
-	&main::DEBUG("checking for '$_'.");
+
 	next unless ( -f $_);
 	push(@files,$_);
     }
@@ -241,7 +250,7 @@ sub searchContents {
 	return;
     }
 
-    &main::status("Debian: $found results.");
+    &main::status("Debian: $found contents results found.");
 
     my @list;
     foreach $pkg (keys %contents) {
@@ -278,10 +287,6 @@ sub searchAuthor {
     my $files;
     my ($bad,$good) = (0,0);
     my %urls = %urlpackages;
-    ### potato now has the "new" non-US tree like woody does.
-    if ($dist =~ /^(woody|potato)$/) {
-	%urls = &fixNonUS($dist, %urlpackages);
-    }
 
     foreach (keys %urlpackages) {
 	s/##DIST/$dist/g;
@@ -905,39 +910,6 @@ sub DebianFind {
 	my $prefix = "Debian Package Listing of '$str' ";
 	&main::performStrictReply( &main::formListReply(0, $prefix, @results) );
     }
-}
-
-### TODO: move DWH to &fixDist() or leave it being called by DD?
-sub fixNonUS {
-    my ($dist, %urls) = @_;
-
-    foreach (keys %urls) {
-	last unless ($dist =~ /^(woody|potato)$/);
-	next unless (/non-US/);
-
-	&main::DEBUG("DD: woody's non-US is borked, fixing.");
-
-	my $file = $_;
-	my $url  = $urls{$_};
-	delete $urls{$file};	# heh.
-
-	$file =~ s/woody/potato/g;
-	$url  =~ s/woody/potato/g;
-
-	foreach ("main","contrib","non-free") {
-	    my ($newfile,$newurl) = ($file,$url);
-	    # only needed for Packages for now, not Contents; good.
-	    $newfile =~ s/non-US/non-US_$_/;
-	    $newurl =~ s#non-US/bin#non-US/$_/bin#;
-
-	    $urls{$newfile} = $newurl;
-	}
-
-	&main::DEBUG("DD: Files: ".scalar(keys %urls));
-	last;
-    }
-
-    %urls;
 }
 
 sub debianCheck {
