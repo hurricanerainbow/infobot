@@ -813,7 +813,7 @@ sub searchPackage {
 	    if (&main::isStale($file, $main::param{'debianRefreshInterval'})) {
 		&main::DEBUG("STALE $file! regen.");
 		&generateIndex(($dist));
-		@files = searchPackage("$query $dist");
+###		@files = searchPackage("$query $dist");
 		&main::DEBUG("EVIL HACK HACK HACK.");
 		last;
 	    }
