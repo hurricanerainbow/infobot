@@ -162,7 +162,7 @@ sub searchContents {
     ### larne's regex.
     # $query = $query.'(\.so\.)?([.[[:digit:]]+\.]+)?$';
 
-    $query =~ s/\\([\^\$])/$1/g;
+    $query =~ s/\\([\^\$])/$1/g;	# hrm?
     $query =~ s/^\s+|\s+$//g;
     $query =~ s/\*/\\S*/g;		# does it even work?
 
@@ -205,6 +205,7 @@ sub searchContents {
 
     my $files = join(' ', @files);
 
+    &main::status("search regex => '$search'.");
     open(IN,"zegrep -h '$search' $files |");
     while (<IN>) {
 	if (/^\.?\/?(.*?)[\t\s]+(\S+)\n$/) {
