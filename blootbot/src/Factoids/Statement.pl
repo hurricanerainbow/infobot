@@ -80,7 +80,9 @@ sub doStatement {
 	    return;
 	}
 
-	return if (!$addressed and $lhs =~ /\s+/);
+	# uncomment to prevent HUNGRY learning of rhs with whitespace
+	#return if (!$addressed and $lhs =~ /\s+/);
+	&::DEBUG("doStatement: $in:$lhs:$mhs:$rhs");
 
 	&status("statement: <$who> $message");
 
@@ -92,7 +94,7 @@ sub doStatement {
 
 	# verify the update statement whether there are any weird
 	# characters.
-	### this chan be simplified.
+	### this can be simplified.
 	foreach (split //, $lhs.$rhs) {
 	    my $ord = ord $_;
 	    if ($ord > 170 and $ord < 220) {
