@@ -109,8 +109,8 @@ sub closeLog {
     return unless (&IsParam("logfile"));
     return unless (defined fileno LOG);
 
-    &status("Closed logfile ($file{log}).");
     close LOG;
+    &status("Closed logfile ($file{log}).");
 }
 
 #####
@@ -192,9 +192,9 @@ sub status {
 	$logrepeat++;
 
 	if ($logrepeat >= 3) {
+	    $logrepeat = 0;
 	    &status("LOG: repeat throttle.");
 	    sleep 1;
-	    $logrepeat = 0;
 	}
     }
     $logold = $input;
