@@ -62,17 +62,18 @@ use vars qw(%factoids %freshmeat %seen %rootwarn);	# db hash.
     sub openDB {
 	my ($dbname) = @_;
 	use DB_File;
-	foreach (keys %formats) {
-	    next unless (&::IsParam($_));
-
-	    my $file = "$dbname-$_";
-
-	    if (dbmopen(%{ $_ }, $file, 0666)) {
-		&::status("Opened DBM $_ ($file).");
+	foreach $table (keys %formats) {
+	    my $file = "$dbname-$table";
+	    if (&::IsParam($table)) {
+		if (dbmopen(%{ $table }, $file, 0666)) {
+		    &::status("Opened DBM $table ($file).");
+		} else {
+		    &::ERROR("Failed open to DBM $table ($file).");
+		    &::shutdown();
+		    exit 1;
+		}
 	    } else {
-		&::ERROR("Failed open to DBM $_ ($file).");
-		&::shutdown();
-		exit 1;
+		&::status("DBM $table ($file) disabled.");
 	    }
 	}
     }
