@@ -65,7 +65,6 @@ sub CmdFactInfo {
     }
 
     # modified:
-    # disabled for the time being... it's misleading/useless info.
     if (0 && $factinfo{'modified_by'}) {
 	$string	= "last modified";
 
