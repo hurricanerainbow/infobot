@@ -350,7 +350,10 @@ sub joinchan {
     if (&validChan($chan)) {
 	&status("join: already on $chan");
     } else {
-	$conn->join($chan);
+	if (!$conn->join($chan)) {
+	    &DEBUG("join failed. trying connect!");
+	    $conn->connect();
+	}
     }
 }
 
