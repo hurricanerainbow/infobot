@@ -456,6 +456,18 @@ sub shmFlush {
     &ScheduleThis(5, "shmFlush") if (@_);
 }
 
+sub getNickInUse {
+    if ($ident eq $param{'ircNick'}) {
+	&status("okay, got my nick back.");
+	return;
+    }
+
+    &status("Trying to get my nick back.");
+    &nick($param{'ircNick'});
+
+    &ScheduleThis(5, "getNickInUse") if (@_);
+}
+
 sub uptimeCycle {
     &uptimeWriteFile();
 
