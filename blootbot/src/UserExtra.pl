@@ -603,8 +603,7 @@ sub userCommands {
     # wantNick. xk++
     if ($message =~ /^wantNick$/i) {
 	if ($param{'ircNick'} eq $ident) {
-	    &msg($who, "no need to get my nick back since i have it ;)");
-	    return $noreply;
+	    &msg($who, "I hope you're right. I'll try anyway.");
 	}
 
 	my $str = "attempting to change nick to $param{'ircNick'}";
