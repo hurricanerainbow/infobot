@@ -48,7 +48,7 @@ sub loadLang {
     close FILE;
 
     $file =~ s/^.*\///;
-    &status("Loaded lang $file ($langCount items)");
+    &status("Loaded $file ($langCount items)");
 }
 
 # File: Irc Servers list.
@@ -77,7 +77,7 @@ sub loadIRCServers {
     close FILE;
 
     $file =~ s/^.*\///;
-    &status("Loaded ircServers $file (". scalar(@ircServers) ." servers)");
+    &status("Loaded $file (". scalar(@ircServers) ." servers)");
 }
 
 1;
