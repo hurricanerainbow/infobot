@@ -50,10 +50,10 @@ sub wikipedia {
   my $url = $wikipedia_search_url . 'search=' . $phrase . '&go=Go';
   my $req = HTTP::Request->new('HEAD', $url);
   $req->header('Accept-Language' => 'en');
-  # &main::DEBUG($url);
+  &main::DEBUG($url);
 
   my $res = $ua->request($req);
-  # &main::DEBUG($res->code);
+  &main::DEBUG($res->code);
 
   if ($res->is_success) {
     # we have been redirected somewhere
