@@ -341,7 +341,7 @@ sub seenFlush {
 	&DEBUG("seenFlush: NO VALID FACTOID SUPPORT?");
     }
 
-    &VERB("Flushed $flushed seen entries.",2);
+    &VERB("Flushed $flushed seen entries.",1); # was 2.
     &DEBUG("seen: ".scalar(keys %seenflush)." remaining.");
 
     my $interval = $param{'seenFlushInterval'} || 60;
