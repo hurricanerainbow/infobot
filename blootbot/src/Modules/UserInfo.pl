@@ -51,7 +51,7 @@ sub UserInfoGet {
     $query =~ s/^\s+|\s+$//g if (defined $query);
 
     if (!defined $query or $query =~ /^$/) {
-	&help("userinfo");
+	&help('userinfo');
 	return;
     }
 
