@@ -405,13 +405,6 @@ sub setup {
     &openLog();		# write, append.
     &status("--- Started logging.");
 
-    foreach ("debian") {
-	my $dir = "$bot_base_dir/$_/";
-	next if ( -d $dir);
-	&status("Making dir $_");
-	mkdir $dir, 0755;
-    }
-
     # read.
     &loadLang($bot_data_dir. "/blootbot.lang");
     &loadIRCServers();
