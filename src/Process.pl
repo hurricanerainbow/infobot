@@ -314,15 +314,15 @@ sub process {
 	    return;
 	}
 
-	my $karma = &dbGet("stats", "counter",
-		"nick=".&dbQuote($term)." AND type='karma'") || 0;
+	my $karma = &sqlSelect("stats", "counter",
+		{ nick => $term, type => "karma" }) || 0;
 	if ($inc eq '++') {
 	    $karma++;
 	} else {
 	    $karma--;
 	}
 
-	&dbSet("stats", 
+	&sqlSet("stats", 
 		{ nick => $term, type => "karma" },	# WHERE
 #		{ counter => $karma }			# WHAT
 		{ -counter => "counter+1" }

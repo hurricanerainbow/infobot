@@ -129,7 +129,7 @@ sub CmdFactInfo {
 	return;
     }
 
-    &performStrictReply("$factinfo{'factoid_key'} -- ". join("; ", @array) .".");
+    &pSReply("$factinfo{'factoid_key'} -- ". join("; ", @array) .".");
     return;
 }
 
@@ -137,10 +137,13 @@ sub CmdFactStats {
     my ($type) = @_;
 
     if ($type =~ /^author$/i) {
-	my %hash = &dbGetCol("factoids", "factoid_key,created_by", "created_by IS NOT NULL");
+	my @array = &sqlSelectColArray("factoids",
+		"factoid_key,created_by", { },
+		"created_by IS NOT NULL"
+	);
 	my %author;
 
-	foreach (keys %hash) {
+	foreach (@array) {
 	    my $thisnuh = $hash{$_};
 
 	    $thisnuh =~ /^(\S+)!\S+@\S+$/;
@@ -171,7 +174,10 @@ sub CmdFactStats {
     } elsif ($type =~ /^vandalism$/i) {
         &status("factstats(vandalism): starting...");
 	my $start_time	= &timeget();
-	my %data	= &dbGetCol("factoids", "factoid_key,factoid_value", "factoid_value IS NOT NULL");
+	my %data	= &sqlSelectColHash("factoids",
+		"factoid_key,factoid_value", { },
+		"factoid_value IS NOT NULL"
+	);
 	my @list;
 
 	my $delta_time	= &timedelta($start_time);
@@ -230,7 +236,8 @@ sub CmdFactStats {
 	push(@list, "total prepared for deletion - $str");
 
 	# total unique authors.
-	foreach ( &dbRawReturn("SELECT created_by FROM factoids WHERE created_by IS NOT NULL") ) {
+	# todo: convert to sqlSelectColHash ? (or ColArray?)
+	foreach ( &sqlRawReturn("SELECT created_by FROM factoids WHERE created_by IS NOT NULL") ) {
 	    /^(\S+)!/;
 	    my $nick = lc $1;
 	    $hash{$nick}++;
@@ -239,7 +246,7 @@ sub CmdFactStats {
 	undef %hash;
 
 	# total unique requesters.
-	foreach ( &dbRawReturn("SELECT requested_by FROM factoids WHERE requested_by IS NOT NULL") ) {
+	foreach ( &sqlRawReturn("SELECT requested_by FROM factoids WHERE requested_by IS NOT NULL") ) {
 	    /^(\S+)!/;
 	    my $nick = lc $1;
 	    $hash{$nick}++;
@@ -298,7 +305,10 @@ sub CmdFactStats {
     } elsif ($type =~ /^dup(licate|e)$/i) {
         &status("factstats(dupe): starting...");
 	my $start_time	= &timeget();
-	my %hash	= &dbGetCol("factoids", "factoid_key,factoid_value", "factoid_value IS NOT NULL", 1);
+	my %hash	= &sqlSelectColHash("factoids", 
+		"factoid_key,factoid_value", { },
+		"factoid_value IS NOT NULL", 1
+	);
 	my $refs	= 0;
 	my @list;
 	my $v;
@@ -414,7 +424,10 @@ sub CmdFactStats {
 	return &formListReply(1, $prefix, @list);
 
     } elsif ($type =~ /^locked$/i) {
-	my %hash = &dbGetCol("factoids", "factoid_key,locked_by", "locked_by IS NOT NULL");
+	my %hash = &sqlSelectColhash("factoids", 
+		"factoid_key,locked_by", { },
+		"locked_by IS NOT NULL"
+	);
 	my @list = keys %hash;
 
 	for (@list) {
@@ -425,7 +438,10 @@ sub CmdFactStats {
 	return &formListReply(0, $prefix, @list);
 
     } elsif ($type =~ /^new$/i) {
-	my %hash = &dbGetCol("factoids", "factoid_key,created_time", "created_time IS NOT NULL");
+	my %hash = &sqlSelectColHash("factoids",
+		"factoid_key,created_time", { },
+		"created_time IS NOT NULL"
+	);
 	my %age;
 
 	foreach (keys %hash) {
@@ -503,7 +519,10 @@ sub CmdFactStats {
 	return &formListReply(1, $prefix, @list);
 
     } elsif ($type =~ /^profanity$/i) {
-	my %data = &dbGetCol("factoids", "factoid_key,factoid_value", "factoid_value IS NOT NULL");
+	my %data = &sqlSelectColHash("factoids",
+		"factoid_key,factoid_value", { },
+		"factoid_value IS NOT NULL"
+	);
 	my @list;
 
 	foreach (keys %data) {
@@ -549,7 +568,10 @@ sub CmdFactStats {
 	return &formListReply(1, $prefix, @newlist);
 
     } elsif ($type =~ /^request(ed)?$/i) {
-	my %hash = &dbGetCol("factoids", "factoid_key,requested_count", "requested_count IS NOT NULL", 1);
+	my %hash = &sqlSelectColHash("factoids",
+		"factoid_key,requested_count", { },
+		"requested_count IS NOT NULL", 1
+	);
 
 	if (!scalar keys %hash) {
 	    return 'sorry, no factoids have been questioned.';
@@ -574,9 +596,10 @@ sub CmdFactStats {
 	return &formListReply(0, $prefix, @list);
 
     } elsif ($type =~ /^reqrate$/i) {
-	my %hash = &dbGetCol("factoids",
-		"factoid_key,(unix_timestamp() - created_time)/requested_count as rate",
-		"requested_by IS NOT NULL and created_time IS NOT NULL ORDER BY rate LIMIT 15", 1);
+	my %hash = &sqlSelectColHash("factoids",
+		"factoid_key,(unix_timestamp() - created_time)/requested_count as rate", { },
+		"requested_by IS NOT NULL and created_time IS NOT NULL ORDER BY rate LIMIT 15", 1
+	);
 
 	my $rate;
 	my @list;
@@ -593,7 +616,10 @@ sub CmdFactStats {
 	return &formListReply(0, $prefix, @list);
 
     } elsif ($type =~ /^requesters?$/i) {
-	my %hash = &dbGetCol("factoids", "factoid_key,requested_by", "requested_by IS NOT NULL");
+	my %hash = &sqlSelectColHash("factoids",
+		"factoid_key,requested_by", { },
+		"requested_by IS NOT NULL"
+	);
 	my %requester;
 
 	foreach (keys %hash) {
@@ -700,7 +726,8 @@ sub CmdFactStats {
 	return &formListReply(1, $prefix, @list);
 
     } elsif ($type =~ /^unrequest(ed)?$/i) {
-	my @list = &dbRawReturn("SELECT factoid_key FROM factoids WHERE requested_count IS NULL");
+	# todo: use sqlSelect()
+	my @list = &sqlRawReturn("SELECT factoid_key FROM factoids WHERE requested_count IS NULL");
 
 	for (@list) {
 	    s/([\,\;]+)/\037$1\037/g;

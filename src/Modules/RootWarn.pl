@@ -13,7 +13,7 @@ use vars qw($dbh $found $ident);
 sub rootWarn {
     my ($nick,$user,$host,$chan) = @_;
     my $n	= lc $nick;
-    my $attempt = &dbGet("rootwarn", "attempt", "nick=".&dbQuote($n) ) || 0;
+    my $attempt = &sqlSelect("rootwarn", "attempt", { nick => $n } ) || 0;
     my $warnmode	= &getChanConf("rootWarnMode");
 
     if ($attempt == 0) {	# first timer.
@@ -55,7 +55,7 @@ sub rootWarn {
     # ok... don't record the attempt if nick==root.
     return if ($nick eq "root");
 
-    &dbSet("rootwarn", { nick => lc($nick) }, {
+    &sqlSet("rootwarn", { nick => lc($nick) }, {
 	attempt	=> $attempt,
 	time	=> time(),
 	host	=> $user."\@".$host,

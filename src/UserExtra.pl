@@ -221,8 +221,8 @@ sub factstats {
 
 sub karma {
     my $target	= lc( shift || $who );
-    my $karma	= &dbGet("stats", "counter", "nick=".
-			&dbQuote($target)." AND type='karma'") || 0; 
+    my $karma	= &sqlSelect("stats", "counter",
+	{ nick => $target, type => "karma" }) || 0; 
 
     if ($karma != 0) {
 	&pSReply("$target has karma of $karma");

@@ -284,7 +284,7 @@ sub seenFlushOld {
     my $max_time = &getChanConfDefault("seenMaxDays", 30) *60*60*24;
     my $delete   = 0;
 
-    if ($param{'DBType'} =~ /^pgsql|mysql|sqlite/i) {
+    if ($param{'DBType'} =~ /^(pgsql|mysql|sqlite)/i) {
 	my $query;
 
 	if ($param{'DBType'} =~ /^mysql|sqlite$/i) {
@@ -300,7 +300,7 @@ sub seenFlushOld {
 	    while (my @row = $sth->fetchrow_array) {
 		my ($nick,$time) = @row;
 
-		&dbDel("seen",{"nick"=>$nick});
+		&sqlDelete("seen", { nick => $nick } );
 		$delete++;
 	    }
 	    $sth->finish;
@@ -309,7 +309,8 @@ sub seenFlushOld {
 	my $time = time();
 
 	foreach (keys %seen) {
-	    my $delta_time = $time - &dbGet("seen", "time", "nick", $_);
+	    my $t2 = &sqlSelect("seen", "time", { nick => $_ }) || 0;
+	    my $delta_time = $time - $t2;
 	    next unless ($delta_time > $max_time);
 
 	    &DEBUG("seenFlushOld: ".&Time2String($delta_time) );
