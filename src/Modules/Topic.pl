@@ -54,10 +54,7 @@ sub topicDecipher {
 ###
 # Usage: &topicCipher(@topics);
 sub topicCipher {
-    if (!@_) {
-	&WARN("topicCipher: topic is NULL for $chan.");
-	return;
-    }
+    return if (!@_);
 
     my @topic;
     foreach (@_) {
@@ -104,7 +101,7 @@ sub topicNew {
 	return 1;
     }
 
-    if ($updateMsg ne "") {
+    if (defined $updateMsg && $updateMsg ne "") {
 	&msg($who, $updateMsg);
     }
 
@@ -112,8 +109,12 @@ sub topicNew {
     $topic{$chan}{'Who'}  = $orig{who}."!".$uh;
     $topic{$chan}{'Time'} = time();
 
-    $conn->topic($chan, $topic);
-    &topicAddHistory($chan, $topic);
+    if ($topic) {
+	$conn->topic($chan, $topic);
+	&topicAddHistory($chan, $topic);
+    } else {
+	$conn->topic($chan, " ");
+    }
 
     return 1;
 }
@@ -226,7 +227,6 @@ sub do_delete {
 
 	$topic{$chan}{'What'} = "Deleted ".join("/",@delete);
     }
-
 
     foreach (@delete) {
 	if ($_ > $topiccount || $_ < 1) {
