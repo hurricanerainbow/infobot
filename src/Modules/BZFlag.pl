@@ -24,7 +24,7 @@ BEGIN {
 	$no_BZFlag++ if ($@);
 }
 
-sub BZFlag::BZFlag {
+sub BZFlag {
 	my ($message) = @_;
 	my ($retval);
 	if ($no_BZFlag) {
@@ -41,7 +41,7 @@ sub BZFlag::BZFlag {
 	&::performStrictReply($retval);
 }
 
-sub BZFlag::list {
+sub list {
 	my ($response);
 	my $ua = new LWP::UserAgent;
 	$ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
@@ -76,7 +76,7 @@ sub BZFlag::list {
 	return;
 }
 
-sub BZFlag::list17 {
+sub list17 {
 	my ($response);
 	my $ua = new LWP::UserAgent;
 	$ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
@@ -113,7 +113,7 @@ sub BZFlag::list17 {
 	return;
 }
 
-sub BZFlag::querytext {
+sub querytext {
 	my ($servernameport) = @_;
 	my ($servername,$port) = split(":",$servernameport);
 	if ($no_BZFlag) {
@@ -280,7 +280,7 @@ sub BZFlag::querytext {
 	return $response;
 }
 
-sub BZFlag::query {
+sub query {
 	my ($servernameport) = @_;
 	&::performStrictReply(&querytext($servernameport));
 	return;
