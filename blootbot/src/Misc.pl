@@ -575,7 +575,7 @@ sub hasProfanity {
     for (lc $string) {
 	/fuck/ and last;
 	/dick|dildo/ and last;
-	/shit|turd|crap/ and last;
+	/shit/ and last;
 	/pussy|[ck]unt/ and last;
 	/wh[0o]re|bitch|slut/ and last;
 
