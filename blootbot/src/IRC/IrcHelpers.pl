@@ -145,12 +145,10 @@ sub hookMsg {
 
 	    return if ($lobotomized);
 
-	    if (scalar @who) {
-		&msg($who, "you already said what ".
-				join(' ', @who)." have said.");
-	    } else {
-		&msg($who,"Someone already said that ". (time - $time) ." seconds ago" );
+	    if (!scalar @who) {
+		push(@who,"Someone");
 	    }
+	    &msg($who,join(' ', @who)." already said that ". (time - $time) ." seconds ago" );
 
 	    ### TODO: delete old floodwarn{} keys.
 	    my $floodwarn = 0;
