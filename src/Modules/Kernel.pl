@@ -12,15 +12,29 @@ sub kernelGetInfo {
 }
 
 sub Kernel {
+    my $return = "Linux kernel versions";
     my @now = &kernelGetInfo();
     if (!scalar @now) {
 	&::msg($::who, "failed.");
 	return;
     }
 
-    foreach (@now) {
-	&::msg($::who, $_);
+    foreach $line (@now) {
+	$line =~ s/The latest //;
+	$line =~ s/version //;
+	$line =~ s/of //;
+	$line =~ s/the //;
+	$line =~ s/Linux //;
+	$line =~ s/kernel //;
+	$line =~ s/tree //;
+	$line =~ s/ for stable//;
+	$line =~ s/ to stable kernels//;
+	$line =~ s/ for 2.4//;
+	$line =~ s/ for 2.2//;
+	$line =~ s/ is: */: /;
+	$return .= ", " . $line;
     }
+    &::msg($::who, $return);
 }
 
 sub kernelAnnounce {
