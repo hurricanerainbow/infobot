@@ -48,7 +48,7 @@ sub shmRead {
     return '' if (&IsParam("noSHM"));
 
     if (shmread($key,$retval,$position,$size)) {
-	&DEBUG("shmRead($key): $retval");
+	#&DEBUG("shmRead($key): $retval");
 	return $retval;
     } else {
 	&ERROR("shmRead: failed: $!");
