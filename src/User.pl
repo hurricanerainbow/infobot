@@ -25,6 +25,8 @@ sub verifyUser {
     my ($nick, $lnuh) = @_;
     my ($user,$m);
 
+    $userHandle = "";
+
     foreach $user (keys %userList) {
 	foreach $m (keys %{$userList{$user}{'mask'}}) {
 	    $m =~ s/\?/./g;
