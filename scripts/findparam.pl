@@ -21,7 +21,7 @@ foreach (`find -name "*.pl"`) {
 
 	if (/IsChanConfOrWarn\(['"](\S+?)['"]\)/) {
 	    print "File: $file: IsChanConfOrWarn: $1\n" if $debug;
-	    $param{$1}++;
+	    $both{$1}++;
 	    next;
 	}
 
