@@ -1204,15 +1204,25 @@ sub userDCC {
     if ($message =~ /^sched$/) {
 	my @list;
 	my @run;
+
+	my %time;
 	foreach (keys %sched) {
 	    next unless (exists $sched{$_}{TIME});
+	    $time{ $sched{$_}{TIME}-time() }{$_} = 1;
 	    push(@list,$_);
 
 	    next unless (exists $sched{$_}{RUNNING});
 	    push(@run,$_);
 	}
 
-	&pSReply( &formListReply(0,"Scheds to run: ", sort @list ) );
+	my @time;
+	foreach (sort { $a <=> $b } keys %time) {
+	    my $str = join(", ", sort keys %{ $time{$_} });
+	    push(@time, "$str (".&Time2String($_).")");
+	}
+
+	&pSReply( &formListReply(0, "Schedulers: ", sort @time ) );
+	&pSReply( &formListReply(0, "Scheds to run: ", sort @list ) );
 	&pSReply( &formListReply(0, "Scheds running(should not happen?) ", sort @run ) );
 
 	return;
