@@ -113,8 +113,7 @@ sub doExit {
 	&writeUserFile();
 	&writeChanFile();
 	&uptimeWriteFile()	if (&IsChanConf("uptime"));
-	&News::writeNews()	if (&ChanConfList("news"));
-	&closeDB();
+	&sqlCloseDB();
 	&closeSHM($shm);
 	&dumpallvars()		if (&IsParam("dumpvarsAtExit"));
 	&symdumpAll()		if (&IsParam("symdumpAtExit"));
@@ -427,12 +426,11 @@ sub setup {
 
     $shm = &openSHM();
     &openSQLDebug()	if (&IsParam("SQLDebug"));
-    &openDB($param{'DBName'}, $param{'DBType'}, $param{'SQLUser'},
+    &sqlOpenDB($param{'DBName'}, $param{'DBType'}, $param{'SQLUser'},
 	$param{'SQLPass'});
     &checkTables();
 
     &status("Setup: ". &countKeys("factoids") ." factoids.");
-    &News::readNews() if (&ChanConfList("news"));
     &getChanConfDefault("sendPrivateLimitLines", 3);
     &getChanConfDefault("sendPrivateLimitBytes", 1000);
     &getChanConfDefault("sendPublicLimitLines", 3);
@@ -498,9 +496,8 @@ sub shutdown {
     # unless they're write-only, like uptime.
     &writeUserFile();
     &writeChanFile();
-    &News::writeNews()	if (&ChanConfList("news"));
 
-    &closeDB();
+    &sqlCloseDB();
     &closeSHM($shm);	# aswell. TODO: use this in &doExit?
     &closeLog();
 }
