@@ -299,8 +299,6 @@ sub performStrictReply {
     } else {
 	&ERROR("pSR: msgType invalid? ($msgType).");
     }
-
-    return '';
 }
 
 sub dccsay {
