@@ -882,11 +882,11 @@ sub on_public {
 	    &VERB("textcounters: $x matched for $who",2);
 	    my $c = $chan || "PRIVATE";
 
-	    my ($v,$t) = &dbGet("stats", "counter,time",
-			"nick=". &dbQuote($who)
-			." AND type=".&dbQuote($x)
-			." AND channel=".&dbQuote($c)
-	    );
+	    my ($v,$t) = &sqlSelect("stats", "counter,time", {
+			nick	=> $who,
+			type	=> $x,
+			channel	=> $c,
+	    } );
 	    $v++;
 
 	    # don't allow ppl to cheat the stats :-)
@@ -902,10 +902,15 @@ sub on_public {
 		counter => $v,
 	    );
 		
-
-	    &dbReplace("stats", "nick", %hash);
-	    # does not work, atleast with old mysql!!! :(
-#	    &dbReplace("stats", (nick => $who, type => $x, -counter => "counter+1") );
+	    if (0) {
+		&sqlReplace("stats", \%hash);
+	    } else {
+		&sqlReplace("stats", {
+			nick => $who,
+			type => $x,
+			-counter => "counter+1",
+		} );
+	    }
 	}
     }
 
