@@ -344,15 +344,20 @@ sub FactoidStuff {
 
 	    if (&IsParam("factoidDeleteDelay")) {
 		&status("forgot (safe delete): <$who> '$faqtoid' =is=> '$result'");
-		&setFactInfo($faqtoid, "factoid_key", $faqtoid." #DEL#");
+		### TODO: check if the "backup" exists and overwrite it
+		my $check = &getFactoid("$faqtoid #DEL#");
+		if (!$check) {
+		    &setFactInfo($faqtoid, "factoid_key", $faqtoid." #DEL#");
 
-		### delete info. modified_ isn't really used.
-		&setFactInfo($faqtoid, "modified_by", $who);
-		&setFactInfo($faqtoid, "modified_time", time());
+		    &setFactInfo($faqtoid, "modified_by", $who);
+		    &setFactInfo($faqtoid, "modified_time", time());
+		} else {
+		    &status("forget: not overwriting backup!");
+		}
 	    } else {
 		&status("forget: <$who> '$faqtoid' =is=> '$result'");
-		&delFactoid($faqtoid);
 	    }
+	    &delFactoid($faqtoid);
 
 	    &performReply("i forgot $faqtoid");
 
@@ -388,6 +393,7 @@ sub FactoidStuff {
 	    return;
 	}
 
+	&DEBUG("unforget: check => $check");
 	if (defined $check) {
 	    &performReply("cannot undeleted '$faqtoid' because it already exists?");
 	    return;
