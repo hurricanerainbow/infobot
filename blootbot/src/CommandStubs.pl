@@ -111,7 +111,11 @@ sub parseCmdHook {
 		&loadMyModule($myModules{ $hash{'Module'} });
 	    }
 
-	    ### TODO: check if CODEREF exists.
+	    # check if CODEREF exists.
+	    if (!defined &{ $hash{'CODEREF'} }) {
+		&WARN("coderef $hash{'CODEREF'} don't exist.");
+		return 1;
+	    }
 
 	    if (exists $hash{'ArrayArgs'}) {
 		&{$hash{'CODEREF'}}(@args);
