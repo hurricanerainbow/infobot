@@ -291,31 +291,31 @@ sub chanlimitCheck {
 	delete $sched{"chanlimitCheck"}{RUNNING};
     }
 
-    foreach ( &ChanConfList("chanlimitcheck") ) {
-	next unless (&validChan($_));
+    foreach $chan ( &ChanConfList("chanlimitcheck") ) {
+	next unless (&validChan($chan));
 
-	my $limitplus	= &getChanConfDefault("chanlimitcheckPlus", 5, $_);
-	my $newlimit	= scalar(keys %{$channels{$_}{''}}) + $limitplus;
-	my $limit	= $channels{$_}{'l'};
+	my $limitplus	= &getChanConfDefault("chanlimitcheckPlus", 5, $chan);
+	my $newlimit	= scalar(keys %{$channels{$chan}{''}}) + $limitplus;
+	my $limit	= $channels{$chan}{'l'};
 
-	if (scalar keys %{$channels{$_}{''}} > $limit) {
+	if (defined $limit and scalar keys %{$channels{$chan}{''}} > $limit) {
 	    &FIXME("LIMIT: set too low!!! FIXME");
 	    ### run NAMES again and flush it.
 	}
 
 	next unless (!defined $limit or $limit != $newlimit);
 
-	if (!exists $channels{$_}{'o'}{$ident}) {
-	    &ERROR("chanlimitcheck: dont have ops on $_.");
+	if (!exists $channels{$chan}{'o'}{$ident}) {
+	    &ERROR("chanlimitcheck: dont have ops on $chan.");
 	    ### TODO: check chanserv?
 	    next;
 	}
 
 	if (!defined $limit) {
-	    &DEBUG("setting limit for first time or from netsplit for $_");
+	    &DEBUG("setting limit for first time or from netsplit for $chan");
 	}
 
-	&rawout("MODE $_ +l $newlimit");
+	&rawout("MODE $chan +l $newlimit");
     }
 }
 

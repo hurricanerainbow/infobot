@@ -610,7 +610,6 @@ sub hasProfanity {
     return $profanity;
 }
 
-### rename to hasChanConf() ?
 sub hasParam {
     my ($param) = @_;
 
