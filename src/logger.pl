@@ -315,7 +315,7 @@ sub status {
 }
 
 sub openSQLDebug {
-    if (!open(SQLDEBUG, $param{'SQLDebug'})) {
+    if (!open(SQLDEBUG, ">>$param{'SQLDebug'}")) {
 	&ERROR("cannot open $param{'SQLDebug'}...");
 	delete $param{'SQLDebug'};
 	return 0;
