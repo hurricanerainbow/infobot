@@ -19,8 +19,8 @@ use vars qw($notcount $nottime $notsize $msgcount $msgtime $msgsize
 use vars qw($b_blue $ob);
 use vars qw(@ircServers);
 
-use open ':utf8';
-use open ':std';
+#use open ':utf8';
+#use open ':std';
 
 $nickserv	= 0;
 my $maxlinelen	= 400;
