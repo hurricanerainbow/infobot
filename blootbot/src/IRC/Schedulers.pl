@@ -765,11 +765,14 @@ sub miscCheck {
 	my ($shmid, $size) = ($2,$5);
 	next unless ($shmid != $shm and $size == 2000);
 	my $z	= &shmRead($shmid);
-	# TODO - add nick to SHM so multiple instances can be running
-	# as the same unix user on the same host?
-	if ($z =~ /^(\d+): /) {
-	    my $time	= $1;
+	if ($z =~ /^(\S+):(\d+):(\d+): /) {
+	    my $n	= $1;
+	    my $pid	= $2;
+	    my $time	= $3;
 	    next if (time() - $time < 60*60);
+	    next if ($pid == $bot_pid);
+	    # don't touch other bots, if they're running.
+	    next unless ($param{ircNick} =~ /^\Q$n\E$/);
 	} else {
 #	    &DEBUG("shm: $shmid is not ours or old blootbot => ($z)");
 #	    next;
