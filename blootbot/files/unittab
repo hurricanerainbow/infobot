@@ -1,6 +1,6 @@
 #
 # Unit defintions
-# 18 May 2001  M-J. Dominus (mjd-perl-units+@plover.com). 
+# 18 May 2001  M-J. Dominus <mjd-perl-units+@plover.com>. 
 # This file is in the PUBLIC DOMAIN.
 # All rights abandoned.
 #
@@ -54,6 +54,7 @@ mm      millimeter
 micron  micrometer
 inch    2.54 cm        # This is the official definition and is exact
 in      inch
+barleycorn	1/3 inch	# Tim Riker <Tim@Rikers.org
 inches  inch           # plural
 foot    12 inch
 ft      foot
