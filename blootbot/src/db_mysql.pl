@@ -58,7 +58,6 @@ sub dbGet {
     if (!$sth->execute) {
 	&ERROR("Get => '$query'");
 	&ERROR("Get => $DBI::errstr");
-	&SQLDebug($DBI::errstr);
 	return;
     }
 
@@ -86,7 +85,8 @@ sub dbGetCol {
     &SQLDebug($query);
     if (!$sth->execute) {
 	&ERROR("GetCol => '$query'");
-	&SQLDebug($DBI::errstr);
+	&ERROR("GetCol => $DBI::errstr");
+	return;
     }
 
     if (defined $type and $type == 1) {
@@ -117,7 +117,7 @@ sub dbGetRowInfo {
     &SQLDebug($query);
     if (!$sth->execute) {
 	&ERROR("GRI => '$query'");
-	&SQLDebug($DBI::errstr);
+	&ERROR("GRI => $DBI::errstr");
     }
 
     my @cols;
@@ -223,7 +223,6 @@ sub dbRaw {
     if (!$sth->execute) {
 	&ERROR("Raw($prefix): => '$query'");
 	&ERROR("Raw($prefix): $DBI::errstr");
-	&SQLDebug($DBI::errstr);
 	return 0;
     }
 
@@ -365,6 +364,8 @@ sub delFactoid {
 
 sub SQLDebug {
     return unless (&IsParam("SQLDebug"));
+
+    return if (!fileno SQLDEBUG);
 
     print SQLDEBUG $_[0]."\n";
 }
