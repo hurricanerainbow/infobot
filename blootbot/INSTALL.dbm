@@ -7,7 +7,7 @@ INSTALLATION of dbm
 - If the bot crashes, the dbm file may increase in size dramatically, from
   900k-1400k to 16m-24m
 - dbm is a slow but simple form of db.  If you want performance, try mysql
-  or pgsql (NOT YET)
+  or sqlite (NOT SUPPORTED) or pgsql (NOT YET)
 
 = To convert dbm file to mysql table:
 	- run 'scripts/dbm2mysql.pl old-db' to convert dbm database file
