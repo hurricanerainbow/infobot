@@ -12,13 +12,12 @@ use warnings;
 
 package scramble;
 
-use List::Util;
-
 sub scramble
 {
   my ($text) = @_;
   my $scrambled;
 
+  return unless &::loadPerlModule("List::Util");
   srand(); # fork seems to not change rand. force it here
   for my $orig_word (split /\s+/, $text)
   {
