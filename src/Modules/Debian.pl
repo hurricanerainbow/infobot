@@ -454,7 +454,7 @@ sub searchDesc {
     foreach (keys %urlpackages) {
 	s/##DIST/$dist/g;
 
-	if (! -f "$debian_bot/$_" ) {
+	if (! -f "$debian_dir/$_" ) {
 	    $bad++;
 	    next;
 	}
