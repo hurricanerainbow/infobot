@@ -770,6 +770,7 @@ sub miscCheck {
 	    my $pid	= $2;
 	    my $time	= $3;
 	    next if (time() - $time < 60*60);
+	    # FIXME remove not-pid shm if parent process dead
 	    next if ($pid == $bot_pid);
 	    # don't touch other bots, if they're running.
 	    next unless ($param{ircNick} =~ /^\Q$n\E$/);
