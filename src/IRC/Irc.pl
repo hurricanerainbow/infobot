@@ -599,6 +599,7 @@ sub nick {
 
     if (defined $ident and $nick eq $ident) {
 	&WARN("nick: nick == ident == '$ident'.");
+	return;
     }
 
     my $bad     = 0;
@@ -613,7 +614,7 @@ sub nick {
     }
 
     if ($nick =~ /^$mask{nick}$/) {
-	rawout("NICK ".$nick);
+	&rawout("NICK ".$nick);
 
 	if (defined $ident) {
 	    &status("nick: Changing nick to $nick (from $ident)");
