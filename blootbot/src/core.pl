@@ -354,6 +354,12 @@ sub shutdown {
     # reverse order of &setup().
     &DEBUG("shutdown called.");
 
+    # opened files must be written to on shutdown/hup/whatever
+    # unless they're write-only, like uptime.
+    &writeUserFile();
+    &writeChanFile();
+    &News::writeNews()	if (&ChanConfList("news"));
+
     &closeDB();
     &closeSHM($shm);	# aswell. TODO: use this in &doExit?
     &closeLog();
