@@ -375,7 +375,8 @@ sub AUTOLOAD {
     return if ($AUTOLOAD =~ /__/);	# internal.
 
     my $str = join(', ', @_);
-    &ERROR("UNKNOWN FUNCTION CALLED: $AUTOLOAD ($str)");
+    my ($package, $filename, $line) = caller;
+    &ERROR("UNKNOWN FUNCTION CALLED: $AUTOLOAD ($str) $filename line $line");
 
     $AUTOLOAD =~ s/^(\S+):://g;
 
