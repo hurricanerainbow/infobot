@@ -45,8 +45,8 @@ $wingaterun	= time();
 $firsttime	= 1;
 
 ### CHANGE TO STATIC.
-$bot_version = "blootbot 1.0.0 (20000725) -- $^O";
-$noreply	 = "NOREPLY";
+$bot_version = "blootbot 1.0.3 (20000930) -- $^O";
+$noreply	= "NOREPLY";
 
 ##########
 ### misc commands.
@@ -160,6 +160,13 @@ sub setup {
     &loadLang($bot_misc_dir.		"/blootbot.lang");
     &loadIRCServers($bot_misc_dir.	"/ircII.servers");
     &loadUsers($bot_misc_dir.		"/blootbot.users");
+    if (&IsParam("WIP")) {
+	require "src/UserFile.pl";
+	&NEWloadUsers($bot_misc_dir."/blootbot.users_NEW");
+	&closePID();
+	&closeLog();
+	exit 0;
+    }
 
     $shm = &openSHM();
     &openSQLDebug()	if (&IsParam("SQLDebug"));
@@ -173,6 +180,10 @@ sub setup {
 sub setupConfig {
     $param{'VERBOSITY'} = 1;
     &loadConfig($bot_misc_dir."/blootbot.config");
+    if (&IsParam("WIP")) {
+	require "src/Config.pl";
+	&NEWloadConfig();
+    }
 
     foreach ("ircNick", "ircUser", "ircName", "DBType") {
 	next if &IsParam($_);
