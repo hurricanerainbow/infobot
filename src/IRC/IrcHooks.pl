@@ -368,7 +368,7 @@ sub on_endofnames {
     return unless ($nickserv);
 
     if (!exists $channels{$chan}{'o'}{$ident}) {
-	&status("ChanServ ==> Requesting ops for $chan.");
+	&status("ChanServ ==> Requesting ops for $chan. (2)");
 	&rawout("PRIVMSG ChanServ :OP $chan $ident");
     }
 }
