@@ -43,7 +43,7 @@ if ($@) {
 	"Plug"		=> "Plug.pl",
 	"Quote"		=> "Quote.pl",
 	"RootWarn"	=> "RootWarn.pl",
-	"rss"		=> "Rss.pl",
+	"Rss"		=> "Rss.pl",
 	"search"	=> "Search.pl",
 	"slashdot"	=> "Slashdot3.pl",
 	"symdump"	=> "DumpVars2.pl",
