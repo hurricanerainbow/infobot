@@ -1,0 +1,32 @@
+--- Connection.pm.orig	Fri Nov  1 00:20:36 2002
++++ Connection.pm	Sat Nov  2 18:00:42 2002
+@@ -1300,14 +1300,13 @@
+ #                     the line from the server.
+ sub parse_ctcp {
+     my ($self, $type, $from, $stuff, $line) = @_;
+-
+     my ($one, $two);
+     my ($odd, @foo) = (&dequote($line));
+ 
+     while (($one, $two) = (splice @foo, 0, 2)) {
+  
+ 	($one, $two) = ($two, $one) if $odd;
+-	
++
+ 	my ($ctype) = $one =~ /^(\w+)\b/;
+ 	my $prefix = undef;
+ 	if ($type eq 'notice') {
+@@ -1326,10 +1325,10 @@
+ 	    # -- #perl was here! --
+ 	    # fimmtiu: Words cannot describe my joy. Sil, you kick ass.
+ 	    # fimmtiu: I was passing the wrong arg to Event::new()
+- 
+-	    $one =~ s/^$ctype //i;  # strip the CTCP type off the args
++
++	    # this is what it used to be in version 0.63 or so.
+ 	    $self->handler(Net::IRC::Event->new( $handler, $from, $stuff,
+-						 $handler, $one ));
++						$handler, (split /\s/, $one)));
+ 	}
+ 
+ 	$self->handler(Net::IRC::Event->new($type, $from, $stuff, $type, $two))
