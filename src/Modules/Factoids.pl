@@ -14,6 +14,7 @@ use vars qw(%param);
 # Usage: &CmdFactInfo($faqtoid, $query);
 sub CmdFactInfo {
     my ($faqtoid, $query) = (lc $_[0], $_[1]);
+    $faqtoid =~ s/^cmd:/CMD:/;
     my @array;
     my $string = "";
 
