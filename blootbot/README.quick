@@ -1,0 +1,11 @@
+first time usage
+
+DCC CHAT:
+.+chan #chan
+.chanset #chan +autojoin
+.chanset +autojoin
+.chanunset -autojoin
+.chanset -autojoin
+
+for configuration options, run:
+	perl scripts/findparam.pl
