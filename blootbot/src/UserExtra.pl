@@ -72,11 +72,6 @@ sub chaninfo {
 	}
 
 	### unique user count.
-	# %seen = ();
-	# foreach $item (@list) {
-	#  $seen{$item}++;
-	# }
-	# @uniq = keys %seen;
 	my %nicks = ();
 	foreach $chan (keys %channels) {
 	    my $nick;
