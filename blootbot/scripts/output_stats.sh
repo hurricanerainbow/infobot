@@ -6,3 +6,4 @@ echo -n "WARN:   "; grep WARN `find -type f` | wc -l
 echo -n "FIXME:  "; grep FIXME `find -type f` | wc -l
 echo -n "status: "; grep status `find -type f` | wc -l
 echo -n "ERROR:  "; grep ERROR `find -type f` | wc -l
+echo -n "TODO:   "; grep TODO `find -type f` | wc -l
