@@ -26,7 +26,7 @@ sub doQuestion {
     $query =~ s/^\s+|\s+$//g;
 
     if (!defined $query or $query =~ /^\s*$/) {
-	&FIXME("doQ: query == NULL");
+	&FIXME("doQ: query == NULL (message => $message)");
 	return '';
     }
 

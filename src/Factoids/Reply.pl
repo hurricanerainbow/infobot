@@ -305,7 +305,7 @@ sub smart_replace {
     }
 
     if ($old eq $string) {
-	&WARN("smart_replace: no subst made.");
+	&WARN("smart_replace: no subst made. (string => $string)");
     }
 
     return $string;
