@@ -85,6 +85,9 @@ sub add {
     my($recipient, $msg) = @_;
     &::DEBUG("botmail::add(@_)");
 
+    # allow optional trailing : ie: botmail for foo[:] hello
+    $recipient =~ s/:$//;
+
     # only support 1 botmail with unique dstwho/srcwho to have same
     # functionality as botmail from infobot.
     my %hash = &::sqlSelectRowHash("botmail", "*", {
