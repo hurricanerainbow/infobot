@@ -167,8 +167,13 @@ sub Time2String {
     my $time = shift;
     my $retval;
 
-    return("0s")
-		if (!defined $time or $time !~ /\d+/ or $time <= 0);
+    return("NULL s") if (!defined $time or $time !~ /\d+/);
+
+    my $prefix = "";
+    if ($time < 0) {
+	$time = - $time;
+	$prefix = "- ";
+    }
 
     my $s = int($time) % 60;
     my $m = int($time / 60) % 60;
@@ -180,7 +185,7 @@ sub Time2String {
     $retval .= sprintf(" \002%d\002m", $m) if ($m != 0);
     $retval .= sprintf(" \002%d\002s", $s) if ($s != 0);
 
-    return substr($retval, 1);
+    return $prefix.substr($retval, 1);
 }
 
 ###
