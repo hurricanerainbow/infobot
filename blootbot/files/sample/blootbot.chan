@@ -45,6 +45,7 @@ _default
     +log
     +nickometer
     +perlMath
+    +plug
     +quote
     randomFactoidInterval 60
     randomQuoteInterval 60
