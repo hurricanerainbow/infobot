@@ -663,12 +663,12 @@ sub do_verstats {
     }
 
     if (!&validChan($chan)) {
-	&pSReply("chan $chan is invalid.");
+	&msg($who, "chan $chan is invalid.");
 	return;
     }
 
     if (scalar keys %ver or scalar @vernick) {
-	&DEBUG("verstats already in progress.");
+	&msg($who, "verstats already in progress for someone else.");
 	return;
     }
 
@@ -685,25 +685,24 @@ sub do_verstats {
 	my %sorted;
 	my $unknown	= $total - $vtotal;
 	my $perc	= sprintf("%.1f", $unknown * 100 / $total);
-	$sorted{$perc}	= "unknown/cloak - $unknown ($perc %)";
 	$perc		=~ s/.0$//;
+	$sorted{$perc}{"unknown/cloak"} = "$unknown ($perc %)";
 
 	foreach (keys %ver) {
 	    my $count	= scalar keys %{ $ver{$_} };
 	    $perc	= sprintf("%.01f", $count * 100 / $total);
 	    $perc	=~ s/.0$//;	# lame compression.
 
-	    if (exists $sorted{$perc}) {
-		&WARN("sorted{$perc} already exists; FIXME.");
-	    }
-
-	    $sorted{$perc} = "$_ - $count ($perc%)";
+	    $sorted{$perc}{$_} = "$count ($perc%)";
 	}
 
 	### can be compressed to a map?
 	my @list;
 	foreach ( sort { $b <=> $a } keys %sorted ) {
-	    push(@list, $sorted{$_});
+	    my $perc = $_;
+	    foreach (sort keys %{ $sorted{$perc} }) {
+		push(@list, "$_ - $sorted{$perc}{$_}");
+	    }
 	}
 
 	&pSReply( &formListReply(0, "IRC Client versions for $chan ", @list) );
