@@ -27,11 +27,12 @@ sub openDB {
 
     my $dsn = "DBI:$type:$db";
     my $hoststr = "";
-    # does sqlite support remote servers?
+    # SQLHost should be unset for SQLite
     if (exists $param{'SQLHost'} and $param{'SQLHost'}) {
 	$dsn    .= ":$param{SQLHost}";
 	$hoststr = " to $param{'SQLHost'}";
     }
+    # SQLite ignores $user and $pass
     $dbh    = DBI->connect($dsn, $user, $pass);
 
     if ($dbh && !$dbh->err) {
@@ -290,7 +291,7 @@ sub dbSet {
 	}
 
 	$query = "UPDATE $table SET ".
-		join(' AND ', @keyval).
+		join(', ', @keyval).
 		" WHERE ".$where;
     } else {
 	foreach (keys %{$phref}) {
