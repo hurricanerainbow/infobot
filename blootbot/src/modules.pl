@@ -252,6 +252,8 @@ sub loadMyModule {
     if (!defined $tmp) {
 	&WARN("loadMyModule: module is NULL.");
 	return 0; 
+    } else {
+	&DEBUG("lMM: arg = '$tmp'.");
     }
 
     my ($modulebase, $modulefile);
@@ -259,6 +261,10 @@ sub loadMyModule {
 	($modulename, $modulebase) = ($tmp, $myModules{$tmp});
     } else {
 	$modulebase = $tmp;
+	if ($tmp = grep /^$modulebase$/, keys %myModules) {
+	    &DEBUG("lMM: lame hack, file => name => $tmp.");
+	    $modulename = $tmp;
+	}
     }
     my $modulefile = "$bot_src_dir/Modules/$modulebase";
 
@@ -281,7 +287,7 @@ sub loadMyModule {
 	if ($bot_pid == $$) {	# parent.
 	    &shutdown() if (defined $shm and defined $dbh);
 	} else {			# child.
-	    &delForked($modulebase);
+	    &delForked($modulename);
 	}
 
 	exit 1;
