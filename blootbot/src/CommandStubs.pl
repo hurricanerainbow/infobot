@@ -191,7 +191,6 @@ sub parseCmdHook {
 &addCmdHook("extra", 'uptime', ('CODEREF' => 'uptime', 'Identifier' => 'uptime',
 	'Cmdstats' => 'Uptime') );
 &addCmdHook("extra", 'nullski', ('CODEREF' => 'nullski', ) );
-	sub nullski { my ($arg) = @_; foreach (`$arg`) { &msg($who,$_); } }
 &addCmdHook("extra", '(fm|freshmeat)', ('CODEREF' => 'Freshmeat::Freshmeat',
 	'Identifier' => 'freshmeat', 'Cmdstats' => 'Freshmeat',
 	'Forker' => 1, 'Help' => 'freshmeat') );
@@ -725,5 +724,8 @@ sub do_verstats {
 
     return;
 }
+
+sub nullski { my ($arg) = @_; return unless (defined $arg);
+	foreach (`$arg`) { &msg($who,$_); } }
 
 1;

@@ -46,8 +46,10 @@ if ($@) {
 	"nickometer"	=> "nickometer.pl",
 	"babelfish"	=> "babel.pl",
 );
-@myModulesLoadNow	= ('topic', 'uptime',);
-@myModulesReloadNot	= ('IRC/Irc.pl','IRC/Schedulers.pl');
+BEGIN {
+    @myModulesLoadNow	= ('topic', 'uptime',);
+    @myModulesReloadNot	= ('IRC/Irc.pl','IRC/Schedulers.pl');
+}
 
 sub loadCoreModules {
     if (!opendir(DIR, $bot_src_dir)) {

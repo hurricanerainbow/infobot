@@ -11,14 +11,23 @@ use strict;
 
 # format: "alias=real".
 my $announce	= 0;
-my $defaultdist	= "unstable";
+my $defaultdist	= "sid";
 my $refresh = &::getChanConfDefault("debianRefreshInterval",7)
 			* 60 * 60 * 24;
 
+### ... old
+#my %dists	= (
+#	"sid"		=> "unstable",
+#	"woody"		=> "testing",	# new since 20001219.
+#	"potato"	=> "stable",
+#	"incoming"	=> "incoming",
+#);
+
+### new... the right way.
 my %dists	= (
-	"sid"		=> "unstable",
-	"woody"		=> "testing",	# new since 20001219.
-	"potato"	=> "stable",
+	"unstable"	=> "sid",
+	"testing"	=> "woody",	# new since 20001219.
+	"stable"	=> "potato",
 	"incoming"	=> "incoming",
 );
 
@@ -1058,7 +1067,7 @@ sub DebianFind {
 	&::status("searchPackage returned one result; getting info of package instead!");
 	&::Forker("debian", sub { &infoPackages("info", "$results[0] $dist"); } );
     } else {
-	my $prefix = "Debian Package Listing of '$str' ";
+	my $prefix = "Debian Package Listing of '$query' ";
 	&::pSReply( &::formListReply(0, $prefix, @results) );
     }
 }
