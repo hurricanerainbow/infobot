@@ -355,10 +355,11 @@ sub floodCycle {
     }
 
     my $time	= time();
+    my $interval	= &getChanConfDefault("floodCycle","",60);
+
     foreach $who (keys %flood) {
 	foreach (keys %{$flood{$who}}) {
 	    if (!exists $flood{$who}{$_}) {
-# or !defined $flood{$who}{$_}) {
 		&WARN("flood{$who}{$_} undefined?");
 		next;
 	    }
@@ -370,7 +371,6 @@ sub floodCycle {
 	}
     }
     &VERB("floodCycle: deleted $delete items.",2);
-
 }
 
 sub seenFlush {
@@ -479,9 +479,24 @@ sub leakCheck {
 	    }
 	}
     }
+
+    my $delete	= 0;
+    foreach (keys %nuh) {
+	next if (&IsNickInAnyChan($_));
+	delete $nuh{$_};
+	$delete++;
+    }
+
+    &DEBUG("$delete nuh{} items deleted; now have ".
+				scalar(keys %nuh) ) if ($delete);
 }
 
 sub ignoreCheck {
+    if (@_) {
+	&ScheduleThis(60, "ignoreCheck");
+	&ScheduleChecked("ignoreCheck");
+    }
+
     my $time	= time();
     my $count	= 0;
 
@@ -504,8 +519,6 @@ sub ignoreCheck {
 	}
     }
     &VERB("ignore: $count items deleted.",2);
-
-    &ScheduleThis(60, "ignoreCheck") if (@_);
 }
 
 sub ircCheck {
@@ -514,6 +527,14 @@ sub ircCheck {
     my $inow  = scalar(keys %channels);
     if ($iconf > 2 and $inow * 2 <= $iconf) {
 	&FIXME("ircCheck: current channels * 2 <= config channels. FIXME.");
+    }
+
+    # chanserv ops.
+    foreach ( &ChanConfList("chanServ_ops") ) {
+	next if (exists $channels{$chan}{'o'}{$ident});
+
+	&status("ChanServ ==> Requesting ops for $chan.");
+	&rawout("PRIVMSG ChanServ :OP $chan $ident");
     }
 
     if (!$conn->connected and time - $msgtime > 3600) {
@@ -532,11 +553,12 @@ sub ircCheck {
 
     if (grep /^\s*$/, keys %channels) {
 	&WARN("we have a NULL chan in hash channels? removing!");
-	delete $channels{''};
-	&status("channels now:");
+	delete $channels{''};	# ???
+	&DEBUG("channels now:");
 	foreach (keys %channels) {
 	    &status("  $_");
 	}
+	&DEBUG("channels END");
     }
 
     ### USER FILE.
@@ -837,6 +859,7 @@ sub getChanConfDefault {
     my($what, $chan, $default) = @_;
 
     if (exists $param{$what}) {
+	&DEBUG("backward-compat: found param{$what} instead.");
 	return $param{$what};
     }
 
