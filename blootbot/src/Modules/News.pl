@@ -73,7 +73,7 @@ sub Parse {
 	# shortcut/link.
 	# nice hack.
 	my($arg1,$arg2) = split(/\s+/, $3, 2);
-	&set("$arg1 Text $arg2");
+	&set("$arg1 $1 $arg2");
     } elsif ($what =~ /^help(\s+(.*))?$/i) {
 	&::help("news$1");
     } else {
