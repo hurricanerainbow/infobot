@@ -524,7 +524,11 @@ sub userDCC {
 
 	    $update++;
 	} elsif (defined $what) {
-	    &pSReply("$what for $chan is '$chanconf{$chan}{$what}'");
+	    if (exists $chanconf{$chan}{$what}) {
+		&pSReply("$what for $chan is '$chanconf{$chan}{$what}'");
+	    } else {
+		&pSReply("$what for $chan is not set.'");
+	    }
 	}
 
 	if ($update) {
@@ -997,7 +1001,7 @@ sub userDCC {
 	}
 
 	my $c;
-	&pSReply("      expire, count, who-by, time-added, reason");
+	&pSReply("     mask: expire, time-added, count, who-by, reason");
 	foreach $c (keys %bans) {
 	    next unless (!defined $arg or $arg =~ /^\Q$c\E$/i);
 	    &pSReply("  $c:");
@@ -1007,7 +1011,7 @@ sub userDCC {
 
 		if (ref $val eq "ARRAY") {
 		    my @array = @{ $val };
-		    &pSReply("      @array");
+		    &pSReply("    $_: @array");
 		} else {
 		    &DEBUG("unknown ban: $val");
 		}
@@ -1139,7 +1143,7 @@ sub userDCC {
 
 	### TODO: proper (eggdrop-like) formatting.
 	my $c;
-	&pSReply("    expire, count, who, added, comment");
+	&pSReply("    mask: expire, time-added, who, comment");
 	foreach $c (keys %ignore) {
 	    next unless (!defined $arg or $arg =~ /^\Q$c\E$/i);
 	    &pSReply("  $c:");
