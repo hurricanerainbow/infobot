@@ -340,6 +340,7 @@ sub Modules {
 	    if (!defined $arg or $arg =~ /^\s*$/) {
 		# this is way fucking ugly.
 
+		# TODO convert $where to hash
 		my %hash = &sqlSelectColHash("stats", "nick,counter",
 			{ },
 			$where." ORDER BY counter DESC LIMIT 3", 1
@@ -368,6 +369,7 @@ sub Modules {
 		    &pSReply("zero counter for \037$type\037.");
 		}
 	    } else {
+		# TODO convert $where to hash and use a sqlSelect
 		my $x = (&sqlRawReturn("SELECT SUM(counter) FROM stats".
 			" WHERE $where AND nick=".&sqlQuote($arg) ))[0];
 
@@ -377,6 +379,7 @@ sub Modules {
 		}
 
 		# defined.
+		# TODO convert $where to hash
 		my @array = &sqlSelect("stats", "nick", undef,
 			$where." ORDER BY counter", 1
 		);
@@ -961,6 +964,7 @@ sub textstats_main {
 	    &pSReply("zero counter for \037$type\037.");
 	}
     } else {
+	# TODO add nick to where_href
 	my %hash = &sqlSelectColHash("stats", "type,counter",
 		$where_href, " AND nick=".&sqlQuote($arg)
 	);
@@ -973,6 +977,7 @@ sub textstats_main {
 	foreach (keys %hash) {
 	    &DEBUG("_stats: hash{$_} => $hash{$_}");
 	    # ranking.
+	    # TODO convert $where to hash
 	    my @array = &sqlSelect("stats", "nick", undef,
 		$where." ORDER BY counter", 1);
 	    $good = 0;
