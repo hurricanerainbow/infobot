@@ -165,6 +165,11 @@ dict: U: ## <query>
 dict: E: ## AI
 dict: E: ## 1 linux
 
+dns: D: Query DNS
+dns: U: ## <host|ip>
+dns: E: ## debian.org
+dns: E: ## 3.1.33.7
+
 do: D: operator command to do things in a channel
 do: U: ## <chan> <what>
 
@@ -306,11 +311,6 @@ nickometer: D: Measures the lame-ness of a nick or channel
 nickometer: U: ## {nick,channel}
 nickometer: E: ## unknown_lamer
 nickometer: E: ## #botpark
-
-nslookup: D: Query DNS
-nslookup: U: ## <host|ip>
-nslookup: E: ## debian.org
-nslookup: E: ## 3.1.33.7
 
 ord: D: Convert ascii to decimal
 ord: U: ## <single character>
