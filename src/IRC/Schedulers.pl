@@ -399,13 +399,13 @@ sub chanlimitCheck {
 	delete $cache{warn}{chanlimit}{$chan};
 
 	if (!defined $limit) {
-	    &status("ChanLimit: setting for first time or from netsplit, for $chan");
+	    &status("chanLimit: setting for first time or from netsplit, for $chan");
 	}
 
 	if (exists $cache{chanlimitChange}{$chan}) {
 	    my $delta = time() - $cache{chanlimitChange}{$chan};
 	    if ($delta < $interval*60) {
-		&DEBUG("not going to change chanlimit! ($delta<$interval*60)");
+		&DEBUG("chanLimit: not going to change chanlimit! ($delta<$interval*60)");
 		return;
 	    }
 	}
@@ -427,16 +427,18 @@ sub netsplitCheck {
     &DEBUG("running netsplitCheck... $cache{netsplitCache}");
 
     if (!scalar %netsplit and scalar %netsplitservers) {
-	&DEBUG("nsc: FIRST!!! ok hash netsplit is NULL; purging hash netsplitservers");
+	&DEBUG("nsC: !hash netsplit but hash netsplitservers <- removing!");
 	undef %netsplitservers;
+	return;
     }
 
+    # well... this shouldn't happen since %netsplit code does it anyway.
     foreach $s1 (keys %netsplitservers) {
 
 	foreach $s2 (keys %{ $netsplitservers{$s1} }) {
 	    my $delta = time() - $netsplitservers{$s1}{$s2};
 
-	    if ($delta > 3600) {
+	    if ($delta > 60*30) {
 		&status("netsplit between $s1 and $s2 appears to be stale.");
 		delete $netsplitservers{$s1}{$s2};
 		&chanlimitCheck();
@@ -449,29 +451,28 @@ sub netsplitCheck {
 
     # %netsplit hash checker.
     my $count	= scalar keys %netsplit;
-    my(@delete);
+    my $delete	= 0;
     foreach (keys %netsplit) {
-	if (&IsNickInAnyChan($_)) {
-	    &DEBUG("netsplitC: $_ is in some chan; removing from netsplit list.");
+	if (&IsNickInAnyChan($_)) {	# why would this happen?
+#	    &DEBUG("nsC: $_ is in some chan; removing from netsplit list.");
 	    delete $netsplit{$_};
+	    $delete++;
 	    next;
 	}
-	# todo: change time value?
-	next unless (time() - $netsplit{$_} > 60*30);
 
-	push(@delete, $_);
+	next unless (time() - $netsplit{$_} > 60*15);
+
+	$delete++;
 	delete $netsplit{$_};
     }
 
-    if (@delete) {
-	my $str = scalar(@delete)."/".scalar(keys %netsplit);
-	&DEBUG("removed from netsplit list ($str): @delete");
+    if ($delete) {
+	my $j = scalar(keys %netsplit);
+	&DEBUG("nsC: removed from netsplit list: (before: $count; after: $j)");
     }
-    &DEBUG("nsC: netsplitservers: ".scalar(keys %netsplitservers) );
-    &DEBUG("nsC: netsplit: ".scalar(keys %netsplit) );
 
     if (!scalar %netsplit and scalar %netsplitservers) {
-	&DEBUG("nsc: ok hash netsplit is NULL; purging hash netsplitservers");
+	&DEBUG("nsC: ok hash netsplit is NULL; purging hash netsplitservers");
 	undef %netsplitservers;
     }
 
@@ -1168,7 +1169,7 @@ sub mkBackup {
     my $backup		= 0;
 
     if (! -f $file) {
-	&WARN("mkB: file '$file' does not exist.");
+	&VERB("mkB: file '$file' does not exist.",2);
 	return;
     }
 

@@ -63,6 +63,11 @@ sub on_chat {
 	my $crypto	= $users{$userHandle}{PASS};
 	my $success	= 0;
 
+	if ($userHandle eq "_default") {
+	    &WARN("DCC CHAT: _default/guest not allowed.");
+	    return;
+	}
+
 	### TODO: prevent users without CRYPT chatting.
 	if (!defined $crypto) {
 	    &DEBUG("todo: dcc close chat");
@@ -139,13 +144,15 @@ sub on_endofmotd {
 
     # first time run.
     if (!exists $users{_default}) {
-	&status("First time run... adding _default user.");
+	&status("!!! First time run... adding _default user.");
 	$users{_default}{FLAGS}	= "mrt";
-	$users{_default}{HOSTS} = "*!*@*";
+	$users{_default}{HOSTS}{"*!*@*"} = 1;
     }
 
     if (scalar keys %users < 2) {
-	&status("Ok... now /msg $ident PASS <pass> to get master access through DCC CHAT.");
+	&status("!"x40);
+	&status("!!! Ok.  Now type '/msg $ident PASS <pass>' to get master access through DCC CHAT.");
+	&status("!"x40);
     }
     # end of first time run.
 
@@ -227,9 +234,11 @@ sub on_dcc {
     } elsif ($type eq 'GET') {	# SEND for us?
 	&status("DCC: Initializing SEND for $nick.");
 	$self->new_send($event->args);
+
     } elsif ($type eq 'CHAT') {
 	&status("DCC: Initializing CHAT for $nick.");
 	$self->new_chat($event);
+
     } else {
 	&WARN("${b_green}DCC $type$ob (1)");
     }
@@ -294,7 +303,6 @@ sub on_dcc_open {
 
     } else {
 	&WARN("${b_green}DCC $type$ob (3)");
-
     }
 }
 
@@ -314,17 +322,25 @@ sub on_dcc_open_chat {
 
     if (!exists $users{$userHandle}{HOSTS}) {
 	&pSReply("you have no hosts defined in my user file; rejecting.");
-	### TODO: $sock->close();
+	$sock->close();
 	return;
     }
 
     my $crypto	= $users{$userHandle}{PASS};
     $dcc{'CHAT'}{$nick} = $sock;
 
+    # todo: don't make DCC CHAT established in the first place.
+    if ($userHandle eq "_default") {
+	&dccsay($nick, "_default/guest not allowed");
+	$sock->close();
+	return;
+    }
+
     if (defined $crypto) {
+	&status("DCC CHAT: going to use ".$nick."'s crypt.");
 	&dccsay($nick,"Enter your password.");
     } else {
-	&dccsay($nick,"Welcome to blootbot DCC CHAT interface, $userHandle.");
+#	&dccsay($nick,"Welcome to blootbot DCC CHAT interface, $userHandle.");
     }
 }
 

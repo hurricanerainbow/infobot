@@ -78,10 +78,11 @@ sub dbGet {
 }
 
 #####
-# Usage: &dbGetCol($table, $primkey, $key, [$type]);
+# Usage: &dbGetCol($table, $select, $where, [$type]);
 sub dbGetCol {
-    my ($table, $primkey, $key, $type) = @_;
-    my $query = "SELECT $primkey,$key FROM $table WHERE $key IS NOT NULL";
+    my ($table, $select, $where, $type) = @_;
+    my $query	= "SELECT $select FROM $table";
+    $query	.= " WHERE ".$where if ($where);
     my %retval;
 
     my $sth = $dbh->prepare($query);
@@ -93,11 +94,24 @@ sub dbGetCol {
 	return;
     }
 
-    if (defined $type and $type == 1) {
+    if (defined $type and $type == 2) {
+	&DEBUG("dbgetcol: type 2!");
+	while (my @row = $sth->fetchrow_array) {
+	    $retval{$row[0]} = join(':', $row[1..$#row]);
+	}
+	&DEBUG("dbgetcol: count => ".scalar(keys %retval) );
+
+    } elsif (defined $type and $type == 1) {
 	while (my @row = $sth->fetchrow_array) {
 	    # reverse it to make it easier to count.
-	    $retval{$row[1]}{$row[0]} = 1;
+	    if (scalar @row == 2) {
+		$retval{$row[1]}{$row[0]} = 1;
+	    } elsif (scalar @row == 3) {
+		$retval{$row[1]}{$row[0]} = 1;
+	    }
+	    # what to do if there's only one or more than 3?
 	}
+
     } else {
 	while (my @row = $sth->fetchrow_array) {
 	    $retval{$row[0]} = $row[1];

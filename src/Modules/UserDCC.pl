@@ -696,7 +696,7 @@ sub userDCC {
 
 	if (scalar @args == 1) {	# del pass.
 	    if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
-		&pSReply("cannto remove passwd of others.");
+		&pSReply("cannot remove passwd of others.");
 		return;
 	    }
 

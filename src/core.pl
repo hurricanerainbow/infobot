@@ -201,6 +201,8 @@ sub IsChanConf {
 	return 0;
     }
 
+    $chan	||= "_default";
+
     my $old = $chan;
     if ($chan =~ tr/A-Z/a-z/) {
 	&WARN("IsChanConf: lowercased chan. ($old)");

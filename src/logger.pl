@@ -222,8 +222,14 @@ sub status {
 
     for ($input) {
 	s/\n+$//;
-	s/\n/<NL>/g;
 	s/\002|037//g;	# bold,video,underline => remove.
+    }
+
+    # does this work?
+    if ($input =~ /\n/) {
+	foreach (split(/\n/, $input)) {
+	    &status($_);
+	}
     }
 
     # pump up the stats.

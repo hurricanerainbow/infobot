@@ -45,13 +45,18 @@ sub hookMode {
 
 	    # modes w/ target affecting nick => cache it.
 	    if ($mode =~ /[bov]/) {
-		if ($mode eq "o" and $nick eq "ChanServ" and $target =~ /^\Q$ident\E$/i) {
-		    &VERB("hookmode: chanserv deopped us! asking",2);
-		    &chanServCheck($chan);
-		}
-
 		$channels{$chan}{$mode}{$target}++	if  $parity;
 		delete $channels{$chan}{$mode}{$target}	if !$parity;
+
+		# lets do some custom stuff.
+		if ($mode eq "o" and $parity) {
+		    if ($nick eq "ChanServ" and $target =~ /^\Q$ident\E$/i) {
+			&VERB("hookmode: chanserv deopped us! asking",2);
+			&chanServCheck($chan);
+		    }
+
+		    &chanLimitVerify($chan);
+		}
 	    }
 
 	    if ($mode =~ /[l]/) {
@@ -257,46 +262,53 @@ sub hookMsg {
     return;
 }
 
+# this is basically run on on_join or on_quit
 sub chanLimitVerify {
-    my($chan)	= @_;
+    my($c)	= @_;
+    $chan	= $c;
     my $l	= $channels{$chan}{'l'};
 
-    &DEBUG("cLV: netsplitservers: ".scalar(keys %netsplitservers) );
-    &DEBUG("cLV: netsplit: ".scalar(keys %netsplit) );
+    return unless (&IsChanConf("chanlimitcheck"));
 
     if (scalar keys %netsplit) {
-	&WARN("clV: netsplit active (1); skipping.");
+	&WARN("clV: netsplit active (1, chan = $chan); skipping.");
+	return;
+    }
+
+    if (!defined $l) {
+	&DEBUG("running chanlimitCheck from chanLimitVerify; FIXME! (chan = $chan)");
+	&chanlimitCheck();
 	return;
     }
 
     # only change it if it's not set.
-    if (defined $l and &IsChanConf("chanlimitcheck")) {
-	my $plus  = &getChanConfDefault("chanlimitcheckPlus", 5, $chan);
-	my $count = scalar(keys %{ $channels{$chan}{''} });
-	my $int   = &getChanConfDefault("chanlimitcheckInterval", 10, $chan);
+    my $plus  = &getChanConfDefault("chanlimitcheckPlus", 5, $chan);
+    my $count = scalar(keys %{ $channels{$chan}{''} });
+    my $int   = &getChanConfDefault("chanlimitcheckInterval", 10, $chan);
 
-	my $delta = $count + $plus - $l;
-	$delta    =~ s/^\-//;
+    my $delta = $count + $plus - $l;
+#   $delta    =~ s/^\-//;
 
-	if ($plus <= 3) {
-	    &WARN("clc: stupid to have plus at $plus, fix it!");
-	}
+    if ($plus <= 3) {
+	&WARN("clc: stupid to have plus at $plus, fix it!");
+    }
 
-	if (exists $cache{chanlimitChange}{$chan}) {
-	    if (time() - $cache{chanlimitChange}{$chan} < $int*60) {
-		return;
-	    }
-	}
-
-	&chanServCheck($chan);
-
-	### todo: unify code with chanlimitcheck()
-	if ($delta > 5) {
-	    &status("clc: big change in limit; going for it.");
-	    &rawout("MODE $chan +l ".($count+$plus) );
-	    $cache{chanlimitChange}{$chan} = time();
+    if (exists $cache{chanlimitChange}{$chan}) {
+	if (time() - $cache{chanlimitChange}{$chan} < $int*60) {
+	    return;
 	}
     }
+
+    &chanServCheck($chan);
+
+    ### todo: unify code with chanlimitcheck()
+    return if ($delta > 5);
+
+    &status("clc: big change in limit for $chan ($delta);".
+		"going for it. (was: $l; now: ".($count+$plus).")");
+
+    &rawout("MODE $chan +l ".($count+$plus) );
+    $cache{chanlimitChange}{$chan} = time();
 }
 
 sub chanServCheck {
