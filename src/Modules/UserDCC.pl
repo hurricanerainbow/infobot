@@ -536,7 +536,7 @@ sub userDCC {
 
 	my @chans;
 	while ($args =~ s/^($mask{chan})\s*//) {
-	    push(@chans, $1);
+	    push(@chans, lc($1));
 	}
 
 	if (!scalar @chans) {
@@ -555,7 +555,12 @@ sub userDCC {
 
 	    my %vals;
 	    foreach (keys %chanconf) {
-		my $val = $chanconf{$_}{$what} || "NOT-SET";
+		my $val;
+		if (defined $chanconf{$_}{$what}) {
+		    $val = $chanconf{$_}{$what};
+		} else {
+		    $val = "NOT-SET";
+		}
 		$vals{$val}{$_} = 1;
 	    }
 
@@ -572,14 +577,14 @@ sub userDCC {
 	if ($cmd eq "chanset" and !defined $what) {
 	    &DEBUG("showing channel conf.");
 
-	    foreach $chan ($chan, "_default") {
-		&pSReply("chan: $chan");
-		### TODO: merge 2 or 3 per line.
+	    foreach $chan (@chans) {
+		&pSReply("chan: $chan (will also use _default)");
 		my @items;
 		my $str = "";
 		foreach (sort keys %{ $chanconf{$chan} }) {
 		    my $newstr = join(', ', @items);
-		    if (length $newstr > 63) {
+		    ### TODO: make length use channel line limit?
+		    if (length $newstr > 400) {
 			&pSReply(" $str");
 			@items = ();
 		    }
