@@ -51,6 +51,22 @@ sub msg {
     print("$nick: $msg\n");
 }
 
+# Usage: &action(nick || chan, txt);
+sub action {
+    my ($target, $txt) = @_;
+    if (!defined $txt) {
+	&WARN("action: txt == NULL.");
+	return;
+    }
+
+    if (length $txt > 480) {
+	&status("action: txt too long; truncating.");
+	chop($txt) while (length $txt > 480);
+    }
+
+    &status("* $ident/$target $txt");
+}
+
 sub IsNickInChan {
     my ($nick,$chan) = @_;
     return 1;
