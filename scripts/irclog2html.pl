@@ -61,15 +61,15 @@ sub header {
 	my ($channel, $date) = @_;
 	my $return = '';
 
-	$return .= qq{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+	$return .= qq{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
 	<title>irclog2html for $channel on $date</title>
 	<meta name="generator" content="irclog2html.pl by Jeff Waugh">
-	<meta name="version" content="Version 0.9 - 5th April 2000">
-	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<meta name="version" content="Version 1.5 - 11th May 2000">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 </head>
-<body text="#000000" bgcolor="#ffffff"><tt>
+<body text="#000000" bgcolor="#ffffff">
 <h1>irclog2html for $channel on $date</h1>
 };
 
@@ -91,7 +91,7 @@ sub footer {
 <a href="http://freshmeat.net/appindex/2000/03/28/954251322.html">freshmeat.net</a>!
 Modified by <a href="http://www.Rikers.org">Tim Riker</a> to work with
 <a href="http://blootbot.sourceforge.net/">blootbot</a> logs, split per channel, etc.
-</tt></body></html>
+</body></html>
 };
 	return $return;
 }
