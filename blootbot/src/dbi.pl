@@ -516,7 +516,10 @@ sub randKey {
     my ($table, $select) = @_;
     my $rand	= int(rand(&countKeys($table)));
     my $query	= "SELECT $select FROM $table LIMIT 1 OFFSET $rand";
-
+    if ($param{DBType} =~ /^mysql$/i) {
+	# WARN: only newer MySQL supports "LIMIT limit OFFSET offset"
+	$query = "SELECT $select FROM $table LIMIT $rand,1";
+    }
     my $sth	= $dbh->prepare($query);
     &SQLDebug($query);
     &WARN("randKey($query)") unless $sth->execute;
