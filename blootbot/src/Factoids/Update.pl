@@ -27,7 +27,7 @@ sub update {
     }
 
     # teaching.
-    if (&IsFlag("t") ne "t") {
+    if (&IsFlag("t") ne "t" && &IsFlag("o") ne "o") {
 	&msg($who, "permission denied.");
 	&status("alert: $who wanted to teach me.");
 	return 1;
@@ -213,7 +213,9 @@ sub update {
 
 	my $author = &getFactInfo($lhs, "created_by") || "";
 
-	if (IsFlag("m") ne "m" and $author !~ /^\Q$who\E\!/i) {
+	if (IsFlag("m") ne "m" && IsFlag("o") ne "o" &&
+	    $author !~ /^\Q$who\E\!/i
+	) {
 	    &msg($who, "you can't change that factoid.");
 	    return 1;
 	}
