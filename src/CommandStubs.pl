@@ -48,14 +48,15 @@ sub parseCmdHook {
 	return 0;
     }
 
+    if (!defined $cmd) {
+	&WARN("cstubs: cmd == NULL.");
+	return 0;
+    }
+
     foreach (keys %{"hooks_$hashname"}) {
 	# rename to something else! like $id or $label?
 	my $ident = $_;
 
-	if (!defined $cmd or !defined $ident) {
-	    &WARN("cstubs: cmd or ident == NULL. ($cmd, $ident)");
-	    next;
-	}
 	next unless ($cmd =~ /^$ident$/i);
 
 	if ($done) {
@@ -291,12 +292,16 @@ sub Modules {
 
 		# unfortunately we have to sort it again!
 		# todo: make dbGetCol return hash and array? too much effort.
+		my $tp = 0;
 		foreach $i (sort { $b <=> $a } keys %hash) {
 		    foreach (keys %{ $hash{$i} }) {
-			push(@top, "$_ - $i");
+			my $p	= sprintf("%.01f", 100*$i/$x);
+			$tp	+= $p;
+			push(@top, "\002$_\002 -- $i ($p%)");
 		    }
 		}
 		my $topstr = "";
+		&DEBUG("tp => $tp");
 		if (scalar @top) {
 		    $topstr = ".  Top ".scalar(@top).": ".join(', ', @top);
 		}
@@ -544,7 +549,7 @@ sub seen {
     if ($person eq "random") {
 	@seen = &randKey("seen", $select);
     } else {
-	@seen = &dbGet("seen", $select, "nick='$person'");
+	@seen = &dbGet("seen", $select, "nick=".&dbQuote($person) );
     }
 
     if (scalar @seen < 2) {
@@ -583,7 +588,7 @@ sub seen {
 		 "saying\002:\002 '$seen[4]'.";
     }
 
-    &performStrictReply($reply);
+    &pSReply($reply);
     return;
 }
 

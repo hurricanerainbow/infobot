@@ -9,7 +9,8 @@
 
 sub rootWarn {
     my ($nick,$user,$host,$chan) = @_;
-    my $attempt = &dbGet("rootwarn", "attempt", "nick='".lc($nick)."'") || 0;
+    my $n	= lc $nick;
+    my $attempt = &dbGet("rootwarn", "attempt", "nick=".&dbQuote($n) ) || 0;
     my $warnmode	= &getChanConf("rootWarnMode");
 
     if ($attempt == 0) {	# first timer.

@@ -12,7 +12,7 @@ if (&IsParam("useStrict")) { use strict; }
 sub setFactInfo {
     &dbSet("factoids", 
 	{ factoid_key => $_[0] },
-	{ $_[1] => $_[2] }
+	{ $_[1] => $_[2] }	# dbquote done in dbset!
     );
 }   
 

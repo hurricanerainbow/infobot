@@ -360,7 +360,7 @@ sub searchAuthor {
 	$files .= " ".$_;
     }
 
-    &::DEBUG("deb: good = $good, bad = $bad...");
+    &::DEBUG("deb: good = $good, bad = $bad...") if ($debug);
 
     if ($good == 0 and $bad != 0) {
 	my %urls = &fixDist($dist, %urlpackages);
@@ -422,7 +422,7 @@ sub searchAuthor {
 	return 1;
     }
 
-    &::DEBUG("deb: showing all packages by '$list[0]'...");
+    &::DEBUG("deb: showing all packages by '$list[0]'...") if ($debug);
 
     my @pkg = sort keys %{ $pkg{$list[0]} };
 
@@ -983,10 +983,10 @@ sub searchPackage {
 	    $file = $1;
 
 	    if (&::isStale($file, $refresh)) {
-		&::DEBUG("deb: STALE $file! regen.");
+		&::DEBUG("deb: STALE $file! regen.") if ($debug);
 		&generateIndex(($dist));
 ###		@files = searchPackage("$query $dist");
-		&::DEBUG("deb: EVIL HACK HACK HACK.");
+		&::DEBUG("deb: EVIL HACK HACK HACK.") if ($debug);
 		last;
 	    }
 

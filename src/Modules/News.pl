@@ -192,7 +192,7 @@ sub readNews {
     close NEWS;
 
     my $cn = scalar(keys %::news);
-    &::status("News: Read ".
+    &::status("News: read ".
 	$ci. &::fixPlural(" item", $ci). " for ".
 	$cn. &::fixPlural(" chan", $cn). ", ".
 	$cu. &::fixPlural(" user", $cu), " cache"
@@ -381,13 +381,23 @@ sub list {
     my $count = scalar keys %{ $::news{$chan} };
     &::msg($::who, "|==== News for \002$chan\002: ($count items)");
     my $newest	= 0;
+    my $expire	= 0;
+    my $eno	= 0;
     foreach (keys %{ $::news{$chan} }) {
 	my $t	= $::news{$chan}{$_}{Time};
+	my $e	= $::news{$chan}{$_}{Expire};
 	$newest = $t if ($t > $newest);
+	if ($e > 1 and $e < $expire) {
+	    $expire	= $e;
+	    $eno	= &newsS2N($item);
+	}
     }
     my $timestr = &::Time2String(time() - $newest);
     &::msg($::who, "|= Last updated $timestr ago.");
     &::msg($::who, " \037Num\037  \037Item ".(" "x40)." \037");
+
+    &DEBUG("list: expire = $expire");
+    &DEBUG("list: eno    = $eno");
 
     my $i = 1;
     foreach ( &getNewsAll() ) {

@@ -84,7 +84,8 @@ sub Freshmeat {
 
 sub showPackage {
     my ($pkg)	= @_;
-    my @fm	= &::dbGet("freshmeat", "*", "projectname_short='$pkg'");
+    my @fm	= &::dbGet("freshmeat", "*",
+			"projectname_short=".&dbQuote($pkg) );
 
     if (scalar @fm) {		#1: perfect match of name.
 	my $retval;
@@ -188,7 +189,7 @@ sub downloadIndex {
 	{ "latest_version" => time() }
     );
 
-    &::dbRaw("LOCK", "LOCK TABLES freshmeat WRITE");
+#    &::dbRaw("LOCK", "LOCK TABLES freshmeat WRITE");
     @cols	= &::dbGetColInfo("freshmeat");
 
     $locktime	= time();
@@ -247,7 +248,7 @@ sub downloadIndex {
     }
     close IN;
 
-    &::dbRaw("UNLOCK", "UNLOCK TABLES");
+#    &::dbRaw("UNLOCK", "UNLOCK TABLES");
 
     my $delta_time = &::timedelta($start_time);
     &::status(sprintf("Freshmeat: %.02f sec to complete.", $delta_time)) if ($delta_time > 0);
@@ -329,7 +330,7 @@ sub xml_end {
 	}
 	$i++;
 
-	&::dbSetRow("freshmeat", @data);
+	&::dbSetRow("freshmeat", [@data], "DELAY");
 	undef @data;
 	undef %pkg;
 
@@ -342,10 +343,10 @@ sub xml_end {
 	    # I think the following leaks 120k of memory each time it's
 	    # called... the wonders of libmysql-perl leaking!
 
-	    &::dbRaw("UNLOCK", "UNLOCK TABLES");
+#	    &::dbRaw("UNLOCK", "UNLOCK TABLES");
 	    ### another lame hack to "prevent" errors.
-	    select(undef, undef, undef, 0.2);
-	    &::dbRaw("LOCK", "LOCK TABLES freshmeat WRITE");
+#	    select(undef, undef, undef, 0.2);
+#	    &::dbRaw("LOCK", "LOCK TABLES freshmeat WRITE");
 	}
     }
 }

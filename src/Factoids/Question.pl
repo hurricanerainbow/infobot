@@ -167,21 +167,27 @@ sub factoidArgs {
 
     # to make it eleeter, split each arg and use "blah OR blah or BLAH"
     # which will make it less than linear => quicker!
-    # todo: cache this, update cache when altered.
+    # todo: cache this, update cache when altered. !!! !!! !!!
+#    my $t = &timeget();
     my @list = &searchTable("factoids", "factoid_key", "factoid_key", "CMD: ");
+#    my $delta_time = &timedelta($t);
+#    &DEBUG("factArgs: delta_time = $delta_time s");
+#    &DEBUG("factArgs: list => ".scalar(@list) );
 
     # from a design perspective, it's better to have the regex in
     # the factoid key to reduce repetitive processing.
 
-    foreach (@list) {
+    # it does not matter if it's not alphabetically sorted.
+    foreach (sort { length($b) <=> length($a) } @list) {
 	next if (/#DEL#/);	# deleted.
 
-	s/^CMD: //;
+	s/^CMD: //i;
 #	&DEBUG("factarg: ''$str' =~ /^$_\$/'");
 	my @vals;
 	my $arg = $_;
 
 	# todo: make eval work with $$i's :(
+	# fuck this is an ugly hack. it works though.
 	eval {
 	    if ($str =~ /^$arg$/i) {
 		for ($i=1; $i<=5; $i++) {
@@ -200,12 +206,23 @@ sub factoidArgs {
 
 	next unless (@vals);
 
+	if (defined $result) {
+	    &WARN("factargs: '$_' matches aswell.");
+	    next;
+	}
+
 #	&DEBUG("vals => @vals");
 
 	&status("Question: factoid Arguments for '$str'");
 	# todo: use getReply() - need to modify it :(
 	my $i	= 0;
-	$result	= &getFactoid("CMD: $_");
+	my $r	= &getFactoid("CMD: $_");
+	if (!defined $r) {
+	    &DEBUG("question: !result... should this happen?");
+	    return;
+	}
+
+	$result	= $r;
 	$result	=~ s/^\((.*?)\): //;
 
 	foreach ( split(',', $1) ) {
@@ -234,7 +251,7 @@ sub factoidArgs {
 
 	    if (!$done) {
 		&status("factArgs: SARing '$_' to '$vals[$i]'.");
-		$result =~ s/\Q$_\E/$vals[$i]/;
+		$result =~ s/\Q$_\E/$vals[$i]/g;
 	    }
 	    $i++;
 	}
@@ -243,12 +260,14 @@ sub factoidArgs {
 	$result =~ s/^\s*<action>\s*(.*)/\cAACTION $1\cA/i;
 	$result =~ s/^\s*<reply>\s*//i;
 	$result = &SARit($result);
-#	$result = &substVars($result);
 
-	return $result;
+# well... lets go through all of them. not advisable if we have like
+# 1000 commands, heh.
+#	return $result;
+	$cmdstats{'Factoid Commands'}++;
     }
 
-    return;
+    return $result;
 }
 
 1;

@@ -99,6 +99,7 @@ sub doExit {
 
 	&closeDCC();
 	&closePID();
+	&closeStats();
 	&seenFlush();
 	&quit($param{'quitMsg'}) if (&whatInterface() =~ /IRC/);
 	&writeUserFile();
@@ -455,7 +456,7 @@ sub restart {
 
 	### crappy bug in Net::IRC?
 	if (!$conn->connected and time - $msgtime > 900) {
-	    &status("reconnecting because of uncaught disconnect.");
+	    &status("reconnecting because of uncaught disconnect \@ ".scalar(localtime) );
 ###	    $irc->start;
 	    $conn->connect();
 ###	    return;

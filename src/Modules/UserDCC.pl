@@ -566,6 +566,9 @@ sub userDCC {
 	    return;
 	}
 
+	$cache{confvars}{$what} = $val;
+	&rehashConfVars();
+
 	foreach (@chans) {
 	    &chanSet($cmd, $_, $what, $val);
 	}
@@ -617,6 +620,8 @@ sub userDCC {
 		    $chanconf{$_}{$args} = $val;
 		}
 		delete $chanconf{_default}{$args};
+		$cache{confvars}{$args} = 0;
+		&rehashConfVars();
 
 		return;
 	    }
@@ -629,6 +634,8 @@ sub userDCC {
 		    &DEBUG("delete chanconf{$_}{$args};");
 		    delete $chanconf{$_}{$args};
 		}
+		$cache{confvars}{$args} = 0;
+		&rehashConfVars();
 
 		return;
 	    }

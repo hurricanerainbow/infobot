@@ -261,7 +261,7 @@ sub seenFlushOld {
 	my $time = time();
 
 	foreach (keys %seen) {
-	    my $delta_time = $time - &dbGet("seen", "time", "nick='$_'");
+	    my $delta_time = $time - &dbGet("seen", "time", "nick", $_);
 	    next unless ($delta_time > $max_time);
 
 	    &DEBUG("seenFlushOld: ".&Time2String($delta_time) );
@@ -384,7 +384,6 @@ sub chanlimitCheck {
 	    ### run NAMES again and flush it.
 	}
 
-	next unless (!defined $limit);
 	if (defined $limit and $limit == $newlimit) {
 	    $cache{chanlimitChange}{$chan} = time();
 	    next;
@@ -419,7 +418,7 @@ sub netsplitCheck {
     my ($s1,$s2);
 
     if (@_) {
-	&ScheduleThis(30, "netsplitCheck");
+	&ScheduleThis(15, "netsplitCheck");
 	return if ($_[0] eq "2");
     }
 
@@ -542,7 +541,7 @@ sub seenFlush {
 	    ### old code.
 	    ###
 
-	    my $exists = &dbGet("seen", "nick", "nick='$nick'");
+	    my $exists = &dbGet("seen", "nick", "nick=".&dbQuote($nick) );
 
 	    if (defined $exists and $exists) {
 		&dbUpdate("seen", "nick", $nick, (
@@ -688,7 +687,7 @@ sub ignoreCheck {
 
 sub ircCheck {
     if (@_) {
-	&ScheduleThis(60, "ircCheck");
+	&ScheduleThis(15, "ircCheck");
 	return if ($_[0] eq "2");	# defer.
     }
 

@@ -360,8 +360,10 @@ sub on_disconnect {
 
     &clearIRCVars();
     if (!$self->connect()) {
-	&WARN("not connected? help me. gonna call ircCheck() in 1800s");
-	&ScheduleThis(30, "ircCheck");
+	&WARN("not connected? help me. gonna call ircCheck() in 60s");
+	&ScheduleThis(1, "ircCheck");
+#	&ScheduleThis(10, "ircCheck");
+#	&ScheduleThis(30, "ircCheck");
     }
 }
 
@@ -818,9 +820,10 @@ sub on_public {
     if ($_ = &getChanConf("ircTextCounters")) {
 	foreach (split /[\s]+/) {
 	    next unless ($msg =~ /^\Q$_\E$/i);
-	    &status("textcounters: $_ matched for $who");
+	    &VERB("textcounters: $_ matched for $who",2);
 
-	    my $v = &dbGet("stats", "counter", "nick='$who' and type='$msg'");
+	    my $v = &dbGet("stats", "counter", "nick=".&dbQuote($who).
+			" AND type='$msg'");
 	    $v++;
 
 	    &dbReplace("stats", (nick => $who, type => $_, counter => $v) );

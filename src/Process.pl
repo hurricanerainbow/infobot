@@ -294,7 +294,8 @@ sub process {
 	    return;
 	}
 
-	my $karma = &dbGet("stats", "counter", "nick='$term' and type='karma'") || 0;
+	my $karma = &dbGet("stats", "counter", "nick=".&dbQuote($term).
+			" AND type='karma'") || 0;
 	if ($inc eq '++') {
 	    $karma++;
 	} else {
@@ -429,15 +430,20 @@ sub FactoidStuff {
 		if (!defined $check or $check =~ /^\s*$/) {
 		    if ($faqtoid !~ / #DEL#$/) {
 			my $new = $faqtoid." #DEL#";
-			&DEBUG("Process: backing up $faqtoid to '$new'.");
 
+			my $backup = &getFactoid($faqtoid);
 			# this looks weird but does it work?
-			&setFactInfo($faqtoid, "factoid_key", $new);
-			&setFactInfo($new, "modified_by", $who);
-			&setFactInfo($new, "modified_time", time());
+			if ($backup) {
+			    &DEBUG("forget: not overwriting backup: $faqtoid");
+			} else {
+			    &status("forget: backing up '$faqtoid'");
+			    &setFactInfo($faqtoid, "factoid_key", $new);
+			    &setFactInfo($new, "modified_by", $who);
+			    &setFactInfo($new, "modified_time", time());
+			}
 
 		    } else {
-			&status("not backing up $faqtoid.");
+			&status("forget: not backing up $faqtoid.");
 		    }
 
 		} else {
@@ -687,7 +693,7 @@ sub FactoidStuff {
 #	&performReply( &getRandom(keys %{ $lang{'moron'} }) );
 	$count{'Moron'}++;
 
-	&performReply("You are moron #".$count{'Moron'}."!");
+	&performReply("You are moron \002#". $count{'Moron'} ."\002");
 	return;
     }
 

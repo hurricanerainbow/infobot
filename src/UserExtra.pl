@@ -219,7 +219,8 @@ sub factstats {
 
 sub karma {
     my $target	= lc( shift || $who );
-    my $karma	= &dbGet("stats", "counter", "nick='$target' and type='karma'") || 0;
+    my $karma	= &dbGet("stats", "counter", "nick=".
+			&dbQuote($target)." AND type='karma'") || 0; 
 
     if ($karma != 0) {
 	&pSReply("$target has karma of $karma");
@@ -392,8 +393,8 @@ sub DNS {
     $dns =~ s/^\s+|\s+$//g;
 
     if ($dns =~ /(\d+\.\d+\.\d+\.\d+)/) {
-	&status("DNS query by IP address: $in");
 	$match = $1;
+	&status("DNS query by IP address: $match");
 
 	$y = pack('C4', split(/\./, $match));
 	$x = (gethostbyaddr($y, &AF_INET));
@@ -762,6 +763,7 @@ sub userCommands {
 	my $startString	= scalar(localtime $^T);
 	my $upString	= &Time2String(time() - $^T);
 	my $count	= &countKeys("factoids");
+
 	$count{'Commands'}	= 0;
 	foreach (keys %cmdstats) {
 	    $count{'Commands'} += $cmdstats{$_};
@@ -784,6 +786,16 @@ sub userCommands {
 	  "I'm using about \002$memusage\002 ".
 	  "kB of memory."
 	);
+
+	# todo: make dbGetColNiceHash().
+	my %hash = &dbGetCol("stats", "nick,counter", "type='cmdstats'".
+#			" ORDER BY counter DESC LIMIT 3", 1);
+			" ORDER BY counter DESC", 1);
+
+	foreach (keys %hash) {
+	    &DEBUG("cmdstats: hash{$_} => $hash{$_}");
+	}
+	&DEBUG("end of cmdstats.");
 
 	return;
     }
