@@ -10,16 +10,7 @@ package Rss;
 use strict;
 
 sub Rss::Titles {
-	my @list;
-
-	foreach (@_) {
-		next unless (/<title>(.*?)<\/title>/);
-		my $title = $1;
-		$title =~ s/&amp\;/&/g;
-		push(@list, $title);
-	}
-
-	return @list;
+ return join(' ',@_)=~m/<title>\s*(.*?)\s*<\/title>/gi;
 }
 
 sub Rss::Rss {
@@ -27,11 +18,8 @@ sub Rss::Rss {
 	my @results = &::getURL($message);
 	my $retval  = "i could not get the rss feed.";
 
-	if (scalar @results) {
-		my $prefix	= "Titles: ";
-		my @list	= &Rss::Titles(@results);
-		$retval		= &::formListReply(0, $prefix, @list);
-	}
+	my @list	= &Rss::Titles(@results) if (scalar @results);
+	$retval		= &::formListReply(0, 'Titles: ', @list) if (scalar @list);
 
 	&::performStrictReply($retval);
 }
