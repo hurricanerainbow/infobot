@@ -56,10 +56,29 @@ babelfish: U: x <fromLang> <toLang> <words>
 babelfish: U: translate <fromLang> <toLang> <words>
 babelfish: E: x en de your cars rock
 
+-ban: D: FIXME.
+-ban: U: ## <mask|user>
+-ban: E: ## *!*@owns.org
+-ban: E: ## MoronMan
+
++ban: D: FIXME.
++ban: U: ## <mask|user> [chan] [time] [reason]
++ban: E: ## *!*@owns.org #bots 60 stop flooding.
++ban: E: ## *!*@*microsoft.com STOOPID
++ban: E: ## MoronMan
+
+-chan: D: Leave a channel permanently
+-chan: U: ## -#channel
+-chan: E: ## -#testbot
+
++chan: D: Join a channel permanently
++chan: U: ## #channel
++chan: E: ## #testbot
+
 chaninfo: D: Display channel statistics on Op, Ban, Deop, Unban, Part, Join, SignOff, PublicMsg, Kick and Topic
 chaninfo: U: ## [#channel]
 chaninfo: E: ##
-chaninfo: E: ## #debian
+chaninfo: E: ## #testbot
 
 chanset: D: set a variable for a channel
 chanset: U: ## [#chan] [what] [val]
@@ -105,7 +124,7 @@ crypt: E: ## 69 changeme
 cycle: D: Causes me to cycle in the channel it's said, or in the named channel
 cycle: U: ## [channel]
 cycle: E: ##
-cycle: E: ## #debian-bots
+cycle: E: ## #testbot
 
 dauthor: D: Find Debian package maintainers, and list the packages they maintain
 dauthor: U: ## <string> [dist]
@@ -178,8 +197,8 @@ ignore: E: ## [mask chan expire comment]
 ircstats: ircstats dumps some status information on the bot's IRC connection
 
 join: U: ## <#chan> [key]
-join: E: ## #debian
-join: E: ## #debian rules
+join: E: ## #testbot
+join: E: ## #testbot rules
 
 karma: Karma is a community rating system.  Use "X++" to increase the karma, or "X--" to decrease it.  Ask for ratings using "karma for X?"
 
@@ -188,7 +207,7 @@ kernel: U: ##
 
 kick: U: ## <nick> [#chan] [message]
 kick: E: ## oznoid
-kick: E: ## larne #debian
+kick: E: ## larne #testbot
 kick: E: ## john #foo go away!
 
 lart: D: Luser Attitude Readjustment Tool
@@ -222,8 +241,8 @@ lock: N: Requires factoid extension (extra) support enabled.
 
 mode: set modes for a channel
 mode: U: ## <#chan> <mode>
-mode: E: ## #debian +t
-mode: E: ## #debian -i
+mode: E: ## #testbot +t
+mode: E: ## #testbot -i
 
 news: D: News functions
 news: U: ## [chan] <add,del,mod,set,latest,read,help>
@@ -262,7 +281,7 @@ news mod: E: news mod test s/test/Test/g
 nickometer: D: Measures the lame-ness of a nick or channel
 nickometer: U: ## {nick,channel}
 nickometer: E: ## unknown_lamer
-nickometer: E: ## #debian-bots
+nickometer: E: ## #testbot
 
 nslookup: D: Query DNS
 nslookup: U: ## <host|ip>
@@ -275,7 +294,7 @@ ord: E: ## c
 
 part: D: Leave a channel (DCC only)
 part: U: ## <#channel>
-part: E: ## #debian
+part: E: ## #testbot
 part: NOTE: /kick is an alternative
 
 quote: D: Frontend to yahoo's online stock market share listing
@@ -367,21 +386,10 @@ uptime: U: ##
 
 wantnick: If someone's taken my nick (I hope not) and I'm using some temporary nick, I can change back to my original nick if it's not taken (again).
 
--ban: D: FIXME.
--ban: U: ## <mask|user>
--ban: E: ## *!*@owns.org
--ban: E: ## MoronMan
-
 -host: D: FIXME.
 -host: U: ## [user] <mask>
 -host: E: ## *!*@owns.org
 -host: E: ## owner leet!leet@*.heh.org
-
-+ban: D: FIXME.
-+ban: U: ## <mask|user> [chan] [time] [reason]
-+ban: E: ## *!*@owns.org #bots 60 stop flooding.
-+ban: E: ## *!*@*microsoft.com STOOPID
-+ban: E: ## MoronMan
 
 +host: D: FIXME.
 +host: U: ## [user] <mask>
