@@ -1,11 +1,19 @@
 #
 # ProcessExtra.pl: Extensions to Process.pl
 #          Author: dms
-#         Version: v0.4b (20000923)
+#         Version: v0.5 (20010124)
 #         Created: 20000117
 #
 
 if (&IsParam("useStrict")) { use strict; }
+
+use POSIX qw(strftime);
+use vars qw(%sched);
+
+#
+# is there a point in ScheduleChecked()?
+# not yet... not unless we run setupSchedulers more than once.
+#
 
 sub setupSchedulers {
     &VERB("Starting schedulers...",2);
@@ -13,65 +21,106 @@ sub setupSchedulers {
     # ONCE OFF.
 
     # REPETITIVE.
-    &uptimeCycle(1)	if (&IsParam("uptime"));
-    &randomQuote(1)	if (&IsParam("randomQuote"));
-    &randomFactoid(1)	if (&IsParam("randomFactoid"));
-    &logCycle(1)	if (defined fileno LOG and &IsParam("logfile") and &IsParam("maxLogSize"));
-    &chanlimitCheck(1)	if (&IsParam("chanlimitcheck"));
+    &uptimeCycle(1);
+    &randomQuote(2);
+    &randomFactoid(2);
+    &randomFreshmeat(2);
+    &logCycle(1);
+    &chanlimitCheck(1);
     &netsplitCheck(1);	# mandatory
     &floodCycle(1);	# mandatory
-    &seenFlush(1)	if (&IsParam("seen") and &IsParam("seenFlushInterval"));
+    &seenFlush(1);
     &leakCheck(1);	# mandatory
-    &ignoreListCheck(1);# mandatory
-    &seenFlushOld(1)	if (&IsParam("seen"));
+    &ignoreCheck(1);	# mandatory
+    &seenFlushOld(1);
     &ircCheck(1);	# mandatory
     &miscCheck(1);	# mandatory
     &shmFlush(1);	# mandatory
-    &slashdotCycle(1)	if (&IsParam("slashdot") and &IsParam("slashdotAnnounce"));
-    &freshmeatCycle(1)	if (&IsParam("freshmeat") and &IsParam("freshmeatAnnounce"));
-    &kernelCycle(1)	if (&IsParam("kernel") and &IsParam("kernelAnnounce"));
-    &wingateWriteFile(1) if (&IsParam("wingate"));
-    &factoidCheck(1)	if (&IsParam("factoidDeleteDelay"));
+    &slashdotCycle(2);
+    &freshmeatCycle(2);
+    &kernelCycle(2);
+    &wingateWriteFile(1);
+    &factoidCheck(1);
+
+#    my $count = map { exists $sched{$_}{RUNNING} } keys %sched;
+    my $count	= 0;
+    foreach (keys %sched) {
+	next unless (exists $sched{$_}{RUNNING});
+	$count++;
+    }
+
+    &status("Schedulers: $count will be running.");
+###    &scheduleList();
 }
 
 sub ScheduleThis {
     my ($interval, $codename, @args) = @_;
     my $waittime = &getRandomInt($interval);
 
+    if (!defined $waittime) {
+	&WARN("interval == waittime == UNDEF for $codename.");
+	return;
+    }
+
+    if (exists $sched{$codename}) {
+	&WARN("Sched for $codename already exists.");
+	return;
+    }
+
     &VERB("Scheduling \&$codename() for ".&Time2String($waittime),3);
-    $conn->schedule($waittime, \&$codename, @args);
+    my $retval = $conn->schedule($waittime, \&$codename, @args);
+    $sched{$codename}{LABEL}	= $retval;
+    $sched{$codename}{TIME}	= time()+$waittime;
+    $sched{$codename}{RUNNING}	= 1;
 }
 
+sub ScheduleChecked {
+    my ($codename) = shift;
+
+    # what the hell is this for?
+    if (exists $sched{$codename}{RUNNING}) {
+	&DEBUG("SC: Removed $codename.");
+	delete $sched{$codename}{RUNNING};
+    } else {
+###	&WARN("sched $codename already removed.");
+    }
+}
+
+####
+#### LET THE FUN BEGIN.
+####
+
 sub randomQuote {
+    my $interval = $param{'randomQuoteInterval'} || 60;
+    &ScheduleThis($interval, "randomQuote") if (@_);
+    return if ($_[0] eq "2");	# defer.
+    &ScheduleChecked("randomQuote");
+
     my $line = &getRandomLineFromFile($bot_misc_dir. "/blootbot.randtext");
     if (!defined $line) {
 	&ERROR("random Quote: weird error?");
 	return;
     }
 
-    my @channels = split(/[\s\t]+/, lc $param{'randomQuoteChannels'});
-    @channels    = keys(%channels) unless (scalar @channels);
-
-    my $good = 0;
-    foreach (@channels) {
-	next unless (&validChan($_));
+    foreach ( &ChanConfList("randomQuote") ) {
+	next unless (&validChan($_));	# ???
 
 	&status("sending random Quote to $_.");
 	&action($_, "Ponders: ".$line);
-	$good++;
     }
-
-    if (!$good and scalar @channels) {
-	&WARN("randomQuote: no valid channels?");
-    }
-
-    my $interval = $param{'randomQuoteInterval'} || 60;
-    &ScheduleThis($interval, "randomQuote") if (@_);
+    ### TODO: if there were no channels, don't reschedule until channel
+    ###		configuration is modified.
 }
 
 sub randomFactoid {
     my ($key,$val);
     my $error = 0;
+
+    my $interval = $param{'randomFactoidInterval'} || 60; # FIXME.
+    &ScheduleThis($interval, "randomFactoid") if (@_);
+    return if ($_[0] eq "2");	# defer.
+    &ScheduleChecked("randomFactoid");
+
     while (1) {
 	($key,$val) = &randKey("factoids","factoid_key,factoid_value");
 ###	$val =~ tr/^[A-Z]/[a-z]/;	# blah is Good => blah is good.
@@ -83,29 +132,47 @@ sub randomFactoid {
 	}
     }
 
-    my @channels = split(/[\s\t]+/, lc $param{'randomFactoidChannels'});
-    @channels    = keys(%channels) unless (scalar @channels);
-
-    my $good = 0;
-    foreach (@channels) {
-	next unless (&validChan($_));
+    foreach ( &ChanConfList("randomFactoid") ) {
+	next unless (&validChan($_));	# ???
 
 	&status("sending random Factoid to $_.");
-###	&msg($_, "$key is $val");
 	&action($_, "Thinks: \037$key\037 is $val");
 	### FIXME: Use &getReply() on above to format factoid properly?
 	$good++;
     }
+}
 
-    if (!$good and scalar @channels) {
-	&WARN("randomFactoid: no valid channels?");
-    }
+sub randomFreshmeat {
+    my $interval = $param{'randomFresheatInterval'} || 60;
+    &ScheduleThis($interval, "randomFreshmeat") if (@_);
+    return if ($_[0] eq "2");	# defer.
+    &ScheduleChecked("randomFreshmeat");
 
-    my $interval = $param{'randomFactoidInterval'} || 60;
-    &ScheduleThis($interval, "randomFactoid") if (@_);
+    my @chans = &ChanConfList("randomFreshmeat");
+    return unless (scalar @chans);
+
+    &Forker("freshmeat", sub {
+	my $retval = &Freshmeat::randPackage();
+
+	foreach (@chans) {
+	    next unless (&validChan($_));	# ???
+
+	    &status("sending random Freshmeat to $_.");
+	    &say($_, $line);
+	}
+    } );
 }
 
 sub logCycle {
+    if (@_) {
+	&ScheduleThis(60, "logCycle");
+	return if ($_[0] eq "2");	# defer.
+	&ScheduleChecked("logCycle");
+    }
+
+    return unless (defined fileno LOG);
+    return unless (&IsParam("logfile"));
+    return unless (&IsParam("maxLogSize"));
 
     ### check if current size is too large.
     if ( -s $file{log} > $param{'maxLogSize'}) {
@@ -167,11 +234,21 @@ sub logCycle {
 	&WARN("could not open dir $logdir");
     }
 
-    &ScheduleThis(60, "logCycle") if (@_);
 }
 
 sub seenFlushOld {
-    my $max_time = $param{'seenMaxDays'}*60*60*24;
+    if (@_) {
+	&ScheduleThis(1440, "seenFlushOld");
+	return if ($_[0] eq "2");	# defer.
+	&ScheduleChecked("seenFlushOld");
+    }
+
+    # is this global-only?
+    return unless (&IsChanConf("seen") > 0);
+    return unless (&IsChanConf("seenFlushInterval") > 0);
+
+    my $max_time = ($chanconf{_default}{'seenMaxDays'} || 30)
+				*60*60*24; # global.
     my $delete   = 0;
 
     if ($param{'DBType'} =~ /^pg|postgres|mysql/i) {
@@ -202,21 +279,26 @@ sub seenFlushOld {
     }
     &VERB("SEEN deleted $delete seen entries.",2);
 
-    &ScheduleThis(1440, "seenFlushOld") if (@_);
 }
 
 sub chanlimitCheck {
-    my $limitplus = $param{'chanlimitcheckPlus'} || 5;
-    my @channels = split(/[\s\t]+/, lc $param{'chanlimitcheck'});
+    if (@_) {
+	my $interval = &getChanConf("chanlimitcheckInterval") || 10;
+	&ScheduleThis($interval, "chanlimitCheck");
+	return if ($_[0] eq "2");
+	&ScheduleChecked("chanlimitCheck");
+    }
 
-    foreach (@channels) {
-	next unless (&validChan($_));
+    foreach ( &ChanConfList("chanlimitcheck") ) {
+	next unless (&validChan($_));	# ???
 
+	my $limitplus	= &getChanConf("chanlimitcheckPlus",$_) || 5;
 	my $newlimit	= scalar(keys %{$channels{$_}{''}}) + $limitplus;
 	my $limit	= $channels{$_}{'l'};
 
 	if (scalar keys %{$channels{$_}{''}} > $limit) {
 	    &status("LIMIT: set too low!!! FIXME");
+	    ### run NAMES again and flush it.
 	}
 
 	next unless (!defined $limit or $limit != $newlimit);
@@ -228,12 +310,16 @@ sub chanlimitCheck {
 	&rawout("MODE $_ +l $newlimit");
     }
 
-    my $interval = $param{'chanlimitcheckInterval'} || 10;
-    &ScheduleThis($interval, "chanlimitCheck") if (@_);
 }
 
 sub netsplitCheck {
     my ($s1,$s2);
+
+    if (@_) {
+	&ScheduleThis(30, "netsplitCheck");
+	return if ($_[0] eq "2");
+	&ScheduleChecked("netsplitCheck");
+    }
 
     foreach $s1 (keys %netsplitservers) {
 	foreach $s2 (keys %{$netsplitservers{$s1}}) {
@@ -256,18 +342,22 @@ sub netsplitCheck {
 	&DEBUG("netsplitC: $_ didn't come back from netsplit in 2 hours; removing from netsplit list.");
 	delete $netsplit{$_};
     }
-
-    &ScheduleThis(30, "netsplitCheck") if (@_);
 }
 
 sub floodCycle {
-    my $interval = $param{'floodInterval'} || 60;	# seconds.
     my $delete   = 0;
-
     my $who;
+
+    if (@_) {
+	&ScheduleThis(60, "floodCycle");	# minutes.
+	return if ($_[0] eq "2");
+	&ScheduleChecked("floodCycle");
+    }
+
+    my $time	= time();
     foreach $who (keys %flood) {
 	foreach (keys %{$flood{$who}}) {
-	    if (time() - $flood{$who}{$_} > $interval) {
+	    if ($time - $flood{$who}{$_} > $interval) {
 		delete $flood{$who}{$_};
 		$delete++;
 	    }
@@ -275,7 +365,6 @@ sub floodCycle {
     }
     &VERB("floodCycle: deleted $delete items.",2);
 
-    &ScheduleThis($interval, "floodCycle") if (@_);	# minutes.
 }
 
 sub seenFlush {
@@ -285,6 +374,13 @@ sub seenFlush {
     $stats{'count_old'} = &countKeys("seen");
     $stats{'new'}	= 0;
     $stats{'old'}	= 0;
+
+    if (@_) {
+	my $interval = $param{'seenFlushInterval'} || 60;
+	&ScheduleThis($interval, "seenFlush");
+	return if ($_[0] eq "2");
+	&ScheduleChecked("seenFlush");
+    }
 
     if ($param{'DBType'} =~ /^mysql|pg|postgres/i) {
 	foreach $nick (keys %seencache) {
@@ -347,13 +443,17 @@ sub seenFlush {
 
     &WARN("scalar keys seenflush != 0!")	if (scalar keys %seenflush);
 
-    my $interval = $param{'seenFlushInterval'} || 60;
-    &ScheduleThis($interval, "seenFlush") if (@_);
 }
 
 sub leakCheck {
     my ($blah1,$blah2);
     my $count = 0;
+
+    if (@_) {
+	&ScheduleThis(60, "leakCheck");
+	return if ($_[0] eq "2");
+	&ScheduleChecked("leakCheck");
+    }
 
     # flood.
     foreach $blah1 (keys %flood) {
@@ -373,29 +473,37 @@ sub leakCheck {
 	    }
 	}
     }
-
-    &ScheduleThis(60, "leakCheck") if (@_);
 }
 
-sub ignoreListCheck {
-    my $time = time();
-    my $count = 0;
+sub ignoreCheck {
+    my $time	= time();
+    my $count	= 0;
 
-    foreach (keys %ignoreList) {
-	next if ($ignoreList{$_} == 1);
-	next unless ($time > $ignoreList{$_});
+    foreach (keys %ignore) {
+	my $chan = $_;
 
-	delete $ignoreList{$_};
-	&status("ignore: $_ has expired.");
-	$count++;
+	foreach (keys %{ $ignore{$chan} }) {
+	    my @array = $ignore{$chan}{$_};
+
+	    foreach (@array) {
+		&DEBUG("  => $_");
+	    }
+
+	    next;
+	    next unless ($time > $ignore{$_});
+
+	    delete $ignore{$chan}{$_};
+	    &status("ignore: $_/$chan has expired.");
+	    $count++;
+	}
     }
     &VERB("ignore: $count items deleted.",2);
 
-    &ScheduleThis(30, "ignoreListCheck") if (@_);
+    &ScheduleThis(60, "ignoreCheck") if (@_);
 }
 
 sub ircCheck {
-    my @array = split /[\t\s]+/, $param{'join_channels'};
+    my @array = grep !/^_default$/, keys %chanconf;
     my $iconf = scalar(@array);
     my $inow  = scalar(keys %channels);
     if ($iconf > 2 and $inow * 2 <= $iconf) {
@@ -425,6 +533,16 @@ sub ircCheck {
 	}
     }
 
+    ### USER FILE.
+    if ($utime_userfile > $wtime_userfile and time() - $wtime_userfile > 3600) {
+	&writeUserFile();
+	$wtime_userfile = time();
+    }
+    ### CHAN FILE.
+    if ($utime_chanfile > $wtime_chanfile and time() - $wtime_chanfile > 3600) {
+	&writeChanFile();
+	$wtime_chanfile	= time();
+    }
 
     &ScheduleThis(240, "ircCheck") if (@_);
 }
@@ -459,10 +577,16 @@ sub miscCheck {
 }
 
 sub shmFlush {
+    if (@_) {
+	&ScheduleThis(5, "shmFlush");
+	return if ($_[0] eq "2");
+	&ScheduleChecked("shmFlush");
+    }
+
     my $shmmsg = &shmRead($shm);
     $shmmsg =~ s/\0//g;         # remove padded \0's.
 
-    return if ($$ != $main::bot_pid); # fork protection.
+    return if ($$ != $::bot_pid); # fork protection.
 
     foreach (split '\|\|', $shmmsg) {
 	&VERB("shm: Processing '$_'.",2);
@@ -489,8 +613,6 @@ sub shmFlush {
     }
 
     &shmWrite($shm,"") if ($shmmsg ne "");
-
-    &ScheduleThis(5, "shmFlush") if (@_);
 }
 
 ### this is semi-scheduled
@@ -513,21 +635,69 @@ sub uptimeCycle {
 }
 
 sub slashdotCycle {
-    &Forker("slashdot", sub { &Slashdot::slashdotAnnounce(); } );
-
     &ScheduleThis(60, "slashdotCycle") if (@_);
+    return if ($_[0] eq "2");
+    &ScheduleChecked("slashdotCycle");
+
+    my @chans = &ChanConfList("slashdotAnnounce");
+    return unless (scalar @chans);
+
+    &Forker("slashdot", sub {
+	my @data = &Slashdot::slashdotAnnounce();
+
+	foreach (@chans) {
+	    next unless (&::validChan($_));
+
+	    &::status("sending slashdot update to $_.");
+	    my $c = $_;
+	    foreach (@data) {
+		&notice($c, "Slashdot: $_");
+	    }
+	}
+    } );
 }
 
 sub freshmeatCycle {
-    &Forker("freshmeat", sub { &Freshmeat::freshmeatAnnounce(); } );
-
     &ScheduleThis(60, "freshmeatCycle") if (@_);
+    return if ($_[0] eq "2");
+    &ScheduleChecked("freshmeatCycle");
+
+    my @chans = &ChanConfList("freshmeatAnnounce");
+    return unless (scalar @chans);
+
+    &Forker("freshmeat", sub {
+	my $data = &Freshmeat::freshmeatAnnounce();
+
+	foreach (@chans) {
+	    next unless (&::validChan($_));
+
+	    &::status("sending freshmeat update to $_.");
+	    &msg($_, $data);
+	}
+    } );
 }
 
 sub kernelCycle {
-    &Forker("kernel", sub { &Kernel::kernelAnnounce(); } );
-
     &ScheduleThis(240, "kernelCycle") if (@_);
+    return if ($_[0] eq "2");
+    &ScheduleChecked("kernelCycle");
+
+    my @chans = &ChanConfList("kernelAnnounce");
+    return unless (scalar @chans);
+
+    &Forker("kernel", sub {
+	my @data = &Kernel::kernelAnnounce();
+
+	foreach (@chans) {
+	    next unless (&::validChan($_));
+
+	    &::status("sending kernel update to $_.");
+	    my $c = $_;
+	    foreach (@data) {
+		&notice($c, "Kernel: $_");
+	    }
+	}
+    } );
 }
 
 sub wingateCheck {
@@ -609,9 +779,51 @@ sub factoidCheck {
     &ScheduleThis(1440, "factoidCheck") if (@_);
 }
 
+sub dccStatus {
+    my $time = strftime("%H:%M", localtime(time()) );
+
+    return unless (scalar keys %{ $DCC{CHAT} });
+
+    foreach (keys %channels) {
+	&DCCBroadcast("[$time] $_: $users members ($chops chops), $bans bans","+o");
+    }
+
+    &ScheduleThis(10, "dccStatus") if (@_);
+}
+
 sub schedulerSTUB {
 
     &ScheduleThis(TIME_IN_MINUTES, "FUNCTION") if (@_);
+}
+
+sub scheduleList {
+    ###
+    # custom:
+    #	a - time == now.
+    #	b - weird time.
+    ###
+
+    &DEBUG("sched:");
+    foreach (keys %{ $irc->{_queue} }) {
+	my $q = $_;
+
+	my $sched;
+	foreach (keys %sched) {
+	    next unless ($q eq $sched{$_});
+	    $sched = $_;
+	    last;
+	}
+
+	my $time = $irc->{_queue}->{$q}->[0] - time();
+
+	if (defined $sched) {
+	    &DEBUG("   $sched($q): ".&Time2String($time) );
+	} else {
+	    &DEBUG("   NULL($q): ".&Time2String($time) );
+	}
+    }
+
+    &DEBUG("end of sList.");
 }
 
 1;
