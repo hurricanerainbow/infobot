@@ -1,4 +1,7 @@
-# infobot :: Kevin Lenzo 1997-1999
+###
+### Process.pl: Kevin Lenzo 1997-1999
+###
+
 #
 # process the incoming message
 #
@@ -95,7 +98,7 @@ sub process {
     }
 
     # User Processing, for all users.
-    return 'NOREPLY from userC' if &userCommands() eq 'NOREPLY';
+    return '$noreply from userC' if &userCommands() eq $noreply;
 
     ###
     # once useless messages have been parsed out, we match them.
@@ -215,7 +218,7 @@ sub process {
     if ($addressed) {
 	my $er = &Modules();
 	if ($er =~ /\S/) {
-	    &performStrictReply($er) if ($er ne 'NOREPLY');
+	    &performStrictReply($er) if ($er ne $noreply);
 	    return 'SOMETHING 1';
 	}
 
@@ -243,8 +246,8 @@ sub FactoidStuff {
     # inter-infobot.
     if ($msgType =~ /private/ and $message =~ s/^:INFOBOT://) {
 	### identification.
-	&status("infobot <$nuh> identified") unless $infobots{$nuh};
-	$infobots{$nuh} = $who;
+	&status("infobot <$nuh> identified") unless $bots{$nuh};
+	$bots{$nuh} = $who;
 
 	### communication.
 
@@ -368,7 +371,7 @@ sub FactoidStuff {
 		my $author = &getFactInfo($from, "created_by");
 		if (&IsFlag("m") and $author =~ /^\Q$who\E\!/i) {
 		    &msg($who, "It's not yours to modify.");
-		    return 'NOREPLY';
+		    return $noreply;
 		}
 
 		if ($_ = &getFactoid($to)) {
@@ -460,7 +463,7 @@ sub FactoidStuff {
 
     my $result = &doQuestion($message);
 
-    return 'result is NOREPLY' if ($result eq 'NOREPLY');
+    return 'result is $noreply' if ($result eq $noreply);
 
     if (defined $result and $result ne "") {		# question.
 	&status("question: <$who> $message");

@@ -25,7 +25,7 @@ my $key;
 my %db;
 
 ### open all the data...
-&loadConfig("files/infobot.config");
+&loadConfig("files/blootbot.config");
 $dbname = $param{'DBFile'};
 my $dbh_mysql = MYSQL::openDB();
 DBM::openDB();

@@ -1,4 +1,7 @@
-# ircII.servers file for infobot.
+###
+### ircII.servers
+###
 
+irc.home.org
 irc.linux.com
 irc.openprojects.net

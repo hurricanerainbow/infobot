@@ -22,5 +22,5 @@ Module-Units:
 Patches:
 	- ...
 
-Quotes file (files/infobot.randtext):
+Quotes file (files/blootbot.randtext):
 	- ??? Ask netgod/larne/is for dpkg's tcl

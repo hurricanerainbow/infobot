@@ -9,7 +9,7 @@ if (&IsParam("useStrict")) { use strict; }
 
 sub help {
     my $topic = $_[0];
-    my $file  = $infobot_misc_dir."/infobot.help";
+    my $file  = $bot_misc_dir."/blootbotbot.help";
     my %help  = ();
 
     if (!open(FILE, $file)) {
@@ -537,7 +537,7 @@ sub validFactoid {
 	/\\\%/ and last;
 	/\\\_/ and last;
 
-	# weird/special stuff. also old (stock) infobot bugs.
+	# weird/special stuff. also old (stock) blootbot bugs.
 	$rhs =~ /( \Q$ident\E's|\Q$ident\E's )/i and last; # ownership.
 
 	# duplication.
@@ -584,13 +584,13 @@ sub Forker {
     my $pid;
 
     &shmFlush();
-    &status("double fork detected; not forking.") if ($$ != $infobot_pid);
+    &status("double fork detected; not forking.") if ($$ != $bot_pid);
 
-    if (&IsParam("forking") and $$ == $infobot_pid) {
-	return 'NOREPLY' unless (&addForked($label));
+    if (&IsParam("forking") and $$ == $bot_pid) {
+	return $noreply unless (&addForked($label));
 	$SIG{CHLD} = 'IGNORE';
 	$pid = eval { fork() };  # catch non-forking OSes and other errors
-	return 'NOREPLY' if $pid;   # parent does nothing
+	return $noreply if $pid;   # parent does nothing
 	&status("fork starting for '$label', PID == $$.");
     }
 

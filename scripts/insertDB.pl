@@ -9,7 +9,7 @@ require "src/logger.pl";
 require "src/modules.pl";
 require "src/Factoids/DBCommon.pl";
 
-&loadConfig($infobot_misc_dir."/infobot.config");
+&loadConfig($bot_misc_dir."/blootbot.config");
 &loadDBModules();
 
 unless (@_) {

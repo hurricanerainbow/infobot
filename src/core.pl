@@ -11,9 +11,9 @@ use strict;
 ### TODO: reorder.
 use vars qw(
 	$answer $correction_plausible $loggingstatus $talkchannel
-	$statcount $memusage $user $memusageOld $infobot_version $dbh
-	$shm $host $msg $infobot_misc_dir $infobot_pid $infobot_base_dir 
-	$infobot_src_dir $conn $irc $learnok $nick $ident $no_syscall
+	$statcount $memusage $user $memusageOld $bot_version $dbh
+	$shm $host $msg $bot_misc_dir $bot_pid $bot_base_dir $noreply
+	$bot_src_dir $conn $irc $learnok $nick $ident $no_syscall
 	$force_public_reply $addrchar $userHandle $addressedother
 	$floodwho $chan $msgtime $server $firsttime $wingaterun
 );
@@ -35,6 +35,7 @@ $SIG{'KILL'} = 'doExit';  #  9. DOES NOT WORK. 'man perlipc' for details.
 $SIG{'TERM'} = 'doExit';  # 15.
 $SIG{'__WARN__'} = 'doWarn';
 
+# initialize variables.
 $last{buflen}	= 0;
 $last{say}	= "";
 $last{msg}	= "";
@@ -42,7 +43,10 @@ $userHandle	= "default";
 $msgtime	= time();
 $wingaterun	= time();
 $firsttime	= 1;
-$infobot_version = "blootbot 1.0.0 (20000725) -- $^O";
+
+### CHANGE TO STATIC.
+$bot_version = "blootbot 1.0.0 (20000725) -- $^O";
+$noreply	 = "NOREPLY";
 
 ##########
 ### misc commands.
@@ -51,9 +55,9 @@ $infobot_version = "blootbot 1.0.0 (20000725) -- $^O";
 sub doExit {
     my ($sig) = @_;
 
-    if (!defined $infobot_pid) {	# independent.
+    if (!defined $bot_pid) {	# independent.
 	exit 0;
-    } elsif ($infobot_pid == $$) {	# parent.
+    } elsif ($bot_pid == $$) {	# parent.
 	&status("parent caught SIG$sig (pid $$).") if (defined $sig);
 
 	my $type;
@@ -137,10 +141,10 @@ sub setup {
     &openLog();		# write, append.
 
     # read.
-    &loadIgnore($infobot_misc_dir."/infobot.ignore");
-    &loadLang($infobot_misc_dir."/infobot.lang");
-    &loadIRCServers($infobot_misc_dir."/ircII.servers");
-    &loadUsers($infobot_misc_dir."/infobot.users");
+    &loadIgnore($bot_misc_dir.		"/blootbot.ignore");
+    &loadLang($bot_misc_dir.		"/blootbot.lang");
+    &loadIRCServers($bot_misc_dir.	"/ircII.servers");
+    &loadUsers($bot_misc_dir.		"/blootbot.users");
 
     $shm = &openSHM();
     &openDB();
@@ -151,7 +155,7 @@ sub setup {
 }
 
 sub setupConfig {
-    &loadConfig($infobot_misc_dir."/infobot.config");
+    &loadConfig($bot_misc_dir."/blootbot.config");
 
     foreach ("ircNick", "ircUser", "ircName", "DBType") {
 	next if &IsParam($_);
@@ -160,8 +164,8 @@ sub setupConfig {
     }
 
     # static scalar variables.
-    $file{utm}	= "$infobot_base_dir/$param{'ircUser'}.uptime";
-    $file{PID}	= "$infobot_base_dir/$param{'ircUser'}.pid";
+    $file{utm}	= "$bot_base_dir/$param{'ircUser'}.uptime";
+    $file{PID}	= "$bot_base_dir/$param{'ircUser'}.pid";
 }
 
 sub startup {
@@ -188,7 +192,7 @@ sub shutdown {
 sub restart {
     my ($sig) = @_;
 
-    if ($$ == $infobot_pid) {
+    if ($$ == $bot_pid) {
 	&status("$sig called.");
 
 	### crappy bug in Net::IRC?
@@ -200,7 +204,7 @@ sub restart {
 	}
 
 	&shutdown();
-	&loadConfig($infobot_misc_dir."/infobot.config");
+	&loadConfig($bot_misc_dir."/blootbot.config");
 	&reloadModules() if (&IsParam("DEBUG"));
 	&setup();
 
@@ -216,8 +220,8 @@ sub loadConfig {
 
     if (!open(FILE, $file)) {
 	&ERROR("FAILED loadConfig ($file): $!");
-	&status("Please copy files/sample.config to files/infobot.config");
-	&status("  and edit files/infobot.config, modify to tastes.");
+	&status("Please copy files/sample.config to files/blootbot.config");
+	&status("  and edit files/blootbot.config, modify to tastes.");
 	exit 0;
     }
 

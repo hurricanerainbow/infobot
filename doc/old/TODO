@@ -42,10 +42,12 @@
 - send DCC message when using 'op'.
 - Schedule a 5min(??) interval to display stats in DCC
   - kill if dcc chat == gone.
+  - add schedule list.
 - if 25lines are logged within 1 second, throttle it (sleep 1)
 - Add &botstatsUpdate() &botstatsGet();
 - Create startCheck(); for once off startup checks.
 - Max size of logs to keep.
+  - use Maxlogsize for both compressed and uncompressed.
 - split Process.pl's FactoidStuph() off to Factoids/FCommands.pl
 - time when last executed commands like fm,/. Useless?
 - if a dunno is issued, add an option to suggest a factiod

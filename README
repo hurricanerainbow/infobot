@@ -51,8 +51,8 @@ knowledge needs to fix it up or at least unify the module with mysql.
 
 INSTALLATION
   - Read INSTALL and INSTALL.patches
-  - Copy files/sample.config to files/infobot.config
-  - Edit files/infobot.config
+  - Copy files/sample.config to files/blootbot.config
+  - Edit files/blootbot.config
   - ./blootbot
 
 

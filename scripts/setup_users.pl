@@ -7,7 +7,7 @@ require "src/core.pl";
 require "src/Misc.pl";
 require "src/logger.pl";
 
-&loadConfig("files/infobot.config");
+&loadConfig("files/blootbot.config");
 my $dbname = $param{'DBName'};
 my $query;
 

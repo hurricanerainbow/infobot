@@ -1,4 +1,6 @@
-# infobot :: Kevin Lenzo  (c) 1997
+###
+### Question.pl: Kevin Lenzo  (c) 1997
+###
 
 ##  doQuestion --
 ##	if ($query == query) {
@@ -12,7 +14,7 @@
 if (&IsParam("useStrict")) { use strict; }
 
 use vars qw($query $reply $finalQMark $nuh $result $talkok $who $nuh);
-use vars qw(%infobots %forked);
+use vars qw(%bots %forked);
 
 sub doQuestion {
     # my doesn't allow variables to be inherinted, local does.
@@ -46,7 +48,7 @@ sub doQuestion {
 
     # dangerous; common preambles should be stripped before here
     if ($query =~ /^forget /i or $query =~ /^no, /) {
-	return 'NOREPLY' if (exists $infobots{$nuh});
+	return $noreply if (exists $bots{$nuh});
     }
 
     # convert to canonical reference form
@@ -85,7 +87,7 @@ sub doQuestion {
 	if (&IsParam("freshmeatForFactoid")) {
 	    &loadMyModule($myModules{'freshmeat'});
 	    $result = &Freshmeat::showPackage($query);
-	    return $result unless ($result eq 'NOREPLY');
+	    return $result unless ($result eq $noreply);
 	}
 
 	&DEBUG("Question: hrm... result => '$result'.");
