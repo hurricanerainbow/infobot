@@ -32,7 +32,7 @@ if ($@) {
 	"dumpvars"	=> "DumpVars.pl",
 	"exchange"	=> "Exchange.pl",
 	"factoids"	=> "Factoids.pl",
-	"httpdtype"	=> "HTTPDtype.pl",
+	"HTTPDtype"	=> "HTTPDtype.pl",
 	"insult"	=> "insult.pl",
 	"ircdcc"	=> "UserDCC.pl",
 	"kernel"	=> "Kernel.pl",
