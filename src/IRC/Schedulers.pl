@@ -540,7 +540,7 @@ sub ignoreCheck {
 sub ircCheck {
 
     if (@_) {
-	&ScheduleThis(120, "ircCheck");
+	&ScheduleThis(60, "ircCheck");
 	return if ($_[0] eq "2");	# defer.
     } else {
 	delete $sched{"ircCheck"}{RUNNING};
@@ -561,7 +561,7 @@ sub ircCheck {
 	&rawout("PRIVMSG ChanServ :OP $chan $ident");
     }
 
-    if (!$conn->connected and time - $msgtime > 3600) {
+    if (!$conn->connected or time - $msgtime > 3600) {
 	&WARN("ircCheck: no msg for 3600 and disco'd! reconnecting!");
 	$msgtime = time();	# just in case.
 	&ircloop();
