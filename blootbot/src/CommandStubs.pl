@@ -218,6 +218,12 @@ sub parseCmdHook {
 &addCmdHook("extra", 'weather', ('CODEREF' => 'Weather::Weather',
 	'Identifier' => 'weather', 'Help' => 'weather',
 	'Cmdstats' => 'Weather') );
+&addCmdHook("extra", 'bzflist', ('CODEREF' => 'BZFlag::list',
+	'Identifier' => 'bzflag', 'Cmdstats' => 'BZFlag',
+	'Forker' => 1) );
+&addCmdHook("extra", 'bzfquery', ('CODEREF' => 'BZFlag::query',
+	'Identifier' => 'bzflag', 'Cmdstats' => 'BZFlag',
+	'Forker' => 1, 'Help' => 'bzflag') );
 
 ###
 ### END OF ADDING HOOKS.
