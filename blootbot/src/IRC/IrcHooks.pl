@@ -790,9 +790,20 @@ sub on_public {
 	$userstats{lc $nick}{'Time'} = time();
     }
 
-#    if (&IsChanConf("hehCounter")) {
-#	#...
-#    }
+    # would this slow things down?
+    if ($_ = &getChanConf("ircTextCounters")) {
+	foreach (split /[\s]+/) {
+	    next unless ($msg =~ /^\Q$_\E$/i);
+	    &status("textcounters: $_ matched for $who");
+
+	    my $v = &dbGet("stats", "counter", "nick='$who' and type='$msg'");
+	    $v++;
+
+	    &dbReplace("stats", (nick => $who, type => $_, counter => $v) );
+	    # does not work, atleast with old mysql!!! :(
+#	    &dbReplace("stats", (nick => $who, type => $_, -counter => "counter+1") );
+	}
+    }
 
     &hookMsg('public', $chan, $nick, $msg);
     $chanstats{$chan}{'PublicMsg'}++;

@@ -99,6 +99,7 @@ sub dbGet {
     my @retval;
     my $i;
     &DEBUG("dbGet($db, $key, $val, $select);");
+    # TODO: support change that's done for db_mysql!
 
     if (!scalar @{ "${db}_format" }) {
 	&ERROR("dG: no valid format layout for $db.");

@@ -201,11 +201,9 @@ sub say {
 
 	    if ( ($pubcount % $i) == 0 and $pubcount) {
 		sleep 1;
-		$pubsleep++;
 	    } elsif ($pubsize > $j) {
 		sleep 1;
 		$pubsize -= $j;
-		$pubsleep++;
 	    }
 
 	} else {
@@ -244,11 +242,9 @@ sub msg {
 	    my $j = &getChanConfDefault("sendPrivateLimitBytes", 1000);
 	    if ( ($msgcount % $i) == 0 and $msgcount) {
 		sleep 1;
-		$msgsleep++;
 	    } elsif ($msgsize > $j) {
 		sleep 1;
 		$msgsize -= $j;
-		$msgsleep++;
 	    }
 
 	} else {
@@ -302,11 +298,9 @@ sub notice {
 
 	if ( ($notcount % $i) == 0 and $notcount) {
 	    sleep 1;
-	    $notsleep++;
 	} elsif ($notsize > $j) {
 	    sleep 1;
 	    $notsize -= $j;
-	    $notsleep++;
 	}
 
     } else {
@@ -626,7 +620,6 @@ sub joinNextChan {
 	}
 
 	return;
-
     }
 
     # !scalar @joinchan:

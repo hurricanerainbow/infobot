@@ -55,7 +55,7 @@ sub update {
     # freshmeat
     if (&IsChanConf("freshmeatForFactoid")) {
 	# todo: "name" is invalid for fm ][
-	if (&dbGet("freshmeat", "name", $lhs, "name")) {
+	if (&dbGet("freshmeat", "name", "name='$lhs'")) {
 	    &msg($who, "permission denied. (freshmeat)");
 	    &status("alert: $who wanted to teach me something that freshmeat already has info on.");
 	    return 1;
@@ -107,9 +107,18 @@ sub update {
 
 	&performAddressedReply("okay");
 
-	&setFactInfo($lhs,"created_by", $nuh);
-	&setFactInfo($lhs,"created_time", time());
-	&setFactInfo($lhs,"factoid_value", $rhs);
+	### BROKEN!!!
+	if (1) {	# old
+	    &setFactInfo($lhs,"created_by", $nuh);
+	    &setFactInfo($lhs,"created_time", time());
+	    &setFactInfo($lhs,"factoid_value", $rhs);
+	} else {
+	    &dbReplace("factoids", (
+		factoid_key	=> $lhs,
+		created_by	=> time(),
+		factoid_value	=> $rhs,
+	    ) );
+	}
 
 	if (!defined $rhs or $rhs eq "") {
 	    &ERROR("Update: rhs1 == NULL.");

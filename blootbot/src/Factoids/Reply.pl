@@ -48,67 +48,32 @@ sub getReply {
 	$result =~ s/^\s*//;
     }
 
-    my $fauthor = &dbGet("factoids", "factoid_key", $message, "created_by");
-    ### we need non-evaluating regex like in factoid sar.
-    if ($msgType =~ /^private$/) {
-	if (0 and defined $fauthor and $fauthor =~ /^\Q$who\E\!/i) {
-	    &status("Reply.pl: author requested own factoid in private; literal!");
-	    $literal = 1;
-	}
-    } else {
-	my $done = 0;
+    my $fauthor = &dbGet("factoids", "created_by", "factoid_key='$message'");
+    $result	= &SARit($result);
 
-	# (blah1|blah2)?
-	while ($result =~ /\((.*?)\)\?/) {
-	    my $str = $1;
-	    if (rand() > 0.5) {		# fix.
-		&status("Factoid transform: keeping '$str'.");
-		$result =~ s/\(\Q$str\E\)\?/$str/;
-	    } else {			# remove
-		&status("Factoid transform: removing '$str'.");
-		$result =~ s/\(\Q$str\E\)\?\s?//;
-	    }
-	    $done++;
-	    last if ($done >= 10);	# just in case.
-	}
-	$done = 0;
-
-	# EG: (0-32768) => 6325
-	### TODO: (1-10,20-30,40) => 24
-	while ($result =~ /\((\d+)-(\d+)\)/) {
-	    my ($lower,$upper) = ($1,$2);
-	    my $new = int(rand $upper-$lower) + $lower;
-
-	    &status("Reply.pl: SARing '$&' to '$new'.");
-	    $result =~ s/$&/$new/;
-	    $done++;
-	    last if ($done >= 10);	# just in case.
-	}
-	$done = 0;
-
-	# EG: (blah1|blah2|blah3|) => blah1
-	while ($result =~ /.*\((.*\|.*?)\).*/) {
-	    $result = &smart_replace($result);
-
-	    $done++;
-	    last if ($done >= 10);	# just in case.
-	}
-	&status("Reply.pl: $done SARs done.") if ($done);
-    }
-
-    $reply = $result;
+    $reply	= $result;
     if ($result ne "") {
 	### AT LAST, REPEAT PREVENTION CODE REMOVED IN FAVOUR OF GLOBAL
 	### FLOOD REPETION AND PROTECTION. -20000124
 
 	# stats code.
-	&setFactInfo($lhs,"requested_by", $nuh);
-	&setFactInfo($lhs,"requested_time", time());
 	### FIXME: old mysql doesn't support
-	###	"requested_count=requested_count+1".
+	### "requested_count=requested_count+1".
 	my $count = &getFactInfo($lhs,"requested_count") || 0;
 	$count++;
-	&setFactInfo($lhs,"requested_count", $count);
+	### BROKEN!!!
+	if (1) {	# old code.
+	    &setFactInfo($lhs,"requested_by", $nuh);
+	    &setFactInfo($lhs,"requested_time", time());
+	    &setFactInfo($lhs,"requested_count", $count);
+	} else {
+	    &dbReplace("factoids", (
+		factoid_key	=> $lhs,
+		requested_by	=> $nuh,
+		requested_time	=> time(),
+		requested_count	=> $count
+	    ) );
+	}
 
 	# todo: rename $real to something else!
 	my $real   = 0;
@@ -170,7 +135,116 @@ sub getReply {
     ###
     ### $ SUBSTITUTION.
     ###
+
+    $reply = &substVars($reply);
     
+    $reply;
+}
+
+sub smart_replace {
+    my ($string) = @_;
+    my ($l,$r)	= (0,0);	# l = left,  r = right.
+    my ($s,$t)	= (0,0);	# s = start, t = marker.
+    my $i	= 0;
+    my $old	= $string;
+    my @rand;
+
+    foreach (split //, $string) {
+
+	if ($_ eq "(") {
+###	    print "( l=>$l, r=>$r\n";
+
+	    if (!$l and !$r) {
+#		print "STARTING at $i\n";
+		$s = $i;
+		$t = $i;
+	    }
+
+	    $l++;
+	    $r--;
+	}
+
+	if ($_ eq ")") {
+###	    print ") l=>$l, r=>$r\n";
+
+	    $r++;
+	    $l--;
+
+	    if (!$l and !$r) {
+		my $substr = substr($old,$s,$i-$s+1);
+#		print "STOP at $i $substr\n";
+		push(@rand, substr($old,$t+1,$i-$t-1) );
+
+		my $rand = $rand[rand @rand];
+		&status("SARing '$substr' to '$rand'.");
+		$string =~ s/\Q$substr\E/$rand/;
+		undef @rand;
+	    }
+	}
+
+	if ($_ eq "|" and $l+$r== 0 and $l==1) {
+#	    print "| at $i (l=>$l,r=>$r)\n";
+	    push(@rand, substr($old,$t+1,$i-$t-1) );
+	    $t = $i;
+	}
+
+	$i++;
+    }
+
+    if ($old eq $string) {
+	&WARN("smart_replace: no subst made. (string => $string)");
+    }
+
+    return $string;
+}
+
+sub SARit {
+    my($txt) = @_;
+    my $done = 0;
+
+    # (blah1|blah2)?
+    while ($txt =~ /\((.*?)\)\?/) {
+	my $str = $1;
+	if (rand() > 0.5) {		# fix.
+	    &status("Factoid transform: keeping '$str'.");
+	    $txt =~ s/\(\Q$str\E\)\?/$str/;
+	} else {			# remove
+	    &status("Factoid transform: removing '$str'.");
+	    $txt =~ s/\(\Q$str\E\)\?\s?//;
+	}
+	$done++;
+	last if ($done >= 10);	# just in case.
+    }
+    $done = 0;
+
+    # EG: (0-32768) => 6325
+    ### TODO: (1-10,20-30,40) => 24
+    while ($txt =~ /\((\d+)-(\d+)\)/) {
+	my ($lower,$upper) = ($1,$2);
+	my $new = int(rand $upper-$lower) + $lower;
+
+	&status("SARing '$&' to '$new' (2).");
+	$txt =~ s/$&/$new/;
+	$done++;
+	last if ($done >= 10);	# just in case.
+    }
+    $done = 0;
+
+    # EG: (blah1|blah2|blah3|) => blah1
+    while ($txt =~ /.*\((.*\|.*?)\).*/) {
+	$txt = &smart_replace($txt);
+
+	$done++;
+	last if ($done >= 10);	# just in case.
+    }
+    &status("Reply.pl: $done SARs done.") if ($done);
+
+    return $txt;
+}
+
+sub substVars {
+    my($reply) = @_;
+
     # $date, $time.
     my $date	=  scalar(localtime());
     $date	=~ s/\:\d+(\s+\w+)\s+\d+$/$1/;
@@ -250,64 +324,7 @@ sub getReply {
 
     $reply	=~ s/\$memusage/$memusage/;
 
-    $reply;
-}
-
-sub smart_replace {
-    my ($string) = @_;
-    my ($l,$r) = (0,0);		# l = left,  r = right.
-    my ($s,$t) = (0,0);		# s = start, t = marker.
-    my $i = 0;
-    my @rand;
-    my $old = $string;
-
-    foreach (split //, $string) {
-
-	if ($_ eq "(") {
-###	    print "( l=>$l, r=>$r\n";
-
-	    if (!$l and !$r) {
-#		print "STARTING at $i\n";
-		$s = $i;
-		$t = $i;
-	    }
-
-	    $l++;
-	    $r--;
-	}
-
-	if ($_ eq ")") {
-###	    print ") l=>$l, r=>$r\n";
-
-	    $r++;
-	    $l--;
-
-	    if (!$l and !$r) {
-		my $substr = substr($old,$s,$i-$s+1);
-#		print "STOP at $i $substr\n";
-		push(@rand, substr($old,$t+1,$i-$t-1) );
-
-		my $rand = $rand[rand @rand];
-		&status("Reply.pl: SARing '$substr' to '$rand'.");
-		$string =~ s/\Q$substr\E/$rand/;
-		undef @rand;
-	    }
-	}
-
-	if ($_ eq "|" and $l+$r== 0 and $l==1) {
-#	    print "| at $i (l=>$l,r=>$r)\n";
-	    push(@rand, substr($old,$t+1,$i-$t-1) );
-	    $t = $i;
-	}
-
-	$i++;
-    }
-
-    if ($old eq $string) {
-	&WARN("smart_replace: no subst made. (string => $string)");
-    }
-
-    return $string;
+    return $reply;
 }
 
 1;

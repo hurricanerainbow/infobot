@@ -40,11 +40,11 @@ sub dbQuote {
 }
 
 #####
-# Usage: &dbGet($table, $primkey, $primval, $select);
+# Usage: &dbGet($table, $select, $where);
 sub dbGet {
-    my ($table, $primkey, $primval, $select) = @_;
-    my $query = "SELECT $select FROM $table WHERE $primkey=". 
-		&dbQuote($primval);
+    my ($table, $select, $where) = @_;
+    my $query	 = "SELECT $select FROM $table";
+    $query	.= " WHERE $where" if ($where);
 
     my $sth;
     if (!($sth = $dbh->prepare($query))) {
@@ -55,7 +55,7 @@ sub dbGet {
     &SQLDebug($query);
     if (!$sth->execute) {
 	&ERROR("Get => '$query'");
-	&ERROR("Get => $DBI::errstr");
+#	&ERROR("Get => $DBI::errstr");
 	$sth->finish;
 	return 0;
     }
@@ -137,7 +137,7 @@ sub dbSet {
     my ($table, $primkey, $primval, $key, $val) = @_;
     my $query;
 
-    my $result = &dbGet($table,$primkey,$primval,$primkey);
+    my $result = &dbGet($table, $primkey, "$primkey='$primval'");
     if (defined $result) {
 	$query = "UPDATE $table SET $key=".&dbQuote($val).
 		" WHERE $primkey=".&dbQuote($primval);
@@ -193,14 +193,19 @@ sub dbInsert {
 }
 
 #####
-# Usage: &dbReplace($table, $primkey, $primval, %hash);
+# Usage: &dbReplace($table, %hash);
 sub dbReplace {
-    my ($table, $primkey, $primval, %hash) = @_;
+    my ($table, %hash) = @_;
     my (@keys, @vals);
 
     foreach (keys %hash) {
-	push(@keys, $_);
-	push(@vals, &dbQuote($hash{$_}));
+	if (s/^-//) {	# as is.
+	    push(@keys, $_);
+	    push(@vals, $hash{'-'.$_});
+	} else {
+	    push(@keys, $_);
+	    push(@vals, &dbQuote($hash{$_}));
+	}
     }
 
     &dbRaw("Replace($table)", "REPLACE INTO $table (".join(',',@keys).
@@ -246,10 +251,12 @@ sub dbRaw {
 	return 0;
     }
 
+#    &DEBUG("query => '$query'.");
+
     &SQLDebug($query);
     if (!$sth->execute) {
 	&ERROR("Raw($prefix): => '$query'");
-#	&ERROR("Raw($prefix): $DBI::errstr");
+	# $DBI::errstr is printed as warning automatically.
 	$sth->finish;
 	return 0;
     }
@@ -378,7 +385,7 @@ sub searchTable {
 #####
 # Usage: &getFactInfo($faqtoid, type);
 sub getFactInfo {
-    return &dbGet("factoids", "factoid_key", $_[0], $_[1]);
+    return &dbGet("factoids", $_[1], "factoid_key='$_[0]'");
 }
 
 #####
@@ -420,7 +427,10 @@ sub dbCreateTable {
 	&DEBUG("found!!!");
 
 	open(IN, $file);
-	$data = <IN>;
+	while (<IN>) {
+	    chop;
+	    $data .= $_;
+	}
 
 	$found++;
 	last;
@@ -448,7 +458,7 @@ sub checkTables {
 	&dbRaw("create(db $param{'DBName'})", $query);
     }
 
-    foreach ("factoids", "freshmeat", "karma", "rootwarn", "seen",
+    foreach ("factoids", "freshmeat", "rootwarn", "seen", "stats",
     ) {
 	next if (exists $db{$_});
 	&status("  creating new table $_...");

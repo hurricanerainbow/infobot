@@ -267,26 +267,64 @@ sub Modules {
 	return;
     }
 
+    # text counters.
+    if ($_ = &getChanConf("ircTextCounters")) {
+	s/([^\w\s])/\\$1/g;
+	my $z = join '|', split ' ';
+
+	if ($message =~ /^($z)stats(\s+(\S+))?$/i) {
+	    my $type	= $1;
+	    my $arg	= $3;
+
+	    if (!defined $arg or $arg =~ /^\s*$/) {
+		my $x = (&dbRawReturn("SELECT SUM(counter) FROM stats WHERE type=".&dbQuote($type) ))[0];
+
+		if (defined $x) {
+		    &pSReply("total count of '$type': $x");
+		} else {
+		    &pSReply("zero counter for '$type'.");
+		}
+	    } else {
+		my $x = (&dbRawReturn("SELECT SUM(counter) FROM stats WHERE type=".
+			&dbQuote($type)." AND nick=".&dbQuote($arg) ))[0];
+
+		if (defined $x) {	# defined.
+		    &pSReply("$arg has said $type $x times");
+		} else {		# !defined.
+		    &pSReply("$arg has not said $type yet.");
+		}
+	    }
+
+	    return;
+	}
+
+	if ($@) {
+	    &DEBUG("regex failed: $@");
+	    return;
+	}
+    }
+
     # list{keys|values}. xk++. Idea taken from #linuxwarez@EFNET
     if ($message =~ /^list(\S+)( (.*))?$/i) {
 	return unless (&hasParam("search"));
 
 	my $thiscmd	= lc($1);
-	my $args	= $3;
+	$thiscmd	=~ s/^vals$/values/;
+	return if ($thiscmd ne "keys" && $thiscmd ne "values");
+
+	my $args	= $3 || "";
 	$args		=~ s/\s+$//g;
-	# suggested by asuffield nad \broken.
+
+	# Usage:
+	if (!defined $args or $args =~ /^\s*$/) {
+	    &help("list". $thiscmd);
+	    return;
+	}
+
+	# suggested by asuffield and \broken.
 	if ($args =~ /^["']/ and $args =~ /["']$/) {
 	    &DEBUG("list*: removed quotes.");
 	    $args	=~ s/^["']|["']$//g;
-	}
-
-	$thiscmd =~ s/^vals$/values/;
-	return if ($thiscmd ne "keys" && $thiscmd ne "values");
-
-	# Usage:
-	if (!defined $args) {
-	    &help("list". $thiscmd);
-	    return;
 	}
 
 	if (length $args == 1) {
@@ -484,7 +522,7 @@ sub seen {
     if ($person eq "random") {
 	@seen = &randKey("seen", $select);
     } else {
-	@seen = &dbGet("seen", "nick", $person, $select);
+	@seen = &dbGet("seen", $select, "nick='$person'");
     }
 
     if (scalar @seen < 2) {

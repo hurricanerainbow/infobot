@@ -81,62 +81,8 @@ sub doQuestion {
     }
 
     if (&IsChanConf("factoidArguments")) {
-	# to make it eleeter, split each arg and use "blah OR blah or BLAH"
-	# which will make it less than linear => quicker!
-	# todo: cache this, update cache when altered.
-	my @list = &searchTable("factoids", "factoid_key", "factoid_key", "CMD: ");
-
-	# from a design perspective, it's better to have the regex in
-	# the factoid key to reduce repetitive processing.
-
-	foreach (@list) {
-	    s/^CMD: //;
-#	    &DEBUG("factarg: ''$query[0]' =~ /^$_\$/'");
-	    my @vals;
-	    my $arg = $_;
-
-	    # todo: make eval work with $$i's :(
-#	    next unless (eval { $query[0] =~ /^$arg$/i });
-	    next unless ($query[0] =~ /^$arg$/i);
-
-	    if ($@) {	# it failed!!!
-		&WARN("factargs: regex failed! '$query[0]' =~ /^$_\$/");
-		next;
-	    }
-
-		for ($i=1; $i<=5; $i++) {
-		    $val = $$i;
-		    last unless (defined $val);
-
-		    push(@vals, $val);
-		}
-#	    };
-
-
-	    &status("Question: factoid Arguments for '$query[0]'");
-	    # todo: use getReply() - need to modify it :(
-	    my $i	= 0;
-	    my $result	= &getFactoid("CMD: $_");
-	    $result	=~ s/^\((.*?)\): //;
-
-	    foreach ( split(',', $1) ) {
-		my $val = $vals[$i];
-		if (!defined $val) {
-		    &status("factArgs: vals[$i] == undef; not SARing '$_' for '$query[0]'");
-		    next;
-		}
-
-		&status("factArgs: SARing '$_' to '$vals[$i]'.");
-		$result =~ s/\Q$_\E/$vals[$i]/;
-		$i++;
-	    }
-
-	    # nasty hack to get partial &getReply() functionality.
-	    $result =~ s/^\s*<action>\s*(.*)/\cAACTION $1\cA/i;
-	    $result =~ s/^\s*<reply>\s*//i;
-
-	    return $result;
-	}
+	$result = &factoidArgs($query[0]);
+	return $result if (defined $result);
     }
 
     my @link;
@@ -208,6 +154,79 @@ sub doQuestion {
     }
 
     return $reply;
+}
+
+sub factoidArgs {
+    my($str)	= @_;
+    my $result;
+
+    # to make it eleeter, split each arg and use "blah OR blah or BLAH"
+    # which will make it less than linear => quicker!
+    # todo: cache this, update cache when altered.
+    my @list = &searchTable("factoids", "factoid_key", "factoid_key", "CMD: ");
+
+    # from a design perspective, it's better to have the regex in
+    # the factoid key to reduce repetitive processing.
+
+    foreach (@list) {
+	next if (/#DEL#/);	# deleted.
+
+	s/^CMD: //;
+#	&DEBUG("factarg: ''$str' =~ /^$_\$/'");
+	my @vals;
+	my $arg = $_;
+
+	# todo: make eval work with $$i's :(
+	eval {
+	    if ($str =~ /^$arg$/i) {
+		for ($i=1; $i<=5; $i++) {
+		    $val = $$i;
+		    last unless (defined $val);
+
+		    push(@vals, $val);
+		}
+	    }
+	};
+
+	if ($@) {   # it failed!!!
+	    &WARN("factargs: regex failed! '$str' =~ /^$_\$/");
+	    next;
+	}
+
+	next unless (@vals);
+
+	&status("Question: factoid Arguments for '$str'");
+	# todo: use getReply() - need to modify it :(
+	my $i	= 0;
+	$result	= &getFactoid("CMD: $_");
+	$result	=~ s/^\((.*?)\): //;
+
+	foreach ( split(',', $1) ) {
+	    my $val = $vals[$i];
+	    if (!defined $val) {
+		&status("factArgs: vals[$i] == undef; not SARing '$_' for '$str'");
+		next;
+	    }
+
+	    if ($result = &substVars($result)) {
+		# hrm...
+	    } else {
+		&status("factArgs: SARing '$_' to '$vals[$i]'.");
+		$result =~ s/\Q$_\E/$vals[$i]/;
+		$i++;
+	    }
+	}
+
+	# nasty hack to get partial &getReply() functionality.
+	$result =~ s/^\s*<action>\s*(.*)/\cAACTION $1\cA/i;
+	$result =~ s/^\s*<reply>\s*//i;
+	$result = &SARit($result);
+#	$result = &substVars($result);
+
+	return $result;
+    }
+
+    return;
 }
 
 1;

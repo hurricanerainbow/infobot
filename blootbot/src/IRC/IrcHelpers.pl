@@ -120,7 +120,7 @@ sub hookMsg {
 	&DEBUG("FIXME: floodwho = ???");
     }
 
-    my $val = &getChanConfDefault("floodRepeat", "2:10", $c);
+    my $val = &getChanConfDefault("floodRepeat", "2:5", $c);
     my ($count, $interval) = split /:/, $val;
 
     # flood repeat protection.

@@ -22,7 +22,7 @@ sub Freshmeat {
     my $refresh	= &::getChanConfDefault("freshmeatRefreshInterval",
 			"", 24) * 60 * 60 * 7;
 
-    my $last_refresh = &::dbGet("freshmeat", "projectname_short", "_", "latest_version");
+    my $last_refresh = &::dbGet("freshmeat", "latest_version", "projectname_short='_'");
     my $renewtable   = 0;
 
     if (defined $last_refresh and $last_refresh =~ /^\d+$/) {
@@ -84,7 +84,7 @@ sub Freshmeat {
 
 sub showPackage {
     my ($pkg)	= @_;
-    my @fm	= &::dbGet("freshmeat", "projectname_short", $pkg, "*");
+    my @fm	= &::dbGet("freshmeat", "*", "projectname_short='$pkg'");
 
     if (scalar @fm) {		#1: perfect match of name.
 	my $retval;
@@ -231,6 +231,12 @@ sub downloadIndex {
 		s/&aelig;/a/g;
 		s/&oslash;/o/g;
 		s/&eth;/e/g;
+		s/&szlig;//g;
+		s/&middot;//g;
+	}
+
+	if ($str =~ s/\&(\S+);//g) {
+	    &::DEBUG("fm: sarred $1 to ''.");
 	}
 
 	$p->parse($str, ProtocolEncoding => 'ISO-8859-1');
