@@ -120,8 +120,8 @@ sub BZFlag::querytext {
 		&main::status("BZFlag module requires Socket.");
 		return 'BZFlag module not active';
 	}
-	#my @teamName = ("Rogue", "Red", "Green", "Blue", "Purple");
-	my @teamName = ("X", "R", "G", "B", "P");
+	#my @teamName = ("Rogue", "Red", "Green", "Blue", "Purple", "Observer", "Rabbit");
+	my @teamName = ("X", "R", "G", "B", "P", "O", "K");
 	my ($message, $server, $response);
 	$port = 5154 unless $port;
 
@@ -156,7 +156,8 @@ sub BZFlag::querytext {
   # check version
   if ($major == 1 && $minor == 9) {
 	  $revision = $something * 10 + $revision;
-	  $response = "version: $magic $major $minor $revision";
+	  return 'read error' unless read(S1, $buffer, 1) == 1;
+	  my ($id) = unpack("C", $buffer);
 
 		# send game request
 		print S1 pack("n2", 0, 0x7167);
@@ -177,13 +178,14 @@ sub BZFlag::querytext {
 		# get number of teams and players we'll be receiving
 		return 'count read error' unless read(S1, $buffer, 8) == 8;
 		my ($countlen,$countcode,$numTeams,$numPlayers) = unpack("n4", $buffer);
-		return 'bad count data' unless $countcode == 0x7170;
 
 		# get the teams
+		return 'bad count data' unless $countcode == 0x7170;
+    return 'count read error' unless read(S1, $buffer, 5) == 5;
+    ($countlen,$countcode,$numTeams) = unpack("n n C", $buffer);
 		for (1..$numTeams) {
-			return 'team read error' unless read(S1, $buffer, 14) == 14;
-			my ($teamlen,$teamcode,$team,$size,$aSize,$won,$lost) = unpack("n7", $buffer);
-			return 'bad team data' unless $teamcode == 0x7475;
+			return 'team read error' unless read(S1, $buffer, 8) == 8;
+			my ($team,$size,$won,$lost) = unpack("n4", $buffer);
 			if ($size > 0) {
 				my $score = $won - $lost;
 				$response .= "$teamName[$team]:$score($won-$lost) ";
@@ -192,16 +194,18 @@ sub BZFlag::querytext {
 
 		# get the players
 		for (1..$numPlayers) {
-			last unless read(S1, $buffer, 180) == 180;
-			my ($playerlen,$playercode,$pAddr,$pPort,$pNum,$type,$team,$won,$lost,$sign,$email) =
-					unpack("n2Nn2 n4A32A128", $buffer);
+			last unless read(S1, $buffer, 175) == 175;
+			my ($playerlen,$playercode,$pID,$type,$team,$won,$lost,$tks,$sign,$email) =
+					unpack("n2Cn5A32A128", $buffer);
+			#my ($playerlen,$playercode,$pAddr,$pPort,$pNum,$type,$team,$won,$lost,$sign,$email) =
+			#		unpack("n2Nn2 n4A32A128", $buffer);
 			return 'bad player data' unless $playercode == 0x6170;
 			my $score = $won - $lost;
 			$response .= " $sign($teamName[$team]";
 			$response .= ":$email" if ($email);
 			$response .= ")$score($won-$lost)";
 		}
-		$response .= "No Players" if ($numPlayers <= 1);
+		$response .= "No Players" if ($numPlayers < 1);
 
 		# close socket
 		close(S1);
