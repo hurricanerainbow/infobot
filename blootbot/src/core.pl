@@ -330,12 +330,12 @@ sub findChanConf {
 sub showProc {
     my ($prefix) = $_[0] || "";
 
-    if (!open(IN, "/proc/$$/status")) {
-	&ERROR("cannot open '/proc/$$/status'.");
-	return;
-    }
-
     if ($^O eq "linux") {
+	if (!open(IN, "/proc/$$/status")) {
+	    &ERROR("cannot open '/proc/$$/status'.");
+	    return;
+	}
+
 	while (<IN>) {
 	    $memusage = $1 if (/^VmSize:\s+(\d+) kB/);
 	}
