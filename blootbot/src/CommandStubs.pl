@@ -189,7 +189,7 @@ sub parseCmdHook {
 	'Forker' => 1, 'Identifier' => 'Kernel',
 	'Cmdstats' => 'Kernel', 'NoArgs' => 1) );
 &addCmdHook("extra", 'listauth', ('CODEREF' => 'CmdListAuth',
-	'Identifier' => 'search', Module => 'Factoids',
+	'Identifier' => 'Search', Module => 'Factoids',
 	'Help' => 'listauth') );
 &addCmdHook("extra", 'quote', ('CODEREF' => 'Quote::Quote',
 	'Forker' => 1, 'Identifier' => 'Quote',
@@ -307,8 +307,8 @@ sub Modules {
 
     # text counters. (eg: hehstats)
     my $itc;
-    $itc = &getChanConf("ircTextCounters");
-    $itc = &findChanConf("ircTextCounters") unless ($itc);
+    $itc = &getChanConf('ircTextCounters');
+    $itc = &findChanConf('ircTextCounters') unless ($itc);
     return if ($itc && &do_text_counters($itc) == 1);
     # end of text counters.
 
@@ -320,26 +320,26 @@ sub Modules {
 	my $args	= $3 || "";
 
 	$thiscmd	=~ s/^vals$/values/;
-	return if ($thiscmd ne "keys" && $thiscmd ne "values");
+	return if ($thiscmd ne 'keys' && $thiscmd ne 'values');
 
 	# Usage:
 	if (!defined $args or $args =~ /^\s*$/) {
-	    &help("list". $thiscmd);
+	    &help('list'. $thiscmd);
 	    return;
 	}
 
 	# suggested by asuffield and \broken.
 	if ($args =~ /^["']/ and $args =~ /["']$/) {
-	    &DEBUG("list*: removed quotes.");
+	    &DEBUG('list*: removed quotes.');
 	    $args	=~ s/^["']|["']$//g;
 	}
 
-	if (length $args < 2 && &IsFlag("o") ne "o") {
-	    &msg($who, "search string is too short.");
+	if (length $args < 2 && &IsFlag('o') ne 'o') {
+	    &msg($who, 'search string is too short.');
 	    return;
 	}
 
-	&Forker("search", sub { &Search::Search($thiscmd, $args); } );
+	&Forker('Search', sub { &Search::Search($thiscmd, $args); } );
 
 	$cmdstats{'Factoid Search'}++;
 	return;

@@ -44,7 +44,7 @@ if ($@) {
 	"Quote"		=> "Quote.pl",
 	"RootWarn"	=> "RootWarn.pl",
 	"Rss"		=> "Rss.pl",
-	"search"	=> "Search.pl",
+	"Search"	=> "Search.pl",
 	"slashdot"	=> "Slashdot3.pl",
 	"symdump"	=> "DumpVars2.pl",
 	"topic"		=> "Topic.pl",
