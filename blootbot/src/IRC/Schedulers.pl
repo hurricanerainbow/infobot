@@ -893,9 +893,9 @@ sub dccStatus {
     my $time = strftime("%H:%M", localtime(time()) );
 
     foreach (keys %channels) {
-	my $users	= keys %{ $channels{$_}{''};
-	my $chops	= keys %{ $channels{$_}{o};
-	my $bans	= keys %{ $channels{$_}{b};
+	my $users	= keys %{ $channels{$_}{''} };
+	my $chops	= keys %{ $channels{$_}{o}  };
+	my $bans	= keys %{ $channels{$_}{b}  };
 	&DCCBroadcast("[$time] $_: $users members ($chops chops), $bans bans","+o");
     }
 }
