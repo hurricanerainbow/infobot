@@ -136,6 +136,22 @@ sub Modules {
 	return $noreply;
     }
 
+    # Debian Author Search.
+    if ($message =~ /^(d|search)desc(\s+(.*))?$/i) {
+	return $noreply unless (&hasParam("debian"));
+
+	my $query = $2;
+	if (!defined $query) {
+	    &help("ddesc");
+	    return $noreply;
+	}
+
+	&Forker("debian", sub { &Debian::searchDesc($query); } );
+
+	$cmdstats{'Debian Desc Search'}++;
+	return $noreply;
+    }
+
     # Debian Incoming Search.
     if ($message =~ /^dincoming$/i) {
 	return $noreply unless (&hasParam("debian"));
