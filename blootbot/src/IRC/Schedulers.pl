@@ -281,8 +281,7 @@ sub newsFlush {
 	return if ($_[0] eq "2");	# defer.
     }
 
-    if (&ChanConfList("news")) {
-    } else {
+    if (!&ChanConfList("news")) {
 	&DEBUG("newsFlush: news disabled? (chan => $chan)");
 	return;
     }
@@ -294,7 +293,10 @@ sub newsFlush {
 	my $i		= 0;
 	my $total	= scalar(keys %{ $::news{$chan} });
 
-	&DEBUG("newsFlush: chan => $chan (total => $total)");
+	if (!$total) {
+	    delete $::news{$chan};
+	    next;
+	}
 
 	foreach $item (keys %{ $::news{$chan} }) {
 	    my $t = $::news{$chan}{$item}{Expire};
@@ -359,9 +361,6 @@ sub chanlimitCheck {
 	&ScheduleThis($interval, "chanlimitCheck");
 	return if ($_[0] eq "2");
     }
-
-    $cache{chanlimitCheck}++;
-    &DEBUG("clC: chanlimitCheck => $cache{chanlimitCheck}");
 
     foreach $chan ( &ChanConfList("chanlimitcheck") ) {
 	next unless (&validChan($chan));
@@ -464,7 +463,10 @@ sub netsplitCheck {
 	delete $netsplit{$_};
     }
 
-    &DEBUG("removed from netsplit list (".scalar(@delete)."): @delete") if (@delete);
+    if (@delete) {
+	my $str = scalar(@delete)."/".scalar(keys %netsplit);
+	&DEBUG("removed from netsplit list ($str): @delete");
+    }
     &DEBUG("nsC: netsplitservers: ".scalar(keys %netsplitservers) );
     &DEBUG("nsC: netsplit: ".scalar(keys %netsplit) );
 
@@ -1046,18 +1048,16 @@ sub factoidCheck {
     }
 
     my @list	= &searchTable("factoids", "factoid_key", "factoid_key", " #DEL#");
-    my $stale	= &getChanConfDefault("factoidDeleteDelay", 30) *60*60*24;
+    my $stale	= &getChanConfDefault("factoidDeleteDelay", 14) *60*60*24;
     if ($stale < 1) {
 	# disable it since it's "illegal".
 	return;
     }
 
-    &DEBUG("stale => $stale");
     my $time	= time();
 
     foreach (@list) {
 	my $age = &getFactInfo($_, "modified_time");	
-	&DEBUG("fC: _ => '$_'; age => $age");
 
 	if (!defined $age or $age !~ /^\d+$/) {
 	    if (scalar @list > 50) {
@@ -1073,16 +1073,12 @@ sub factoidCheck {
 	    next;
 	}
 
-	&DEBUG("del factoid: delta => ".($time - $age) );
-	&DEBUG("del factoid:    stale => $stale");
 	next unless ($time - $age > $stale);
 
 	my $fix = $_;
 	$fix =~ s/ #DEL#$//g;
 	my $agestr = &Time2String($time - $age);
 	&DEBUG("safedel: Removing '$_' for good. [$agestr old]");
-
-	last;
 
 	&delFactoid($_);
     }

@@ -61,7 +61,7 @@ sub Parse {
 	}
 
 	$chan	= $chans[0];
-	&::DEBUG("Guessed $::who being on chan $chan",2);
+	&::VERB("Guessed $::who being on chan $chan",2);
 	$::chan	= $chan;	# hack for IsChanConf().
     }
 
@@ -142,7 +142,6 @@ sub Parse {
 	}
 
     } else {
-	&::DEBUG("news: could not parse '$what'");
 	&::notice($::who, "unknown command: $what");
     }
 }

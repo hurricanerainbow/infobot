@@ -33,7 +33,8 @@ use vars qw(%channels %chanstats %cmdstats);
 	Help => 'tell', Identifier => 'allowTelling',
 	Cmdstats => 'Tell') );
 &addCmdHook("main", 'news', ('CODEREF' => 'News::Parse', 
-	Module => 'news', 'Cmdstats' => 'News' ) );
+	Module => 'news', 'Cmdstats' => 'News',
+	Identifier => 'news' ) );
 &addCmdHook("main", 'countrystats', ('CODEREF' => 'countryStats', 
 #	Forker => "NULL",
  ) );
@@ -393,6 +394,7 @@ sub DNS {
     if ($dns =~ /(\d+\.\d+\.\d+\.\d+)/) {
 	&status("DNS query by IP address: $in");
 	$match = $1;
+
 	$y = pack('C4', split(/\./, $match));
 	$x = (gethostbyaddr($y, &AF_INET));
 
@@ -401,7 +403,9 @@ sub DNS {
 	} else {
 	    $result = "I can't seem to find that address in DNS";
         }
+
     } else {
+
 	&status("DNS query by name: $in");
 	$x = join('.',unpack('C4',(gethostbyname($in))[4]));
 
