@@ -189,7 +189,10 @@ sub on_dcc_close {
     my $sock = ($event->to)[0];
 
     # DCC CHAT close on fork exit workaround.
-    return if ($bot_pid != $$);
+    if ($bot_pid != $$) {
+	&WARN("run-away fork; exiting.");
+	&delForked($forker);
+    }
 
     &DEBUG("dcc_close: nick => '$nick'.");
 
@@ -611,9 +614,9 @@ sub on_public {
     $nuh     = $nick."!".$uh;
     ($user,$host) = split(/\@/, $uh);
 
-    if ($$ != $bot_pid) {
-	&ERROR("SHOULD NEVER HAPPEN.");
-	exit(0);
+    if ($bot_pid != $$) {
+	&ERROR("run-away fork; exiting.");
+	&delForked($forker);
     }
 
     ### DEBUGGING.

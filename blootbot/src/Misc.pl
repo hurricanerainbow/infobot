@@ -7,8 +7,6 @@
 
 if (&IsParam("useStrict")) { use strict; }
 
-use POSIX qw(_exit);
-
 sub help {
     my $topic = shift;
     my $file  = $bot_misc_dir."/blootbot.help";
@@ -85,16 +83,21 @@ sub getPath {
     }
 }
 
-sub gettimeofday {
-    if ($no_syscall) {		# fallback.
+sub timeget {
+    if ($no_timehires) {	# fallback.
 	return time();
     } else {			# the real thing.
-	my $time = pack("LL", 0);
+	return gettimeofday();
+    }
+}    
 
-	syscall(&SYS_gettimeofday, $time, 0);
-	my @time = unpack("LL",$time);
+sub timedelta {
+    my($start_time) = shift;
 
-	return sprintf("%d.%d", @time);
+    if ($no_timehires) {	# fallback.
+	return time() - $start_time;
+    } else {			# the real thing.
+	return tv_interval ($start_time);
     }
 }
 
@@ -604,18 +607,21 @@ sub Forker {
 
     if (&IsParam("forking") and $$ == $bot_pid) {
 	return $noreply unless (&addForked($label));
-	### use select(undef,undef,undef,0.2); ...
+
 	$SIG{CHLD} = 'IGNORE';
 	$pid = eval { fork() };
 	return $noreply if $pid;	# parent does nothing
 	&status("fork starting for '$label', PID == $$.");
 	&shmWrite($shm,"SET FORKPID $label $$");
+
+	sleep 1;
     }
 
     ### TODO: use AUTOLOAD
-    if (!&loadMyModule($myModules{$label})) {
+    ### very lame hack.
+    if ($label !~ /-/ and !&loadMyModule($myModules{$label})) {
 	&DEBUG("Forker: failed?");
-	return;
+	&delForked($label);
     }
 
     if (defined $code) {
@@ -624,11 +630,7 @@ sub Forker {
 	&WARN("Forker: code not defined!");
     }
 
-    if (defined $pid) {		# child.
-	&delForked($label);
-	&status("fork finished for '$label'.");
-	POSIX::_exit(0);
-    }
+    &delForked($label);
 }
 
 sub closePID {
