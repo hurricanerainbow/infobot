@@ -21,7 +21,7 @@ foreach $file (@ARGV) {
 	print "warning: $file does not exist.\n";
 	next;
     }
-    my $str = ' value at .* line ';
+    my $str = ' at .* line ';
 
     print "Opening $file... ";
     if ($file =~ /bz2$/) {	# bz2
