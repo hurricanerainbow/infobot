@@ -728,7 +728,7 @@ sub CmdFactStats {
 
     } elsif ($type =~ /^unrequest(ed)?$/i) {
 	# todo: use sqlSelect()
-	my $count = &sqlRawReturn("SELECT COUNT(*) FROM factoids WHERE requested_count = '0'");
+	my ($count) = &sqlRawReturn("SELECT COUNT(*) FROM factoids WHERE requested_count = '0'");
 
 	return "Unrequested factoids: $count";
     }
