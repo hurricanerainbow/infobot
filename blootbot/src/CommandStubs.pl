@@ -104,7 +104,7 @@ sub parseCmdHook {
 
 	### IDENTIFIER.
 	if (exists $hash{'Identifier'}) {
-	    return 1 unless (&hasParam($hash{'Identifier'}));
+	    return 1 unless (&IsChanConfOrWarn($hash{'Identifier'}));
 	}
 
 	### USER FLAGS.
@@ -298,7 +298,7 @@ sub Modules {
     $debiancmd		.= '|recommends?|suggests?|maint|maintainer';
 
     if ($message =~ /^($debiancmd)(\s+(.*))?$/i) {
-	return unless (&hasParam('Debian'));
+	return unless (&IsChanConfOrWarn('Debian'));
 	my $package = lc $3;
 
 	if (defined $package) {
@@ -312,7 +312,7 @@ sub Modules {
 
     # google searching. Simon++
     if ($message =~ /^(?:search\s+)?($w3search_regex)\s+(?:for\s+)?['"]?(.*?)["']?\s*\?*$/i) {
-	return unless (&hasParam('W3Search'));
+	return unless (&IsChanConfOrWarn('W3Search'));
 
 	&Forker('W3Search', sub { &W3Search::W3Search($1,$2); } );
 
@@ -329,7 +329,7 @@ sub Modules {
 
     # list{keys|values}. xk++. Idea taken from #linuxwarez@EFNET
     if ($message =~ /^list(\S+)(\s+(.*))?$/i) {
-	return unless (&hasParam('Search'));
+	return unless (&IsChanConfOrWarn('Search'));
 
 	my $thiscmd	= lc $1;
 	my $args	= $3 || "";
@@ -362,7 +362,7 @@ sub Modules {
 
     # Nickometer. Adam Spiers++
     if ($message =~ /^(?:lame|nick)ometer(?: for)? (\S+)/i) {
-	return unless (&hasParam("nickometer"));
+	return unless (&IsChanConfOrWarn("nickometer"));
 
 	my $term = (lc $1 eq 'me') ? $who : $1;
 
@@ -425,7 +425,7 @@ sub Modules {
     # Topic management. xk++
     # may want to add a userflags for topic. -xk
     if ($message =~ /^topic(\s+(.*))?$/i) {
-	return unless (&hasParam('Topic'));
+	return unless (&IsChanConfOrWarn('Topic'));
 
 	my $chan	= $talkchannel;
 	my @args	= split / /, $2 || "";
@@ -472,7 +472,7 @@ sub Modules {
 
     # wingate.
     if ($message =~ /^wingate$/i) {
-	return unless (&hasParam('Wingate'));
+	return unless (&IsChanConfOrWarn('Wingate'));
 
 	my $reply = "Wingate statistics: scanned \002"
 			.scalar(keys %wingate)."\002 hosts";
