@@ -265,7 +265,7 @@ sub parseCmdHook {
 &addCmdHook("extra", 'page', ('CODEREF' => 'pager::page',
 	'Identifier' => 'pager', 'Cmdstats' => 'pager',
 	'Forker' => 1, 'Help' => 'page') );
-&addCmdHook("extra", 'babel(fish)?|x|xlate|translate', ('CODEREF' => 'babelfish::babelfish',
+&addCmdHook("extra", '(babel(fish)?|x|xlate|translate)', ('CODEREF' => 'babelfish::babelfish',
 	'Identifier' => 'babelfish', 'Cmdstats' => 'babelfish',
 	'Forker' => 1, 'Help' => 'babelfish') );
 ###
