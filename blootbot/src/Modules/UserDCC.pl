@@ -611,7 +611,7 @@ sub userDCC {
 	if ($args ne "") {
 	    if (&getChanConf($args,$chan)) {
 		&pSReply("Unsetting channel ($chan) option $args. (was $chanconf{$chan}{$args})");
-		undef $chanconf{$chan}{$args};
+		delete $chanconf{$chan}{$args};
 
 	    } else {
 		&pSReply("$args does not exist for $chan");
