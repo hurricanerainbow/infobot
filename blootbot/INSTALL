@@ -5,25 +5,26 @@ Method of installation.
 - Copy files/sample/sample.chan to files/blootbot.chan
 - Copy files/sample/sample.servers to files/blootbot.servers
 - Copy files/sample/sample.users to files/blootbot.users
+
 - Edit files/blootbot.config, modify to taste.
 - Edit files/blootbot.chan to set which channels to join.
 - Edit files/blootbot.servers to modify list of IRC servers to connect.
 
 - Install the following Perl modules:
-	- Net::IRC perl module
-		- Debian: (apt-get install libnet-irc-perl)
-	- WWW::Search
-		- Debian: (apt-get install libwww-search-perl)
-	- LWP
-		- Debian: (apt-get install libwww-perl)
-	- HTML::Parser
-		- Debian: (apt-get install libhtml-parser-perl)
+        - Net::IRC perl module
+            - Debian: (apt-get install libnet-irc-perl)
+        - WWW::Search
+            - Debian: (apt-get install libwww-search-perl)
+        - LWP
+            - Debian: (apt-get install libwww-perl)
+        - HTML::Parser
+            - Debian: (apt-get install libhtml-parser-perl)
 
 - Choose your database:
-	- MySQL, read INSTALL.mysql (supported)
-	- SQLite, read INSTALL.sqlite (supported)
-	- PgSQL, read INSTALL.pgsql (unsupported, may work)
-	- Berkeley DBM, read INSTALL.dbm (unsupported, may work)
+        - MySQL, read INSTALL.mysql (supported)
+        - SQLite, read INSTALL.sqlite (supported)
+        - PgSQL, read INSTALL.pgsql (unsupported, may work)
+        - Berkeley DBM, read INSTALL.dbm (unsupported, may work)
 
 - There are "bugs" in the perl modules.  Read INSTALL.patches on how to fix.
 

@@ -2,24 +2,28 @@ INSTALL.mysql
 ----------------
 
 - Install a MySQL server and the DBI Perl modules.
-	- Debian: (apt-get install mysql-server libdbd-mysql-perl)
+    - Debian: (apt-get install mysql-server libdbd-mysql-perl)
 
-- run 'mysqladmin -u root -p create <DB NAME>'
-- run 'setup/setup.pl'
+- Run 'mysqladmin -u root -p create <DB NAME>'
+    Where <DB NAME> is the same as specified in blootbot.config.
+
+- Run 'setup/setup.pl'
+
 = Possible problems
-	- if connection to localhost is (short) refused, run
-		'/etc/init.d/mysql stop'.
-		'/etc/init.d/mysql start'.
-	- if connection for user is refused, reload grant tables with
-		'mysqladmin -u root -p reload'
+    - if connection to localhost is (short) refused, run
+            '/etc/init.d/mysql stop'
+            '/etc/init.d/mysql start'
+    - if connection for user is refused, reload grant tables with
+            'mysqladmin -u root -p reload'
+
 * [OPTIONAL]
-	- run 'scripts/dbm2mysql.pl old-db' to convert dbm database file
-	  to mysql.
+    - run 'scripts/dbm2mysql.pl old-db' to convert dbm database file
+    to mysql.
 
 ADDITIONAL NOTES:
 -----------------
- You can add a new user manually by connecting to MySQL and performing these
- commands:
+You can add a new user manually by connecting to MySQL and performing these
+commands:
 
   $ mysql -u root -p
 
@@ -27,5 +31,9 @@ ADDITIONAL NOTES:
   mysql> GRANT USAGE ON *.* TO 'user'@'localhost' IDENTIFIED BY 'yourpassword';
   mysql> GRANT ALL PRIVILEGES ON blootbot.* TO 'user'@'localhost';
 
-for the mysql that are on apt the bot (#debian@OPN), they are available 
-at http://emu.res.cmu.edu/~apt/blootbot/apt.sql.bz2
+FULL FACTOID DATABASE:
+----------------------
+You can get the data from the MySQL database that the apt bot uses on
+#debian at freenode (irc.freenode.net), at:
+
+    http://emu.res.cmu.edu/~apt/blootbot/apt.sql.bz2
