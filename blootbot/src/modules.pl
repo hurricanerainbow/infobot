@@ -369,10 +369,15 @@ if ($@) {
 sub AUTOLOAD {
     return if ($AUTOLOAD =~ /__/);	# internal.
 
-    &ERROR("UNKNOWN FUNCTION CALLED: $AUTOLOAD");
-    foreach (@_) {
-	next unless (defined $_);
-	&status("  => $_");
+    my $str = join(', ', @_);
+    &ERROR("UNKNOWN FUNCTION CALLED: $AUTOLOAD ($str)");
+
+    $AUTOLOAD =~ s/^(\S+):://g;
+
+    if (exists $myModules{lc $AUTOLOAD}) {
+	# hopefully this will work.
+	&DEBUG("Trying to load module $AUTOLOAD...");
+	&loadMyModule(lc $AUTOLOAD);
     }
 }
 

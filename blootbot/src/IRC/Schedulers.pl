@@ -1047,6 +1047,11 @@ sub factoidCheck {
 
     my @list	= &searchTable("factoids", "factoid_key", "factoid_key", " #DEL#");
     my $stale	= &getChanConfDefault("factoidDeleteDelay", 30) *60*60*24;
+    if ($stale < 1) {
+	# disable it since it's "illegal".
+	return;
+    }
+
     &DEBUG("stale => $stale");
     my $time	= time();
 

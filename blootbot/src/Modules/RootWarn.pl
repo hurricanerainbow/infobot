@@ -5,11 +5,11 @@
 #     Created: 19991008
 #
 
-use strict;
+### use strict;
 
 sub rootWarn {
     my ($nick,$user,$host,$chan) = @_;
-    my $attempt = &dbGet("rootwarn", "attempt", "nick='.lc($nick)."'") || 0;
+    my $attempt = &dbGet("rootwarn", "attempt", "nick='".lc($nick)."'") || 0;
     my $warnmode	= &getChanConf("rootWarnMode");
 
     if ($attempt == 0) {	# first timer.
