@@ -604,7 +604,11 @@ sub on_notice {
     if ($nick =~ /^NickServ$/i) {		# nickserv.
 	&status("NickServ: <== '$args'");
 
-	if ($args =~ /^This nickname is registered/i) {
+	my $check	= 0;
+	$check++	if ($args =~ /^This nickname is registered/i);
+	$check++	if ($args =~ /nickname.*owned/i);
+
+	if ($check) {
 	    &status("nickserv told us to register; doing it.");
 	    if (&IsParam("nickServ_pass")) {
 		&status("NickServ: ==> Identifying.");
