@@ -80,33 +80,6 @@ sub process {
 	return;
     }
 
-    # allowOutsiders.
-    if (&IsParam("disallowOutsiders") and $msgType =~ /private/i) {
-	my $found = 0;
-
-	foreach (keys %channels) {
-	    next unless (&IsNickInChan($who,$_));
-
-	    $found++;
-	    last;
-	}
-
-	if (!$found and scalar(keys %channels)) {
-	    &status("OUTSIDER <$who> $message");
-	    return 'OUTSIDER';
-	}
-    }
-
-    # User Processing, for all users.
-    if ($addressed) {
-	my $retval;
-	return 'returned from pCH'   if &parseCmdHook("main",$message);
-
-	$retval	= &userCommands();
-	return unless (defined $retval);
-	return if ($retval eq $noreply);
-    }
-
     # 'identify'
     if ($msgType =~ /private/ and $message =~ s/^identify//) {
 	$message =~ s/^\s+|\s+$//g;
@@ -147,6 +120,33 @@ sub process {
 	$users{$do_nick}{HOSTS}{$mask} = 1;
 
 	return;
+    }
+
+    # allowOutsiders.
+    if (&IsParam("disallowOutsiders") and $msgType =~ /private/i) {
+	my $found = 0;
+
+	foreach (keys %channels) {
+	    next unless (&IsNickInChan($who,$_));
+
+	    $found++;
+	    last;
+	}
+
+	if (!$found and scalar(keys %channels)) {
+	    &status("OUTSIDER <$who> $message");
+	    return 'OUTSIDER';
+	}
+    }
+
+    # User Processing, for all users.
+    if ($addressed) {
+	my $retval;
+	return 'returned from pCH'   if &parseCmdHook("main",$message);
+
+	$retval	= &userCommands();
+	return unless (defined $retval);
+	return if ($retval eq $noreply);
     }
 
     ###
