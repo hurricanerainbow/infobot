@@ -641,7 +641,7 @@ sub checkTables {
 	}
     }
 
-    foreach ( qw(factoids factoidsmisc rootwarn seen stats botmail) ) {
+    foreach ( qw(factoids rootwarn seen stats botmail) ) {
 	if (exists $db{$_}) {
 	    $cache{has_table}{$_} = 1;
 	    next;
