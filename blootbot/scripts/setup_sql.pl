@@ -172,7 +172,7 @@ if ($param{'DBType'} =~ /mysql/i) {
 		"('localhost', '$param{'SQLUser'}', ".
 		"password('$param{'SQLPass'}'), ";
 
-	$query .= "'Y','Y','Y','Y','N','N','N','N','N','N','N','N','N','N')";
+	$query .= "'Y','Y','Y','Y','Y','Y','N','N','N','N','N','N','N','N')";
 ###	$query .= "'Y','Y','Y','Y','N','N','N','N','N','N')";
 
 	&dbRaw("create(user)", $query);
@@ -186,7 +186,7 @@ if ($param{'DBType'} =~ /mysql/i) {
 		"('localhost', '$dbname', ".
 		"'$param{'SQLUser'}', ";
 
-	$query .= "'Y','Y','Y','Y','Y','N','N','N','N','N')";
+	$query .= "'Y','Y','Y','Y','Y','Y','Y','N','N','N')";
 ###	$query .= "'Y','Y','Y','Y','Y','N')";
 
 	&dbRaw("create(db)", $query);
