@@ -32,21 +32,26 @@ sub W3Search {
     $Search->http_proxy($main::param{'httpProxy'}) if (&main::IsParam("httpProxy"));
     my $max = $Search->maximum_to_retrieve(10);	# DOES NOT WORK.
 
-    my ($Result, $count);
-    my $r;
-    ### TODO: don't duplicate hosts. minimize like with the files
-    ###		function.
+    my (%results, $count, $r);
     while ($r = $Search->next_result()) {
-	if ($Result) {
-	    $Result .= " or ".$r->url();
+	my $url = $r->url();
+
+	### TODO: fix regex.
+	### TODO: use array to preserve order.
+	if ($url =~ /^http:\/\/([\w\.]*)/) {
+	    my $hostname = $1;
+	    next if (exists $results{$hostname});
+	    $results{$hostname} = $url;
 	} else {
-	    $Result = $r->url();
+	    &main::DEBUG("W3S: url isn't good? ($url).");
 	}
+
 	last if ++$count >= $maxshow;
     }
 
-    if ($Result) {
-	$retval = "$where says \002$what\002 is at $Result";
+    if (scalar keys %results) {
+	$retval = "$where says \002$what\002 is at ".
+		join(' or ', map { $results{$_} } sort keys %results);
     }
 
     &main::performStrictReply($retval);
