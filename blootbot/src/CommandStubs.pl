@@ -41,11 +41,14 @@ sub addCmdHook {
 sub parseCmdHook {
     my @args = split(' ', $message);
 
+    &shmFlush();
+
     foreach (keys %cmdhooks) {
 	my $ident = $_;
 	&DEBUG("cmdhooks{$ident} => ...");
 
 	next unless ($args[0] =~ /^$ident$/i);
+	shift(@args);	# just gotta do it.
 
 	&DEBUG("pCH: MATCHED!");
 	my %hash = %{ $cmdhooks{$ident} };
@@ -62,20 +65,42 @@ sub parseCmdHook {
 
 	### FORKER,IDENTIFIER,CODEREF.
 	if (exists $hash{'Forker'}) {
-	    &Forker($hash{'Identifier'}, \&{$hash{'CODEREF'}});
+	    &Forker($hash{'Identifier'}, sub { \&{$hash{'CODEREF'}}(@args) } );
 	}
 
 	### CMDSTATS.
 	if (exists $hash{'Cmdstats'}) {
 	    $cmdstats{$hash{'Cmdstats'}}++;
 	}
+
+	return 1;
     }
 
     &DEBUG("pCH: ended.");
+    return 0;
 }
 
 &addCmdHook('d?bugs', ('CODEREF' => 'debianBugs',
-	'Forker' => 1, 'Identifier' => 'debianExtra', 'Cmdstats' => 1) );
+	'Forker' => 1, 'Identifier' => 'debianExtra',
+	'Cmdstats' => 'Debian Bugs') );
+&addCmdHook('dauthor', ('CODEREF' => 'Debian::searchAuthor',
+	'Forker' => 1, 'Identifier' => 'debian',
+	'Cmdstats' => 'Debian Author Search', 'Help' => "dauthor" ) );
+&addCmdHook('(d|search)desc', ('CODEREF' => 'Debian::searchDesc',
+	'Forker' => 1, 'Identifier' => 'debian',
+	'Cmdstats' => 'Debian Desc Search', 'Help' => "ddesc" ) );
+&addCmdHook('dincoming', ('CODEREF' => 'Debian::generateIncoming',
+	'Forker' => 1, 'Identifier' => 'debian' ) );
+&addCmdHook('dstats', ('CODEREF' => 'Debian::infoStats',
+	'Forker' => 1, 'Identifier' => 'debian',
+	'Cmdstats' => 'Debian Statistics' ) );
+&addCmdHook('d?contents', ('CODEREF' => 'Debian::searchContents',
+	'Forker' => 1, 'Identifier' => 'debian',
+	'Cmdstats' => 'Debian Contents Search', 'Help' => "contents" ) );
+&addCmdHook('d?find', ('CODEREF' => 'Debian::DebianFind',
+	'Forker' => 1, 'Identifier' => 'debian',
+	'Cmdstats' => 'Debian Search', 'Help' => "find" ) );
+
 
 sub Modules {
     if (!defined $message) {
@@ -137,97 +162,6 @@ sub Modules {
 	}
 
 	$cmdstats{'Random Cookie'}++;
-	return $noreply;
-    }
-
-    if ($message =~ /^d?bugs$/i) {
-	return $noreply unless (&hasParam("debianExtra"));
-
-	&Forker("debianExtra", sub { &debianBugs(); } );
-
-	$cmdstats{'Debian Bugs'}++;
-	return $noreply;
-    }
-
-    # Debian Author Search.
-    if ($message =~ /^dauthor(\s+(.*))?$/i) {
-	return $noreply unless (&hasParam("debian"));
-
-	my $query = $2;
-	if (!defined $query) {
-	    &help("dauthor");
-	    return $noreply;
-	}
-
-	&Forker("debian", sub { &Debian::searchAuthor($query); } );
-
-	$cmdstats{'Debian Author Search'}++;
-	return $noreply;
-    }
-
-    # Debian Author Search.
-    if ($message =~ /^(d|search)desc(\s+(.*))?$/i) {
-	return $noreply unless (&hasParam("debian"));
-
-	my $query = $2;
-	if (!defined $query) {
-	    &help("ddesc");
-	    return $noreply;
-	}
-
-	&Forker("debian", sub { &Debian::searchDesc($query); } );
-
-	$cmdstats{'Debian Desc Search'}++;
-	return $noreply;
-    }
-
-    # Debian Incoming Search.
-    if ($message =~ /^dincoming$/i) {
-	return $noreply unless (&hasParam("debian"));
-
-	&Forker("debian", sub { &Debian::generateIncoming(); } );
-
-	$cmdstats{'Debian Incoming Search'}++;
-	return $noreply;
-    }
-
-    # Debian Distro(Package) Stats
-    if ($message =~ /^dstats(\s+(.*))?$/i) {
-	return $noreply unless (&hasParam("debian"));
-	my $dist = $2 || $Debian::defaultdist;
-
-	&Forker("debian", sub { &Debian::infoStats($dist); } );
-
-	$cmdstats{'Debian Statistics'}++;
-	return $noreply;
-    }
-
-    # Debian Contents search.
-    if ($message =~ /^d?contents(\s+(.*))?$/i) {
-	return $noreply unless (&hasParam("debian"));
-
-	my $query = $2;
-	if (!defined $query) {
-	    &help("contents");
-	    return $noreply;
-	}
-
-	&Forker("debian", sub { &Debian::searchContents($query); } );
-
-	$cmdstats{'Debian Contents Search'}++;
-	return $noreply;
-    }
-
-    # Debian Package info.
-    if ($message =~ /^d?find(\s+(.*))?$/i and &IsParam("debian")) {
-	my $string = $2;
-
-	if (!defined $string) {
-	    &help("find");
-	    return $noreply;
-	}
-
-	&Forker("debian", sub { &Debian::DebianFind($string); } );
 	return $noreply;
     }
 
