@@ -11,29 +11,21 @@ $W3Search_regex = join '|', @W3Search_engines;
 $babel::lang_regex = "";	# lame fix.
 
 ### PROPOSED COMMAND HOOK IMPLEMENTATION.
-# addCmdHook('TEXT_HOOK', $code_ref,
-#	(Forker		=> 1,
-#	CheckModule	=> 1,
-#	Identifier	=> 'config_label',
+# addCmdHook('TEXT_HOOK',
+#	(CODEREF	=> 'Blah', 
+#	Forker		=> 1,
+#	CheckModule	=> 1,			# ???
+#	Module		=> 'blah.pl'		# preload module.
+#	Identifier	=> 'config_label',	# change to Config?
 #	Help		=> 'help_label',
 #	Cmdstats	=> 'text_label',)
 #}
-### EXAMPLE
-# addCmdHook('d?find', (
-#	CODEREF => \&debianFind(),
-#	CheckModule => 1,
-#	Forker => 1,		# if simple function.
-#	Identifier => "debian",
-#	Help => "dfind",
-#	Cmdstats => "Debian Search",) );
-### NOTES:
-#   * viable solution?
 ###
 
 sub addCmdHook {
     my ($ident, %hash) = @_;
 
-    &DEBUG("aCH: added $ident to command hooks.");
+    &VERB("aCH: added $ident",2);	# use $hash{'Identifier'}?
     $cmdhooks{$ident} = \%hash;
 }
 
@@ -45,17 +37,22 @@ sub parseCmdHook {
 
     foreach (keys %cmdhooks) {
 	my $ident = $_;
-	&DEBUG("cmdhooks{$ident} => ...");
 
 	next unless ($args[0] =~ /^$ident$/i);
 	shift(@args);	# just gotta do it.
 
-	&DEBUG("pCH: MATCHED!");
+	&DEBUG("pCH: found $ident");
 	my %hash = %{ $cmdhooks{$ident} };
 
 	### DEBUG.
 	foreach (keys %hash) {
 	    &DEBUG(" $ident->$_ => '$hash{$_}'.");
+	}
+
+	### HELP.
+	if (exists $hash{'Help'} and !scalar(@args)) {
+	    &help( $hash{'Help'} );
+	    return 1;
 	}
 
 	### IDENTIFIER.
@@ -66,6 +63,14 @@ sub parseCmdHook {
 	### FORKER,IDENTIFIER,CODEREF.
 	if (exists $hash{'Forker'}) {
 	    &Forker($hash{'Identifier'}, sub { \&{$hash{'CODEREF'}}(@args) } );
+	} else {
+	    if (exists $hash{'Module'}) {
+		&loadMyModule($myModules{ $hash{'Module'} });
+	    }
+
+	    ### TODO: check if CODEREF exists.
+
+	    &{$hash{'CODEREF'}}(@args);
 	}
 
 	### CMDSTATS.
@@ -100,6 +105,34 @@ sub parseCmdHook {
 &addCmdHook('d?find', ('CODEREF' => 'Debian::DebianFind',
 	'Forker' => 1, 'Identifier' => 'debian',
 	'Cmdstats' => 'Debian Search', 'Help' => "find" ) );
+&addCmdHook('insult', ('CODEREF' => 'Insult::Insult',
+	'Forker' => 1, 'Identifier' => 'insult', 'Help' => "insult" ) );
+&addCmdHook('kernel', ('CODEREF' => 'Kernel::Kernel',
+	'Forker' => 1, 'Identifier' => 'kernel',
+	'Cmdstats' => 'Kernel') );
+&addCmdHook('listauth', ('CODEREF' => 'CmdListAuth',
+	'Identifier' => 'search', Module => 'factoids', 
+	'Help' => 'listauth') );
+&addCmdHook('quote', ('CODEREF' => 'Quote::Quote',
+	'Forker' => 1, 'Identifier' => 'quote',
+	'Help' => 'quote', 'Cmdstats' => 'Quote') );
+&addCmdHook('countdown', ('CODEREF' => 'Countdown',
+	'Module' => 'countdown', 'Identifier' => 'countdown',
+	'Cmdstats' => 'Countdown') );
+&addCmdHook('lart', ('CODEREF' => 'lart',
+	'Identifier' => 'lart', 'Help' => 'lart') );
+&addCmdHook('convert', ('CODEREF' => 'convert',
+	'Forker' => 1, 'Identifier' => 'units',
+	'Help' => 'convert') );
+&addCmdHook('(cookie|random)', ('CODEREF' => 'cookie',
+	'Forker' => 1, 'Identifier' => 'factoids') );
+&addCmdHook('u(ser)?info', ('CODEREF' => 'userinfo',
+	'Identifier' => 'userinfo', 'Help' => 'userinfo',
+	'Module' => 'userinfo') );
+&addCmdHook('rootWarn', ('CODEREF' => 'CmdrootWarn',
+	'Identifier' => 'rootWarn', 'Module' => 'rootwarn') );
+
+&status("CMD: loaded ".scalar(keys %cmdhooks)." command hooks.");
 
 
 sub Modules {
@@ -123,45 +156,6 @@ sub Modules {
 	&Forker("babelfish", sub { &babel::babelfish(lc $1, lc $2, $3); } );
 
 	$cmdstats{'BabelFish'}++;
-	return $noreply;
-    }
-
-    # cookie (random). xk++
-    if ($message =~ /^(cookie|random)(\s+(.*))?$/i) {
-	return $noreply unless (&hasParam("cookie"));
-
-	my $arg = $3;
-
-	# lets find that secret cookie.
-	my $target	= $talkchannel;
-	$target		= $who 		if ($msgType ne 'public');
-
-	my $cookiemsg	= &getRandom(keys %{$lang{'cookie'}});
-	my ($key,$value);
-	### WILL CHEW TONS OF MEM.
-	### TODO: convert this to a Forker function!
-	if ($arg) {
-	    my @list = &searchTable("factoids", "factoid_key", "factoid_value", $arg);
-	    $key  = &getRandom(@list);
-	    $val  = &getFactInfo("factoids", $key, "factoid_value");
-	} else {
-	    ($key,$value) = &randKey("factoids","factoid_key,factoid_value");
-	}
-
-	$cookiemsg	=~ s/##KEY/\002$key\002/;
-	$cookiemsg	=~ s/##VALUE/$value/;
-	$cookiemsg	=~ s/##WHO/$who/;
-	$cookiemsg	=~ s/\$who/$who/;	# cheap fix.
-	$cookiemsg	=~ s/(\S+)?\s*<\S+>/$1 /;
-	$cookiemsg	=~ s/\s+/ /g;
-
-	if ($cookiemsg =~ s/^ACTION //i) {
-	    &action($target, $cookiemsg);
-	} else {
-	    &msg($target, $cookiemsg);
-	}
-
-	$cmdstats{'Random Cookie'}++;
 	return $noreply;
     }
 
@@ -235,88 +229,6 @@ sub Modules {
 	return $noreply;
     }
 
-    # insult server. patch thanks to michael@limit.org
-    if ($message =~ /^insult(\s+(\S+))?$/) {
-	return $noreply unless (&hasParam("insult"));
-
-	my $person	= $2;
-	if (!defined $person) {
-	    &help("insult");
-	    return $noreply;
-	}
-
-	&Forker("insult", sub { &Insult::Insult($person); } );
-
-	return $noreply;
-    }
-
-    # Kernel. xk++
-    if ($message =~ /^kernel$/i) {
-	return $noreply unless (&hasParam("kernel"));
-
-	&Forker("kernel", sub { &Kernel::Kernel(); } );
-
-	$cmdstats{'Kernel'}++;
-	return $noreply;
-    }
-
-    # LART. originally by larne/cerb.
-    if ($message =~ /^lart(\s+(.*))?$/i) {
-	return $noreply unless (&hasParam("lart"));
-	my ($target) = &fixString($2);
-
-	if (!defined $target) {
-	    &help("lart");
-	    return $noreply;
-	}
-	my $extra = 0;
-
-	my $chan = $talkchannel;
-	if ($msgType eq 'private') {
-	    if ($target =~ /^($mask{chan})\s+(.*)$/) {
-		$chan	= $1;
-		$target = $2;
-		$extra	= 1;
-	    } else {
-		&msg($who, "error: invalid format or missing arguments.");
-		&help("lart");
-		return $noreply;
-	    }
-	}
-
-	my $line = &getRandomLineFromFile($bot_misc_dir. "/blootbot.lart");
-	if (defined $line) {
-	    if ($target =~ /^(me|you|itself|\Q$ident\E)$/i) {
-		$line =~ s/WHO/$who/g;
-	    } else {
-		$line =~ s/WHO/$target/g;
-	    }
-	    $line .= ", courtesy of $who" if ($extra);
-
-	    &action($chan, $line);
-	} else {
-	    &status("lart: error reading file?");
-	}
-
-	return $noreply;
-    }
-
-    # Search factoid extensions by 'author'. xk++
-    if ($message =~ /^listauth(\s+(\S+))?$/i) {
-	return $noreply unless (&hasParam("search"));
-
-	my $query = $2;
-
-	if (!defined $query) {
-	    &help("listauth");
-	    return $noreply;
-	}
-
-	&loadMyModule($myModules{'factoids'});
-	&performStrictReply( &CmdListAuth($query) );
-	return $noreply;
-    }
-
     # list{keys|values}. xk++. Idea taken from #linuxwarez@EFNET
     if ($message =~ /^list(\S+)( (.*))?$/i) {
 	return $noreply unless (&hasParam("search"));
@@ -368,32 +280,6 @@ sub Modules {
 	    &msg($who, "the 'lame nick-o-meter' reading for $term is $percentage, $who");
 	}
 
-	return $noreply;
-    }
-
-    # Quotes. mu++
-    if ($message =~ /^quote(\s+(\S+))?$/i) {
-	return $noreply unless (&hasParam("quote"));
-
-	my $query = $2;
-
-	if ($query eq "") {
-	    &help("quote");
-	    return $noreply;
-	}
-
-	&Forker("quote", sub { &Quote::Quote($query); } );
-
-	$cmdstats{'Quote'}++;
-	return $noreply;
-    }
-
-    # rootWarn. xk++
-    if ($message =~ /^rootWarn$/i) {
-	return $noreply unless (&hasParam("rootWarn"));
-
-	&loadMyModule($myModules{'rootwarn'});
-	&performStrictReply( &CmdrootWarn() );
 	return $noreply;
     }
 
@@ -523,55 +409,6 @@ sub Modules {
 	return $noreply;
     }
 
-    # Countdown.
-    if ($message =~ /^countdown(\s+(\S+))?$/i) {
-	return $noreply unless (&hasParam("countdown"));
-
-	my $query = $2;
-
-	&loadMyModule($myModules{'countdown'});
-	&Countdown($query);
-
-	$cmdstats{'Countdown'}++;
-
-	return $noreply;
-    }
-
-    # User Information Services. requested by Flugh.
-    if ($message =~ /^u(ser)?info(\s+(.*))?$/i) {
-	return $noreply unless (&hasParam("userinfo"));
-	&loadMyModule($myModules{'userinfo'});
-
-	my $arg = $3;
-	if (!defined $arg or $arg eq "") {
-	    &help("userinfo");
-	    return $noreply;
-	}
-
-	if ($arg =~ /^set(\s+(.*))?$/i) {
-	    $arg = $2;
-	    if (!defined $arg) {
-		&help("userinfo set");
-		return $noreply;
-	    }
-
-	    &UserInfoSet(split /\s+/, $arg, 2);
-	} elsif ($arg =~ /^unset(\s+(.*))?$/i) {
-	    $arg = $2;
-	    if (!defined $arg) {
-		&help("userinfo unset");
-		return $noreply;
-	    }
-
-	    &UserInfoSet($arg, "");
-	} else {
-	    &UserInfoGet($arg);
-	}
-
-	$cmdstats{'UIS'}++;
-	return $noreply;
-    }
-
     # Uptime. xk++
     if ($message =~ /^uptime$/i) {
 	return $noreply unless (&hasParam("uptime"));
@@ -609,32 +446,117 @@ sub Modules {
 	return $noreply;
     }
 
-    # convert.
-    if ($message =~ /^convert(\s+(.*))?$/i) {
-	return $noreply unless (&hasParam("units"));
+    # do nothing and let the other routines have a go
+    return '';
+}
 
-	my $str = $2;
-	if (!defined $str) {
-	    &help("convert");
+# User Information Services. requested by Flugh.
+sub userinfo {
+    my ($arg) = join(' ',@_);
+
+    if ($arg =~ /^set(\s+(.*))?$/i) {
+	$arg = $2;
+	if (!defined $arg) {
+	    &help("userinfo set");
 	    return $noreply;
 	}
 
-	my ($from,$to);
-	($from,$to) = ($1,$2) if ($str =~ /^(.*) to (.*)$/);
-	($from,$to) = ($2,$1) if ($str =~ /^(.*) from (.*)$/);
-	if (!defined $from or !defined $to or $to eq "" or $from eq "") {
-	    &msg($who, "Invalid format!");
-	    &help("convert");
+	&UserInfoSet(split /\s+/, $arg, 2);
+    } elsif ($arg =~ /^unset(\s+(.*))?$/i) {
+	$arg = $2;
+	if (!defined $arg) {
+	    &help("userinfo unset");
 	    return $noreply;
 	}
 
-	&Forker("units", sub { &Units::convertUnits($from, $to); } );
+	&UserInfoSet($arg, "");
+    } else {
+	&UserInfoGet($arg);
+    }
+}
 
+# cookie (random). xk++
+sub cookie {
+    my ($arg) = @_;
+
+    # lets find that secret cookie.
+    my $target		= ($msgType ne 'public') ? $who : $talkchannel;
+    my $cookiemsg	= &getRandom(keys %{$lang{'cookie'}});
+    my ($key,$value);
+
+    ### WILL CHEW TONS OF MEM.
+    ### TODO: convert this to a Forker function!
+    if ($arg) {
+	my @list = &searchTable("factoids", "factoid_key", "factoid_value", $arg);
+	$key  = &getRandom(@list);
+	$val  = &getFactInfo("factoids", $key, "factoid_value");
+    } else {
+	($key,$value) = &randKey("factoids","factoid_key,factoid_value");
+    }
+
+    for ($cookiemsg) {
+	s/##KEY/\002$key\002/;
+	s/##VALUE/$value/;
+	s/##WHO/$who/;
+	s/\$who/$who/;	# cheap fix.
+	s/(\S+)?\s*<\S+>/$1 /;
+	s/\s+/ /g;
+    }
+
+    if ($cookiemsg =~ s/^ACTION //i) {
+	&action($target, $cookiemsg);
+    } else {
+	&msg($target, $cookiemsg);
+    }
+}
+
+sub convert {
+    my (@args) = @_;
+    my ($from,$to);
+    ($from,$to) = ($args[0],$args[2]) if ($args[1] =~ /^from$/i);
+    ($from,$to) = ($args[2],$args[0]) if ($args[1] =~ /^to$/i);
+
+    if (!defined $from or !defined $to or $to eq "" or $from eq "") {
+	&msg($who, "Invalid format!");
+	&help("convert");
 	return $noreply;
     }
 
-    # do nothing and let the other routines have a go
-    return '';
+    &Units::convertUnits($from, $to);
+
+    return $noreply;
+}
+
+sub lart {
+    my ($target) = &fixString($_[0]);
+    my $extra 	= 0;
+    my $chan	= $talkchannel;
+
+    if ($msgType eq 'private') {
+	if ($target =~ /^($mask{chan})\s+(.*)$/) {
+	    $chan	= $1;
+	    $target	= $2;
+	    $extra	= 1;
+	} else {
+	    &msg($who, "error: invalid format or missing arguments.");
+	    &help("lart");
+	    return $noreply;
+	}
+    }
+
+    my $line = &getRandomLineFromFile($bot_misc_dir. "/blootbot.lart");
+    if (defined $line) {
+	if ($target =~ /^(me|you|itself|\Q$ident\E)$/i) {
+	    $line =~ s/WHO/$who/g;
+	} else {
+	    $line =~ s/WHO/$target/g;
+	}
+	$line .= ", courtesy of $who" if ($extra);
+
+	&action($chan, $line);
+    } else {
+	&status("lart: error reading file?");
+    }
 }
 
 1;
