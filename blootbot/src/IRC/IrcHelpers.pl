@@ -234,9 +234,12 @@ sub hookMsg {
 	$seencache{$who}{'msg'}  = $orig{message};
 	$seencache{$who}{'msgcount'}++;
     }
-
+    if (&IsChanConf("minVolunteerLength")) {
+	# FIXME hack to treat unaddressed as if using addrchar
+	$addrchar = 1;
+    }
     return if ($skipmessage);
-    return unless (&IsChanConf("minVolunteerLength") or $addressed);
+    return unless ($addrchar or $addressed);
 
     foreach (@ignore) {
 	s/\*/\\S*/g;
