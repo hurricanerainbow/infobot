@@ -102,6 +102,10 @@ sub Parse {
     } elsif ($what =~ /^help(\s+(.*))?$/i) {
 	&::help("news$1");
 
+    } elsif ($what =~ /^newsflush$/i) {
+	&::msg($::who, "newsflush called... check out the logs!");
+	&::newsFlush();
+
     } elsif ($what =~ /^(un)?notify$/i) {
 	my $state = ($1) ? 0 : 1;
 
@@ -443,7 +447,7 @@ sub read {
 	);
     }
 
-    &::notice($::who, "+- News \002$chan\002 #$num: \037$item\037");
+    &::notice($::who, "+- News \002$chan\002 #$num: $item");
     &::notice($::who, "| Added by $a at \037$t\037");
     &::notice($::who, "| Expire: $e") if (defined $e);
     &::notice($::who, $text);
