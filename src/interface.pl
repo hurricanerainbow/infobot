@@ -4,8 +4,7 @@
 #       Author:
 #
 
-### FIXME.
-#if (&IsParam("useStrict")) { use strict; }
+#use strict;
 
 sub whatInterface {
     if (!&IsParam("Interface") or $param{'Interface'} =~ /IRC/) {

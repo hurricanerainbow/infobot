@@ -5,8 +5,7 @@
 #  Created: 20000309
 #
 
-if (&IsParam("useStrict")) { use strict; }
-
+#use strict;
 use vars qw(%ftp);
 
 # Usage: &ftpGet($host,$dir,$file,[$lfile]);

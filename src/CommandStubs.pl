@@ -3,7 +3,7 @@
 # WARN: this file does not reload on HUP.
 #
 
-if (&IsParam("useStrict")) { use strict; }
+#use strict;
 
 $babel_lang_regex = "fr|sp|po|pt|it|ge|de|gr|en";
 

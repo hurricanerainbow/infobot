@@ -6,7 +6,7 @@
 #	   NOTE: Merged from User.pl
 #
 
-if (&IsParam("useStrict")) { use strict; }
+#use strict;
 
 #####
 ##### USERFILE CONFIGURATION READER/WRITER
@@ -37,7 +37,7 @@ sub readUserFile {
 
     undef %users;	# clear on reload.
     undef %bans;	# reset.
-    undef %ingore;	# reset.
+    undef %ignore;	# reset.
 
     my $ver = <IN>;
     if ($ver !~ /^#v1/) {

@@ -5,8 +5,7 @@
 #   Created: 20000124
 #
 
-if (&IsParam("useStrict")) { use strict; }
-
+#use strict;
 use POSIX qw(_exit);
 
 sub openSHM {

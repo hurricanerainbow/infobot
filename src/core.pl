@@ -366,7 +366,7 @@ sub showProc {
 	} else {	# delta < 0.
 	    $delta = -$delta;
 	    # never knew RSS could decrease, probably Size can't?
-	    $str = "MEM:$prefix decreased by $delta kB. YES YES YES";
+	    $str = "MEM:$prefix decreased by $delta kB.";
 	}
 
 	&status($str);
@@ -438,7 +438,7 @@ sub setupConfig {
 
     if (! -d $param{tempDir}) {
 	&status("making $param{tempDir}...");
-	system("mkdir $param{tempDir}");
+	mkdir $param{tempDir}, 0755;
     }
 
     # static scalar variables.

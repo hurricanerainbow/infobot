@@ -5,7 +5,7 @@
 #      NOTE: Based on code by Kevin Lenzo & Patrick Cole  (c) 1997
 #
 
-if (&IsParam("useStrict")) { use strict; }
+#use strict;
 
 sub help {
     my $topic = shift;
