@@ -18,7 +18,7 @@ sub userDCC {
 	&status("userDCC: quit called. FIXME");
 ###	$irc->removeconn($dcc{'CHAT'}{lc $who});
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # who.
@@ -30,25 +30,25 @@ sub userDCC {
 	}
 	&performStrictReply("End of who.");
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     ### for those users with enough flags.
 
     # 4op.
     if ($message =~ /^4op(\s+($mask{chan}))?$/i) {
-	return 'NOREPLY' unless (&hasFlag("o"));
+	return $noreply unless (&hasFlag("o"));
 
 	my $chan = $2;
 
 	if ($chan eq "") {
 	    &help("4op");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if (!$channels{$chan}{'o'}{$ident}) {
 	    &msg($who, "i don't have ops on $chan to do that.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	# on non-4mode(<4) servers, this may be exploited.
@@ -58,25 +58,25 @@ sub userDCC {
 	    rawout("MODE $chan +o-o+o-o". (" $who" x 4));
 	}
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # backlog.
     if ($message =~ /^backlog(\s+(.*))?$/i) {
-	return 'NOREPLY' unless (&hasFlag("o"));
-	return 'NOREPLY' unless (&hasParam("backlog"));
+	return $noreply unless (&hasFlag("o"));
+	return $noreply unless (&hasParam("backlog"));
 	my $num = $2;
 	my $max = $param{'backlog'};
 
 	if (!defined $num) {
 	    &help("backlog");
-	    return 'NOREPLY';
+	    return $noreply;
 	} elsif ($num !~ /^\d+/) {
 	    &msg($who, "error: argument is not positive integer.");
-	    return 'NOREPLY';
+	    return $noreply;
 	} elsif ($num > $max or $num < 0) {
 	    &msg($who, "error: argument is out of range (max $max).");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	&msg($who, "Start of backlog...");
@@ -86,53 +86,53 @@ sub userDCC {
 	}
 	&msg($who, "End of backlog.");
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # dump variables.
     if ($message =~ /^dumpvars$/i) {
-	return 'NOREPLY' unless (&hasFlag("o"));
+	return $noreply unless (&hasFlag("o"));
 	return '' unless (&IsParam("dumpvars"));
 
 	&status("Dumping all variables...");
 	&dumpallvars();
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # kick.
     if ($message =~ /^kick(\s+(\S+)(\s+(\S+))?)?/) {
-	return 'NOREPLY' unless (&hasFlag("o"));
+	return $noreply unless (&hasFlag("o"));
 	my ($nick,$chan) = (lc $2,lc $4);
 
 	if ($nick eq "") {
 	    &help("kick");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if (&validChan($chan) == 0) {
 	    &msg($who,"error: invalid channel \002$chan\002");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if (&IsNickInChan($nick,$chan) == 0) {
 	    &msg($who,"$nick is not in $chan.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	&kick($nick,$chan);
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # ignore.
     if ($message =~ /^ignore(\s+(\S+))?$/i) {
-	return 'NOREPLY' unless (&hasFlag("o"));
+	return $noreply unless (&hasFlag("o"));
 	my $what = lc $2;
 
 	if ($what eq "") {
 	    &help("ignore");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	my $expire = $param{'ignoreTempExpire'} || 60;
@@ -140,17 +140,17 @@ sub userDCC {
 	&status("ignoring $what at $who's request");
 	&msg($who, "added $what to the ignore list");
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # unignore.
     if ($message =~ /^unignore(\s+(\S+))?$/i) {
-	return 'NOREPLY' unless (&hasFlag("o"));
+	return $noreply unless (&hasFlag("o"));
 	my $what = $2;
 
 	if ($what eq "") {
 	    &help("unignore");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if ($ignoreList{$what}) {
@@ -161,21 +161,21 @@ sub userDCC {
 	    &status("unignore FAILED for $1 at $who's request");
 	    &msg($who, "no entry for $1 on the ignore list");
 	}
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # clear unignore list.
     if ($message =~ /^clear ignorelist$/i) {
-	return 'NOREPLY' unless (&hasFlag("o"));
+	return $noreply unless (&hasFlag("o"));
 	undef %ignoreList;
 	&status("unignoring all ($who said the word)");
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # lobotomy. sometimes we want the bot to be _QUIET_.
     if ($message =~ /^(lobotomy|bequiet)$/i) {
-	return 'NOREPLY' unless (&hasFlag("o"));
+	return $noreply unless (&hasFlag("o"));
 
 	if ($lobotomized) {
 	    &performReply("i'm already lobotomized");
@@ -184,24 +184,24 @@ sub userDCC {
 	    $lobotomized = 1;
 	}
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # unlobotomy.
     if ($message =~ /^(unlobotomy|benoisy)$/i) {
-	return 'NOREPLY' unless (&hasFlag("o"));
+	return $noreply unless (&hasFlag("o"));
 	if ($lobotomized) {
 	    &performReply("i have been unlobotomized, woohoo");
 	    $lobotomized = 0;
 	} else {
 	    &performReply("i'm not lobotomized");
 	}
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # op.
     if ($message =~ /^op(\s+(.*))?$/i) {
-	return 'NOREPLY' unless (&hasFlag("o"));
+	return $noreply unless (&hasFlag("o"));
 	my ($opee) = lc $2;
 	my @chans;
 
@@ -211,11 +211,11 @@ sub userDCC {
 		@chans = ($2);
 		if (!&validChan($2)) {
 		    &msg($who,"error: invalid chan ($2).");
-		    return 'NOREPLY';
+		    return $noreply;
 		}
 	    } else {
 		&msg($who,"error: invalid params.");
-		return 'NOREPLY';
+		return $noreply;
 	    }
 	} else {
 	    @chans = keys %channels;
@@ -233,6 +233,7 @@ sub userDCC {
 	    $op++;
 
 	    &status("opping $opee on $_ at ${who}'s request");
+	    &performStrictReply("opping $opee on $_");
 	    &op($_, $opee);
 	}
 
@@ -243,12 +244,12 @@ sub userDCC {
 	    &DEBUG("op => '$op'.");
 	}
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # deop.
     if ($message =~ /^deop(\s+(.*))?$/i) {
-	return 'NOREPLY' unless (&hasFlag("o"));
+	return $noreply unless (&hasFlag("o"));
 	my ($opee) = lc $2;
 	my @chans;
 
@@ -258,11 +259,11 @@ sub userDCC {
 		@chans = ($2);
 		if (!&validChan($2)) {
 		    &msg($who,"error: invalid chan ($2).");
-		    return 'NOREPLY';
+		    return $noreply;
 		}
 	    } else {
 		&msg($who,"error: invalid params.");
-		return 'NOREPLY';
+		return $noreply;
 	    }
 	} else {
 	    @chans = keys %channels;
@@ -290,12 +291,12 @@ sub userDCC {
 	    &DEBUG("deop: op => '$op'.");
 	}
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # say.
     if ($message =~ s/^say\s+(\S+)\s+(.*)//) {
-	return 'NOREPLY' unless (&hasFlag("o"));
+	return $noreply unless (&hasFlag("o"));
 	my ($chan,$msg) = (lc $1, $2);
 	&DEBUG("chan => '$1', msg => '$msg'.");
 
@@ -304,12 +305,12 @@ sub userDCC {
 	} else {
 	    &msg($who,"i'm not on \002$1\002, sorry.");
 	}
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # die.
     if ($message =~ /^die$/) {
-	return 'NOREPLY' unless (&hasFlag("n"));
+	return $noreply unless (&hasFlag("n"));
 
 	&doExit();
 
@@ -319,11 +320,11 @@ sub userDCC {
 
     # jump.
     if ($message =~ /^jump(\s+(\S+))?$/i) {
-	return 'NOREPLY' unless (&hasFlag("n"));
+	return $noreply unless (&hasFlag("n"));
 
 	if ($2 eq "") {
 	    &help("jump");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	my ($server,$port);
@@ -332,7 +333,7 @@ sub userDCC {
 	    $port   = $3 || 6667;
 	} else {
 	    &msg($who,"invalid format.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	&status("jumping servers... $server...");
@@ -345,41 +346,41 @@ sub userDCC {
 
     # reload.
     if ($message =~ /^reload$/i) {
-	return 'NOREPLY' unless (&hasFlag("n"));
+	return $noreply unless (&hasFlag("n"));
 
 	&status("USER reload $who");
 	&msg($who,"reloading...");
 	&reloadModules();
 	&msg($who,"reloaded.");
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # rehash.
     if ($message =~ /^rehash$/) {
-	return 'NOREPLY' unless (&hasFlag("n"));
+	return $noreply unless (&hasFlag("n"));
 
 	&msg($who,"rehashing...");
 	&restart("REHASH");
 	&status("USER rehash $who");
 	&msg($who,"rehashed");
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # set.
     if ($message =~ /^set(\s+(\S+)?(\s+(.*))?)?$/i) {
-	return 'NOREPLY' unless (&hasFlag("n"));
+	return $noreply unless (&hasFlag("n"));
 	my ($param,$what) = ($2,$4);
 
 	if ($param eq "" and $what eq "") {
 	    &msg($who,"\002Usage\002: set <param> [what]");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if (!exists $param{$param}) {
 	    &msg($who,"error: param{$param} cannot be set");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if ($what eq "") {
@@ -388,44 +389,44 @@ sub userDCC {
 	    } else {
 		&msg($who,"param{$param} has value of '\002$param{$param}\002'.");
 	    }
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if ($param{$param} eq $what) {
 	    &msg($who,"param{$param} already has value of '\002$what\002'.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	$param{$param} = $what;
 	&msg($who,"setting param{$param} to '\002$what\002'.");
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # unset.
     if ($message =~ /^unset(\s+(\S+))?$/i) {
-	return 'NOREPLY' unless (&hasFlag("n"));
+	return $noreply unless (&hasFlag("n"));
 	my ($param) = $2;
 
 	if ($param eq "") {
 	    &msg($who,"\002Usage\002: unset <param>");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if (!exists $param{$param}) {
 	    &msg($who,"error: \002$param\002 cannot be unset");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	if ($param{$param} == 0) {
 	    &msg($who,"\002param{$param}\002 has already been unset.");
-	    return 'NOREPLY';
+	    return $noreply;
 	}
 
 	$param{$param} = 0;
 	&msg($who,"unsetting \002param{$param}\002.");
 
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # more...
