@@ -3,8 +3,8 @@
 # written by the xk.
 ###
 
-require "src/core.pl";
 require "src/logger.pl";
+require "src/core.pl";
 require "src/modules.pl";
 require "src/Misc.pl";
 require "src/interface.pl";
@@ -18,7 +18,7 @@ my $dbname = $param{'DBName'};
 my $query;
 
 if ($dbname eq "") {
-  print "error: appears that teh config file was not loaded properly.\n";
+  print "error: appears that the config file was not loaded properly.\n";
   exit 1;
 }
 
@@ -42,22 +42,22 @@ if ($param{'DBType'} =~ /mysql/i) {
 	exit 1;
     }
 
-    &openDB("mysql", $adminuser, $adminpass);
+    &sqlOpenDB("mysql", "mysql", $adminuser, $adminpass);
 
     my $database_exists = 0;
-    foreach $database (&dbRawReturn("SHOW DATABASES")) {
+    foreach $database (&sqlRawReturn("SHOW DATABASES")) {
 	$database_exists++ if $database eq $param{DBName};
     }
     if ($database_exists) {
 	&status("Database '$param{DBName}' already exists. Continuing...");
     } else {
 	&status("Creating db ...");
-	&dbRaw("create(database)", "CREATE DATABASE $param{DBName}");
+	&sqlRaw("create(database)", "CREATE DATABASE $param{DBName}");
     }
 
     &status("--- Adding user information for user '$param{'SQLUser'}'");
 
-    if (!&dbGet("user","user", "user=".&dbQuote($param{'SQLUser'}) ) ) {
+    if (!&sqlSelect("user", "user", { 'user' => &sqlQuote($param{'SQLUser'}) })) {
 	&status("--- Adding user '$param{'SQLUser'}' $dbname/user table...");
 
 	$query = "INSERT INTO user VALUES ".
@@ -66,12 +66,12 @@ if ($param{'DBType'} =~ /mysql/i) {
 
 	$query .= "'Y','Y','Y','Y','Y','Y','N','N','N','N','N','N','N','N')";
 
-	&dbRaw("create(user)", $query);
+	&sqlRaw("create(user)", $query);
     } else {
 	&status("... user information already present.");
     }
 
-    if (!&dbGet("db","db","db=".&dbQuote($param{'SQLUser'}) ) ) {
+    if (!&sqlSelect("db", "db", { 'db' => &sqlQuote($param{'SQLUser'}) })) {
 	&status("--- Adding database information for database '$dbname'.");
 
 	$query = "INSERT INTO db VALUES ".
@@ -80,7 +80,7 @@ if ($param{'DBType'} =~ /mysql/i) {
 
 	$query .= "'Y','Y','Y','Y','Y','Y','Y','N','N','N')";
 
-	&dbRaw("create(db)", $query);
+	&sqlRaw("create(db)", $query);
     } else {
 	&status("... db info already present.");
     }
@@ -88,9 +88,9 @@ if ($param{'DBType'} =~ /mysql/i) {
     # flush.
     &status("Flushing privileges...");
     $query = "FLUSH PRIVILEGES";
-    &dbRaw("mysql(flush)", $query);
+    &sqlRaw("mysql(flush)", $query);
 }
 
 &status("Done.");
 
-&closeDB();
+&sqlCloseDB();
