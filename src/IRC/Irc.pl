@@ -102,7 +102,10 @@ sub irc {
     $conn = $irc->newconn(%args);
 
     if (!defined $conn) {
-	&ERROR("internal: perl IRC connection object does not exist.");
+	&ERROR("IRC: connection failed.");
+	&ERROR("Please check /etc/hosts to see if you have a localhost line like:");
+	&ERROR("127.0.0.1   localhost    localhost");
+	&ERROR("If this is still a problem, please contact the maintainer.");
 	return 1;
     }
 
