@@ -104,15 +104,6 @@ sub process {
     # once useless messages have been parsed out, we match them.
     ###
 
-    # addressed.
-    if ($message =~ /^\Q$ident\E\s*\?*$/i) {
-	&status("feedback addressing from $who");
-
-	&performReply("yes?");
-
-	return;
-    }
-
     # confused? is this for infobot communications?
     foreach (keys %{$lang{'confused'}}) {
 	my $y = $_;
@@ -216,6 +207,7 @@ sub process {
     # here's where the external routines get called.
     # if they return anything but null, that's the "answer".
     if ($addressed) {
+	&parseCmdHook();
 	my $er = &Modules();
 	if ($er =~ /\S/) {
 	    &performStrictReply($er) if ($er ne $noreply);
