@@ -59,7 +59,7 @@ sub DumpHash{
  print "$padding$symname\n";
 
  foreach (@list) {
-  my $ref = ref %{$symname};
+  my $ref = ref %{$symname}; #FIXME
   $size += length($_);
   if ($ref eq 'ARRAY') {
    $size += &DumpArray($pad+1, "@" . $_, $_);
@@ -89,10 +89,15 @@ sub DumpPackage {
    print "$padding \$$symname='$sym'\n";
    $scalar++;
    $size += length($sym);
+  } elsif (defined @sym) {
+   $size += &DumpArray($pad+1, $symname, \@sym);
+  } elsif (defined %sym) {
+   $size += &DumpHash($pad+1, $symname, \%sym);
+  } elsif (($symname =~ /::/) and ($symname ne 'main::')) {
+   $size += &DumpPackage($pad+1, \%sym, $symname);
+  } else {
+   print("ERROR $symname" . ref $symname . "\n");
   }
-  $size += &DumpArray($pad+1, $symname, \@sym) if (defined @sym);
-  $size += &DumpHash($pad+1, $symname, \%sym) if (defined %sym);
-  $size += &DumpPackage($pad+1, \%sym, $symname) if (($symname =~ /::/) and ($symname ne 'main::'));
  }
  print $padding."scalars $scalar, size $size\n";
  return $size;
