@@ -43,7 +43,7 @@ sub getReply {
     $poss[0] =~ s/^\s//;
     $poss[$#poss] =~ s/\s$//;
 
-    if ((@poss > 1) && ($msgType =~ /public/)) {
+    if (@poss > 1) {
 	$result = &getRandom(@poss);
 	$result =~ s/^\s*//;
     }

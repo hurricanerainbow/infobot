@@ -105,8 +105,8 @@ sub dbGetCol {
 }
 
 ####
-# Usage: &dbGetRowInfo($table);
-sub dbGetRowInfo {
+# Usage: &dbGetColInfo($table);
+sub dbGetColInfo {
     my ($table) = @_;
 
     my $query = "SHOW COLUMNS from $table";

@@ -8,12 +8,11 @@
 package Freshmeat;
 
 use strict;
-
-### download compressed version instead?
+use vars qw(@cols @data $string %pkg $i $locktime);
 
 my %urls = (
-	'public'  => 'http://www.freshmeat.net/backend/appindex.txt',
-	'private' => 'http://feed.freshmeat.net/appindex/appindex.txt',
+	'public'  => 'http://www.freshmeat.net/backend/fm-projects.rdf.bz2',
+#	'private' => 'http://feed.freshmeat.net/appindex/appindex.txt',
 );
 
 ####
@@ -21,24 +20,29 @@ my %urls = (
 sub Freshmeat {
     my $sstr	= lc($_[0]);
     my $refresh	= &::getChanConfDefault("freshmeatRefreshInterval",
-			"", 24) * 60 * 60;
+			"", 24) * 60 * 60 * 7;
 
-    my $last_refresh = &::dbGet("freshmeat", "name","_","stable");
+    my $last_refresh = &::dbGet("freshmeat", "projectname_short", "_", "latest_version");
     my $renewtable   = 0;
 
-    if (defined $last_refresh) {
+    if (defined $last_refresh and $last_refresh =~ /^\d+$/) {
 	$renewtable++ if (time() - $last_refresh > $refresh);
     } else {
 	$renewtable++;
     }
-    $renewtable++ if (&::countKeys("freshmeat") < 10);
+    $renewtable++ if (&::countKeys("freshmeat") < 1000);
 
-    if ($renewtable and $$ == $::bot_pid) {
-	&::Forker("freshmeat", sub {
+    if ($renewtable) {
+	if ($$ == $::bot_pid) {
+	    &::Forker("freshmeat", sub {
 		&downloadIndex();
 		&Freshmeat($sstr);
-	} );
-	# both parent/fork runs here, in case the following looks weird.
+	    } );
+	    # both parent/fork runs here, in case the following looks weird.
+	} else {
+	    &downloadIndex();
+	}
+
 	return if ($$ == $::bot_pid);
     }
 
@@ -47,12 +51,12 @@ sub Freshmeat {
 	my %hash;
 
 	# search by key/NAME first.
-	foreach (&::searchTable("freshmeat", "name","name",$sstr)) {
+	foreach (&::searchTable("freshmeat", "projectname_short", "projectname_short",$sstr)) {
 	    $hash{$_} = 1 unless exists $hash{$_};
 	}
 
 	# search by description line.
-	foreach (&::searchTable("freshmeat", "name","oneliner", $sstr)) {
+	foreach (&::searchTable("freshmeat", "projectname_short", "desc_short", $sstr)) {
 	    $hash{$_} = 1 unless exists $hash{$_};
 	    last if (scalar keys %hash > 15);
 	}
@@ -80,17 +84,18 @@ sub Freshmeat {
 
 sub showPackage {
     my ($pkg)	= @_;
-    my @fm	= &::dbGet("freshmeat", "name",$pkg,"*");
+    my @fm	= &::dbGet("freshmeat", "projectname_short", $pkg, "*");
 
     if (scalar @fm) {		#1: perfect match of name.
 	my $retval;
-	$retval  = "$fm[0] \002(\002$fm[11]\002)\002, ";
-	$retval .= "section $fm[3], ";
-	$retval .= "is $fm[4]. ";
-	$retval .= "Stable: \002$fm[1]\002, ";
-	$retval .= "Development: \002$fm[2]\002. ";
-	$retval .= $fm[5] || $fm[6];		 # fallback to 'download'.
-	$retval .= " deb: ".$fm[8] if ($fm[8] ne ""); # 'deb'.
+	$retval  = "$fm[0] \002(\002$fm[5]\002)\002, ";
+#	$retval .= "section $fm[3], ";
+	$retval .= "is $fm[2]. ";
+	$retval .= "Version: \002$fm[1]\002, ";
+#	$retval .= "Development: \002$fm[2]\002. ";
+	$retval .= $fm[4];
+### ???
+#	$retval .= " deb: ".$fm[3] if ($fm[3] ne ""); # 'deb'.
 	&::performStrictReply($retval);
 	return 1;
     } else {
@@ -119,14 +124,30 @@ sub randPackage {
 
 sub downloadIndex {
     my $start_time	= &::timeget(); # set the start time.
-    my $idx		= "$::param{tempDir}/fm_index.txt";
+    my $idx		= "$::param{tempDir}/fm-projects.rdf.bz2";
+
+    if (!&::loadPerlModule("XML::Parser")) {
+	&::WARN("don't have xml::parser...");
+	return;
+    }
+    my $p = new XML::Parser(Style => 'Objects');
+    my %pkg;
+    my $string;
+
+    $p->setHandlers(
+		Char	=> \&xml_text,
+		End	=> \&xml_end,
+    );
 
     &::msg($::who, "Updating freshmeat index... please wait");
 
     if (&::isStale($idx, 1)) {
 	&::status("Freshmeat: fetching data.");
+
 	foreach (keys %urls) {
-	    my $retval = &::getURLAsFile($urls{$_}, $idx);
+	    $urls{$_}	=~ /^.*\/(.*)$/;
+	    $idx	= "$::param{tempDir}/$1";
+	    my $retval	= &::getURLAsFile($urls{$_}, $idx);
 	    next if ($retval =~ /^(403|500)$/);
 
 	    &::DEBUG("FM: last! retval => '$retval'.");
@@ -161,48 +182,16 @@ sub downloadIndex {
 
     ### lets get on with business.
     # set the last refresh time. fixes multiple spawn bug.
-    &::dbSet("freshmeat", "name","_","stable",time());
-
-    my $i = 0;
-    while (my $line = <IN>) {
-	chop $line;
-	$i++ if ($line eq "%%");
-	last if ($i == 2);
-    }
+    &::dbSet("freshmeat", "projectname_short", "_", "latest_version", time());
 
     &::dbRaw("LOCK", "LOCK TABLES freshmeat WRITE");
-    my @data;
-    my @done;
-    while (my $line = <IN>) {
-	chop $line;
-	if ($line ne "%%") {
-	    push(@data,$line);
-	    next;
-	}
+    @cols	= &::dbGetColInfo("freshmeat");
 
-	if ($i % 200 == 0 and $i != 0) {
-	    &::DEBUG("FM: unlocking and locking.");
-	    &::dbRaw("UNLOCK", "UNLOCK TABLES");
-	    ### another lame hack to "prevent" errors.
-	    select(undef, undef, undef, 0.2);
-	    &::dbRaw("LOCK", "LOCK TABLES freshmeat WRITE");
-	}
-
-	if (grep /^\Q$data[0]\E$/, @done) {
-	    &::DEBUG("dupe? $data[0]");
-	    @data = ();
-	    next;
-	}
-
-	$i++;
-	pop @data;
-	$data[1] ||= "none";
-	$data[2] ||= "none";
-	&::dbSetRow("freshmeat", @data);
-	push(@done,$data[0]);
-	@data = ();
-    }
+    $locktime	= time();
+    # todo: prevent severe memory usage whilst opening this file!!!
+    $p->parse(*IN, ProtocolEncoding => 'ISO-8859-1');
     close IN;
+
     &::DEBUG("FM: data ".scalar(@data) );
     &::dbRaw("UNLOCK", "UNLOCK TABLES");
 
@@ -265,6 +254,42 @@ sub freshmeatAnnounce {
     close OUT;
 
     return "Freshmeat update: ".join(" \002::\002 ", @new);
+}
+
+sub xml_text {
+    my($expat,$text) = @_;
+    return if ($text =~ /^\s+$/);
+
+    $string = $text;
+}
+
+sub xml_end {
+    my($expat,$text) = @_;
+
+    $pkg{$text} = $string;
+
+    if ($expat->depth == 1) {
+	for (my $j=0; $j<scalar @cols; $j++) {
+	    $data[$j] = $pkg{ $cols[$j] };
+	}
+	$i++;
+
+	&::dbSetRow("freshmeat", @data);
+	undef @data;
+	undef %pkg;
+
+	if ($i % 200 == 0 and $i != 0) {
+	    &::showProc();
+	    &::status("FM: unlocking and locking ($i): ". 
+		&::Time2String( time() - $locktime ) );
+	    $locktime = time();
+
+	    &::dbRaw("UNLOCK", "UNLOCK TABLES");
+	    ### another lame hack to "prevent" errors.
+	    select(undef, undef, undef, 0.2);
+	    &::dbRaw("LOCK", "LOCK TABLES freshmeat WRITE");
+	}
+    }
 }
 
 1;

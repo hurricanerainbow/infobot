@@ -271,11 +271,14 @@ sub getChanConf {
     $chan	||= "_default";
     my @c	= grep /^$chan$/i, keys %chanconf;
 
-    if (@c and $c[0] ne $chan) {
-	&WARN("c ne chan ($c[0] ne $chan)");
+    if (@c) {
+	if ($c[0] ne $chan) {
+	    &WARN("c ne chan ($c[0] ne $chan)");
+	}
+	return $chanconf{$c[0]}{$param};
     }
 
-    return $chanconf{$c[0]}{$param} || $chanconf{"_default"}{$param};
+    return $chanconf{"_default"}{$param};
 }
 
 sub showProc {

@@ -171,7 +171,7 @@ sub Time2String {
 
     my $prefix = "";
     if ($time < 0) {
-	$time = - $time;
+	$time	= - $time;
 	$prefix = "- ";
     }
 
@@ -180,12 +180,13 @@ sub Time2String {
     my $h = int($time / 3600) % 24;
     my $d = int($time / 86400);
 
-    $retval .= sprintf(" \002%d\002d", $d) if ($d != 0);
-    $retval .= sprintf(" \002%d\002h", $h) if ($h != 0);
-    $retval .= sprintf(" \002%d\002m", $m) if ($m != 0);
-    $retval .= sprintf(" \002%d\002s", $s) if ($s != 0);
+    my @data;
+    push(@data, sprintf("\002%d\002d", $d)) if ($d != 0);
+    push(@data, sprintf("\002%d\002h", $h)) if ($h != 0);
+    push(@data, sprintf("\002%d\002m", $m)) if ($m != 0);
+    push(@data, sprintf("\002%d\002s", $s)) if ($s != 0 or !@data);
 
-    return $prefix.substr($retval, 1);
+    return $prefix.join(' ', @data);
 }
 
 ###
@@ -447,12 +448,16 @@ sub isStale {
 	return 1;
     }
 
+    &DEBUG("!exist $file") if (! -f $file);
+
     return 1 unless ( -f $file);
     if ($file =~ /idx/) {
 	my $age2 = time() - (stat($file))[9];
 	&DEBUG("stale: $age2. (". &Time2String($age2) .")");
     }
     $age *= 60*60*24 if ($age >= 0 and $age < 30);
+    &DEBUG("age = $age");
+    &DEBUG("... = ".(stat $file)[9] );
 
     return 1 if (time() - (stat($file))[9] > $age);
     return 0;
