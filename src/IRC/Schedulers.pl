@@ -1078,7 +1078,7 @@ sub factoidCheck {
 	my $fix = $_;
 	$fix =~ s/ #DEL#$//g;
 	my $agestr = &Time2String($time - $age);
-	&DEBUG("safedel: Removing '$_' for good. [$agestr old]");
+	&status("safedel: Removing '$_' for good. [$agestr old]");
 
 	&delFactoid($_);
     }

@@ -45,6 +45,11 @@ sub doQuestion {
 	return if (exists $bots{$nuh});
     }
 
+    if ($query =~ s/^literal\s+//i) {
+	&status("literal ask of '$query'.");
+	$literal = 1;
+    }
+
     # convert to canonical reference form
     my $x;
     my @query;

@@ -13,11 +13,11 @@ sub rootWarn {
     my $warnmode	= &getChanConf("rootWarnMode");
 
     if ($attempt == 0) {	# first timer.
-	if ($warnmode =~ /aggressive/i) {
-	    &status(">>> Detected root user; notifying nick and channel.");
+	if (defined $warnmode and $warnmode =~ /aggressive/i) {
+	    &status("rootwarn: Detected root user; notifying nick and channel.");
 	    rawout("PRIVMSG $chan :R".("O" x int(rand 80 + 2))."T has landed!");
 	} else {
-	    &status(">>> Detected root user; notifying user");
+	    &status("rootwarn: Detected root user; notifying user");
 	}
 
 	if ($_ = &getFactoid("root")) {
