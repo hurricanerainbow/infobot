@@ -406,7 +406,7 @@ sub Modules {
     }
 
     # Topic management. xk++
-    # may want to add a flag(??) for topic in the near future. -xk
+    # may want to add a userflags for topic. -xk
     if ($message =~ /^topic(\s+(.*))?$/i) {
 	return unless (&hasParam("topic"));
 

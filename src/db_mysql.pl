@@ -46,6 +46,11 @@ sub dbGet {
     my $query	 = "SELECT $select FROM $table";
     $query	.= " WHERE $where" if ($where);
 
+    if (!defined $select) {
+	&WARN("dbGet: select == NULL. table => $table");
+	return;
+    }
+
     my $sth;
     if (!($sth = $dbh->prepare($query))) {
 	&ERROR("Get: prepare: $DBI::errstr");

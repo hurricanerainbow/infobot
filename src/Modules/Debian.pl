@@ -166,7 +166,7 @@ sub DebianDownload {
 # Usage: &searchContents($query);
 sub searchContents {
     my ($dist, $query)	= &getDistroFromStr($_[0]);
-    &::status("Debian: Contents search for '$query' on $dist.");
+    &::status("Debian: Contents search for '$query' in '$dist'.");
     my $dccsend	= 0;
 
     $dccsend++		if ($query =~ s/^dcc\s+//i);

@@ -205,7 +205,7 @@ sub update {
 		&performStrictReply("...but \002$lhs\002 is already something else...");
 		&status("FAILED update: <$who> \'$lhs\' =$mhs=> \'$rhs\'");
 	    }
-	    return;
+	    return 1;
 	}
 
 	my $author = &getFactInfo($lhs, "created_by") || "";
