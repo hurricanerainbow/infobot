@@ -133,6 +133,20 @@ sub on_endofmotd {
     # update IRCStats.
     $ircstats{'ConnectTime'}	= time();
     $ircstats{'ConnectCount'}++;
+    $ircstats{'OffTime'}	+= time() - $ircstats{'DisconnectTime'}
+			if (defined $ircstats{'DisconnectTime'});
+
+    # first time run.
+    if (!exists $users{_default}) {
+	&status("First time run... adding _default user.");
+	$users{_default}{FLAGS}	= "mrt";
+	$users{_default}{HOSTS} = "*!*@*";
+    }
+
+    if (scalar keys %users < 2) {
+	&status("Ok... now /msg $ident PASS <pass> to get master access through DCC CHAT.");
+    }
+    # end of first time run.
 
     if (&IsChanConf("wingate")) {
 	my $file = "$bot_base_dir/$param{'ircUser'}.wingate";
@@ -301,6 +315,7 @@ sub on_disconnect {
     $ircstats{'DisconnectTime'}		= time();
     $ircstats{'DisconnectReason'}	= $what;
     $ircstats{'DisconnectCount'}++;
+    $ircstats{'TotalTime'}	+= time() - $ircstats{'ConnectTime'};
 
     # clear any variables on reconnection.
     $nickserv = 0;
@@ -440,16 +455,13 @@ sub on_join {
 	my $reason = "no reason";
 	foreach ($chan, "*") {
 	    next unless (exists $bans{$_});
-	    next unless (exists $bans{$_}{$mask});
+	    next unless (exists $bans{$_}{$ban});
 
-	    my @array	= @{ $bans{$_}{$mask} };
-	    foreach (@array) {
-		&DEBUG("on_join: ban: array => '$_'");
-	    }
-	    $reason	||= $array[4];
+	    my @array	= @{ $bans{$_}{$ban} };
+
+	    $reason	= $array[4] if ($array[4]);
 	    last;
 	}
-	&DEBUG("on_join: ban: reason => '$reason'.");
 
 	&ban($ban, $chan);
 	&kick($who, $chan, $reason);
