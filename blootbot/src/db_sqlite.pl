@@ -369,8 +369,6 @@ sub dbRaw {
 	return 0;
     }
 
-#    &DEBUG("query => '$query'.");
-
     &SQLDebug($query);
     if (!$sth->execute) {
 	&ERROR("Raw($prefix): => '$query'");
@@ -469,7 +467,6 @@ sub searchTable {
     my $query = "SELECT $select FROM $table WHERE $key LIKE ". 
 		&dbQuote($str);
     my $sth = $dbh->prepare($query);
-    &DEBUG("query => '$query'.");
     &SQLDebug($query);
     if (!$sth->execute) {
 	&WARN("Search($query)");
