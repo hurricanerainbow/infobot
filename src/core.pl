@@ -10,7 +10,7 @@ use strict;
 # dynamic scalar. MUST BE REDUCED IN SIZE!!!
 ### TODO: reorder.
 use vars qw(
-	$answer $correction_plausible $loggingstatus $talkchannel
+	$answer $correction_plausible $talkchannel
 	$statcount $memusage $user $memusageOld $bot_version $dbh
 	$shm $host $msg $bot_misc_dir $bot_pid $bot_base_dir $noreply
 	$bot_src_dir $conn $irc $learnok $nick $ident $no_syscall
@@ -117,15 +117,18 @@ sub showProc {
 	    # it's always going to be increase.
 	    my $delta = $memusage - $memusageOld;
 	    my $str;
-	    if ($delta > 500) {
+	    if ($delta == 0) {
+		return;
+	    } elsif ($delta > 500) {
 		$str = "MEM:$prefix increased by $delta kB. (total: $memusage kB)";
 	    } elsif ($delta > 0) {
 		$str = "MEM:$prefix increased by $delta kB";
-	    } elsif ($delta < 0) {
+	    } else {	# delta < 0.
 		$delta = -$delta;
 		# never knew RSS could decrease, probably Size can't?
 		$str = "MEM:$prefix decreased by $delta kB. YES YES YES";
 	    }
+
 	    &status($str);
 	    &DCCBroadcast($str) if (&whatInterface() =~ /IRC/ &&
 		grep(/Irc.pl/, keys %moduleAge));
