@@ -49,9 +49,13 @@ sub parseCmdHook {
     }
 
     foreach (keys %{"hooks_$hashname"}) {
-	# rename to something else!
+	# rename to something else! like $id or $label?
 	my $ident = $_;
 
+	if (!defined $cmd or !defined $ident) {
+	    &WARN("cstubs: cmd or ident == NULL. ($cmd, $ident)");
+	    next;
+	}
 	next unless ($cmd =~ /^$ident$/i);
 
 	if ($done) {

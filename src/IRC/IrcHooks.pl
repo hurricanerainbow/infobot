@@ -433,6 +433,7 @@ sub on_join {
     if (exists $netsplit{lc $who}) {
 	delete $netsplit{lc $who};
 	$netsplit = 1;
+
 	if (!scalar keys %netsplit) {
 	    &DEBUG("on_join: netsplit hash is now empty!");
 	    undef %netsplitservers;
@@ -464,7 +465,8 @@ sub on_join {
     ### on-join bans.
     my @bans;
     push(@bans, keys %{ $bans{$chan} }) if (exists $bans{$chan});
-    push(@bans, keys %{ $bans{"*"} })  if (exists $bans{"*"});
+    push(@bans, keys %{ $bans{"*"} })   if (exists $bans{"*"});
+
     foreach (@bans) {
 	my $ban	= $_;
 	s/\?/./g;
@@ -512,6 +514,7 @@ sub on_join {
     }
 
     ### ROOTWARN:
+    # what's the +o requirement?
     &rootWarn($who,$user,$host,$chan)
 		if (&IsChanConf("rootWarn") &&
 		    $user =~ /^r(oo|ew|00)t$/i &&
@@ -574,8 +577,8 @@ sub on_mode {
 
 sub on_modeis {
     my ($self, $event) = @_;
-    my $nick = $event->nick();
     my ($myself, undef,@args) = $event->args();
+    my $nick	= $event->nick();
     $chan	= ($event->args())[1];
 
     &hookMode($nick, @args);
@@ -683,6 +686,7 @@ sub on_notice {
 
 	if ($check) {
 	    &status("nickserv told us to register; doing it.");
+
 	    if (&IsParam("nickServ_pass")) {
 		&status("NickServ: ==> Identifying.");
 		&rawout("PRIVMSG NickServ :IDENTIFY $param{'nickServ_pass'}");
@@ -707,6 +711,7 @@ sub on_notice {
 	}
     } elsif ($nick =~ /^ChanServ$/i) {		# chanserv.
 	&status("ChanServ: <== '$args'.");
+
     } else {
 	if ($chan =~ /^$mask{chan}$/) {	# channel notice.
 	    &status("-$nick/$chan- $args");
@@ -740,7 +745,11 @@ sub on_part {
 
     $chanstats{$chan}{'Part'}++;
     &delUserInfo($nick,$chan);
-    &clearChanVars($chan) if ($nick eq $ident);
+    if ($nick eq $ident) {
+	&DEBUG("on_part: ok, I left $chan... clearChanVars...");
+	&clearChanVars($chan);
+    }
+
     if (!&IsNickInAnyChan($nick) and &IsChanConf("seenStats")) {
 	delete $userstats{lc $nick};
     }
@@ -841,7 +850,8 @@ sub on_quit {
     if (exists $nuh{lc $nick}) {
 	delete $nuh{lc $nick};
     } else {
-	&DEBUG("on_quit: nuh{lc $nick} does not exist! FIXME");
+	# well.. it's good but weird that this has happened - lets just
+	# be quiet about it.
     }
     delete $userstats{lc $nick} if (&IsChanConf("seenStats"));
     delete $chanstats{lc $nick};
@@ -851,17 +861,15 @@ sub on_quit {
 	$reason = "NETSPLIT: $1 <=> $2";
 
 	# chanlimit code.
-	if (!scalar keys %netsplit) {
-	    my @l = &getNickInChans($nick);
-	    &DEBUG("on_quit: l => ".scalar(@l) );
+	my @l = &getNickInChans($nick);
+	&DEBUG("on_quit: l => ".scalar(@l) );
 
-	    foreach ( &getNickInChans($nick) ) {
-		next unless ( &IsChanConf("chanlimitcheck") );
-		next unless ( exists $channels{$_}{'l'} );
+	foreach $chan ( &getNickInChans($nick) ) {
+	    next unless ( &IsChanConf("chanlimitcheck") );
+	    next unless ( exists $channels{$_}{'l'} );
 
-		&status("on_quit: netsplit detected on $_; disabling chan limit.");
-		&rawout("MODE $_ -l");
-	    }
+	    &DEBUG("on_quit: netsplit detected on $_; disabling chan limit.");
+	    &rawout("MODE $_ -l");
 	}
 
 	$netsplit{lc $nick} = time();

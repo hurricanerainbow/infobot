@@ -315,7 +315,7 @@ sub searchContents {
 	&::pSReply( &::formListReply(0, $prefix, @list) );
 
     } else {		# !@list.
-	&::DEBUG("deb: ok, !\@list, searching desc for '$query'.");
+	&::DEBUG("deb: ok, !\@list, searching desc for '$query'.") if ($debug);
 	my @list = &searchDesc($query);
 
 	if (!scalar @list) {
@@ -439,7 +439,7 @@ sub searchAuthor {
 # Usage: &searchDesc($query);
 sub searchDesc {
     my ($dist, $query)	= &getDistroFromStr($_[0]);
-    &::DEBUG("deb: searchDesc: dist => '$dist', query => '$query'.");
+    &::DEBUG("deb: searchDesc: dist => '$dist', query => '$query'.") if ($debug);
     $query =~ s/^\s+|\s+$//g;
 
     # start of search.
@@ -462,7 +462,7 @@ sub searchDesc {
 	$files .= " ".$_;
     }
 
-    &::DEBUG("deb(2): good = $good, bad = $bad...");
+    &::DEBUG("deb(2): good = $good, bad = $bad...") if ($debug);
 
     if ($good == 0 and $bad != 0) {
 	my %urls = &fixDist($dist, %urlpackages);
@@ -516,7 +516,7 @@ sub generateIncoming {
     my $stale	 = 0;
     $stale++ if (&::isStale($pkgfile.".gz", $refresh));
     $stale++ if (&::isStale($idxfile, $refresh));
-    &::DEBUG("deb: gI: stale => '$stale'.");
+    &::DEBUG("deb: gI: stale => '$stale'.") if ($debug);
     return 0 unless ($stale);
 
     ### STATIC URL.
@@ -851,9 +851,6 @@ sub generateIndex {
     foreach (@dists) {
 	my $dist = &getDistro($_); # incase the alias is returned, possible?
 	my $idx  = "debian/Packages-$dist.idx";
-	&::DEBUG("deb: gI: dist => $dist.");
-	&::DEBUG("deb: gI: idx  => $idx.");
-	&::DEBUG("deb: gI: r    => $refresh.");
 
 	# TODO: check if any of the Packages file have been updated then
 	#	regenerate it, even if it's not stale.
