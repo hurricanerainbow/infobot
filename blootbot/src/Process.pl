@@ -205,7 +205,6 @@ sub process {
 
     # thanks.
     if ($message =~ /^than(ks?|x)( you)?( \S+)?/i) {
-	&DEBUG("thanks: talkok => '$talkok', addressed => '$addressed'.");
 	return 'thank: no addr' unless ($message =~ /$ident/ or $talkok);
 
 	&performReply( &getRandom(keys %{$lang{'welcome'}}) );
@@ -560,7 +559,7 @@ sub FactoidStuff {
 	return 'result from doQ undef.';
     }
 
-    if (defined $result and $result ne "") {		# question.
+    if (defined $result and $result !~ /^0?$/) {	# question.
 	&status("question: <$who> $message");
 	$count{'Question'}++;
     } elsif (&IsChanConf("perlMath") > 0 and $addressed) { # perl math.
@@ -573,33 +572,33 @@ sub FactoidStuff {
 	}
     }
 
-    if ($result ne "") {
+    if ($result !~ /^0?$/) {
 	&performStrictReply($result);
 	return;
-    } else {
-	# why would a friendly bot get passed here?
-	if (&IsParam("friendlyBots")) {
-	    return if (grep lc($_) eq lc($who), split(/\s+/, $param{'friendlyBots'}));
-	}
-
-	# do the statement.
-	if (defined &doStatement($message)) {
-	    return;
-	}
-
-	return unless ($addressed);
-
-	if (length $message > 64) {
-	    &status("unparseable-moron: $message");
-	    &performReply( &getRandom(keys %{$lang{'moron'}}) );
-	    $count{'Moron'}++;
-	    return;
-	}
-
-	&status("unparseable: $message");
-	&performReply( &getRandom(keys %{$lang{'dunno'}}) );
-	$count{'Dunno'}++;
     }
+
+    # why would a friendly bot get passed here?
+    if (&IsParam("friendlyBots")) {
+	return if (grep lc($_) eq lc($who), split(/\s+/, $param{'friendlyBots'}));
+    }
+
+    # do the statement.
+    if (!defined &doStatement($message)) {
+	return;
+    }
+
+    return unless ($addressed);
+
+    if (length $message > 64) {
+	&status("unparseable-moron: $message");
+	&performReply( &getRandom(keys %{$lang{'moron'}}) );
+	$count{'Moron'}++;
+	return;
+    }
+
+    &status("unparseable: $message");
+    &performReply( &getRandom(keys %{$lang{'dunno'}}) );
+    $count{'Dunno'}++;
 }
 
 1;
