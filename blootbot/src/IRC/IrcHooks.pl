@@ -136,6 +136,7 @@ sub on_ison {
     my ($self, $event) = @_;
     my $x1 = ($event->args)[0];
     my $x2 = ($event->args)[1];
+    $x2 =~ s/\s$//;
 
 #    &nick( $param{'ircNick'} );
 
@@ -146,11 +147,12 @@ sub on_endofmotd {
     my ($self) = @_;
 
     # update IRCStats.
-    $ident	||= $param{'ircNick'};	# hack.
+    $ident = $param{'ircNick'};
     $ircstats{'ConnectTime'}	= time();
     $ircstats{'ConnectCount'}++;
-    $ircstats{'OffTime'}	+= time() - $ircstats{'DisconnectTime'}
-			if (defined $ircstats{'DisconnectTime'});
+    if (defined $ircstats{'DisconnectTime'}) {
+	ircstats{'OffTime'}	+= time() - $ircstats{'DisconnectTime'};
+    }
 
     # first time run.
     if (!exists $users{_default}) {
@@ -677,7 +679,7 @@ sub on_names {
 
 sub on_nick {
     my ($self, $event) = @_;
-    my $nick = $event->nick();
+    my $nick	= $event->nick();
     my $newnick = ($event->args)[0];
 
     if (exists $netsplit{lc $newnick}) {
@@ -714,7 +716,7 @@ sub on_nick {
 
 sub on_nick_taken {
     my ($self)	= @_;
-    my $nick	= $self->nick;
+    my $nick	= $self->nick();
     my $newnick = $nick.int(rand 10);
 
     if ($nick eq $ident) {
@@ -984,7 +986,7 @@ sub on_quit {
     # does this work?
     if ($nick !~ /^\Q$ident\E$/ and $nick =~ /^\Q$param{'ircNick'}\E$/i) {
 	&status("nickchange: own nickname became free; changing.");
-	&nick($param{'ircNick'});
+	&nick( $param{'ircNick'} );
     }
 }
 
