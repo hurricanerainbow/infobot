@@ -189,10 +189,10 @@ sub on_dcc {
 		\*DCCGET
 	);
     } elsif ($type eq 'GET') {	# SEND for us?
-	&DEBUG("starting get.");
+	&status("DCC: Initializing SEND for $nick.");
 	$self->new_send($event->args);
     } elsif ($type eq 'CHAT') {
-	&DEBUG("starting chat.");
+	&status("DCC: Initializing CHAT for $nick.");
 	$self->new_chat($event);
     } else {
 	&WARN("${b_green}DCC $type$ob (1)");
@@ -370,19 +370,16 @@ sub on_init {
 
 sub on_invite {
     my ($self, $event) = @_;
-    my $chan = ($event->args)[0];
+    my $chan = lc( ($event->args)[0] );
     my $nick = $event->nick;
 
-    &DEBUG("on_invite: chan => '$chan', nick => '$nick'.");
+    if ($nick =~ /^\Q$ident\E$/) {
+	&DEBUG("on_invite: self invite.");
+	return;
+    }
 
-    # chan + possible_key.
-    ### do we need to know the key if we're invited???
-    ### grep the channel list?
-    foreach (split /[\s\t]+/, $param{'join_channels'}) {
-	next unless /^\Q$chan\E(,\S+)?$/i;
-	s/,/ /;
-
-	next if ($nick =~ /^\Q$ident\E$/);
+    ### TODO: join key.
+    if (exists $chanconf{$chan}) {
 	if (&validChan($chan)) {
 	    &msg($who, "i'm already in \002$chan\002.");
 	    next;
@@ -981,15 +978,17 @@ sub hookMsg {
     }
 
     # Determine floodwho.
+    my $c	= "_default";
     if ($msgType =~ /public/i) {		# public.
-	$floodwho = lc $chan;
+	$floodwho = $c = lc $chan;
     } elsif ($msgType =~ /private/i) {	# private.
 	$floodwho = lc $who;
     } else {				# dcc?
 	&DEBUG("FIXME: floodwho = ???");
     }
 
-    my ($count, $interval) = split(/:/, $param{'floodRepeat'} || "2:10");
+    my $val = &getChanConfDefault("floodRepeat", "2:10", $c);
+    my ($count, $interval) = split /:/, $val;
 
     # flood repeat protection.
     if ($addressed) {
@@ -1034,7 +1033,9 @@ sub hookMsg {
 	$flood{$floodwho}{$message} = time();
     }
 
-    ($count, $interval) = split(/:/, $param{'floodMessages'} || "5:30");
+    $val = &getChanConfDefault("floodMessages", "5:30", $c);
+    ($count, $interval) = split /:/, $val;
+
     # flood overflow protection.
     if ($addressed) {
 	foreach (keys %{$flood{$floodwho}}) {
