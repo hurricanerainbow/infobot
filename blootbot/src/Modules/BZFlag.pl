@@ -156,7 +156,7 @@ sub querytext {
 	# quit if version isn't valid
 	return 'not a bzflag server' if ($magic ne "BZFS");
 	# check version
-	if ($version eq "BZFS0025") {
+	if ($version eq "BZFS0026") {
 		# 1.11.x handled here
 		return 'read error' unless read(S1, $buffer, 1) == 1;
 		my ($id) = unpack("C", $buffer);
