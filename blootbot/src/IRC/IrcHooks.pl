@@ -458,7 +458,7 @@ sub on_nick {
     my $newnick = ($event->args)[0];
 
     if (exists $netsplit{lc $newnick}) {
-	&DEBUG("on_nick: $newnick/$nick came back from netsplit and changed to original nick! removing from hash.");
+	&status("Netsplit: $newnick/$nick came back from netsplit and changed to original nick! removing from hash.");
 	delete $netsplit{lc $newnick};
     }
 
