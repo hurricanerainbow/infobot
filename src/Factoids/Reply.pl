@@ -124,9 +124,9 @@ sub getReply {
 	# only remove '<reply>'
 	if (!$real and $reply =~ s/^\s*<reply>\s*//i) {
 	    # 'are' fix.
-	    if ($reply =~ s/^are //i) {
+	    if ($reply =~ s/^are /$lhs are /i) {
 		&DEBUG("Reply.pl: el-cheapo 'are' fix executed.");
-		$mhs = "are";
+		$mhs = "are";	# what's this for?
 	    }
 
 	} elsif (!$real and $reply =~ s/^\s*<action>\s*(.*)/\cAACTION $1\cA/i) {

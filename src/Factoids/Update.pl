@@ -31,14 +31,8 @@ sub update {
 	return $noreply;
     }
 
-    # nice 'are' hack (or work-around).
-    if ($mhs =~ /^are$/i and $rhs !~ /<\S+>/) {
-	$mhs = "is";
-	$rhs = "<REPLY> are ". $rhs;
-    }
-
     # invalid verb.
-    if ($mhs !~ /^is$/i) {
+    if ($mhs !~ /^(is|are)$/i) {
 	&ERROR("UNKNOWN verb: $mhs.");
 	return;
     }
@@ -67,8 +61,6 @@ sub update {
     }
 
     if (my $exists = &getFactoid($lhs)) {	# factoid exists.
-	chomp $exists;
-
 	if ($exists eq $rhs) {
 	    &performAddressedReply("i already had it that way");
 	    return $noreply;
@@ -136,6 +128,14 @@ sub update {
 	    }
 	}
     } else {			# not exists.
+
+	# nice 'are' hack (or work-around).
+	if ($mhs =~ /^are$/i and $rhs !~ /<\S+>/) {
+	    &DEBUG("Update: 'are' hack detected.");
+	    $mhs = "is";
+	    $rhs = "<REPLY> are ". $rhs;
+	}
+
 	&status("enter: <$who> \'$lhs\' =$mhs=> \'$rhs\'");
 	$count{'Update'}++;
 
