@@ -686,11 +686,8 @@ sub ircCheck {
     }
 
     # debug. needed for testing
-    open(OUT, ">>irccheck.log");
-    my $t = scalar(localtime);
-    printf OUT "%s: conn->connected = %s\n", $t, $conn->connected();
-    printf OUT "%s: time()-msgtime  = %d\n", $t, time() - $msgtime;
-    close OUT;
+    &TODO("conn->connected = " . $conn->connected());
+    &TODO("time()-msgtime = " . time() - $msgtime);
 
     if (!$conn->connected or time() - $msgtime > 3600) {
 	# todo: shouldn't we use cache{connect} somewhere?
@@ -768,10 +765,11 @@ sub miscCheck {
 	my ($shmid, $size) = ($2,$5);
 	next unless ($shmid != $shm and $size == 2000);
 	my $z	= &shmRead($shmid);
+	# TODO - add nick to SHM so multiple instances can be running
+	# as the same unix user on the same host?
 	if ($z =~ /^(\d+): /) {
 	    my $time	= $1;
 	    next if (time() - $time < 60*60);
-
 	} else {
 #	    &DEBUG("shm: $shmid is not ours or old blootbot => ($z)");
 #	    next;
