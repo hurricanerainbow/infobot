@@ -415,6 +415,16 @@ sub ircCheck {
 	&joinNextChan();
     }
 
+    if (grep /^\s*$/, keys %channels) {
+	&WARN("we have a NULL chan in hash channels? removing!");
+	delete $channels{''};
+	&status("channels now:");
+	foreach (keys %channels) {
+	    &status("  $_");
+	}
+    }
+
+
     &ScheduleThis(240, "ircCheck") if (@_);
 }
 
