@@ -510,7 +510,7 @@ sub loadConfig {
     my ($file) = @_;
 
     if (!open(FILE, $file)) {
-	&ERROR("FAILED loadConfig ($file): $!");
+	&ERROR("Failed to read configuration file ($file): $!");
 	&status("Please read the INSTALL file on how to install and setup this file.");
 	exit 0;
     }

@@ -102,7 +102,7 @@ sub openLog {
 	&status("Opened logfile $file{log}.");
 	LOG->autoflush(1);
     } else {
-	&status("cannot open logfile $file{log}; not logging.");
+	&status("Cannot open logfile ($file{log}); not logging: $!");
     }
 }
 
@@ -367,7 +367,7 @@ sub status {
 
 sub openSQLDebug {
     if (!open(SQLDEBUG, ">>$param{'SQLDebug'}")) {
-	&ERROR("cannot open $param{'SQLDebug'}...");
+	&ERROR("Cannot open ($param{'SQLDebug'}): $!");
 	delete $param{'SQLDebug'};
 	return 0;
     }

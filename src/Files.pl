@@ -14,7 +14,7 @@ sub loadLang {
     my $replyName;
 
     if (!open(FILE, $file)) {
-	&ERROR("FAILED loadLang ($file): $!");
+	&ERROR("Failed reading lang file ($file): $!");
 	exit 0;
     }
 
@@ -54,7 +54,7 @@ sub loadIRCServers {
     %ircPort = ();
 
     if (!open(FILE, $file)) {
-	&ERROR("FAILED loadIRCServers ($file): $!");
+	&ERROR("Failed reading server list ($file): $!");
 	exit 0;
     }
 

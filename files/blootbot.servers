@@ -1,5 +1,5 @@
 ###
-### ircII.servers
+# blootbot.servers: line separated list of servers to connect to
 ###
 
 irc.home.org

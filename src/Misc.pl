@@ -16,7 +16,7 @@ sub help {
     $msgType = "private" if ($msgType eq "public");
 
     if (!open(FILE, $file)) {
-	&ERROR("FAILED loadHelp ($file): $!");
+	&ERROR("Failed reading help file ($file): $!");
 	return;
     }
 
@@ -317,7 +317,7 @@ sub getRandomLineFromFile {
 	    return $line;
 	}
     } else {
-	&WARN("gRLfF: could not open file '$file'.");
+	&WARN("gRLfF: Could not open file ($file): $!");
 	return;
     }
 }
@@ -343,7 +343,7 @@ sub getLineFromFile {
 	chop $line;
 	return $line;
     } else {
-	&ERROR("getLineFromFile: could not open file '$file'.");
+	&ERROR("gLFF: Could not open file ($file): $!");
 	return 0;
     }
 }
