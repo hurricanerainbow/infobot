@@ -1,0 +1,113 @@
+######### TODO.
+### WISHLIST: SCHEDULER RELATED.
+- if topic -CMD is used, schedule the change for 10seconds later.
+  $schedule{topicchange}{$chan} = SID. use 'dequeue' to delete.
+- if 50% of netsplit victims come back, set a timer for 60seconds to
+  delete those who have not come back from the split.
+- make first run of schedulers skip so they don't run all at once.
+  use 'return' if (ref($_[0]) eq ???); => won't work?
+- use topic-queue for 'topic *'.
+- Add &schedulerAdd() and &schedulerDel();, &scheduleIsInQueue();
+- rename &ScheduleThis() to &scheduleAdd();
+
+### WISHLIST: COMMAND HOOKS.
+- play around with 'hook' idea, see header of CommandStubs.pl.
+- hook for ALL commands through MESSAGES.
+- factoids to take arguments such as $1 $2 ...
+  => check all factoids for hooks then append to hook list.
+
+### WISHLIST: OLDE DBM SUPPORT // PGSQL.
+- Thoroughly test both... core features done though.
+- make a sql_common.pl file for 90% common stuff between mysql/pgsql.
+- pgsql and mysql can be merged but I dunno anything about pgsql :)
+- PGSQL
+	- EVERYTHING
+- DBM
+	--- searchTable can be optimized by determining the correct offset
+	    and use that from then on.
+	- Adding factoids [OK]
+	- Deleting factoids [OK]
+	- FactInfo [OK]
+	- Seen [OK]
+	- SearchTable [OK]	-- "%","*" supported?
+	- Countdown [???]
+	- Freshmeat [???]	-- &dbSetRow() should work, but slow.
+	- Factstats unrequested [???]
+
+### WISHLIST: SHOULD BE DONE...
+- Change ""return 'NOREPLY';"" to ""return $noreply;"".
+- make use of &status() in setup_*.pl
+- Add quotes (Finance::Quote) support.
+- Debian module doesn't search non-free or non-us properly.
+- send DCC message when using 'op'.
+- Schedule a 5min(??) interval to display stats in DCC
+  - kill if dcc chat == gone.
+  - add schedule list.
+- if 25lines are logged within 1 second, throttle it (sleep 1)
+- Add &botstatsUpdate() &botstatsGet();
+- Create startCheck(); for once off startup checks.
+- Max size of logs to keep.
+  - use Maxlogsize for both compressed and uncompressed.
+- split Process.pl's FactoidStuph() off to Factoids/FCommands.pl
+- time when last executed commands like fm,/. Useless?
+- if a dunno is issued, add an option to suggest a factiod
+	=> IE: fm
+	- $fact =~ / blah|blah / or /\Wblah\W/ ??
+	- debian package. ??
+	- ...
+- add a function to evaluate channels
+  - ie: 'ALL', 'ALL but #blah', '#blah1 #blah2',
+  => Added &makeChanList() but not using it yet.
+- rename performStrictReply to performReplyAsIs() or something?
+- show current stats for top 3 requesters and top 3 requests.
+  => when seen is used, show last factoid/cmd asked
+- understand '\' in infobot.config.
+- Create a script to insert initial factoids like 'status','hello'...
+  like the dbm script in the old days.
+- Add 'heh' count, like on 'dpkg', to &on_public(). create generic table
+  to handle this and karma and probably total msg count. possibly
+  integrate with seen table?
+  .... UPDATE seen SET time=time+1 WHERE nick='xk';
+  .... ERROR 1064: parse error near '+1 WHERE nick='xk'' at line 1
+  => WHY?
+- support for 'find blah 6' for items 6 and more (since the list is
+  ordered). requested by jim.
+- support 'info package [dist] [section]', eg: 'info ssh non-free' or
+  support query for incoming, if dist!=incoming.
+- ...
+
+### WISHLIST: something to be desired...
+- 'tell' (Process.pl) to support commands.
+- reject '<REPLY> see' if redir factoid is too long.
+  need parsing of '||' and '(1|2|...)', too, for all possible
+  combinations (or permutations?).
+- download *.dsc and *.changes file to generate the Incoming Packages
+  file. This will be fun :)
+- Add 'OverwriteFromTxt' and other options for txt2mysql.pl.
+- Set some variable to say "yes, I'm quitting" to prevent log compression
+  since it imposes a perl warning "unreferenced scalar"...
+- Universal FROM<->TO conversion script for factoid table/db.
+### CLEAN UP
+- Split all the functions in Topic.pl to topic <COMMAND>. First chunk of
+  commands should be "Internal", the next chunk "Helpers" and the
+  last one is "Main".
+- Reduce number of global variables used.
+  => convert hash lists to arrays.
+  => convert scalar vars to hash lists.
+
+### CHALLENGE
+- Better method to store topics. Should be very similiar to the
+  joinnextchan code, but a topic queue. _however_, topic may be lost with
+  netsplit + stuff which is another problem, oh well.
+  How do IRC clients do it? set a timer for 0.5s before any changes?
+- Tree to show all variables in use. preliminary stuff there but
+  it's not all that helpful. good oreilly stuff in scripts/
+- Better netjoin detection code.
+- Allow X number of repetition of messages, default cannot be changed due
+  to simplicity of current code.
+
+### EXTERNAL BUGS:
+- Net::IRC doesn't know event 'pong'.
+
+### BROKEN:
+- babelfish
