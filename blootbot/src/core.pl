@@ -491,7 +491,7 @@ sub setupConfig {
 sub startup {
     if (&IsParam("DEBUG")) {
 	&status("enabling debug diagnostics.");
-	### I thought disabling this reduced memory usage by 1000 KiB.
+	# I thought disabling this reduced memory usage by 1000 KiB.
 	use diagnostics;
     }
 
@@ -506,7 +506,8 @@ sub shutdown {
     # reverse order of &setup().
     &status("--- shutdown called.");
 
-    $ident ||=	"blootbot";	# hack.
+    # hack.
+    $ident ||=	"blootbot";
 
     if (!&isFileUpdated("$bot_state_dir/blootbot.users", $wtime_userfile)) {
 	&writeUserFile()
@@ -517,7 +518,8 @@ sub shutdown {
     }
 
     &sqlCloseDB();
-    &closeSHM($shm);	# aswell. TODO: use this in &doExit?
+    # aswell. TODO: use this in &doExit?
+    &closeSHM($shm);
     &closeLog();
 }
 
