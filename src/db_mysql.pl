@@ -108,7 +108,25 @@ sub dbGetCol {
 ####
 # Usage: &dbGetRowInfo($table);
 sub dbGetRowInfo {
-    &DEBUG("STUB: dbGetRowInfo().");
+    my ($table) = @_;
+
+    my $query = "SHOW COLUMNS from $table";
+    my %retval;
+
+    my $sth = $dbh->prepare($query);
+    &SQLDebug($query);
+    if (!$sth->execute) {
+	&ERROR("GRI => '$query'");
+	&SQLDebug($DBI::errstr);
+    }
+
+    my @cols;
+    while (my @row = $sth->fetchrow_array) {
+	push(@cols, $row[0]);
+    }
+    $sth->finish;
+
+    return @cols;
 }
 
 #####
