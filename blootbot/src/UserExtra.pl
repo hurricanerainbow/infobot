@@ -24,7 +24,6 @@ use vars qw(%channels %chanstats %cmdstats);
 &addCmdHook("main", 'help', ('CODEREF' => 'help', 
 	'Cmdstats' => 'Help', ) );
 &addCmdHook("main", 'karma', ('CODEREF' => 'karma', ) );
-&addCmdHook("main", 'ignorelist', ('CODEREF' => 'ignorelist', ) );
 &addCmdHook("main", 'i?spell', ('CODEREF' => 'ispell', 
 	Help => 'spell', Identifier => 'spell', ) );
 &addCmdHook("main", 'd?nslookup', ('CODEREF' => 'DNS', 
@@ -59,7 +58,7 @@ sub chaninfo {
 	    }
 	    push(@array, "$_ (".scalar(keys %{$channels{$_}{''}}).")");
 	}
-	&performStrictReply($reply.": ".join(' ', @array));
+	&pSReply($reply.": ".join(' ', @array));
 
 	### line 2.
 	foreach $chan (keys %channels) {
@@ -70,20 +69,20 @@ sub chaninfo {
 	    }
 	    $count += scalar(keys %{$channels{$chan}{''}});
 	}
-	&performStrictReply(
+	&pSReply(
 		"i've cached \002$count\002 ".&fixPlural("user",$count).
 		" distributed over \002".scalar(keys %channels)."\002 ".
 		&fixPlural("channel",scalar(keys %channels))."."
 	);
 
-	return $noreply;
+	return;
     }
 
     # channel specific.
 
     if (&validChan($chan) == 0) {
 	&msg($who,"error: invalid channel \002$chan\002");
-	return $noreply;
+	return;
     }
 
     # Step 1:
@@ -138,7 +137,7 @@ sub chaninfo {
     if ($count) {
 	$reply .= ".  \002$new{$count}\002 has said the most with a total of \002$count\002 messages";
     }
-    &performStrictReply("$reply.");
+    &pSReply("$reply.");
 }
 
 # Command statistics.
@@ -147,7 +146,7 @@ sub cmdstats {
 
     if (!scalar(keys %cmdstats)) {
 	&performReply("no-one has run any commands yet");
-	return $noreply;
+	return;
     }
 
     my %countstats;
@@ -163,7 +162,7 @@ sub cmdstats {
 	    push(@array, "\002$int\002 of $_");
 	}
     }
-    &performStrictReply("command usage include ". &IJoin(@array).".");
+    &pSReply("command usage include ". &IJoin(@array).".");
 }
 
 # Factoid extension info. xk++
@@ -174,7 +173,7 @@ sub factinfo {
     if ($faqtoid =~ /^\-(\S+)(\s+(.*))$/) {
 	&msg($who,"error: individual factoid info queries not supported as yet.");
 	&msg($who,"it's possible that the factoid mistakenly begins with '-'.");
-	return $noreply;
+	return;
 
 	$query   = lc $1;
 	$faqtoid = lc $3;
@@ -187,7 +186,7 @@ sub factstats {
     my $type = shift(@_);
 
     &Forker("factoids", sub {
-	&performStrictReply( &CmdFactStats($type) );
+	&pSReply( &CmdFactStats($type) );
     } );
 }
 
@@ -196,46 +195,9 @@ sub karma {
     my $karma	= &dbGet("karma", "nick",$target,"karma") || 0;
 
     if ($karma != 0) {
-	&performStrictReply("$target has karma of $karma");
+	&pSReply("$target has karma of $karma");
     } else {
-	&performStrictReply("$target has neutral karma");
-    }
-}
-
-sub ignorelist {
-    &status("$who asked for the ignore list");
-
-    my $time	= time();
-    my $count	= scalar(keys %ignoreList);
-    my $counter	= 0;
-    my @array;
-
-    if ($count == 0) {
-	&performStrictReply("no one in the ignore list!!!");
-	return;
-    }
-
-    foreach (sort keys %ignoreList) {
-	my $str;
-
-	if ($ignoreList{$_} != 1) {	# temporary ignore.
-	    my $expire = $ignoreList{$_} - $time;
-	    if (defined $expire and $expire < 0) {
-		&status("ignorelist: deleting $_.");
-		delete $ignoreList{$_};
-	    } else {
-		$str = "$_ (". &Time2String($expire) .")";
-	    }
-	} else {
-	    $str = $_;
-	}
-
-	push(@array,$str);
-	$counter++;
-	if (scalar @array >= 8 or $counter == $count) {
-	    &msg($who, &formListReply(0, "Ignore list ", @array) );
-	    @array = ();
-	}
+	&pSReply("$target has neutral karma");
     }
 }
 
@@ -277,7 +239,7 @@ sub ispell {
 	}
     }
 
-    &performStrictReply($reply);
+    &pSReply($reply);
 }
 
 sub nslookup {
@@ -289,6 +251,7 @@ sub nslookup {
 sub tell {
     my $args = shift;
     my ($target, $tell_obj) = ('','');
+    my $dont_tell_me	= 0;
     my $reply;
 
     ### is this fixed elsewhere?
@@ -296,9 +259,10 @@ sub tell {
     $args =~ s/^\s+|\s+$//g;	# again.
 
     # this one catches most of them
-    if ($args =~ /^(\S+) about (.*)$/i) {
+    if ($args =~ /^(\S+) (-?)about (.*)$/i) {
 	$target		= lc $1;
-	$tell_obj	= $2;
+	$tell_obj	= $3;
+	$dont_tell_me	= ($2) ? 1 : 0;
 
 	$tell_obj	= $who	if ($tell_obj =~ /^(me|myself)$/i);
 	$query		= $tell_obj;
@@ -335,7 +299,7 @@ sub tell {
     # "intrusive".
     if ($target !~ /^$mask{chan}$/ and !&IsNickInAnyChan($target)) {
 	&msg($who, "No, $target is not in any of my chans.");
-	return $noreply;
+	return;
     }
 
     ### TODO: don't "tell" if sender is not in target's channel.
@@ -343,12 +307,13 @@ sub tell {
     # self.
     if ($target eq $ident) {	# lc?
 	&msg($who, "Isn't that a bit silly?");
-	return $noreply;
+	return;
     }
 
     # ...
     my $result = &doQuestion($tell_obj);
-    return if ($result eq $noreply);
+    &DEBUG("result => $result.");
+#    return if ($result eq);
 
     # no such factoid.
     if ($result eq "") {
@@ -359,7 +324,8 @@ sub tell {
     # success.
     &status("tell: <$who> telling $target about $tell_obj.");
     if ($who ne $target) {
-	&msg($who, "told $target about $tell_obj ($result)");
+	&msg($who, "told $target about $tell_obj ($result)")
+						unless ($dont_tell_me);
 	$reply = "$who wants you to know: $result";
     } else {
 	$reply = "telling yourself: $result";
@@ -418,7 +384,7 @@ sub userCommands {
 	$result = "NULL"	if ($arg == 0);
 
 	&performReply( sprintf("ascii %s is '%s'", $arg, $result) );
-	return $noreply;
+	return;
     }
 
     # conversion: ord.
@@ -436,7 +402,7 @@ sub userCommands {
 	}
 
 	&performReply( sprintf("'%s' is ascii %s", $arg, ord $1) );
-	return $noreply;
+	return;
     }
 
     # hex.
@@ -445,12 +411,12 @@ sub userCommands {
 
 	if (!defined $arg) {
 	    &help("hex");
-	    return $noreply;
+	    return;
 	}
 
 	if (length $arg > 80) {
 	    &msg($who, "Too long.");
-	    return $noreply;
+	    return;
 	}
 
 	my $retval;
@@ -458,23 +424,23 @@ sub userCommands {
 	    $retval .= sprintf(" %X", ord($_));
 	}
 
-	&performStrictReply("$arg is$retval");
+	&pSReply("$arg is$retval");
 
-	return $noreply;
+	return;
     }
 
     # crypt.
     if ($message =~ /^crypt\s+(\S+)\s*(?:,| )\s*(\S+)/) {
 	# word salt.
-	&performStrictReply(crypt($1, $2));
-	return $noreply;
+	&pSReply(crypt($1, $2));
+	return;
     }
 
 
 
     # cycle.
     if ($message =~ /^(cycle)(\s+(\S+))?$/i) {
-	return $noreply unless (&hasFlag("o"));
+	return unless (&hasFlag("o"));
 	my $chan = lc $3;
 
 	if ($chan eq "") {
@@ -483,13 +449,13 @@ sub userCommands {
 		&DEBUG("cycle: setting chan to '$chan'.");
 	    } else {
 		&help("cycle");
-		return $noreply;
+		return;
 	    }
 	}
 
 	if (&validChan($chan) == 0) {
 	    &msg($who,"error: invalid channel \002$chan\002");
-	    return $noreply;
+	    return;
 	}
 
 	&msg($chan, "I'm coming back. (courtesy of $who)");
@@ -498,23 +464,23 @@ sub userCommands {
 	&status("Schedule rejoin in 5secs to $chan by $who.");
 	$conn->schedule(5, sub { &joinchan($chan); });
 
-	return $noreply;
+	return;
     }
 
     # redir.
     if ($message =~ /^redir(\s+(.*))?/i) {
-	return $noreply unless (&hasFlag("o"));
+	return unless (&hasFlag("o"));
 	my $factoid = $2;
 
 	if (!defined $factoid) {
 	    &help("redir");
-	    return $noreply;
+	    return;
 	}
 
 	my $val  = &getFactInfo($factoid, "factoid_value");
 	if (!defined $val or $val eq "") {
 	    &msg($who, "error: '$factoid' does not exist.");
-	    return $noreply;
+	    return;
 	}
 	&DEBUG("val => '$val'.");
 	my @list = &searchTable("factoids", "factoid_key",
@@ -522,11 +488,11 @@ sub userCommands {
 
 	if (scalar @list == 1) {
 	    &msg($who, "hrm... '$factoid' is unique.");
-	    return $noreply;
+	    return;
 	}
 	if (scalar @list > 5) {
 	    &msg($who, "A bit too many factoids to be redirected, hey?");
-	    return $noreply;
+	    return;
 	}
 
 	my @redir;
@@ -544,29 +510,29 @@ sub userCommands {
 
 	&msg($who, &formListReply(0, "'$factoid' is redirected to by '", @redir));
 
-	return $noreply;
+	return;
     }
 
     # rot13 it.
     if ($message =~ /^rot13(\s+(.*))?/i) {
 	my $reply = $2;
 
-	if ($reply eq "") {
+	if (!defined $reply) {
 	    &help("rot13");
-	    return $noreply;
+	    return;
 	}
 
 	$reply =~ y/A-Za-z/N-ZA-Mn-za-m/;
-	&performStrictReply($reply);
+	&pSReply($reply);
 
-	return $noreply;
+	return;
     }
 
     # cpustats.
     if ($message =~ /^cpustats$/i) {
 	if ($^O !~ /linux/) {
 	    &ERROR("cpustats: your OS is not supported yet.");
-	    return $noreply;
+	    return;
 	}
 
 	### poor method to get info out of file, please fix.
@@ -590,11 +556,11 @@ sub userCommands {
 	    $perc	= sprintf("%.03f", $raw_perc);
 	}
 
-	&performStrictReply("Total CPU usage: $cpu_usage s ... Percentage CPU used: $perc %");
+	&pSReply("Total CPU usage: $cpu_usage s ... Percentage CPU used: $perc %");
 	&DEBUG("15 => $data[15] (cutime)");
 	&DEBUG("16 => $data[16] (cstime)");
 
-	return $noreply;
+	return;
     }
 
     # ircstats.
@@ -623,9 +589,9 @@ sub userCommands {
 	    $reply .= "  I was last disconnected for '$reason'.";
 	}
 
-	&performStrictReply($reply);
+	&pSReply($reply);
 		
-	return $noreply;
+	return;
     }
 
     # status.
@@ -634,7 +600,7 @@ sub userCommands {
 	my $upString	= &Time2String(time() - $^T);
 	my $count	= &countKeys("factoids");
 
-	&performStrictReply(
+	&pSReply(
 	"Since $startString, there have been".
 	  " \002$count{'Update'}\002 ".
 		&fixPlural("modification", $count{'Update'}).
@@ -650,7 +616,7 @@ sub userCommands {
 	  "kB of memory."
 	);
 
-	return $noreply;
+	return;
     }
 
     # wantNick. xk++
@@ -664,10 +630,10 @@ sub userCommands {
 	&msg($who, $str);
 
 	&nick($param{'ircNick'});
-	return $noreply;
+	return;
     }
 
-    # what else...
+    return "CONTINUE";
 }
 
 1;
