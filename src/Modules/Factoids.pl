@@ -739,7 +739,9 @@ sub CmdFactStats {
 
 sub CmdListAuth {
     my ($query) = @_;
+    my $maxshow = $::param{'maxListReplyCount'} || 10;
     my @list = &searchTable("factoids","factoid_key", "created_by", "^$query!");
+    @list=grep(!/\#DEL\#$/,@list) if (scalar(@list) > $maxshow);
 
     my $prefix = "factoid author list by '$query' ";
     &performStrictReply( &formListReply(1, $prefix, @list) );
