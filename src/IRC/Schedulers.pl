@@ -43,7 +43,7 @@ sub queueTask {
 	return;
     }
 
-#    &VERB("Scheduling \&$codename() for ".&Time2String($waittime),3);
+    #&VERB("Scheduling \&$codename() for " . &Time2String($waittime),3);
 
     my $retval = $conn->schedule($waittime, sub {
 		\&$codename;
@@ -91,7 +91,7 @@ sub setupSchedulers {
     }
 
     &status("Schedulers: $count will be running.");
-###    &scheduleList();
+    &scheduleList();
 }
 
 sub ScheduleThis {
@@ -109,7 +109,7 @@ sub ScheduleThis {
 	return;
     }
 
-#    &VERB("Scheduling \&$codename() for ".&Time2String($waittime),3);
+    #&DEBUG("Scheduling \&$codename() " . \&$codename . " for " . &Time2String($waittime),3);
 
     my $retval = $conn->schedule($waittime, \&$codename, @args);
     $sched{$codename}{LABEL}	= $retval;
@@ -1059,27 +1059,29 @@ sub scheduleList {
     #	b - weird time.
     ###
 
-    &DEBUG("sched:");
-    foreach (keys %{ $irc->{_queue} }) {
+    my $reply = "sched:";
+    foreach (keys %{ $irc->{_queue}}) {
 	my $q = $_;
-
+	my $coderef = $irc->{_queue}->{$q}->[1];
 	my $sched;
 	foreach (keys %sched) {
-	    next unless ($q eq $sched{$_});
-	    $sched = $_;
+	    my $schedname = $_;
+	    next unless defined(\&$schedname);
+	    next unless ($coderef eq \&$schedname);
+	    $sched = $schedname;
 	    last;
 	}
 
 	my $time = $irc->{_queue}->{$q}->[0] - time();
 
 	if (defined $sched) {
-	    &DEBUG("   $sched($q): ".&Time2String($time) );
+	    $reply = "$reply, $sched($q):" . &Time2String($time);
 	} else {
-	    &DEBUG("   NULL($q): ".&Time2String($time) );
+	    $reply = "$reply, NULL($q):" . &Time2String($time);
 	}
     }
 
-    &DEBUG("end of sList.");
+    &DEBUG("$reply");
 }
 
 sub mkBackup {
