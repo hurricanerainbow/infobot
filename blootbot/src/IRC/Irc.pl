@@ -15,7 +15,7 @@ use vars qw($irc $nickserv $ident $conn $msgType $who $talkchannel
 use vars qw($notcount $nottime $notsize $msgcount $msgtime $msgsize
 		$pubcount $pubtime $pubsize);
 use vars qw($b_blue $ob);
-use vars qw(@joinchan @ircServers);
+use vars qw(@ircServers);
 
 $nickserv	= 0;
 
@@ -648,23 +648,27 @@ sub invite {
 
 # Usage: &joinNextChan();
 sub joinNextChan {
-    if (scalar @joinchan) {
-	my $chan = shift @joinchan;
+    my @join = getJoinChans(1);
+    my $mynick = "UNDEFINED";
+
+    $mynick = $conn->nick() if $conn;
+    if (scalar @join) {
+	my $chan = shift @join;
 	&joinchan($chan);
 
-	if (my $i = scalar @joinchan) {
-	    &status("joinNextChan: $i chans to join.");
+	if (my $i = scalar @join) {
+	    &status("joinNextChan: $mynick $i chans to join.");
 	}
 
 	return;
     }
 
-    # !scalar @joinchan:
-    my @c	= &getJoinChans();
-    if (exists $cache{joinTime} and scalar @c) {
+    if (exists $cache{joinTime}) {
 	my $delta	= time() - $cache{joinTime} - 5;
 	my $timestr	= &Time2String($delta);
-	my $rate	= sprintf("%.1f", $delta / @c);
+	# FIXME: @join should be @in instead (hacked to 10)
+	#my $rate	= sprintf("%.1f", $delta / @in);
+	my $rate	= sprintf("%.1f", $delta / 10);
 	delete $cache{joinTime};
 
 	&status("time taken to join all chans: $timestr; rate: $rate sec/join");
@@ -787,14 +791,20 @@ sub clearIRCVars {
     undef %channels;
     undef %floodjoin;
 
-    @joinchan		= &getJoinChans(1);
     $cache{joinTime}	= time();
 }
 
 sub getJoinChans {
     my($show)	= @_;
-    my @chans;
+
+    my @in;
     my @skip;
+    my @join;
+
+    # can't join any if not connected
+    return @join if (!$conn);
+
+    my $nick = $conn->nick();
 
     foreach (keys %chanconf) {
 	next if ($_ eq "_default");
@@ -804,34 +814,35 @@ sub getJoinChans {
 
 	if (defined $val) {
 	    $skip++ if ($val eq "0");
-	    if (($conn) and ($val eq "1")) {
+	    if ($val eq "1") {
 		# convert old +autojoin to autojoin <nick>
-		$val = $conn->nick();
+		$val = $nick;
 		$chanconf{$_}{autojoin} = $val;
 	    }
+	    $skip++ if ($val ne $nick);
 	} else {
 	    $skip++;
 	}
 
 	if ($skip) {
 	    push(@skip, $_);
-	} elsif (($conn) and ($conn->nick() eq $val)) {
-	    push(@chans, $_);
 	} else {
-	    push(@skip, $_);
+	    if (defined $channels{$_} or exists $channels{$_}) {
+		push(@in, $_);
+	    } else {
+		push(@join, $_);
+	    }
 	}
     }
 
     my $str;
-    if (scalar @skip) {
-	$str = "channels not auto-joining: @skip (joining: @chans)";
-    } else {
-	$str = "auto-joining all chans: @chans";
-    }
+    $str .= ' in:' . join(',', sort @in) if scalar @in;
+    $str .= ' skip:' . join(',', sort @skip) if scalar @skip;
+    $str .= ' join:' . join(',', sort @join) if scalar @join;
 
-    &status("Chans: ".$str) if ($show);
+    &status("Chans: ($nick)$str") if ($show);
 
-    return sort @chans;
+    return sort @join;
 }
 
 sub closeDCC {

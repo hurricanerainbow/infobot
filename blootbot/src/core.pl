@@ -27,7 +27,7 @@ use vars qw(
 );
 
 # array.
-use vars qw(@joinchan @ircServers @wingateBad @wingateNow @wingateCache
+use vars qw(@ircServers @wingateBad @wingateNow @wingateCache
 );
 
 ### hash. MUST BE REDUCED IN SIZE!!!

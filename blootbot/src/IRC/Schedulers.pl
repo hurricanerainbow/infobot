@@ -674,12 +674,9 @@ sub ircCheck {
 
     $cache{statusSafe} = 1;
 
-    my @x	= &getJoinChans();
-    my $iconf	= scalar( @x );
-    my $inow	= scalar( keys %channels );
-    if ($iconf > 2 and $inow * 2 <= $iconf) {
-	&FIXME("ircCheck: current channels ($inow) * 2 <= config channels ($iconf).");
-#	@joinchan	= @x;
+    my @join = &getJoinChans(1);
+    if (scalar @join) {
+	&FIXME('ircCheck: found channels to join! ' . join(',',@join));
 	&joinNextChan();
     }
 
@@ -693,7 +690,7 @@ sub ircCheck {
 	    &ircloop();
 	    delete $cache{connect};
 	} else {
-	    &status("IRCTEST: possible lost in space; checking. ".
+	    &status('ircCheck: possible lost in space; checking.'.
 		scalar(gmtime) );
 	    &msg($ident, "TEST");
 	    $cache{connect} = time();
@@ -714,9 +711,9 @@ sub ircCheck {
     }
 
     if (grep /^\s*$/, keys %channels) {
-	&WARN("ircCheck: we have a NULL chan in hash channels? removing!");
+	&WARN('ircCheck: we have a NULL chan in hash channels? removing!');
 	if (!exists $channels{''}) {
-	    &DEBUG("ircCheck: this should never happen!");
+	    &DEBUG('ircCheck: this should never happen!');
 	}
 
 	delete $channels{''};
