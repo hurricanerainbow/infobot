@@ -90,7 +90,7 @@ sub timeget {
     if ($no_timehires) {	# fallback.
 	return time();
     } else {			# the real thing.
-	return [gettimeofday()];
+	return gettimeofday();
     }
 }    
 

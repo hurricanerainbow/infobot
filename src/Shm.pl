@@ -126,9 +126,11 @@ sub addForked {
 	my $time	= $forked{$name}{Time};
 	my $continue	= 0;
 
-	&DEBUG("PID => $forked{$name}{PID}");
+	$continue++ if ($forked{$name}{PID} == $$);
 
-	if ( -d "/proc/$forked{$name}{PID}") {
+	if ($continue) {
+	    &DEBUG("hrm.. fork pid == mypid == $$; how did this happen?");
+	} elsif ( -d "/proc/$forked{$name}{PID}") {
 	    &status("fork: still running; good. BAIL OUT.");
 	    return 0;
 	} else {
