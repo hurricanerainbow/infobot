@@ -27,8 +27,8 @@ sub parse {
     if ($what =~ /^(for|add)\s+(.*)$/i) {
 	&add( split(/\s+/, $2, 2) );
 
-    } elsif ($what =~ /^check(\s+(.*))?$/i) {
-	&check( split(/\s+/, $1, 2) );
+    } elsif ($what =~ /^check?$/i) {
+	&check( $1, 1);
 
     } elsif ($what =~ /^(read|next)$/i) {
 	# TODO: read specific items? nah, will make this too complex.
@@ -38,9 +38,9 @@ sub parse {
 }
 
 #####
-# Usage: botmail::check($recipient)
+# Usage: botmail::check($recipient, [$always])
 sub check {
-    my($recipient) = @_;
+    my($recipient, $always) = @_;
     $recipient ||= $::who;
 
     # todo: simplify this select (use a diff function)
@@ -50,7 +50,7 @@ sub check {
     my $from	= join(", ", keys %from);
 
     if ($t == 0) {
-	&::msg($recipient, "You have no botmail.");
+	&::msg($recipient, "You have no botmail.") if ($always);
     } else {
 	&::msg($recipient, "You have $t messages awaiting, from: $from");
     }
