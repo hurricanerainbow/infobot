@@ -18,7 +18,6 @@ if (0) {
 dbmopen(%db, $dbfile, 0644) or die "error: cannot open db. $dbfile\n";
 my ($key, $val);
 while (($key, $val) = each %db) {
-  next if /=>/;		# skip the key if it contains the delimiter.
   chomp $val;
   print "$key => $val\n";
 }
