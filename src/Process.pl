@@ -316,12 +316,9 @@ sub process {
 	    return 'SOMETHING 1';
 	}
 
-	### FIXME: should this only apply to public messages?
-	if ($addrchar) {
-	    &DEBUG("floodwho => '$floodwho'.");
-	    delete $flood{$floodwho}{$message};
-	    &status("short return due to unknown command.");
-	    return 'ADDR CHAR';
+	if (0 and $addrchar) {
+	    &msg($who, "I don't trust people to use the core commands while addressing me in a short-cut way.");
+	    return;
 	}
     }
 

@@ -136,6 +136,7 @@ sub irc {
 	$conn->add_global_handler('disconnect', \&on_disconnect);
 	$conn->add_global_handler([251,252,253,254,255], \&on_init);
 ###	$conn->add_global_handler([251,252,253,254,255,302], \&on_init);
+	$conn->add_global_handler(315, \&on_endofwho);
 	$conn->add_global_handler(324, \&on_modeis);
 	$conn->add_global_handler(333, \&on_topicinfo);
 	$conn->add_global_handler(352, \&on_who);
@@ -191,11 +192,14 @@ sub say {
 	    $pubcount++;
 	    $pubsize += length $msg;
 
-	    if ( ($pubcount % 4) == 0 and $pubcount) {
+	    my $i = &getChanConfDefault("sendPublicLimitLines", 3);
+	    my $j = &getChanConfDefault("sendPublicLimitBytes", 1000);
+
+	    if ( ($pubcount % $i) == 0 and $pubcount) {
 		sleep 1;
-	    } elsif ($pubsize > 1500) {
+	    } elsif ($pubsize > $j) {
 		sleep 1;
-		$pubsize -= 1500;
+		$pubsize -= $j;
 	    }
 
 	} else {
@@ -230,11 +234,13 @@ sub msg {
 	    $msgcount++;
 	    $msgsize += length $msg;
 
-	    if ( ($msgcount % 4) == 0 and $msgcount) {
+	    my $i = &getChanConfDefault("sendPrivateLimitLines", 3);
+	    my $j = &getChanConfDefault("sendPrivateLimitBytes", 1000);
+	    if ( ($msgcount % $i) == 0 and $msgcount) {
 		sleep 1;
-	    } elsif ($msgsize > 1000) {
+	    } elsif ($msgsize > $j) {
 		sleep 1;
-		$msgsize -= 1000;
+		$msgsize -= $j;
 	    }
 
 	} else {
@@ -283,11 +289,14 @@ sub notice {
 	$notcount++;
 	$notsize += length $txt;
 
-	if ( ($notcount % 3) == 0 and $notcount) {
+	my $i = &getChanConfDefault("sendNoticeLimitLines", 3);
+	my $j = &getChanConfDefault("sendNoticeLimitBytes", 1000);
+
+	if ( ($notcount % $i) == 0 and $notcount) {
 	    sleep 1;
-	} elsif ($notsize > 1000) {
+	} elsif ($notsize > $j) {
 	    sleep 1;
-	    $notsize -= 1000;
+	    $notsize -= $j;
 	}
 
     } else {

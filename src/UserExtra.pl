@@ -34,7 +34,9 @@ use vars qw(%channels %chanstats %cmdstats);
 	Cmdstats => 'Tell') );
 &addCmdHook("main", 'news', ('CODEREF' => 'News::Parse', 
 	Module => 'news', ) );
-#	Module => 'news', Identifier => 'news') );
+&addCmdHook("main", 'countrystats', ('CODEREF' => 'countryStats', 
+#	Forker => "NULL",
+ ) );
 
 &status("CMD: loaded ".scalar(keys %hooks_main)." MAIN command hooks.");
 
@@ -410,6 +412,66 @@ sub DNS {
     &performReply($result);
 }
 
+sub countryStats {
+    if (exists $cache{countryStats}) {
+	&msg($who,"countrystats is already running!");
+	return;
+    }
+
+    if ($chan eq "") {
+	$chan = $_[0];
+    }
+
+    if ($chan eq "") {
+	&help("countrystats");
+	return;
+    }
+
+    &rawout("WHO $chan");
+    $cache{countryStats}{chan}	= $chan;
+    $cache{countryStats}{mtype}	= $msgType;
+    $cache{countryStats}{who}	= $who;
+    $cache{on_who_Hack}		= 1;
+}
+
+sub do_countrystats {
+    $chan	= $cache{countryStats}{chan};
+    $msgType	= $cache{countryStats}{mtype};
+    $who	= $cache{countryStats}{who};
+
+    my $total	= 0;
+    my %cstats;
+    foreach (keys %{ $cache{nuhInfo} }) {
+	my $h = $cache{nuhInfo}{$_}{Host};
+
+	if ($h =~ /^.*\.(\D+)$/) {	# host
+	    $cstats{$1}++;
+	} else {			# ip
+	    $cstats{unresolve}++;
+	}
+	$total++;
+    }
+    my %count;
+    foreach (keys %cstats) {
+	$count{ $cstats{$_} }{$_} = 1;
+    }
+
+    my @list;
+    foreach (sort {$b <=> $a} keys %count) {
+	my $str = join(", ", sort keys %{ $count{$_} });
+#	push(@list, "$str ($_)");
+	my $perc	= sprintf("%.01f", 100 * $_ / $total);
+	$perc		=~ s/\.0+$//;
+	push(@list, "$str ($_, $perc %)");
+    }
+
+    # todo: move this into a scheduler like nickometer
+    $msgType	= "private";
+    &pSReply( &formListReply(0, "Country Stats ", @list) );
+
+    delete $cache{countryStats};
+    delete $cache{on_who_Hack};
+}
 
 ###
 ### amalgamated commands.
@@ -418,7 +480,10 @@ sub DNS {
 sub userCommands {
     # conversion: ascii.
     if ($message =~ /^(asci*|chr) (\d+)$/) {
-	return unless (&IsParam("allowConv"));
+	&DEBUG("ascii/chr called ...");
+	return unless (&hasParam("allowConv"));
+
+	&DEBUG("ascii/chr called");
 
 	$arg	= $2;
 	$result	= chr($arg);
@@ -430,10 +495,16 @@ sub userCommands {
     }
 
     # conversion: ord.
-    if ($message =~ /^ord (.)$/) {
-	return unless (&IsParam("allowConv"));
+    if ($message =~ /^ord(\s+(.*))$/) {
+	return unless (&hasParam("allowConv"));
 
-	$arg = $1;
+	$arg = $2;
+
+	if (!defined $arg or length $arg != 1) {
+	    &help("ord");
+	    return;
+	}
+
 	if (ord($arg) < 32) {
 	    $arg = chr(ord($arg) + 64);
 	    if ($arg eq chr(64)) {
@@ -449,7 +520,7 @@ sub userCommands {
 
     # hex.
     if ($message =~ /^hex(\s+(.*))?$/i) {
-	return unless (&IsParam("allowConv"));
+	return unless (&hasParam("allowConv"));
 	my $arg = $2;
 
 	if (!defined $arg) {

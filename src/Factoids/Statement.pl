@@ -65,7 +65,7 @@ sub doStatement {
 
 	# break if either lhs or rhs is NULL.
 	if ($lhs eq "" or $rhs eq "") {
-	    return;
+	    return "NOT-A-STATEMENT";
 	}
 
 	# lets check if it failed.
