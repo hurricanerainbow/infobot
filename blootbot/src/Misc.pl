@@ -131,14 +131,13 @@ sub formListReply {
 	    push(@rand, $list[$_]);
 	    last if (scalar @rand == $maxshow);
 	}
-	@list = @rand;
+	@list = sort @rand;
     } elsif ($total > $maxshow) {
 	&status("formListReply: truncating list.");
 
 	@list = @list[0..$maxshow-1];
     }
 
-    @list = sort @list;
     # form the reply.
     while () {
 	$reply  = $prefix ."(\002". scalar(@list). "\002 shown";
