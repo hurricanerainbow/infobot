@@ -117,7 +117,7 @@ sub DebianDownload {
 	    }
 
 	    if (!&main::ftpGet($host,$path,$thisfile,$file)) {
-		&main::DEBUG("deb: down: ftpGet($host,$path,$thisfile,$file) == BAD.");
+		&main::WARN("deb: down: $file == BAD.");
 		$bad++;
 		next;
 	    }
@@ -204,11 +204,11 @@ sub searchContents {
 	$front = 1;
 	$grepRE = $query;
     } else {
-	$grepRE = "$query.*\[ \t]";
+	$grepRE = "$query*\[ \t]";
     }
 
     ### fix up grepRE for "*".
-    $grepRE =~ s/\*/\.\*/g;
+    $grepRE =~ s/\*/.*/g;
 
     my @files;
     foreach (keys %urlcontents) {
@@ -226,7 +226,6 @@ sub searchContents {
 
     my $files = join(' ', @files);
 
-    &main::status("search regex => '$grepRE'.");
     open(IN,"zegrep -h '$grepRE' $files |");
     while (<IN>) {
 	if (/^\.?\/?(.*?)[\t\s]+(\S+)\n$/) {
@@ -243,6 +242,8 @@ sub searchContents {
 	    $contents{$package}{$file} = 1;
 	    $found++;
 	}
+
+	last if ($found > 100);
     }
     close IN;
 
