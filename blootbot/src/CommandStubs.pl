@@ -668,6 +668,10 @@ sub lart {
 	    return;
 	}
     }
+    if ($target =~ /^(.*)(\s+for\s+.*)$/) {
+	$target	= $1;
+	$for	= $2;
+    }
 
     my $line = &getRandomLineFromFile($bot_data_dir. "/blootbot.lart");
     if (defined $line) {
@@ -676,6 +680,7 @@ sub lart {
 	} else {
 	    $line =~ s/WHO/$target/g;
 	}
+	$line .= $for if ($for);
 	$line .= ", courtesy of $who" if ($extra);
 
 	&action($chan, $line);
