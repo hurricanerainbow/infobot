@@ -585,7 +585,7 @@ sub userDCC {
 	    }
 
 	    foreach (keys %vals) {
-		&pSReply("  $what = $_(" . scalar(keys %{$vals{$_}}) . "): ".join(' ', keys %{ $vals{$_} } ) );
+		&pSReply("  $what = $_(" . scalar(keys %{$vals{$_}}) . "): ".join(' ', sort keys %{ $vals{$_} } ) );
 	    }
 
 	    &pSReply("End of list.");
