@@ -621,7 +621,7 @@ sub Forker {
 
     ### TODO: use AUTOLOAD
     ### very lame hack.
-    if ($label !~ /-/ and !&loadMyModule($myModules{$label})) {
+    if ($label !~ /-/ and !&loadMyModule($label)) {
 	&DEBUG("Forker: failed?");
 	&delForked($label);
     }

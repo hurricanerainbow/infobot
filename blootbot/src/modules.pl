@@ -20,45 +20,6 @@ if ($@) {
 }
 &showProc(" (IO::Socket)");
 
-### MODULES.
-%myModules = (
-	"babelfish"	=> "babelfish.pl",
-	"botmail"	=> "botmail.pl",
-	"BZFlag"	=> "BZFlag.pl",
-	"countdown"	=> "countdown.pl",
-	"Debian"	=> "Debian.pl",
-	"DebianExtra"	=> "DebianExtra.pl",
-	"Dict"		=> "Dict.pl",
-	"DumpVars"	=> "DumpVars.pl",
-	"Exchange"	=> "Exchange.pl",
-	"Factoids"	=> "Factoids.pl",
-	"HTTPDtype"	=> "HTTPDtype.pl",
-	"insult"	=> "insult.pl",
-	"UserDCC"	=> "UserDCC.pl",
-	"Kernel"	=> "Kernel.pl",
-	"News"		=> "News.pl",
-	"nickometer"	=> "nickometer.pl",
-	"pager"		=> "pager.pl",
-	"Math"		=> "Math.pl",
-	"Plug"		=> "Plug.pl",
-	"Quote"		=> "Quote.pl",
-	"RootWarn"	=> "RootWarn.pl",
-	"Rss"		=> "Rss.pl",
-	"Search"	=> "Search.pl",
-	"slashdot"	=> "slashdot.pl",
-	"DumpVars2"	=> "DumpVars2.pl",
-	"Topic"		=> "Topic.pl",
-	"Units"		=> "Units.pl",
-	"Uptime"	=> "Uptime.pl",
-	"UserInfo"	=> "UserInfo.pl",
-	"Weather"	=> "Weather.pl",
-	"wikipedia"	=> "wikipedia.pl",
-	"Wingate"	=> "Wingate.pl",
-	"W3Search"	=> "W3Search.pl",
-	"zfi"		=> "zfi.pl",
-	"Zippy"		=> "Zippy.pl",
-	"zsi"		=> "zsi.pl",
-);
 ### THIS IS NOT LOADED ON RELOAD :(
 my @myModulesLoadNow;
 my @myModulesReloadNot;
@@ -180,16 +141,11 @@ sub loadMyModulesNow {
 	}
 
 	if (!&IsParam($_) and !&IsChanConf($_) and !&getChanConfList($_)) {
-	    if (exists $myModules{$_}) {
-		&status("myModule: $myModules{$_} or $_ (1) not loaded.");
-	    } else {
-		&DEBUG("myModule: $_ (2) not loaded.");
-	    }
-
+	    &DEBUG("loadMyModuleNow: $_ (2) not loaded.");
 	    next;
 	}
 
-	&loadMyModule($myModules{$_});
+	&loadMyModule($_);
 	$loaded++;
     }
 
@@ -301,32 +257,22 @@ sub loadPerlModule {
 }
 
 sub loadMyModule {
-    my ($tmp) = @_;
-    if (!defined $tmp) {
+    my ($modulename) = @_;
+    if (!defined $modulename) {
 	&WARN("loadMyModule: module is NULL.");
 	return 0;
     }
 
-    my ($modulename, $modulebase);
-    if (exists $myModules{$tmp}) {
-	($modulename, $modulebase) = ($tmp, $myModules{$tmp});
-    } else {
-	$modulebase = $tmp;
-	if ($tmp = grep /^$modulebase$/, keys %myModules) {
-	    &DEBUG("lMM: lame hack, file => name => $tmp.");
-	    $modulename = $tmp;
-	}
-    }
-    my $modulefile = "$bot_src_dir/Modules/$modulebase";
+    my $modulefile = "$bot_src_dir/Modules/$modulename.pl";
 
     # call reloadModule() which checks age of file and reload.
-    if (grep /\/$modulebase$/, keys %INC) {
-	&reloadModule($modulebase);
+    if (grep /\/$modulename$/, keys %INC) {
+	&reloadModule($modulename);
 	return 1;	# depend on reloadModule?
     }
 
     if (! -f $modulefile) {
-	&ERROR("lMM: module ($modulebase) does not exist.");
+	&ERROR("lMM: module ($modulename) does not exist.");
 	if ($$ == $bot_pid) {	# parent.
 	    &shutdown() if (defined $shm and defined $dbh);
 	} else {			# child.
@@ -339,7 +285,7 @@ sub loadMyModule {
 
     eval "require \"$modulefile\"";
     if ($@) {
-	&ERROR("cannot load my module: $modulebase");
+	&ERROR("cannot load my module: $modulename");
 	if ($bot_pid != $$) {	# child.
 	    &DEBUG("b4 delfork 2");
 	    &delForked($modulename);
@@ -350,8 +296,8 @@ sub loadMyModule {
     } else {
 	$moduleAge{$modulefile} = (stat $modulefile)[9];
 
-	&status("Loaded $modulebase");
-	&showProc(" ($modulebase)");
+	&status("Loaded $modulename");
+	&showProc(" ($modulename)");
 	return 1;
     }
 }
@@ -377,11 +323,9 @@ sub AUTOLOAD {
 
     $AUTOLOAD =~ s/^(\S+):://g;
 
-    if (exists $myModules{lc $AUTOLOAD}) {
-	# hopefully this will work.
-	&DEBUG("Trying to load module $AUTOLOAD...");
-	&loadMyModule(lc $AUTOLOAD);
-    }
+    # hopefully this will work.
+    &DEBUG("Trying to load module $AUTOLOAD...");
+    &loadMyModule($AUTOLOAD);
 }
 
 sub getPerlFiles {
