@@ -39,7 +39,7 @@ sub queueTask {
 
     my $time = $schedule{$codename}[3];
     if (defined $time and $time > time()) {
-	&WARN("Sched for $codename already exists.");
+	&WARN("Sched for $codename already exists in " . &Time2String(time() - $time) . ".");
 	return;
     }
 
@@ -105,7 +105,7 @@ sub ScheduleThis {
 
     my $time = $sched{$codename}{TIME};
     if (defined $time and $time > time()) {
-	&WARN("Sched for $codename already exists.");
+	&WARN("Sched for $codename already exists in " . &Time2String(time() - $time) . ".");
 	return;
     }
 
