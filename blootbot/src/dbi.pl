@@ -179,7 +179,8 @@ sub dbGetColNiceHash {
 	return;
     }
 
-    %retval = %{ $sth->fetchrow_hashref() };
+    # FIXME this dies hard if there are no results
+    %retval = %{ $sth->fetchrow_hashref };
 
     $sth->finish;
 
