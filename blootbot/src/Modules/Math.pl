@@ -110,21 +110,22 @@ sub perlMath {
 	    $locMsg = sprintf("%1.12f", $locMsg);
 	    $locMsg =~ s/\.?0+$//;
 
-	    if (length($locMsg) > 30) {
+	    if (length $locMsg > 30) {
 		$locMsg = "a number with quite a few digits...";
 	    }
 	} else {
 	    if (defined $locMsg) {
 		&DEBUG("math: locMsg => '$locMsg'... FIXME");
 	    } else {
-		$locMsg = "undefined";
+		&status("math: could not really compute.");
+		$locMsg = "";
 	    }
 	}
     } else {
 	$locMsg = "";
     }
 
-    if ($locMsg ne $message) {
+    if (defined $logMsg and $locMsg ne $message) {
 	return $locMsg;
     } else {
 	return '';

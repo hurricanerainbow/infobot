@@ -279,11 +279,19 @@ sub dbRawReturn {
 #####
 
 #####
-# Usage: &countKeys($table);
+# Usage: &countKeys($table, [$col]);
 sub countKeys {
-    my ($table) = @_;
+    my ($table, $col) = @_;
+    $col ||= "*";
 
-    return (&dbRawReturn("SELECT count(*) FROM $table"))[0];
+    return (&dbRawReturn("SELECT count($col) FROM $table"))[0];
+}
+
+# Usage: &sumKey($table, $col);
+sub sumKey {
+    my ($table, $col) = @_;
+
+    return (&dbRawReturn("SELECT sum($col) FROM $table"))[0];
 }
 
 ##### NOT USED.
@@ -395,6 +403,57 @@ sub SQLDebug {
     return if (!fileno SQLDEBUG);
 
     print SQLDEBUG $_[0]."\n";
+}
+
+sub dbCreateTable {
+    my($table)	= @_;
+    my(@path)	= (".","..","../..");
+    my $found	= 0;
+    my $data;
+
+    foreach (@path) {
+	my $file = "$_/setup/$table.sql";
+	&DEBUG("dbCT: file => $file");
+	next unless ( -f $file );
+
+	&DEBUG("found!!!");
+
+	open(IN, $file);
+	$data = <IN>;
+
+	$found++;
+	last;
+    }
+
+    if (!$found) {
+	return 0;
+    } else {
+	&dbRaw("create($table)", $data);
+	return 1;
+    }
+}
+
+sub checkTables {
+    # retrieve a list of db's from the server.
+    my %db;
+    foreach ($dbh->func('_ListTables')) {
+	$db{$_} = 1;
+    }
+
+    # create database.
+    if (!scalar keys %db) {
+	&status("Creating database $param{'DBName'}...");
+	$query = "CREATE DATABASE $param{'DBName'}";
+	&dbRaw("create(db $param{'DBName'})", $query);
+    }
+
+    foreach ("factoids", "freshmeat", "karma", "rootwarn", "seen",
+    ) {
+	next if (exists $db{$_});
+	&status("  creating new table $_...");
+
+	&dbCreateTable($_);
+    }
 }
 
 1;

@@ -204,6 +204,70 @@ sub CmdFactStats {
 	my $prefix = "broken factoid ";
 	return &formListReply(1, $prefix, @list);
 
+    } elsif ($type =~ /^total$/i) {
+        &status("factstats(total): starting...");
+	my $start_time	= &timeget();
+	my @list;
+	my $str;
+	my($i,$j);
+	my %hash;
+
+	### lets do it.
+	# total factoids requests.
+	$i = &sumKey("factoids", "requested_count");
+	push(@list, "total requests - $i");
+
+	# total factoids modified.
+	$str = &countKeys("factoids", "modified_by");
+	push(@list, "total modified - $str");
+
+	# total factoids modified.
+	$j	= &countKeys("factoids", "requested_count");
+	$str	= &countKeys("factoids", "factoid_key");
+	push(@list, "total non-requested - ".($str - $i));
+
+	# average request/factoid.
+	# i/j == total(requested_count)/count(requested_count)
+	$str = sprintf("%.01f", $i/$j);
+	push(@list, "average requested per factoid - $str");
+
+	# total prepared for deletion.
+	$str	= scalar( &searchTable("factoids", "factoid_key", "factoid_value", " #DEL") );
+	push(@list, "total prepared for deletion - $str");
+
+	# total unique authors.
+	foreach ( &dbRawReturn("SELECT created_by FROM factoids WHERE created_by IS NOT NULL") ) {
+	    /^(\S+)!/;
+	    my $nick = lc $1;
+	    $hash{$nick}++;
+	}
+	push(@list, "total unique authors - ".(scalar keys %hash) );
+	undef %hash;
+
+	# total unique requesters.
+	foreach ( &dbRawReturn("SELECT requested_by FROM factoids WHERE requested_by IS NOT NULL") ) {
+	    /^(\S+)!/;
+	    my $nick = lc $1;
+	    $hash{$nick}++;
+	}
+	push(@list, "total unique requesters - ".(scalar keys %hash) );
+	undef %hash;
+
+	### end of "job".
+
+	my $delta_time	= &timedelta($start_time);
+        &status(sprintf("factstats(broken): %.02f sec to retreive all factoids.", $delta_time)) if ($delta_time > 0);
+	$start_time	= &timeget();
+
+	# bail out on no results.
+	if (scalar @list == 0) {
+	    return 'no broken factoids... wooohoo.';
+	}
+
+	# parse the results.
+	my $prefix = "General factoid stiatistics ";
+	return &formListReply(1, $prefix, @list);
+
     } elsif ($type =~ /^deadredir$/i) {
 	my @list = &searchTable("factoids", "factoid_key",
 			"factoid_value", "^<REPLY> see ");
