@@ -110,9 +110,6 @@ sub doExit {
 	}
 	&writeUserFile();
 	&writeChanFile();
-	if (&IsChanConf("uptime")) {
-	    &DEBUG("going to write uptime file info.");
-	}
 	&uptimeWriteFile()	if (&IsChanConf("uptime"));
 	&News::writeNews()	if (&ChanConfList("news"));
 	&closeDB();
@@ -210,6 +207,13 @@ sub IsChanConf {
     if (!defined $param) {
 	&WARN("IsChanConf: param == NULL.");
 	return 0;
+    }
+
+    # should we use IsParam() externally where needed or hack it in 
+    # here just in case? fix it later.
+    if (&IsParam($param)) {
+	&status("ICC: found '$param' option in main config file.");
+	return 1;
     }
 
     $chan	||= "_default";

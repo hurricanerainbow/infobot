@@ -748,7 +748,7 @@ sub ircCheck {
 
     if ($ident !~ /^\Q$param{ircNick}\E$/) {
 	# this does not work unfortunately.
-	&WARN("ircCheck: ident($ident) != param{ircNick}($param{IrcNick}).");
+	&WARN("ircCheck: ident($ident) != param{ircNick}($param{ircNick}).");
 
 	# this check is misleading... perhaps we should do a notify.
 	if (! &IsNickInAnyChan( $param{ircNick} ) ) {
