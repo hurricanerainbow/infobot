@@ -22,7 +22,7 @@ sub Freshmeat {
     my $refresh	= &::getChanConfDefault("freshmeatRefreshInterval",
 			"", 24) * 60 * 60 * 7;
 
-    my $last_refresh = &::dbGet("freshmeat", "latest_version", "projectname_short='_'");
+    my $last_refresh = &::dbGet("freshmeat", "latest_version", "projectname_short=".&::dbQuote('_'));
     my $renewtable   = 0;
 
     if (defined $last_refresh and $last_refresh =~ /^\d+$/) {
@@ -35,8 +35,7 @@ sub Freshmeat {
     if ($renewtable) {
 	if ($$ == $::bot_pid) {
 	    &::Forker("freshmeat", sub {
-		&downloadIndex();
-		&Freshmeat($sstr);
+		&Freshmeat($sstr) if &downloadIndex();
 	    } );
 	    # both parent/fork runs here, in case the following looks weird.
 	} else {
@@ -82,21 +81,25 @@ sub Freshmeat {
     }
 }
 
-sub showPackage {
+sub packageText {
     my ($pkg)	= @_;
-    my @fm	= &::dbGet("freshmeat", "*",
-			"projectname_short=".&::dbQuote($pkg) );
+    my %fm	= &::dbGetColNiceHash("freshmeat", "*", "projectname_short=".&::dbQuote($pkg));
 
-    if (scalar @fm) {		#1: perfect match of name.
+    if (scalar keys %fm) {		#1: perfect match of name.
 	my $retval;
-	$retval  = "$fm[0] \002(\002$fm[5]\002)\002, ";
-#	$retval .= "section $fm[3], ";
-	$retval .= "is $fm[2]. ";
-	$retval .= "Version: \002$fm[1]\002, ";
-#	$retval .= "Development: \002$fm[2]\002. ";
-	$retval .= $fm[4];
-### ???
-#	$retval .= " deb: ".$fm[3] if ($fm[3] ne ""); # 'deb'.
+	$retval  = "$fm{'projectname_short'} \002(\002$fm{'desc_short'}\002)\002, ";
+	$retval .= "is $fm{'license'}. ";
+	$retval .= "Version: \002$fm{'latest_version'}\002, $fm{'url_homepage'}";
+	return $retval;
+    } else {
+	return;
+    }
+}
+
+sub showPackage {
+    my ($pkg) = @_;
+    my ($retval);
+    if ($retval = packageText($pkg)) {
 	&::performStrictReply($retval);
 	return 1;
     } else {
@@ -105,23 +108,8 @@ sub showPackage {
 }
 
 sub randPackage {
-    my @fm	= &::randKey("freshmeat","*");
-
-    if (scalar @fm) {		#1: perfect match of name.
-	my $retval;
-	$retval  = "$fm[0] \002(\002$fm[5]\002)\002, ";
-#	$retval .= "section $fm[3], ";
-	$retval .= "is $fm[2]. ";
-	$retval .= "Version: \002$fm[1]\002, ";
-#	$retval .= "Development: \002$fm[2]\002. ";
-	$retval .= $fm[4];
-### ???
-#	$retval .= " deb: ".$fm[3] if ($fm[3] ne ""); # 'deb'.
-
-	return $retval;
-    } else {
-	return;
-    }
+    my @fm = &::randKey("freshmeat","*");
+    return &packageText($fm[0]);
 }
 
 sub downloadIndex {
@@ -130,7 +118,7 @@ sub downloadIndex {
 
     if (!&::loadPerlModule("XML::Parser")) {
 	&::WARN("don't have xml::parser...");
-	return;
+	return 0;
     }
     my $p = new XML::Parser(Style => 'Objects');
     my %pkg;
@@ -161,14 +149,14 @@ sub downloadIndex {
 
     if (! -e $idx) {
 	&::msg($::who, "the freshmeat butcher is closed.");
-	return;
+	return 0;
     }
 
     if ( -s $idx < 100000) {
 	&::DEBUG("FM: index too small?");
 	unlink $idx;
 	&::msg($::who, "internal error?");
-	return;
+	return 0;
     }
 
     if ($idx =~ /bz2$/) {
@@ -187,7 +175,7 @@ sub downloadIndex {
     &::dbSet("freshmeat", 
 	{ "projectname_short"	=> "_" },
 	{ "latest_version"	=> time(),
-	  "desc_short"		=> "" }
+	  "desc_short"		=> "dummy project to track date" }
     );
 
 #    &::dbRaw("LOCK", "LOCK TABLES freshmeat WRITE");
@@ -256,6 +244,7 @@ sub downloadIndex {
 
     my $count = &::countKeys("freshmeat");
     &::status("Freshmeat: $count entries loaded.");
+    return 1;
 }
 
 sub freshmeatAnnounce {
@@ -342,7 +331,7 @@ sub xml_end {
 	$i++;
 	my %data;
 	foreach(@cols) {
-	    $data{$_} = $pkg{$_};
+	    $data{$_} = $pkg{$_} if ($pkg{$_});
 	}
 	&::dbReplace("freshmeat", "projectname_short", %data);
 	undef %data;
