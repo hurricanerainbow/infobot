@@ -13,7 +13,18 @@ if (&IsParam("useStrict")) { use strict; }
 #####
 
 sub readUserFile {
-    if (!open IN,"$bot_misc_dir/blootbot.users") {
+    my $f = "$bot_misc_dir/blootbot.users";
+
+    if ( -f $f and -f "$f~") {
+	my $s1 = -s $f;
+	my $s2 = -s "$f~";
+
+	if ($s2 > $s1*3) {
+	    &DEBUG("rUF: backup file bigger than current file. FIXME");
+	}
+    }
+
+    if (!open IN, $f) {
 	&ERROR("cannot read userfile.");
 	&closeLog();
 	exit 1;
@@ -96,6 +107,11 @@ sub readUserFile {
 }
 
 sub writeUserFile {
+    if (!scalar keys %users) {
+	&DEBUG("wUF: nothing to write.");
+	return;
+    }
+
     if (!open OUT,">$bot_misc_dir/blootbot.users") {
 	&ERROR("cannot write to userfile.");
 	return;
@@ -200,7 +216,17 @@ sub writeUserFile {
 #####
 
 sub readChanFile {
-    if (!open IN,"$bot_misc_dir/blootbot.chan") {
+    my $f = "$bot_misc_dir/blootbot.chan";
+    if ( -f $f and -f "$f~") {
+	my $s1 = -s $f;
+	my $s2 = -s "$f~";
+
+	if ($s2 > $s1*3) {
+	    &DEBUG("rCF: backup file bigger than current file. FIXME");
+	}
+    }
+
+    if (!open IN, $f) {
 	&ERROR("cannot erad chanfile.");
 	return;
     }
@@ -256,6 +282,11 @@ sub readChanFile {
 }
 
 sub writeChanFile {
+    if (!scalar keys %chanconf) {
+	&DEBUG("wCF: nothing to write.");
+	return;
+    }
+
     if (!open OUT,">$bot_misc_dir/blootbot.chan") {
 	&ERROR("cannot write chanfile.");
 	return;
