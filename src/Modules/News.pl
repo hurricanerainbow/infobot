@@ -709,7 +709,7 @@ sub latest {
     if (!defined $t) {
 	&::DEBUG("news: something went really wrong.");
 	&::DEBUG("news: chan => $chan, ::chan => $::chan");
-	&::notice($::who, "something went really wrong.");
+#	&::notice($::who, "something went really wrong.");
 	return;
     }
 
