@@ -315,7 +315,7 @@ sub performStrictReply {
     } elsif ($msgType eq 'public') {
 	&say($reply);
     } elsif ($msgType eq 'chat') {
-	&dccsay($who,$reply);
+	&dccsay(lc $who,$reply);
     } else {
 	&ERROR("pSR: msgType invalid? ($msgType).");
     }
@@ -446,19 +446,13 @@ sub ban {
     my (@chans) = ($chan eq "") ? (keys %channels) : lc($chan);
     my $ban	= 0;
 
+    &DEBUG("ban: mask = $mask, chan = $chan");
     if ($chan ne "" and &validChan($chan) == 0) {
 	&ERROR("ban: invalid channel $chan.");
 	return;
     }
 
-    $nick =~ tr/A-Z/a-z/;
-
     foreach $chan (@chans) {
-	if (!&IsNickInChan($nick,$chan) and scalar @chans == 1) {
-	    &status("Ban: $nick is not on $chan.");
-	    next;
-	}
-
 	if (!exists $channels{$chan}{o}{$ident}) {
 	    &status("Ban: do not have ops on $chan :(");
 	    next;
