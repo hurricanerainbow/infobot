@@ -38,6 +38,13 @@ sub doQuestion {
     } else {
 	### TODO: this should be caught in Process.pl?
 	return '' unless ($talkok);
+
+	# there is no flag to disable/enable asking factoids...
+	# so it was added... thanks zyxep! :)
+	if (&IsFlag("a") ne "a") {
+	    &status("$who tried to ask us when not allowed.");
+	    return;
+	}
     }
 
     # dangerous; common preambles should be stripped before here
