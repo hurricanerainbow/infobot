@@ -25,6 +25,7 @@ sub setupSchedulers {
     &ignoreListCheck(1);# mandatory
     &seenFlushOld(1)	if (&IsParam("seen"));
     &ircCheck(1);	# mandatory
+    &miscCheck(1);	# mandatory
     &shmFlush(1);	# mandatory
     &slashdotCycle(1)	if (&IsParam("slashdot") and &IsParam("slashdotAnnounce"));
     &freshmeatCycle(1)	if (&IsParam("freshmeat") and &IsParam("freshmeatAnnounce"));
@@ -399,6 +400,26 @@ sub ircCheck {
 	&FIXME("ircCheck: current channels * 2 <= config channels. FIXME.");
     }
 
+    if (!$conn->connected and time - $msgtime > 3600) {
+	&WARN("ircCheck: no msg for 3600 and disco'd! reconnecting!");
+	$msgtime = time();	# just in case.
+	&ircloop();
+    }
+
+    if ($ident !~ /^\Q$param{ircNick}\E$/) {
+	&WARN("ircCheck: ident($ident) != param{ircNick}($param{IrcNick}).");
+    }
+
+    if (scalar @joinchan) {
+	&WARN("We have some channels to join, doing so.");
+	&joinNextChan();
+    }
+
+    &ScheduleThis(240, "ircCheck") if (@_);
+}
+
+sub miscCheck {
+    # SHM check.
     my @ipcs;
     if ( -x "/usr/bin/ipcs") {
 	@ipcs = `/usr/bin/ipcs`;
@@ -420,22 +441,10 @@ sub ircCheck {
 	system("/usr/bin/ipcrm shm $shmid >/dev/null");
     }
 
-    if (!$conn->connected and time - $msgtime > 3600) {
-	&WARN("ircCheck: no msg for 3600 and disco'd! reconnecting!");
-	$msgtime = time();	# just in case.
-	&ircloop();
-    }
+    ### check modules if they've been modified. might be evil.
+    &reloadAllModules();
 
-    if ($ident !~ /^\Q$param{ircNick}\E$/) {
-	&WARN("ircCheck: ident($ident) != param{ircNick}($param{IrcNick}).");
-    }
-
-    if (scalar @joinchan) {
-	&WARN("We have some channels to join, doing so.");
-	&joinNextChan();
-    }
-
-    &ScheduleThis(240, "ircCheck") if (@_);
+    &ScheduleThis(240, "miscCheck") if (@_);
 }
 
 sub shmFlush {
