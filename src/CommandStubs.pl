@@ -217,8 +217,8 @@ sub parseCmdHook {
 &addCmdHook("extra", 'slashdot', ('CODEREF' => 'Slashdot::Slashdot',
 	'Identifier' => 'slashdot', 'Forker' => 1,
 	'Cmdstats' => 'Slashdot') );
-&addCmdHook("extra", 'plug', ('CODEREF' => 'Plug::Plug',
-	'Identifier' => 'plug', 'Forker' => 1,
+&addCmdHook("extra", 'Plug', ('CODEREF' => 'Plug::Plug',
+	'Identifier' => 'Plug', 'Forker' => 1,
 	'Cmdstats' => 'Plug') );
 &addCmdHook("extra", 'uptime', ('CODEREF' => 'uptime', 'Identifier' => 'uptime',
 	'Cmdstats' => 'Uptime') );

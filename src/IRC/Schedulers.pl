@@ -856,14 +856,14 @@ sub uptimeLoop {
 sub slashdotLoop {
 
     if (@_) {
-	&ScheduleThis(60, "slashdotLoop");
+	&ScheduleThis(60, 'slashdotLoop');
 	return if ($_[0] eq "2");
     }
 
-    my @chans = &ChanConfList("slashdotAnnounce");
+    my @chans = &ChanConfList('slashdotAnnounce');
     return unless (scalar @chans);
 
-    &Forker("slashdot", sub {
+    &Forker('slashdot', sub {
 	my $line = &Slashdot::slashdotAnnounce();
 	return unless (defined $line);
 
@@ -879,14 +879,14 @@ sub slashdotLoop {
 sub plugLoop {
 
     if (@_) {
-	&ScheduleThis(60, "plugLoop");
+	&ScheduleThis(60, 'plugLoop');
 	return if ($_[0] eq "2");
     }
 
-    my @chans = &ChanConfList("plugAnnounce");
+    my @chans = &ChanConfList('plugAnnounce');
     return unless (scalar @chans);
 
-    &Forker("plug", sub {
+    &Forker('Plug', sub {
 	my $line = &Plug::plugAnnounce();
 	return unless (defined $line);
 
