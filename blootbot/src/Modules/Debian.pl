@@ -278,7 +278,7 @@ sub searchContents {
 	}
 
 	foreach $pkg (keys %contents) {
-	    foreach (keys %{$contents{$pkg}}) {
+	    foreach (keys %{ $contents{$pkg} }) {
 		# TODO: correct padding.
 		print OUT "$_\t\t\t$pkg\n";
 	    }
@@ -294,7 +294,7 @@ sub searchContents {
 
     my @list;
     foreach $pkg (keys %contents) {
-	my @tmplist = &::fixFileList(keys %{$contents{$pkg}});
+	my @tmplist = &::fixFileList(keys %{ $contents{$pkg} });
 	my @sublist = sort { length $a <=> length $b } @tmplist;
 
 	pop @sublist while (scalar @sublist > 3);
@@ -398,7 +398,7 @@ sub searchAuthor {
 	my $name;
 	foreach $name (keys %maint) {
 	    my $email;
-	    foreach $email (keys %{$maint{$name}}) {
+	    foreach $email (keys %{ $maint{$name} }) {
 		next unless ($email =~ /\Q$query\E/i);
 		next if (exists $hash{$name});
 		$hash{$name} = 1;
@@ -415,13 +415,13 @@ sub searchAuthor {
 
     &::DEBUG("showing all packages by '$list[0]'...");
 
-    my @pkg = sort keys %{$pkg{$list[0]}};
+    my @pkg = sort keys %{ $pkg{$list[0]} };
 
     # show how long it took.
     my $delta_time = &::timedelta($start_time);
     &::status(sprintf("Debian: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
 
-    my $email	= join(', ', keys %{$maint{$list[0]}});
+    my $email	= join(', ', keys %{ $maint{$list[0]} });
     my $prefix	= "Debian Packages by $list[0] \002<\002$email\002>\002 ";
     &::pSReply( &::formListReply(0, $prefix, @pkg) );
 }
@@ -809,14 +809,14 @@ sub infoStats {
     &::pSReply(
 	"Debian Distro Stats on $dist... ".
 	"\002$total{'count'}\002 packages, ".
-	"\002".scalar(keys %{$total{'maint'}})."\002 maintainers, ".
+	"\002".scalar(keys %{ $total{'maint'} })."\002 maintainers, ".
 	"\002". int($total{'isize'}/1024)."\002 MB installed size, ".
 	"\002". int($total{'csize'}/1024/1024)."\002 MB compressed size."
     );
 
 ### TODO: do individual stats? if so, we need _another_ arg.
 #    foreach $file (keys %stats) {
-#	foreach (keys %{$stats{$file}}) {
+#	foreach (keys %{ $stats{$file} }) {
 #	    &::DEBUG("  '$file' '$_' '$stats{$file}{$_}'.");
 #	}
 #    }

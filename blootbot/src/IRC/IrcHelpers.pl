@@ -177,12 +177,12 @@ sub hookMsg {
 
     # flood overflow protection.
     if ($addressed) {
-	foreach (keys %{$flood{$floodwho}}) {
+	foreach (keys %{ $flood{$floodwho} }) {
 	    next unless (time() - $flood{$floodwho}{$_} > $interval);
 	    delete $flood{$floodwho}{$_};
 	}
 
-	my $i = scalar keys %{$flood{$floodwho}};
+	my $i = scalar keys %{ $flood{$floodwho} };
 	if ($i > $count) {
 	    &msg($who,"overflow of messages ($i > $count)");
 	    &status("FLOOD overflow detected from $floodwho; ignoring");
@@ -267,21 +267,49 @@ sub chanLimitVerify {
 	    &WARN("clc: stupid to have plus at $plus, fix it!");
 	}
 
-	if (exists $cache{ "chanlimitChange_$chan" }) {
-	    if (time() - $cache{ "chanlimitChange_$chan" } < $int*60) {
+	if (exists $cache{chanlimitChange}{$chan}) {
+	    if (time() - $cache{chanlimitChange}{$chan} < $int*60) {
 		return;
 	    }
 	}
 
-	### todo: check if we have ops.
-	### todo: if not, check if nickserv/chanserv is avail.
+	&chanServCheck($chan);
+
 	### todo: unify code with chanlimitcheck()
 	if ($delta > 5) {
 	    &status("clc: big change in limit; changing.");
 	    &rawout("MODE $chan +l ".($count+$plus) );
-	    $cache{ "chanlimitChange_$chan" } = time();
+	    $cache{chanlimitChange}{$chan} = time();
 	}
     }
+}
+
+sub chanServCheck {
+    ($chan) = @_;
+
+    if (!defined $chan or $chan =~ /^$/) {
+	&WARN("chanServCheck: chan == NULL.");
+	return;
+    }
+
+    if ($chan =~ tr/A-Z/a-z/) {
+	&DEBUG("chanServCheck: lowercased chan ($chan)");
+    }
+
+    if (! &IsChanConf("chanServ_ops") ) {
+	return;
+    }
+
+    &DEBUG("chanServCheck($chan) called.");
+
+    if ( &IsParam("nickServ_pass") and !$nickserv) {
+	&DEBUG("chanServ_ops($_): nickserv enabled but not alive?  (ircCheck)");
+	return;
+    }
+    return if (exists $channels{$chan}{'o'}{$ident});
+
+    &status("ChanServ ==> Requesting ops for $chan. (chanServCheck)");
+    &rawout("PRIVMSG ChanServ :OP $chan $ident");
 }
 
 1;

@@ -69,7 +69,7 @@ sub doQuestion {
     $query =~ s/^explain\s*(\?*)/$1/i;	# explain x
     $query = " $query ";		# side whitespaces.
 
-    my $qregex = join '|', keys %{$lang{'qWord'}};
+    my $qregex = join '|', keys %{ $lang{'qWord'} };
 
     # what's whats => what is; who'?s => who is, etc
     $query =~ s/ ($qregex)\'?s / $1 is /i;

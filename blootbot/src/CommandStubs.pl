@@ -1,5 +1,6 @@
 #
 # User Command Extension Stubs
+# WARN: this file does not reload on HUP.
 #
 
 if (&IsParam("useStrict")) { use strict; }
@@ -102,9 +103,9 @@ sub parseCmdHook {
 	    $hash{'Identifier'} .= "-" if ($hash{'Forker'} eq "NULL");
 
 	    if (exists $hash{'ArrayArgs'}) {
-		&Forker($hash{'Identifier'}, sub { \&{$hash{'CODEREF'}}(@args) } );
+		&Forker($hash{'Identifier'}, sub { \&{ $hash{'CODEREF'} }(@args) } );
 	    } else {
-		&Forker($hash{'Identifier'}, sub { \&{$hash{'CODEREF'}}($flatarg) } );
+		&Forker($hash{'Identifier'}, sub { \&{ $hash{'CODEREF'} }($flatarg) } );
 	    }
 
 	} else {
@@ -123,9 +124,9 @@ sub parseCmdHook {
 	    }
 
 	    if (exists $hash{'ArrayArgs'}) {
-		&{$hash{'CODEREF'}}(@args);
+		&{ $hash{'CODEREF'} }(@args);
 	    } else {
-		&{$hash{'CODEREF'}}($flatarg);
+		&{ $hash{'CODEREF'} }($flatarg);
 	    }
 	}
 
@@ -146,7 +147,7 @@ sub parseCmdHook {
 ###
 ### START ADDING HOOKS.
 ###
-&addCmdHook("extra", 'd?bugs', ('CODEREF' => 'debianBugs',
+&addCmdHook("extra", 'd?bugs', ('CODEREF' => 'DBugs::Parse',
 	'Forker' => 1, 'Identifier' => 'debianExtra',
 	'Cmdstats' => 'Debian Bugs') );
 &addCmdHook("extra", 'dauthor', ('CODEREF' => 'Debian::searchAuthor',
@@ -331,7 +332,7 @@ sub Modules {
 	    ### TODO: compact with map?
 	    my @list;
 	    foreach (sort {$b <=> $a} keys %nickometer) {
-		my $str = join(", ", sort keys %{$nickometer{$_}});
+		my $str = join(", ", sort keys %{ $nickometer{$_} });
 		push(@list, "$str ($_%)");
 	    }
 
@@ -556,7 +557,7 @@ sub cookie {
 
     # lets find that secret cookie.
     my $target		= ($msgType ne 'public') ? $who : $talkchannel;
-    my $cookiemsg	= &getRandom(keys %{$lang{'cookie'}});
+    my $cookiemsg	= &getRandom(keys %{ $lang{'cookie'} });
     my ($key,$value);
 
     ### WILL CHEW TONS OF MEM.

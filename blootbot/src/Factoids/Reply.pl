@@ -139,7 +139,7 @@ sub getReply {
 	    # result is random if separated by '||'.
 	    # rhs is full factoid with '||'.
 	    if ($mhs eq "is") {
-		$reply = &getRandom(keys %{$lang{'factoid'}});
+		$reply = &getRandom(keys %{ $lang{'factoid'} });
 		$reply =~ s/##KEY/$lhs/;
 		$reply =~ s/##VALUE/$result/;
 	    } else {
@@ -200,7 +200,7 @@ sub getReply {
 	$reply =~ s/\$randpercentage/$randp/g;	# ???
 	# randnick.
 	if ($reply =~ /\$randnick/) {
-	    my @nicks = keys %{$channels{$chan}{''}};
+	    my @nicks = keys %{ $channels{$chan}{''} };
 	    my $randnick = $nicks[ int($rand*$#nicks) ];
 	    s/\$randnick/$randnick/;
 	}

@@ -7,10 +7,35 @@
 
 use strict;
 
-my $bugs_url = "http://master.debian.org/~wakkerma/bugs";
+package DBugs;
+
+sub Parse {
+    my($args) = @_;
+
+    if (!defined $args or $args =~ /^$/) {
+	&debianBugs();
+    }
+
+    if ($args =~ /^(\d+)$/) {
+	# package number:
+	&do_id($args);
+
+    } elsif ($args =~ /^(\S+\@\S+)$/) {
+	# package email maintainer.
+	&do_email($args);
+
+    } elsif ($args =~ /^(\S+)$/) {
+	# package name.
+	&do_pkg($args);
+
+    } else {
+	# invalid.
+	&::msg($::who, "error: could not parse $args");
+    }
+}
 
 sub debianBugs {
-    my @results = &::getURL($bugs_url);
+    my @results = &::getURL("http://master.debian.org/~wakkerma/bugs");
     my ($date, $rcbugs, $remove);
     my ($bugs_closed, $bugs_opened) = (0,0);
 
@@ -37,6 +62,46 @@ sub debianBugs {
 	);
     } else {
 	&::msg($::who, "Couldn't retrieve data for debian bug stats.");
+    }
+}
+
+sub do_id {
+    my($num)	= @_;
+    my $url	= "http://bugs.debian.org/$num";
+
+    if (1) {
+	&::msg($::who, "do_id not supported yet.");
+	return;
+    }
+
+    my @results = &::getURL($url);
+    foreach (@results) {
+	&::DEBUG("do_id: $_");
+    }
+}
+
+sub do_email {
+    my($email)	= @_;
+    my $url	= "http://bugs.debian.org/$email";
+
+    if (1) {
+	&::msg($::who, "do_email not supported yet.");
+	return;
+    }
+
+    my @results = &::getURL($url);
+    foreach (@results) {
+	&::DEBUG("do_email: $_");
+    }
+}
+
+sub do_pkg {
+    my($pkg)	= @_;
+    my $url	= "http://bugs.debian.org/$pkg";
+
+    my @results = &::getURL($url);
+    foreach (@results) {
+	&::DEBUG("do_pkg: $_");
     }
 }
 

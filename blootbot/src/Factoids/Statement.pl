@@ -72,7 +72,7 @@ sub doStatement {
 	if (&validFactoid($lhs,$rhs) == 0) {
 	    if ($addressed) {
 		&status("IGNORE statement: <$who> $message");
-		&performReply( &getRandom(keys %{$lang{'confused'}}) );
+		&performReply( &getRandom(keys %{ $lang{'confused'} }) );
 	    }
 	    return;
 	}

@@ -188,11 +188,11 @@ sub process {
 
     # override msgType.
     if ($msgType =~ /public/ and $message =~ s/^\+//) {
-	&status("found '+' flag; setting msgType to public.");
-	$force_public_reply++;
+	&status("Process: '+' flag detected; changing reply to public");
 	$msgType = 'public';
 	$who	 = $chan;	# major hack to fix &msg().
-	&DEBUG("addressed => $addressed.");
+	$force_public_reply++;
+	# notice is still NOTICE but to whole channel => good.
     }
 
     # User Processing, for all users.
@@ -263,7 +263,7 @@ sub process {
     if ($message =~ /^than(ks?|x)( you)?( \S+)?/i) {
 	return 'thank: no addr' unless ($message =~ /$ident/ or $talkok);
 
-	&performReply( &getRandom(keys %{$lang{'welcome'}}) );
+	&performReply( &getRandom(keys %{ $lang{'welcome'} }) );
 	return;
     }
 
@@ -634,6 +634,7 @@ sub FactoidStuff {
 	my $newresult = &perlMath();
 
 	if (defined $newresult and $newresult ne "") {
+	    $cmdstats{'Maths'}++;
 	    $result = $newresult;
 	    &status("math: <$who> $message => $result");
 	}
@@ -658,13 +659,13 @@ sub FactoidStuff {
 
     if (length $message > 64) {
 	&status("unparseable-moron: $message");
-	&performReply( &getRandom(keys %{$lang{'moron'}}) );
+	&performReply( &getRandom(keys %{ $lang{'moron'} }) );
 	$count{'Moron'}++;
 	return;
     }
 
     &status("unparseable: $message");
-    &performReply( &getRandom(keys %{$lang{'dunno'}}) );
+    &performReply( &getRandom(keys %{ $lang{'dunno'} }) );
     $count{'Dunno'}++;
 }
 

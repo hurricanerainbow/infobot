@@ -38,7 +38,7 @@ BEGIN {
 	   yotta => 21,
 	   zetta => 24,
 	  );
-  $PREF = join '|', sort {$PREF{$a} <=> $PREF{$b}} (keys %PREF);
+  $PREF = join '|', sort { $PREF{$a} <=> $PREF{$b} } (keys %PREF);
 }
 
 

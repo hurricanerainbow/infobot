@@ -119,7 +119,7 @@ sub on_chat {
 
     } else {			# dcc chat arena.
 
-	foreach (keys %{$dcc{'CHAT'}}) {
+	foreach (keys %{ $dcc{'CHAT'} }) {
 	    $conn->privmsg($dcc{'CHAT'}{$_}, "<$who> $orig{message}");
 	}
     }
@@ -167,7 +167,12 @@ sub on_endofmotd {
     }
 
     if (&IsParam("ircUMode")) {
-	&status("Attempting change of user modes to $param{'ircUMode'}.");
+	&VERB("Attempting change of user modes to $param{'ircUMode'}.", 2);
+	if ($param{'ircUMode'} !~ /^[-+]/) {
+	    &WARN("ircUMode had no +- prefix; adding +");
+	    $param{'ircUMode'} = "+".$param{'ircUMode'};
+	}
+
 	&rawout("MODE $ident $param{'ircUMode'}");
     }
 
@@ -176,6 +181,10 @@ sub on_endofmotd {
 	&WARN("joinchan array is empty!!!");
 	@joinchan = &getJoinChans();
     }
+
+    # unfortunately, Net::IRC does not implement this :(
+    &rawout("NOTIFY $ident");
+    &DEBUG("adding self to NOTIFY list.");
 
     &joinNextChan();
 }
@@ -333,6 +342,7 @@ sub on_endofnames {
     my ($self, $event) = @_;
     my $chan = ($event->args)[1];
 
+    # sync time should be done in on_endofwho like in BitchX
     if (exists $cache{jointime}{$chan}) {
 	my $delta_time = sprintf("%.03f", &gettimeofday() - $cache{jointime}{$chan});
 	$delta_time    = 0	if ($delta_time < 0);
@@ -357,19 +367,10 @@ sub on_endofnames {
     my $chanstats = join(' || ', @array);
     &status("$b_blue$chan$ob: [$chanstats]");
 
+    &joinNextChan();
     if (scalar @joinchan) {	# remaining channels to join.
+	# lets do two at once!
 	&joinNextChan();
-    } else {
-	&DEBUG("running ircCheck to get chanserv ops.");
-	&ircCheck();
-    }
-
-    return unless (&IsChanConf("chanServ_ops") > 0);
-    return unless ($nickserv);
-
-    if (!exists $channels{$chan}{'o'}{$ident}) {
-	&status("ChanServ ==> Requesting ops for $chan. (2)");
-	&rawout("PRIVMSG ChanServ :OP $chan $ident");
     }
 }
 
@@ -398,8 +399,8 @@ sub on_invite {
 	    next;
 	}
 
-	&status("invited to $b_blue$_$ob by $b_cyan$who$ob");
-	&joinchan($self, $_);
+	&status("invited to $b_blue$chan$ob by $b_cyan$nick$ob");
+	&joinchan($chan);
     }
 }
 
@@ -608,7 +609,7 @@ sub on_nick {
 
     my ($chan,$mode);
     foreach $chan (keys %channels) {
-	foreach $mode (keys %{$channels{$chan}}) {
+	foreach $mode (keys %{ $channels{$chan} }) {
 	    next unless (exists $channels{$chan}{$mode}{$nick});
 
 	    $channels{$chan}{$mode}{$newnick} = $channels{$chan}{$mode}{$nick};
@@ -755,8 +756,8 @@ sub on_public {
 	foreach $chan (grep /[A-Z]/, keys %channels) {
 	    &DEBUG("leak: chan => '$chan'.");
 	    my ($i,$j);
-	    foreach $i (keys %{$channels{$chan}}) {  
-		foreach (keys %{$channels{$chan}{$i}}) {
+	    foreach $i (keys %{ $channels{$chan} }) {  
+		foreach (keys %{ $channels{$chan}{$i} }) {
 		    &DEBUG("leak:   \$channels{$chan}{$i}{$_} ...");
 		}
 	    }
@@ -973,6 +974,38 @@ sub on_whoisuser {
     &DEBUG("on_whoisuser: @args");
 
     $nuh{lc $args[1]} = $args[1]."!".$args[2]."\@".$args[3];
+}
+
+###
+### since joinnextchan is hooked onto on_endofnames, these are needed.
+###
+
+sub on_chanfull {
+    my ($self, $event) = @_;
+    my @args	= $event->args;
+    &DEBUG("on_chanfull: args => @args");
+    &joinNextChan();
+}
+
+sub on_inviteonly {
+    my ($self, $event) = @_;
+    my @args	= $event->args;
+    &DEBUG("on_inviteonly: args => @args");
+    &joinNextChan();
+}
+
+sub on_banned {
+    my ($self, $event) = @_;
+    my @args	= $event->args;
+    &DEBUG("on_banned: args => @args");
+    &joinNextChan();
+}
+
+sub on_badchankey {
+    my ($self, $event) = @_;
+    my @args	= $event->args;
+    &DEBUG("on_badchankey: args => @args");
+    &joinNextChan();
 }
 
 1;
