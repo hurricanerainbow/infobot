@@ -296,7 +296,7 @@ sub Modules {
     }
 
     # google searching. Simon++
-    if ($message =~ /^(?:search\s+)?($w3search_regex)\s+(for\s+)?['"]?(.*?)["']?\s*\?*$/i) {
+    if ($message =~ /^(?:search\s+)?($w3search_regex)\s+(?:for\s+)?['"]?(.*?)["']?\s*\?*$/i) {
 	return unless (&hasParam("wwwsearch"));
 
 	&Forker("wwwsearch", sub { &W3Search::W3Search($1,$2); } );
