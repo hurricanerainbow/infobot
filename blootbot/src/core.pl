@@ -127,7 +127,7 @@ sub doExit {
 	}
 	&writeUserFile();
 	&writeChanFile();
-	&uptimeWriteFile()	if (&IsChanConf("uptime"));
+	&uptimeWriteFile()	if (&IsChanConf('Uptime'));
 	&sqlCloseDB();
 	&closeSHM($shm);
 

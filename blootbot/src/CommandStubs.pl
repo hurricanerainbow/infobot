@@ -220,7 +220,7 @@ sub parseCmdHook {
 &addCmdHook("extra", 'Plug', ('CODEREF' => 'Plug::Plug',
 	'Identifier' => 'Plug', 'Forker' => 1,
 	'Cmdstats' => 'Plug') );
-&addCmdHook("extra", 'uptime', ('CODEREF' => 'uptime', 'Identifier' => 'uptime',
+&addCmdHook("extra", 'Uptime', ('CODEREF' => 'uptime', 'Identifier' => 'Uptime',
 	'Cmdstats' => 'Uptime') );
 &addCmdHook("extra", 'nullski', ('CODEREF' => 'nullski', ) );
 &addCmdHook("extra", 'verstats', ('CODEREF' => 'do_verstats' ) );

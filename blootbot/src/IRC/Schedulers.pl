@@ -843,11 +843,11 @@ sub getNickInUse {
 
 sub uptimeLoop {
     return if (!defined &uptimeWriteFile);
-#    return unless &IsChanConf("uptime");
+#    return unless &IsChanConf('Uptime');
 
     if (@_) {
-	&ScheduleThis(60, "uptimeLoop");
-	return if ($_[0] eq "2");	# defer.
+	&ScheduleThis(60, 'uptimeLoop');
+	return if ($_[0] eq '2');	# defer.
     }
 
     &uptimeWriteFile();

@@ -811,7 +811,7 @@ sub rehashConfVars {
 	}
 
 	if (/^uptime$/ and $i) {
-	    &loadMyModule('uptime');
+	    &loadMyModule('Uptime');
 	    delete $cache{confvars}{$_};
 	}
 
