@@ -49,8 +49,13 @@ sub dbGet {
     my $query	= "SELECT $select FROM $table";
     $query	.= " WHERE $where" if ($where);
 
-    if (!defined $select) {
-	&WARN("dbGet: select == NULL. table => $table");
+    if (!defined $select or $select =~ /^\s*$/) {
+	&WARN("dbGet: select == NULL.");
+	return;
+    }
+
+    if (!defined $table or $table =~ /^\s*$/) {
+	&WARN("dbGet: table == NULL.");
 	return;
     }
 
@@ -134,8 +139,6 @@ sub dbGetColNiceHash {
     $query	.= " WHERE ".$where if ($where);
     my %retval;
 
-    &DEBUG("dbGetColNiceHash: query => '$query'.");
-
     my $sth = $dbh->prepare($query);
     &SQLDebug($query);
     if (!$sth->execute) {
@@ -187,6 +190,21 @@ sub dbSet {
 		$_."=".&dbQuote($phref->{$_})
 	} keys %{$phref}
     );
+
+    if (!defined $phref) {
+	&WARN("dbset: phref == NULL.");
+	return;
+    }
+
+    if (!defined $href) {
+	&WARN("dbset: href == NULL.");
+	return;
+    }
+
+    if (!defined $table) {
+	&WARN("dbset: table == NULL.");
+	return;
+    }
 
     my $result = &dbGet($table, join(',', keys %{$phref}), $where);
 

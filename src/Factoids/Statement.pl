@@ -56,10 +56,10 @@ sub doStatement {
 	my($lhs, $mhs, $rhs) = ($`, $&, $');
 
 	# allows factoid arguments to be updated. -lear.
-	$lhs =~ s/^(CMD: )?(.*)/$1 . lc $2/e;
+#	$lhs =~ s/^(CMD: )?(.*)/$1 . lc $2/e;
 
-	$lhs =~ tr/A-Z/a-z/;
-	$lhs =~ s/^(the|da|an?)\s+//i; # discard article
+	# discard article.
+	$lhs =~ s/^(the|da|an?)\s+//i;
 
 	# remove excessive initial and final whitespaces.
 	$lhs =~ s/^\s+|\s+$//g;
