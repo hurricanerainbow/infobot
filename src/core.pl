@@ -216,8 +216,9 @@ sub loadConfig {
 
     if (!open(FILE, $file)) {
 	&ERROR("FAILED loadConfig ($file): $!");
-	&status("Please make sure the configuration file exists.");
-	exit 1;
+	&status("Please copy files/sample.config to files/infobot.config");
+	&status("  and edit files/infobot.config, modify to tastes.");
+	exit 0;
     }
 
     my $count = 0;
