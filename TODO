@@ -1,8 +1,5 @@
-CVS COMMIT:
-
-
-
 TODO:
+	- let's get a release out!
 	- all IsChanConf tests MUST be checking for >0 as -1 is possible
 	  there are a lot of incorrect "if(IsChanConf("foo")) instances now
 	- make sure scheduler design is _right_ - it's broken'ish.
@@ -26,7 +23,7 @@ TODO:
 		- end of DynaConfig.pl
 		- use in UserDCC.. warn if value is not in list.
 		- add &checkSet() or &_chanset();
-	- update sample.chan and sample.config
+	- update blootbot.chan and blootbot.config
 	- attempt to move userDCC to hooks.
 		- need to modify parseCmdHooks for user flags?
 	- make timers below 5 or 10 mins non-random values.
@@ -80,4 +77,10 @@ TODO:
     386
 [router] [~blootbot/src] # grep ERROR `find -type f` | wc -l
     145
-
+20031111: scripts/output_stats.sh
+DEBUG:      384
+WARN:       167
+FIXME:       33
+status:     424
+ERROR:      123
+TODO:        91
