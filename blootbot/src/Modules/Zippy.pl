@@ -12,12 +12,11 @@ use strict;
 my $no_zippy; # Can't think of any situation in which this won't work..
 
 sub zippy::get {
-    unless (@yows) { # read data unless it's been read already.
-	print "Reading...\n";
-	while (<DATA>) {
-	    chomp;
-	    push @yows, $_;
-	}
+    my @yows;
+    print "Reading...\n";
+    while (<DATA>) {
+	chomp;
+	push @yows, $_;
     }
 
     if ($no_zippy) { # ..but just in case :-)
