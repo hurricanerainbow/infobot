@@ -25,6 +25,8 @@ sub closeSHM {
     my ($key) = @_;
     my $IPC_RMID = 0;
 
+    return '' if (!defined $key);
+
     &shmFlush();
     &status("Closed shared memory (shm) key: [$key]");
     return shmctl($key, $IPC_RMID, 0);
@@ -71,9 +73,13 @@ sub shmWrite {
 sub addForked {
     my ($name) = @_;
     my $forker_timeout	= 360;	# 6mins, in seconds.
+    if (!defined $name) {
+	&WARN("addForked: name == NULL.");
+	return 0;
+    }
 
     foreach (keys %forked) {
-	my $time = time() - $forked{$_};
+	my $time = time() - $forked{$_}{Time};
 	next unless ($time > $forker_timeout);
 
 	### TODO: use &time2string()?
@@ -99,18 +105,24 @@ sub addForked {
     }
 
     if (exists $forked{$name}) {
-	my $time = $forked{$name};
-	if (time() - $forked{$name} > 900) {	# stale fork > 15m.
+	my $time = $forked{$name}{Time};
+	if (-d "/proc/$forked{$name}{PID}") {
+	    &status("fork: still running; good. BAIL OUT.");
+	} else {
+	    &status("fork: lost the fork? REMOVE IT!");
+	}
+
+	if (time() - $time > 900) {	# stale fork > 15m.
 	    &status("forked: forked{$name} presumably exited without notifying us.");
-	    $forked{$name} = time();
+	    $forked{$name}{Time} = time();
 	    return 1;
 	} else {				# fresh fork.
 	    &msg($who, "$name is already running ". &Time2String(time() - $forked{$name}));
 	    return 0;
 	}
     } else {
-	$forked{$name}	= time();
-	$forkedtime	= time();
+	$forked{$name}{Time}	= time();
+	$forkedtime		= time();
 	$count{'Fork'}++;
 	return 1;
     }
@@ -118,9 +130,13 @@ sub addForked {
 
 sub delForked {
     my ($name) = @_;
+    if (!defined $name) {
+	&WARN("delForked: name == NULL.");
+	return 0;
+    }
 
     if (exists $forked{$name}) {
-	my $timestr = &Time2String(time() - $forked{$name});
+	my $timestr = &Time2String(time() - $forked{$name}{Time});
 	&status("fork: took $timestr for $name.");
 	&shmWrite($shm,"DELETE FORK $name");
 	return 1;
