@@ -19,16 +19,26 @@ sub userCommands {
 	my $mode;
 
 	if ($chan eq "") {		# all channels.
-	    my $count = 0;
-	    my $i = keys %channels;
+	    my $count	= 0;
+	    my $i	= keys %channels;
+	    my $reply	= "i am on \002$i\002 ".&fixPlural("channel",$i);
+	    my @array;
 
-	    &performStrictReply(
-		"i am on \002$i\002 ". &fixPlural("channel",$i).
-		": ". join(' ', sort keys %channels)
-	    );
+	    ### line 1.
+	    foreach (sort keys %channels) {
+		if (/^\s*$/ or / /) {
+		    &status("chanstats: fe channels: chan == NULL.");
+		    &ircCheck();
+		    next;
+		}
+		push(@array, "$_ (".scalar(keys %{$channels{$_}{''}}).")");
+	    }
+	    &performStrictReply($reply.": ".join(' ', @array));
 
+	    ### line 2.
 	    foreach $chan (keys %channels) {
 		# crappy debugging...
+		# TODO: use $mask{chan} instead?
 		if ($chan =~ / /) {
 		    &ERROR("bad channel: chan => '$chan'.");
 		}
@@ -389,8 +399,9 @@ sub userCommands {
 
 	&msg($chan, "I'm coming back. (courtesy of $who)");
 	&part($chan);
-	sleep 3;
-	&joinchan($chan);
+###	&ScheduleThis(5, "getNickInUse") if (@_);
+	&status("Schedule rejoin in 5secs to $chan by $who.");
+	$conn->schedule(5, sub { &joinchan($chan); });
 
 	return $noreply;
     }
@@ -522,29 +533,25 @@ sub userCommands {
 
 	my ($target, $tell_obj) = ('','');
 	my $reply;
+	### is this fixed elsewhere?
+	$args =~ s/\s+/ /g;		# fix up spaces.
+	$args =~ s/^\s+|\s+$//g;	# again.
 
 	# this one catches most of them
-	if ($message =~ /^tell\s+(\S+)\s+about\s+(.*)/i) {
+	if ($args =~ /^(\S+) about (.*)$/i) {
 	    $target	= lc $1;
 	    $tell_obj	= $2;
 
-	    # required for privmsg if excessive size.(??)
-	    if ($target =~ /^us$/i) {
-		$target = $talkchannel;
-	    } elsif ($target =~ /^(me|myself)$/i) {
-		$target	= $who;
-	    }
-
 	    $tell_obj	= $who	if ($tell_obj =~ /^(me|myself)$/i);
 	    $query	= $tell_obj;
-        } elsif ($message =~ /tell\s+(\S+)\s+where\s+(\S+)\s+can\s+(\S+)\s+(.*)/i) {
+        } elsif ($args =~ /^(\S+) where (\S+) can (\S+) (.*)$/i) {
 	    # i'm sure this could all be nicely collapsed
 	    $target	= lc $1;
 	    $tell_obj	= $4;
 	    $query	= $tell_obj;
 
 	    $target	= ""	if ($target =~ /^us$/i);
-        } elsif ($message =~ /tell\s+(\S+)\s+(what|where)\s+(.*?)\s+(is|are)[.?!]*$/i) {
+        } elsif ($args =~ /^(\S+) (what|where) (.*?) (is|are)[.?!]*$/i) {
 	    $target	= lc $1;
 	    $qWord	= $2;
 	    $tell_obj	= $3;
@@ -552,17 +559,26 @@ sub userCommands {
 	    $query	= "$qWord $verb $tell_obj";
 
 	    $target	= ""	if ($target =~ /^us$/i);
-	} elsif ($message =~ /^(explain|tell)\s+(\S+)\s+to\s+(.*)$/i) {
+	} elsif ($args =~ /^(.*?) to (\S+)$/i) {
 	    $target	= lc $3;
 	    $tell_obj	= $2;
 	    $query	= $tell_obj;
 	    $target	= ""	if ($target =~ /^us$/i);
         }
+
+	### FIX IT UP.
+	# required for privmsg if excessive size.(??)
+	if ($target =~ /^us$/i) {
+	    $target	= $talkchannel;
+	} elsif ($target =~ /^(me|myself)$/i) {
+	    $target	= $who;
+	}
+
 	&status("target: $target query: $query");  
 
 	# check target type. Deny channel targets.
 	if ($target !~ /^$mask{nick}$/ or $target =~ /^$mask{chan}$/) {
-	    &msg($who,"No, $who, I won't.");
+	    &msg($who,"No, $who, I won't. (target invalid?)");
 	    return $noreply;
 	}
 
@@ -575,7 +591,7 @@ sub userCommands {
 	### TODO: don't "tell" if sender is not in target's channel.
 
 	# self.
-	if ($target eq $ident) {
+	if ($target eq $ident) {	# lc?
 	    &msg($who, "Isn't that a bit silly?");
 	    return $noreply;
 	}
