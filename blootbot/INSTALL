@@ -20,6 +20,7 @@ Method of installation.
 - Choose your database:
 	- MySQL, read INSTALL.mysql (supported)
 	- SQLite, read INSTALL.sqlite (supported)
+	- SQLite2, read INSTALL.sqlite (supported)
 	- PgSQL, read INSTALL.pgsql (unsupported, may work)
 
 - There are "bugs" in the perl modules.  Read INSTALL.patches on how to fix.

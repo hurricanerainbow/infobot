@@ -52,7 +52,7 @@ sub loadDBModules {
     my $f;
     # TODO: use function to load module.
 
-    if ($param{'DBType'} =~ /^(mysql|SQLite|pgsql)$/i) {
+    if ($param{'DBType'} =~ /^(mysql|SQLite(2)?|pgsql)$/i) {
 	eval "use DBI";
 	if ($@) {
 	    &ERROR("No support for DBI::" . $param{'DBType'} . ", exiting!");

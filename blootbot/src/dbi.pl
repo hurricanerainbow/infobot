@@ -19,7 +19,7 @@ package main;
 sub sqlOpenDB {
     my ($db, $type, $user, $pass, $no_fail) = @_;
     # this is a mess. someone fix it, please.
-    if ($type =~ /^SQLite$/i) {
+    if ($type =~ /^SQLite(2)?$/i) {
 	$db = "dbname=$db.sqlite";
     } elsif ($type =~ /^pg/i) {
 	$db = "dbname=$db";
@@ -629,7 +629,7 @@ sub checkTables {
 	&status("Tables: ".join(',',@tables));
 	@db{@tables} = (1) x @tables;
 
-    } elsif ($param{DBType} =~ /^SQLite$/i) {
+    } elsif ($param{DBType} =~ /^SQLite(2)?$/i) {
 
 	# retrieve a list of db's from the server.
 	foreach ( &sqlRawReturn("SELECT name FROM sqlite_master WHERE type='table'") ) {
