@@ -110,7 +110,11 @@ sub loadDBModules {
     } elsif ($param{'DBType'} =~ /^dbm$/i) {
 
 	&status("  using Berkeley DBM 1.85/2.0 support.");
-	require "$bot_src_dir/db_dbm.pl";
+	&ERROR("dbm support is broken... you want it, you fix it!");
+	&shutdown();
+	exit 1;
+
+#	require "$bot_src_dir/db_dbm.pl";
     } else {
 
 	&status("DB support DISABLED.");

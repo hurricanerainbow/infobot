@@ -299,8 +299,10 @@ sub process {
 	    $karma--;
 	}
 
-	&dbSet("stats", "nick",$term, "type","karma");
-#	&dbSet("stats", "nick",$term, "type","karma");
+	&dbSet("stats", 
+		{ nick => $term, type => "karma" },
+		{ counter => $karma }
+	);
 
 	return;
     }

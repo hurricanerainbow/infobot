@@ -48,14 +48,13 @@ sub dbGet {
 
     my $sth;
     if (!($sth = $dbh->prepare($query))) {
-	&ERROR("Get: $DBI::errstr");
+	&ERROR("Get: prepare: $DBI::errstr");
 	return;
     }
 
     &SQLDebug($query);
     if (!$sth->execute) {
-	&ERROR("Get => '$query'");
-#	&ERROR("Get => $DBI::errstr");
+	&ERROR("Get: execute: '$query'");
 	$sth->finish;
 	return 0;
     }
@@ -83,8 +82,8 @@ sub dbGetCol {
     my $sth = $dbh->prepare($query);
     &SQLDebug($query);
     if (!$sth->execute) {
-	&ERROR("GetCol => '$query'");
-	&ERROR("GetCol => $DBI::errstr");
+	&ERROR("GetCol: execute: '$query'");
+#	&ERROR("GetCol => $DBI::errstr");
 	$sth->finish;
 	return;
     }
@@ -132,18 +131,45 @@ sub dbGetColInfo {
 }
 
 #####
-# Usage: &dbSet($table, $primkey, $primval, $key, $val);
+# Usage: &dbSet($table, $primhash_ref, $hash_ref);
 sub dbSet {
-    my ($table, $primkey, $primval, $key, $val) = @_;
-    my $query;
+    my ($table, $phref, $href) = @_;
+    my $where = join(' AND ', map {
+		$_."=".&dbQuote($phref->{$_})
+	} keys %{$phref}
+    );
 
-    my $result = &dbGet($table, $primkey, "$primkey='$primval'");
+    my $result = &dbGet($table, join(',', keys %{$phref}), $where);
+
+    my(@keys,@vals);
+    foreach (keys %{$href}) {
+	push(@keys, $_);
+	push(@vals, &dbQuote($href->{$_}) );
+    }
+
+    if (!@keys or !@vals) {
+	&WARN("dbset: keys or vals is NULL.");
+	return;
+    }
+
+    my $query;
     if (defined $result) {
-	$query = "UPDATE $table SET $key=".&dbQuote($val).
-		" WHERE $primkey=".&dbQuote($primval);
+	my @keyval;
+	for(my$i=0; $i<scalar @keys; $i++) {
+	    push(@keyval, $keys[$i]."=".$vals[$i] );
+	}
+
+	$query = "UPDATE $table SET ".
+		join(' AND ', @keyval).
+		" WHERE ".$where;
     } else {
-	$query = "INSERT INTO $table ($primkey,$key) VALUES (".
-		&dbQuote($primval).",".&dbQuote($val).")";
+	foreach (keys %{$phref}) {
+	    push(@keys, $_);
+	    push(@vals, &dbQuote($phref->{$_}) );
+	}
+
+	$query = sprintf("INSERT INTO $table (%s) VALUES (%s)",
+		join(',',@keys), join(',',@vals) );
     }
 
     &dbRaw("Set", $query);

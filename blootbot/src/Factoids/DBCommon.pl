@@ -8,9 +8,12 @@
 if (&IsParam("useStrict")) { use strict; }
 
 #####
-# Usage: &setFactInfo($faqtoid, $type, $what, ?, ?);
+# Usage: &setFactInfo($faqtoid, $type, $primval, $key, $val);
 sub setFactInfo {
-    &dbSet("factoids", "factoid_key", $_[0], $_[1], $_[2]);
+    &dbSet("factoids", 
+	{ factoid_key => $_[0] },
+	{ $_[1] => $_[2] }
+    );
 }   
 
 #####
