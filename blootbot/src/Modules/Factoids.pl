@@ -271,7 +271,7 @@ sub CmdFactStats {
 	for (@list) {
 	    my $factoid = $_;
 	    my $val = &getFactInfo($factoid, "factoid_value");
-	    if ($val =~ /^<REPLY> see( also)? (.*?)\.?$/i) {
+	    if ($val =~ /^<REPLY> ?see( also)? (.*?)\.?$/i) {
 		my $redirf = lc $2;
 		my $redir = &getFactInfo($redirf, "factoid_value");
 		next if (defined $redir);

@@ -136,9 +136,12 @@ sub getReply {
     ### $ SUBSTITUTION.
     ###
 
-#    &DEBUG("Reply: reply => $reply");
-    $reply = &substVars($reply,1);
-#    &DEBUG("Reply: reply => $reply");
+    # don't evaluate if it has factoid arguments.
+    if ($message =~ /^CMD:/i) {
+	&status("Reply: not doing substVars (eval dollar vars)");
+    } else {
+	$reply = &substVars($reply,1);
+    }
 
     $reply;
 }
