@@ -786,7 +786,11 @@ sub latest {
     # scalar @new, !$flag
     my $unread	= scalar @new;
     my $total	= scalar keys %{ $::news{$chan} };
-    if (!$flag && &::IsChanConf("newsTellUnread")) {
+    if (!$flag && !&::IsChanConf("newsTellUnread")) {
+	return;
+    }
+
+    if (!$flag) {
 	return unless ($unread);
 
 	# just a temporary measure not to flood ourself off the 
@@ -826,11 +830,11 @@ sub latest {
 	    my $news = $sorted[$i];
 	    next unless (defined $news);
 
-	    my $age = time() - $::news{$chan}{$news}{Time};
+#	    my $age = time() - $::news{$chan}{$news}{Time};
+	    my $msg = sprintf("\002[\002%2d\002]\002 %s", $i, $news);
+###			$i, $_, &::Time2String($age)
 	    $::conn->schedule(int((2+$i)/2), sub {
-		&::notice($who, sprintf("\002[\002%2d\002]\002 %s",
-			$i, $news) );
-#			$i, $_, &::Time2String($age) ) );
+		&::notice($who, $msg);
 	    } );
 	}
 
