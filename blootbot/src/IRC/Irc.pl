@@ -319,6 +319,7 @@ sub dccsay {
 	return '';
     }
 
+    &status("=>$who<= $reply");		# dcc chat.
     $conn->privmsg($dcc{'CHAT'}{$who}, $reply);
 }
 
@@ -498,7 +499,7 @@ sub joinNextChan {
 	return;
     }
 
-    if ($nickserv < 1) {
+    if (&IsParam("nickServ_pass") and $nickserv < 1) {
 	&WARN("jNC: nickserv/chanserv not up.") if (!$nickserv);
 	$nickserv--;
     }
@@ -617,8 +618,11 @@ sub getJoinChans {
     my @skip;
 
     foreach (keys %chanconf) {
+	next if ($_ eq "_default");
+
 	my $val = $chanconf{$_}{autojoin};
 	my $skip = 0;
+
 	if (defined $val) {
 	    $skip++ if ($val eq "0");
 	} else {
@@ -635,6 +639,8 @@ sub getJoinChans {
 
     if (scalar @skip) {
 	&status("channels not auto-joining: @skip");
+    } else {
+	&status("auto-joining all chans.");
     }
 
     return @chans;
