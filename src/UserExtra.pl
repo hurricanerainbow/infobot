@@ -325,10 +325,9 @@ sub tell {
 
     # "intrusive".
 #    if ($target !~ /^$mask{chan}$/ and !&IsNickInAnyChan($target)) {
-    if ($target !~ /^$mask{chan}$/) {
-	&msg($who, "No, $target is not in any of my chans.");
-	return;
-    }
+#	&msg($who, "No, $target is not in any of my chans.");
+#	return;
+#    }
 
     # self.
     if ($target eq $ident) {	# lc?
