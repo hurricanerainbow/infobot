@@ -148,7 +148,7 @@ sub parseCmdHook {
 sub nullski { my ($arg) = @_; foreach (`$arg`) { &msg($who,$_); } }
 &addCmdHook('(fm|freshmeat)', ('CODEREF' => 'Freshmeat::Freshmeat',
 	'Identifier' => 'freshmeat', 'Cmdstats' => 'Freshmeat',
-	'Module' => 'freshmeat', 'Help' => 'freshmeat') );
+	'Forker' => 1, 'Help' => 'freshmeat') );
 
 
 
