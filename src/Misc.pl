@@ -475,6 +475,7 @@ sub makeHostMask {
 
     if ($host =~ s/^(\S+!\S+\@)//) {
 	&DEBUG("mHM: detected nick!user\@ for host arg; fixing");
+	&DEBUG("nu => $nu");
 	$nu = $1;
     }
 
