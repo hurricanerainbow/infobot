@@ -228,21 +228,20 @@ sub userDCC {
 	    next unless (&IsNickInChan($opee,$_));
 	    $found++;
 	    if ($channels{$_}{'o'}{$opee}) {
-		&status("op: $opee already has ops on $_");
+		&pSReply("op: $opee already has ops on $_");
 		next;
 	    }
 	    $op++;
 
-	    &status("opping $opee on $_ at ${who}'s request");
 	    &pSReply("opping $opee on $_");
 	    &op($_, $opee);
 	}
 
 	if ($found != $op) {
-	    &status("op: opped on all possible channels.");
+	    &pSReply("op: opped on all possible channels.");
 	} else {
-	    &DEBUG("found => '$found'.");
-	    &DEBUG("op => '$op'.");
+	    &DEBUG("op: found => '$found'.");
+	    &DEBUG("op:    op => '$op'.");
 	}
 
 	return;
@@ -934,10 +933,14 @@ sub userDCC {
 	}
 
 	if ($state == 0) {		# delete.
-	    my $c = join(' ', &banDel($mask) );
+	    my @c = &banDel($mask);
+
+	    foreach (@c) {
+		&unban($mask, $_);
+	    }
 
 	    if ($c) {
-		&pSReply("Removed $mask from chans: $c");
+		&pSReply("Removed $mask from chans: @c");
 	    } else {
 		&pSReply("$mask was not found in ban list.");
 	    }
