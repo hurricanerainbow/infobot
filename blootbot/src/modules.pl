@@ -51,6 +51,7 @@ if ($@) {
 	"insult"	=> "insult.pl",
 	"nickometer"	=> "nickometer.pl",
 	"zfi"		=> "zfi.pl",
+	"zippy"		=> "Zippy.pl",
 	"zsi"		=> "zsi.pl",
 );
 ### THIS IS NOT LOADED ON RELOAD :(
