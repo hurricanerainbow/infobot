@@ -366,8 +366,8 @@ sub exchange {
 		#    grep /\S+/, ($html =~ m/ as of (\d{4}\.\d\d.\d\d\s\d\d:\d\d:\d\d\s\S+)|(\d[\d,.]+)\s*$From|(\d[\d,.]+)\s* $To/gi);
 
 		if ($When) {
-		    return "http://www.xe.com/ $Cfrom $Currencies{$From} makes ".
-			"$Cto $Currencies{$To}"; # ." ($When)\n";
+		    return "$Cfrom $Currencies{$From} makes ".
+			"$Cto $Currencies{$To} (from http://www.xe.com/)"; # ." ($When)\n";
 		} else {
 		    return "i got some error trying that";
 		}
