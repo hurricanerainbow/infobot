@@ -75,7 +75,7 @@ sub on_chat {
 	    $self->privmsg($sock, "Commands start with '.' (like '.quit' or '.help')");
 	    $self->privmsg($sock, "Everything else goes out to the party line.");
 
-	    &dccStatus(2) if (scalar keys %{ $dcc{'CHAT'} } == 1);
+	    &dccStatus(2) unless (exists $sched{"dccStatus"}{RUNNING});
 
 	    $success++;
 
@@ -147,7 +147,7 @@ sub on_endofmotd {
     }
 
     if ($firsttime) {
-	$conn->schedule(60, \&setupSchedulers, "");
+	&ScheduleThis(1, \&setupSchedulers);
 	$firsttime = 0;
     }
 
@@ -312,7 +312,7 @@ sub on_disconnect {
     &clearIRCVars();
     if (!$self->connect()) {
 	&WARN("not connected? help me. gonna call ircCheck() in 1800s");
-	$conn->schedule(1800, \&ircCheck(), "");
+	&ScheduleThis(30, "ircCheck");
     }
 }
 
@@ -1026,7 +1026,9 @@ sub hookMsg {
 
 	if ($addrchar) {
 	    &status("$b_cyan$who$ob is short-addressing me");
-	} else {
+	} elsif ($msgType eq "private") {	# private.
+	    &status("$b_cyan$who$ob is /msg'ing me");
+	} else {				# public?
 	    &status("$b_cyan$who$ob is addressing me");
 	}
 
