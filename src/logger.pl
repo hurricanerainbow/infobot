@@ -43,7 +43,7 @@ use vars qw($b_black $_black $b_red $_red $b_green $_green
 	    $b_yellow $_yellow $b_blue $_blue $b_magenta $_magenta
 	    $b_cyan $_cyan $b_white $_white $_reset $_bold $ob $b);
 
-$b_black 	= cl('bold black');	$_black		= cl('black');
+$b_black	= cl('bold black');	$_black		= cl('black');
 $b_red		= cl('bold red');	$_red		= cl('red');
 $b_green	= cl('bold green');	$_green		= cl('green');
 $b_yellow	= cl('bold yellow');	$_yellow	= cl('yellow');
@@ -93,7 +93,7 @@ sub openLog {
     if (&IsParam("logType") and $param{'logType'} =~ /DAILY/i) {
 	my ($day,$month,$year) = (gmtime time())[3,4,5];
 	$logDate = sprintf("%04d%02d%02d",$year+1900,$month+1,$day);
-	$file{log} .= "-".$logDate;
+	$file{log} .= $logDate;
     }
 
     if (open(LOG, ">>$file{log}")) {
