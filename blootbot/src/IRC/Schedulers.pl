@@ -306,10 +306,12 @@ sub chanlimitCheck {
 	next unless (!defined $limit or $limit != $newlimit);
 
 	if (!exists $channels{$chan}{'o'}{$ident}) {
-	    &ERROR("chanlimitcheck: dont have ops on $chan.");
+	    &ERROR("chanlimitcheck: dont have ops on $chan.") unless (exists $cache{warn}{chanlimit}{$chan});
+	    $cache{warn}{chanlimit}{$chan} = 1;
 	    ### TODO: check chanserv?
 	    next;
 	}
+	delete $cache{warn}{chanlimit}{$chan};
 
 	if (!defined $limit) {
 	    &DEBUG("setting limit for first time or from netsplit for $chan");
