@@ -24,8 +24,6 @@ sub topicDecipher {
     return;
   }
 
-  &DEBUG("Topic: hrm => '$topic{$chan}{'Current'}'.");
-
   foreach (split /\|\|/, $topic{$chan}{'Current'}) {
     s/^\s+//;
     s/\s+$//;
@@ -41,6 +39,11 @@ sub topicDecipher {
     if (/(.*)\s+\((.*?)\)$/) {
 	$subtopic	= $1;
 	$owner		= $2;
+    }
+
+    if (grep /^$subtopic\|\|$owner$/, @results) {
+	&DEBUG("topic: we have found a dupe in the topic, not adding.");
+	next;
     }
 
     push(@results, "$subtopic||$owner");
@@ -75,6 +78,11 @@ sub topicCipher {
 sub topicNew {
   my ($chan, $topic, $updateMsg, $topicUpdate) = @_;
   my $maxlen = 470;
+
+  &DEBUG("topic: chan{$chan} is +t.") if ($channels{$chan}{t});
+  &DEBUG("topic: chan{$chan} is -t.") unless ($channels{$chan}{t});
+  &DEBUG("topic: I have +o.") if ($channels{$chan}{o}{$ident});
+  &DEBUG("topic: I don't have +o.") unless ($channels{$chan}{o}{$ident});
 
   if ($channels{$chan}{t} and !$channels{$chan}{o}{$ident}) {
     &msg($who, "error: cannot change topic without ops. (channel is +t) :(");
