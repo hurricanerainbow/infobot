@@ -1,9 +1,9 @@
 #
-#	 dns.pl: host lookups
-#	 Author: Tim Riker <Tim@Rikers.org>
-#	 Source: extracted from UserExtra.pl
+#     dns.pl: host lookups
+#     Author: Tim Riker <Tim@Rikers.org>
+#     Source: extracted from UserExtra.pl
 #  Licensing: Artistic License (as perl itself)
-#	Version: v0.1
+#    Version: v0.1
 #
 #  Copyright (c) 2005 Tim Riker
 #
