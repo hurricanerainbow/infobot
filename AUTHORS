@@ -1,0 +1,26 @@
+Infobot:
+    License: As perl (GPL & Artistic)
+	- Kevin A. Lenzo [oznoid] <lenzo@cs.cmu.edu>
+	- Patrick Cole [ltd] <???>
+
+Blootbot:
+    License: Artistic
+    Main Author:
+	- David Sobon <dms@users.sourceforge.net>
+    Webpage, Random/Fix Patches:
+	- ??? [GmLB] <???>
+
+Module-Reload: (idea taken)
+    License: Artistic
+	- Doug MacEachern <???>
+	- Joshua Pritikin <???>
+
+Module-Units:
+    License: GPL
+	- M-J. Dominus <mjd-perl-units-id-iut+buobvys+@plover.com>
+
+Patches:
+	- ...
+
+Quotes file (files/infobot.randtext):
+	- ??? Ask netgod/larne/is for dpkg's tcl
