@@ -23,14 +23,14 @@ sub doQuestion {
     local($reply) = "";
     local $finalQMark = $query =~ s/\?+\s*$//;
     $finalQMark += $query =~ s/\?\s*$//;
+    $query =~ s/^\s+|\s+$//g;
 
     if (!defined $query or $query =~ /^\s*$/) {
 	&FIXME("doQ: query == NULL");
 	return '';
     }
 
-    my $origQuery = $query;
-
+    my $origQuery	= $query;
     my $questionWord	= "";
 
     if (!$addressed) {
@@ -48,8 +48,18 @@ sub doQuestion {
     }
 
     # convert to canonical reference form
-    $query = &normquery($query);
-    $query = &switchPerson($query);
+    my $x;
+    my @query;
+
+    push(@query, $query);	# 1: push original.
+
+    $x = &normquery($query);
+    push(@query, $x) if ($x ne $query);
+    $query = $x;
+
+    $x = &switchPerson($query);
+    push(@query, $x) if ($x ne $query);
+    $query = $x;
 
     $query =~ s/\s+at\s*(\?*)$/$1/;	# where is x at?
     $query =~ s/^explain\s*(\?*)/$1/i;	# explain x
@@ -67,17 +77,14 @@ sub doQuestion {
 	$questionWord = "where";
     }
 
-    $query =~ s/^\s+|\s+$//g;
-
     # valid factoid.
-    my @query;
-    push(@query, $query);
     if ($query =~ s/[\!\.]$//) {
 	&DEBUG("Question: Pushing query without trailing symbols.");
 	push(@query,$query);
     }
 
-    foreach $query (@query) {
+    for (my$i=0; $i<scalar(@query); $i++) {
+	$query = $query[$i];
 	$result = &getReply($query);
 	next if ($result eq "");
 
@@ -85,6 +92,10 @@ sub doQuestion {
 	if ($result =~ /^see( also)? (.*?)\.?$/) {
 	    my $newr = &getReply($2);
 	    $result  = $newr	if ($newr ne "");
+	}
+
+	if ($i != 0) {
+	    &DEBUG("Question: guessed factoid correctly ($i) => '$query'.");
 	}
 
 	return $result;
@@ -96,7 +107,15 @@ sub doQuestion {
 	$result = &Freshmeat::showPackage($query);
 	return $result unless ($result eq $noreply);
     }
-    &DEBUG("Question: hrm... result => '$result' for '$query'.");
+
+    ### TODO: Use &Forker(); move function to Debian.pl
+    if (&IsParam("debianForFactoid")) {
+	&loadMyModule($myModules{'debian'});
+	$result = &Debian::DebianFind($query);	# ???
+	### TODO: debian module should tell, through shm, that it went
+	###	  ok or not.
+###	return $result unless ($result eq $noreply);
+    }
 
     if ($questionWord ne "" or $finalQMark) {
 	# if it has not been explicitly marked as a question
