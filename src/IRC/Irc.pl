@@ -13,7 +13,7 @@ no strict 'subs'; # IN/STDIN
 use vars qw(%floodjoin %nuh %dcc %cache %conns %channels %param %mask
 	%chanconf %orig %ircPort %ircstats %last %netsplit);
 use vars qw($irc $nickserv $conn $msgType $who $talkchannel
-	$addressed);
+	$addressed $postprocess);
 use vars qw($notcount $nottime $notsize $msgcount $msgtime $msgsize
 		$pubcount $pubtime $pubsize);
 use vars qw($b_blue $ob);
@@ -23,6 +23,7 @@ use vars qw(@ircServers);
 #use open ':std';
 
 $nickserv	= 0;
+$postprocess;
 my $maxlinelen	= 400;
 
 sub ircloop {
@@ -212,34 +213,45 @@ sub say {
 	return;
     }
 
+    if ( $postprocess ) {
+	undef $postprocess;
+    } elsif ($postprocess = &getChanConf('postprocess', $talkchannel)) {
+	&DEBUG("say: $postprocess $msg");
+	&parseCmdHook("main", $postprocess . ' ' . $msg);
+	&parseCmdHook("extra", $postprocess . ' ' . $msg);
+	undef $postprocess;
+	return;
+    }
 
     &status("<$mynick/$talkchannel> $msg");
-    if (&whatInterface() =~ /IRC/) {
-	$msg	= "zero" if ($msg =~ /^0+$/);
-	my $t	= time();
 
-	if ($t == $pubtime) {
-	    $pubcount++;
-	    $pubsize += length $msg;
+    return unless (&whatInterface() =~ /IRC/);
 
-	    my $i = &getChanConfDefault("sendPublicLimitLines", 3);
-	    my $j = &getChanConfDefault("sendPublicLimitBytes", 1000);
+    $msg = "zero" if ($msg =~ /^0+$/);
 
-	    if ( ($pubcount % $i) == 0 and $pubcount) {
-		sleep 1;
-	    } elsif ($pubsize > $j) {
-		sleep 1;
-		$pubsize -= $j;
-	    }
+    my $t = time();
 
-	} else {
-	    $pubcount	= 0;
-	    $pubtime	= $t;
-	    $pubsize	= length $msg;
+    if ($t == $pubtime) {
+	$pubcount++;
+	$pubsize += length $msg;
+
+	my $i = &getChanConfDefault("sendPublicLimitLines", 3);
+	my $j = &getChanConfDefault("sendPublicLimitBytes", 1000);
+
+	if ( ($pubcount % $i) == 0 and $pubcount) {
+	    sleep 1;
+	} elsif ($pubsize > $j) {
+	    sleep 1;
+	    $pubsize -= $j;
 	}
 
-	$conn->privmsg($talkchannel, $msg);
+    } else {
+	$pubcount	= 0;
+	$pubtime	= $t;
+	$pubsize	= length $msg;
     }
+
+    $conn->privmsg($talkchannel, $msg);
 }
 
 sub msg {
