@@ -180,7 +180,7 @@ sub CmdFactStats {
 	my @list;
 
 	my $delta_time	= &timedelta($start_time);
-        &status(sprintf("factstats(vandalismbroken): %.02f sec to retreive all factoids.", $delta_time)) if ($delta_time > 0);
+        &status(sprintf("factstats(vandalism): %.02f sec to retreive all factoids.", $delta_time)) if ($delta_time > 0);
 	$start_time	= &timeget();
 
 	# parse the factoids.
@@ -537,6 +537,7 @@ sub CmdFactStats {
 			"factoid_value", "^<REPLY> see ");
 	my %redir;
 	my $f;
+	my $dangling = 0;
 
 	for (@list) {
 	    my $factoid = $_;
@@ -547,7 +548,8 @@ sub CmdFactStats {
 		if (defined $redirval) {
 		    $redir{$redir}{$factoid} = 1;
 		} else {
-		    &WARN("factstats(redir): '$factoid' has loose link => '$redir'.");
+		    &DEBUG("factstats(redir): '$factoid' has loose link => '$redir'.");
+		    $dangling++;
 		}
 	    }
 	}
@@ -563,7 +565,7 @@ sub CmdFactStats {
 	}
 
 	# parse the results.
-	my $prefix = "Redirections in factoids ";
+	my $prefix = "Redirections in factoids, $dangling dangling ";
 	return &formListReply(1, $prefix, @newlist);
 
     } elsif ($type =~ /^request(ed)?$/i) {
