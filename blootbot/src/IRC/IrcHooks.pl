@@ -747,19 +747,11 @@ sub on_quit {
 sub on_targettoofast {
     my ($self, $event) = @_;
     my $nick = $event->nick();
-    my $chan = ($event->to)[0];
-
-    &DEBUG("on_targettoofast: nick => '$nick'.");
-    &DEBUG("on_targettoofast: chan => '$chan'.");
-
-    foreach ($event->args) {
-	&DEBUG("on_targettoofast: args => '$_'.");
-    }
+    my($me,$chan,$why) = $event->args();
 
 ###    .* wait (\d+) second/) {
 	&status("X1 $msg");
-	my $sleep = $3 + 10;
-
+	my $sleep = 5;
 	&status("going to sleep for $sleep...");
 	sleep $sleep;
 	&joinNextChan();
@@ -998,9 +990,12 @@ sub hookMsg {
 	    ### public != personal who so the below is kind of pointless.
 	    my @who;
 	    foreach (keys %flood) {
-		next if (/^\Q$floodwho\E$/ or /^\Q$chan\E$/);
+		next if (/^\Q$floodwho\E$/);
+		next if (defined $chan and /^\Q$chan\E$/);
+
 		push(@who, grep /^\Q$message\E$/i, keys %{$flood{$_}});
 	    }
+
 	    if (scalar @who) {
 		&msg($who, "you already said what ".
 				join(' ', @who)." have said.");
