@@ -13,9 +13,12 @@ use strict;
 my $announce	= 0;
 my $defaultdist	= "woody";
 my %dists	= (
-	"unstable"	=> "woody",
+	"unstable"	=> "sid",
+	"testing"	=> "woody,	# new since 20001219.
 	"stable"	=> "potato",
 	"incoming"	=> "incoming",
+### the following don't work. too much effort to get 3 types of distros
+### to work harmoniously :-)
 	"slink"		=> "archive-2.1",
 	"hamm"		=> "archive-2.0",
 	"rex"		=> "archive-1.?",
@@ -26,11 +29,11 @@ my %urlcontents = (
 	"debian/Contents-##DIST-i386.gz" =>
 		"ftp://ftp.us.debian.org".
 		"/debian/dists/##DIST/Contents-i386.gz",
-### BROKEN!!!
-#	"debian/Contents-##DIST-i386-non-US.gz" =>
-#		"ftp://ftp.ca.debian.org".
-#		"/debian-non-US/dists/##DIST/non-US/Contents-i386.gz",
-###
+### APPEARS TO BE FIXED?
+# => strip control chars just to be safe.
+	"debian/Contents-##DIST-i386-non-US.gz" =>
+		"ftp://ftp.ca.debian.org".
+		"/debian-non-US/dists/##DIST/non-US/Contents-i386.gz",
 );
 
 my %urlpackages = (
@@ -788,6 +791,8 @@ sub infoStats {
 	close IN;
     }
 
+    ### TODO: don't count ppl with multiple email addresses.
+
     &main::performStrictReply(
 	"Debian Distro Stats on $dist... ".
 	"\002$total{'count'}\002 packages, ".
@@ -917,7 +922,12 @@ sub searchPackage {
     my ($dist, $query) = &getDistroFromStr($_[0]);
     my $file = "debian/Packages-$dist.idx";
     my @files;
-    my $error = 0;
+    my $error	= 0;
+    my $warn	= 0;
+
+    if ($query =~ tr/A-Z/a-z/) {
+	$warn++;
+    }
 
     &main::status("Debian: Search package matching '$query' in '$dist'.");
     unlink $file if ( -z $file);
@@ -960,6 +970,10 @@ sub searchPackage {
 	}
     }
     close IN;
+
+    if (scalar @files and $warn) {
+	&main::msg($main::who, "searching for package name should be fully lowercase!");
+    }
 
     return @files;
 }
