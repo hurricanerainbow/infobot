@@ -120,7 +120,7 @@ sub parseCmdHook {
 
 	    # check if CODEREF exists.
 	    if (!defined &{ $hash{'CODEREF'} }) {
-		&WARN("coderef $hash{'CODEREF'} don't exist.");
+		&WARN("coderef $hash{'CODEREF'} does not exist.");
 		if (defined $who) {
 		    &msg($who, "coderef does not exist for $ident.");
 		}
@@ -220,7 +220,7 @@ sub parseCmdHook {
 &addCmdHook("extra", 'verstats', ('CODEREF' => 'do_verstats' ) );
 &addCmdHook("extra", 'weather', ('CODEREF' => 'Weather::Weather',
 	'Identifier' => 'weather', 'Help' => 'weather',
-	'Cmdstats' => 'Weather') );
+	'Cmdstats' => 'weather', 'Forker' => 1) );
 &addCmdHook("extra", 'bzflist', ('CODEREF' => 'BZFlag::list',
 	'Identifier' => 'bzflag', 'Cmdstats' => 'BZFlag',
 	'Forker' => 1) );

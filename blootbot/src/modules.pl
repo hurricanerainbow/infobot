@@ -43,6 +43,7 @@ if ($@) {
 	"uptime"	=> "Uptime.pl",
 	"ircdcc"	=> "UserDCC.pl",
 	"userinfo"	=> "UserInfo.pl",
+	"weather"	=> "Weather.pl",
 	"wwwsearch"	=> "W3Search.pl",
 	"whatis"	=> "WhatIs.pl",
 	"wingate"	=> "Wingate.pl",
