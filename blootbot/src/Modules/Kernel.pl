@@ -67,7 +67,7 @@ sub Kernel {
 }
 
 sub kernelAnnounce {
-    my $file = "$main::infobot_base_dir/Temp/kernel.txt";
+    my $file = "$main::blootbot_base_dir/Temp/kernel.txt";
     my @now  = &kernelGetInfo();
     my @old;
 

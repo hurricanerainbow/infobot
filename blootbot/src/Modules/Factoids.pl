@@ -16,7 +16,7 @@ sub CmdFactInfo {
 
     if ($faqtoid eq "") {
 	&help("factinfo");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     my $i = 0;
@@ -30,7 +30,7 @@ sub CmdFactInfo {
     # factoid does not exist.
     if (scalar @factinfo <= 1) {
 	&performReply("there's no such factoid as \002$faqtoid\002");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     # created:
@@ -119,11 +119,11 @@ sub CmdFactInfo {
     # factoid was inserted not through the bot.
     if (!scalar @array) {
 	&performReply("no extra info on \002$faqtoid\002");
-	return 'NOREPLY';
+	return $noreply;
     }
 
     &performStrictReply("$factinfo{'factoid_key'} -- ". join("; ", @array) .".");
-    return 'NOREPLY';
+    return $noreply;
 }
 
 sub CmdFactStats {

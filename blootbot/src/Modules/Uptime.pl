@@ -1,5 +1,5 @@
 #
-# Uptime.pl: Uptime daemon for infobot.
+# Uptime.pl: Uptime daemon.
 #    Author: dms
 #   Version: v0.3 (19991008)
 #   Created: 19990925.
@@ -17,9 +17,9 @@ sub uptimeStr {
   my $uptimenow = &uptimeNow();
 
   if (defined $_[0]) {
-    return "$uptimenow.$$ running $infobot_version, ended ". localtime(time());
+    return "$uptimenow.$$ running $bot_version, ended ". localtime(time());
   } else {
-    return "$uptimenow running $infobot_version";
+    return "$uptimenow running $bot_version";
   }
 }
 

@@ -32,12 +32,12 @@ sub Freshmeat {
     }
     $renewtable++ if (&main::countKeys("freshmeat") < 10);
 
-    if ($renewtable and $$ == $main::infobot_pid) {
+    if ($renewtable and $$ == $main::blootbot_pid) {
 	&main::Forker("freshmeat", sub {
 		&downloadIndex();
 		&Freshmeat($sstr);
 	} );
-	return if ($$ == $main::infobot_pid);
+	return if ($$ == $main::bot_pid);
     }
 
     if (!&showPackage($sstr)) {		# no exact match.
@@ -97,7 +97,7 @@ sub showPackage {
 
 sub downloadIndex {
     my $start_time	= &main::gettimeofday(); # set the start time.
-    my $idx		= "$main::infobot_base_dir/Temp/fm_index.txt";
+    my $idx		= "$main::bot_base_dir/Temp/fm_index.txt";
 
     &main::msg($main::who, "Updating freshmeat index... please wait");
 
@@ -179,7 +179,7 @@ sub downloadIndex {
 }
 
 sub freshmeatAnnounce {
-    my $file = "$main::infobot_base_dir/Temp/fm_recent.txt";
+    my $file = "$main::bot_base_dir/Temp/fm_recent.txt";
     my @old;
 
     if ( -f $file) {
