@@ -52,16 +52,6 @@ sub update {
     my $also    = ($rhs =~ s/^-?also //i);
     my $also_or = ($also and $rhs =~ s/\s+(or|\|\|)\s+//);
 
-    # freshmeat
-    if (&IsChanConf("freshmeatForFactoid")) {
-	# todo: "name" is invalid for fm ][
-	if ( &sqlSelect("freshmeat", "name", { name => $lhs } ) ) {
-	    &msg($who, "permission denied. (freshmeat)");
-	    &status("alert: $who wanted to teach me something that freshmeat already has info on.");
-	    return 1;
-	}
-    }
-
     # factoid arguments handler.
     # must start with a non-variable
     if (&IsChanConf("factoidArguments") and $lhs =~ /^[^\$]+.*\$/) {

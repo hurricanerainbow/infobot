@@ -222,9 +222,6 @@ sub parseCmdHook {
 &addCmdHook("extra", 'uptime', ('CODEREF' => 'uptime', 'Identifier' => 'uptime',
 	'Cmdstats' => 'Uptime') );
 &addCmdHook("extra", 'nullski', ('CODEREF' => 'nullski', ) );
-&addCmdHook("extra", '(fm|freshmeat)', ('CODEREF' => 'Freshmeat::Freshmeat',
-	'Identifier' => 'freshmeat', 'Cmdstats' => 'Freshmeat',
-	'Forker' => 1, 'Help' => 'freshmeat') );
 &addCmdHook("extra", 'verstats', ('CODEREF' => 'do_verstats' ) );
 &addCmdHook("extra", 'weather', ('CODEREF' => 'Weather::Weather',
 	'Identifier' => 'weather', 'Help' => 'weather',
@@ -574,19 +571,6 @@ sub Modules {
 
     # do nothing and let the other routines have a go
     return "CONTINUE";
-}
-
-# Freshmeat. xk++
-sub freshmeat {
-    my ($query) = @_;
-
-    if (!defined $query) {
-	&help("freshmeat");
-	&msg($who, "I have \002".&countKeys("freshmeat")."\002 entries.");
-	return;
-    }
-
-    &Freshmeat::Freshmeat($query);
 }
 
 # Uptime. xk++

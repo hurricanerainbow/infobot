@@ -647,7 +647,7 @@ sub checkTables {
 	}
     }
 
-    foreach ( qw(factoids freshmeat rootwarn seen stats botmail) ) {
+    foreach ( qw(factoids rootwarn seen stats botmail) ) {
 	next if (exists $db{$_});
 	&status("checkTables: creating new table $_...");
 

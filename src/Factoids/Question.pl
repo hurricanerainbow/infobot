@@ -154,13 +154,6 @@ sub doQuestion {
 	return $result;
     }
 
-    ### TODO: Use &Forker(); move function to Freshmeat.pl.
-    if (&IsChanConf("freshmeatForFactoid")) {
-	&loadMyModule($myModules{'freshmeat'});
-	$result = &Freshmeat::showPackage($query);
-	return $result if (defined $result);
-    }
-
     ### TODO: Use &Forker(); move function to Debian.pl
     if (&IsChanConf("debianForFactoid")) {
 	&loadMyModule($myModules{'debian'});
