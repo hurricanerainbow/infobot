@@ -9,7 +9,7 @@
 use strict;
 
 use vars qw(%chanconf %cache %bans %channels %nuh %users %ignore
-	%talkWho %dcc %mask %flag2attr);
+	%talkWho %dcc %mask);
 use vars qw($utime_userfile $ucount_userfile $utime_chanfile $who
 	$ucount_chanfile $userHandle $chan $msgType $talkchannel
 	$ident $bot_state_dir $talkWho $flag_quit $wtime_userfile
@@ -47,7 +47,7 @@ sub readUserFile {
     undef %ignore;	# reset.
 
     my $ver = <IN>;
-    if ($ver !~ /^#v[12]/) {
+    if ($ver !~ /^#v1/) {
 	&ERROR("old or invalid user file found.");
 	&closeLog();
 	exit 1;	# correct?
@@ -61,7 +61,7 @@ sub readUserFile {
 	next if /^$/;
 	next if /^#/;
 
-	if (/^--(\S+)[\s\t]+(.*)$/) {		# user: body
+	if (/^--(\S+)[\s\t]+(.*)$/) {		# user: middle entry.
 	    my ($what,$val) = ($1,$2);
 
 	    if (!defined $val or $val eq "") {
@@ -74,29 +74,22 @@ sub readUserFile {
 		next;
 	    }
 
-	    # hack for attribute support.
-	    if ($what =~ /^attr$/) {
-		foreach (split / /, $val) {
-		    $users{$nick}{$what}{$_} = 1;
-		}
-		next;
-	    }
-
-	    if ($what =~ /^HOSTS$/) {
+	    # nice little hack.
+	    if ($what eq "HOSTS") {
 		$users{$nick}{$what}{$val} = 1;
 	    } else {
 		$users{$nick}{$what} = $val;
 	    }
 
-	} elsif (/^(\S+)$/) {			# user: start.
+	} elsif (/^(\S+)$/) {			# user: start entry.
 	    $nick	= $1;
 
-	} elsif (/^::(\S+) ignore$/) {		# ignore: start.
+	} elsif (/^::(\S+) ignore$/) {		# ignore: start entry.
 	    $chan	= $1;
 	    $type	= "ignore";
 
 	} elsif (/^- (\S+):\+(\d+):\+(\d+):(\S+):(.*)$/ and $type eq "ignore") {
-	    ### ignore: body.
+	    ### ignore: middle entry.
 	    my $mask = $1;
 	    my(@array) = ($2,$3,$4,$5);
 	    ### DEBUG purposes only!
@@ -106,12 +99,12 @@ sub readUserFile {
 	    }
 	    $ignore{$chan}{$mask} = \@array;
 
-	} elsif (/^::(\S+) bans$/) {		# bans: start.
+	} elsif (/^::(\S+) bans$/) {		# bans: start entry.
 	    $chan	= $1;
 	    $type	= "bans";
 
 	} elsif (/^- (\S+):\+(\d+):\+(\d+):(\d+):(\S+):(.*)$/ and $type eq "bans") {
-	    ### bans: body.
+	    ### bans: middle entry.
 	    # $btime, $atime, $count, $whoby, $reason.
 	    my(@array) = ($2,$3,$4,$5,$6);
 	    $bans{$chan}{$1} = \@array;
@@ -159,47 +152,16 @@ sub writeUserFile {
 	print OUT "$user\n";
 
 	foreach (sort keys %{ $users{$user} }) {
-	    # todo: rename what to key?
 	    my $what	= $_;
-	    my $val	= $users{$user}{$what};
+	    my $val	= $users{$user}{$_};
 
-	    if (ref($val) eq "SCALAR") {
-		print OUT "--$what\t\t$val\n";
-		next;
-	    }
-
-	    next unless (ref($val) eq "HASH");
-
-	    if ($what ne "attr") {
-		foreach (sort keys %{ $users{$user}{$what} }) {
+	    if (ref($val) eq "HASH") {
+		foreach (sort keys %{ $users{$user}{$_} }) {
 		    print OUT "--$what\t\t$_\n";
 		}
-		next;
-	    }
 
-	    # disabled until confirmed to work flawlessly.
-	    next if (1);
-
-	    # attr support.
-	    my $str = "--$what\t\t";
-	    my @attr = sort keys %{ $users{$user}{$what} };
-	    # some fucking weird code ;) does it work?
-	    # any room for improvement?
-	    while (@attr) {
-		my $attr = shift(@attr);
-		my $_str = $str." ".$attr;
-		my $print = 0;
-
-		if (length $str < 60 && length $_str > 60) {
-		    $print++;
-		} else {
-		    $str = $_str;
-		    $print++ if (!@attr);
-		}
-
-		next unless ($print);
-		print OUT "$str\n";
-		$str = "--$what\t\t";
+	    } else {
+		print OUT "--$_\t\t$val\n";
 	    }
 	}
 	print OUT "\n";
@@ -443,27 +405,15 @@ sub writeChanFile {
 ##### USER COMMANDS.
 #####
 
-# TODO: support multiple flags, eg: "+o-m"
+# TODO: support multiple flags.
 sub IsFlag {
     my $flags = shift;
     my ($ret, $f, $o) = "";
 
     &verifyUser($who, $nuh);
 
-    # userfile v2 support:
-    if ($users{$userHandle}{attr}) {
-	# todo: fix for multiple flags/attr
-	my $attr = $flag2attr{$flags};
-	if (!$attr) {
-	    &WARN("IsFlag: !flag2attr{$flags}");
-	    return 0;
-	}
-	return 1 if ($users{$userHandle}{attr}{$attr});
-	return 0;
-    }
-
     foreach $f (split //, $users{$userHandle}{FLAGS}) {
-	foreach $o (split //, $flags) {
+	foreach $o ( split //, $flags ) {
 	    next unless ($f eq $o);
 
 	    $ret = $f;
@@ -546,13 +496,13 @@ sub ckpasswd {
 sub hasFlag {
     my ($flag) = @_;
 
-    if (&IsFlag($flag) ne $flag) {
+    if (&IsFlag($flag) eq $flag) {
+	return 1;
+    } else {
 	&status("DCC CHAT: <$who> $message -- not enough flags.");
 	&pSReply("error: you do not have enough flags for that. ($flag required)");
 	return 0;
     }
-
-    return 1;
 }
 
 # expire is time in minutes
@@ -617,9 +567,11 @@ sub ignoreDel {
 }
 
 sub userAdd {
-    my($nick,$mask) = @_;
+    my($nick,$mask)	= @_;
 
-    return 0 if (exists $users{$nick});
+    if (exists $users{$nick}) {
+	return 0;
+    }
 
     $utime_userfile = time();
     $ucount_userfile++;
@@ -629,7 +581,7 @@ sub userAdd {
 	$users{$nick}{HOSTS}{$mask} = 1;
     }
 
-    $users{$nick}{FLAGS} ||= $users{_default}{FLAGS};
+    $users{$nick}{FLAGS}	||= $users{_default}{FLAGS};
 
     return 1;
 }
@@ -637,7 +589,9 @@ sub userAdd {
 sub userDel {
     my($nick)	= @_;
 
-    return 0 if (!exists $users{$nick});
+    if (!exists $users{$nick}) {
+	return 0;
+    }
 
     $utime_userfile = time();
     $ucount_userfile++;
@@ -649,12 +603,17 @@ sub userDel {
 
 sub banAdd {
     my($mask,$chan,$expire,$reason) = @_;
+
     $chan	||= "*";
     $expire	||= 0;
-    $expire	= $expire*60 + time() if ($expire > 0);
+
+    if ($expire > 0) {
+	$expire		= $expire*60 + time();
+    }
 
     my $exist	= 1;
-    $exist++ if (exists $bans{$chan}{$mask} or exists $bans{'*'}{$mask});
+    $exist++ if (exists $bans{$chan}{$mask} or
+		exists $bans{'*'}{$mask});
     $bans{$chan}{$mask} = [$expire, time(), 0, $who, $reason];
 
     my @chans	= ($chan eq "*") ? keys %channels : $chan;
@@ -866,43 +825,31 @@ sub rehashConfVars {
     delete $cache{confvars};
 }
 
-sub convertUserFileVer2 {
-    foreach (keys %users) {
-	my $handle = $_;
-	my $flags = $users{$handle}{FLAGS};
-	if (!$flags) {
-	    &WARN("cUFV2: handle $handle has no flags!");
-	    next;
-	}
+# registered flags... not used yet.
+my @regFlagsChan = (
+	"autojoin",
+	"limitcheckInterval",
+	"limitcheckPlus",
+	"allowConv",
+	"allowDNS",
+### TODO: finish off this list.
+);
 
-	my $fail = 0;
-	foreach (split //, $flags) {
-	    my $flag = $_;
-	    my $attr = $flag2attr{$flag};
-	    if (!$attr) {
-		&DEBUG("cUFV2: handle=$handle: flag=$flag does not exist.");
-		$fail++;
-		next;
-	    }
-	    $users{$handle}{attr}{$attr} = 1;
-	}
-
-	next if ($fail);
-# uncomment to enable attribute conversion support.
-#	delete $users{$handle}{FLAGS};
-    }
-}
-
-# support more than one attribute?
-%flag2attr = (
-	m => "modify_factoid",
-	r => "delete_factoid",
-	t => "add_factoid",
-	a => "ask_factoid",
-	n => "bot_owner",
-	o => "bot_master",
-	A => "admin_over_msg",
-	T => "topic"
+my @regFlagsUser = (
+	"m",	# modify factoid. (includes renaming)
+	"r",	# remove factoid.
+	"t",	# teach/add factoid.
+	"a",	# ask/request factoid.
+	"n",	# bot owner
+			# can "reload"
+	"o",	# master of bot (automatic +amrt)
+			# can search on factoid strings shorter than 2 chars
+			# can tell bot to join new channels
+			# can [un]lock factoids
+	"O",	# dynamic ops (as on channel). (automatic +o)
+	"A",	# bot administration over /msg
+			# default is only via DCC CHAT
+	"T",	# add topics.
 );
 
 1;
