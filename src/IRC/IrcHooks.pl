@@ -89,7 +89,7 @@ sub on_chat {
 	    &DEBUG("chat: sock => '$sock'.");
 ###	    $sock->close();
 	    delete $dcc{'CHAT'}{$nick};
-	    &DEBUG("chat: after closing sock. FIXME");
+	    &FIXME("chat: after closing sock.");
 	    ### BUG: close seizes bot. why?
 	}
 
@@ -327,7 +327,7 @@ sub on_dcc_open_chat {
     my(undef, $nick, $sock) = @_;
 
     if ($nuh{$nick} eq "GETTING-NOW") {
-	&DEBUG("getting nuh for $nick failed. FIXME.");
+	&FIXME("getting nuh for $nick failed.");
 	return;
     }
 
