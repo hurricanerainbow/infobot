@@ -321,6 +321,7 @@ sub getKeys {
 
 sub randKey {
     &DEBUG("STUB: &randKey(@_);");
+    my ($table, $select) = @_;
     my @format = &dbGetColInfo($table);
     if (!scalar @format) {
 	return;
@@ -328,7 +329,7 @@ sub randKey {
 
     my $rand = int(rand(&countKeys($table) - 1));
     my @keys = keys %{$table};
-    &dbGet($table, '*', "@format[0]=@keys[$rand]");
+    &dbGet($table, '$select', "@format[0]=@keys[$rand]");
 }
 
 #####
