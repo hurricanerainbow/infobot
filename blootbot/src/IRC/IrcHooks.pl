@@ -579,6 +579,11 @@ sub on_public {
     $nuh     = $nick."!".$uh;
     ($user,$host) = split(/\@/, $uh);
 
+    if ($$ != $bot_pid) {
+	&ERROR("SHOULD NEVER HAPPEN.");
+	exit(0);
+    }
+
     ### DEBUGGING.
     if ($statcount < 200) {
 	foreach $chan (grep /[A-Z]/, keys %channels) {
