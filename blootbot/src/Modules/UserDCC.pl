@@ -1218,10 +1218,11 @@ sub userDCC {
 	my @time;
 	foreach (sort { $a <=> $b } keys %time) {
 	    my $str = join(", ", sort keys %{ $time{$_} });
+	    &DEBUG("time => $_, str => $str");
 	    push(@time, "$str (".&Time2String($_).")");
 	}
 
-	&pSReply( &formListReply(0, "Schedulers: ", sort @time ) );
+	&pSReply( &formListReply(0, "Schedulers: ", @time ) );
 	&pSReply( &formListReply(0, "Scheds to run: ", sort @list ) );
 	&pSReply( &formListReply(0, "Scheds running(should not happen?) ", sort @run ) );
 
