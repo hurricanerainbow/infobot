@@ -585,15 +585,20 @@ sub userCommands {
     }
 
     # rot13 it.
-    if ($message =~ /^rot13(\s+(.*))?/i) {
-	my $reply = $2;
+    if ($message =~ /^rot([0-9]*)(\s+(.*))?/i) {
+	my $reply = $3;
 
 	if (!defined $reply) {
 	    &help("rot13");
 	    return;
 	}
+	my $num = $1 % 26;
+	my $upper="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	my $lower="abcdefghijklmnopqrstuvwxyz";
+	my $to=substr($upper,$num).substr($upper,0,$num).substr($lower,$num).substr($lower,0,$num);
+	eval "\$reply =~ tr/$upper$lower/$to/;";
 
-	$reply =~ y/A-Za-z/N-ZA-Mn-za-m/;
+	#$reply =~ y/A-Za-z/N-ZA-Mn-za-m/;
 	&performStrictReply($reply);
 
 	return;
