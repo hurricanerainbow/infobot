@@ -263,6 +263,9 @@ sub parseCmdHook {
 &addCmdHook("extra", 'wiki(pedia)?', ('CODEREF' => 'wikipedia::wikipedia',
 	'Identifier' => 'wikipedia', 'Cmdstats' => 'wikipedia',
 	'Forker' => 1, 'Help' => 'wikipedia') );
+&addCmdHook("extra", 'page', ('CODEREF' => 'pager::page',
+	'Identifier' => 'pager', 'Cmdstats' => 'pager',
+	'Forker' => 1, 'Help' => 'page') );
 ###
 ### END OF ADDING HOOKS.
 ###
