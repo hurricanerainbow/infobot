@@ -152,7 +152,7 @@ sub FactoidStuff {
 
 	# if it doesn't exist, well... it doesn't!
 	if (!defined $result) {
-	    &performReply("i didn't have anything called '$faqtoid'");
+	    &performReply("i didn't have anything called '$faqtoid' to forget");
 	    return;
 	}
 
@@ -383,16 +383,14 @@ sub FactoidStuff {
 	    my ($from,$to) = (lc $1, lc $2);
 
 	    my $result = &getFactoid($from);
-	    if (defined $result) {
-		&performReply("i didn't have anything called '$from'");
+	    if (!defined $result) {
+		&performReply("i didn't have anything called '$from' to rename");
 		return;
 	    }
 
-	    my $author = &getFactInfo($from, "created_by");
-
 	    # who == nick!user@host.
 	    if (&IsFlag("m") ne "m" and $author !~ /^\Q$who\E\!/i) {
-		&msg($who, "factoid '$form' is not yours to modify.");
+		&msg($who, "factoid '$from' is not yours to modify.");
 		return;
 	    }
 
@@ -450,7 +448,7 @@ sub FactoidStuff {
 		&performReply("that doesn't contain '$op'");
 	    }
 	} else {
-	    &performReply("i didn't have anything called '$faqtoid'");
+	    &performReply("i didn't have anything called '$faqtoid' to modify");
 	}
 
 	return;
