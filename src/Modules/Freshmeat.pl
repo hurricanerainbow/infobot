@@ -12,7 +12,7 @@ use strict;
 ### download compressed version instead?
 
 my %urls = (
-	'public'  => 'http://core.freshmeat.net/backend/appindex.txt',
+	'public'  => 'http://www.freshmeat.net/backend/appindex.txt',
 	'private' => 'http://feed.freshmeat.net/appindex/appindex.txt',
 );
 
@@ -153,7 +153,7 @@ sub downloadIndex {
 	    next;
 	}
 
-	if ($i % 100 == 0 and $i != 0) {
+	if ($i % 200 == 0 and $i != 0) {
 	    &main::DEBUG("FM: unlocking and locking.");
 	    &main::dbRaw("UNLOCK", "UNLOCK TABLES");
 	    ### another lame hack to "prevent" errors.
