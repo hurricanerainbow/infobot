@@ -394,7 +394,7 @@ sub do_countrystats {
 	push(@list, "$str ($_, $perc %)");
     }
 
-    # TODO: move this into a scheduler like nickometer
+    # TODO: move this into a scheduler
     $msgType	= "private";
     &performStrictReply( &formListReply(0, "Country Stats ", @list) );
 
