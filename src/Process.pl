@@ -72,6 +72,7 @@ sub process {
 	&joinchan($chankey);
 	&status("JOIN $chankey <$who>");
 	&msg($who, "joining $chankey");
+	&joinNextChan();	# hack.
 
 	return;
     }

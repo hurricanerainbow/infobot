@@ -272,21 +272,33 @@ sub Modules {
 	return;
     }
 
-    # text counters.
-    # warn: lets process it anyway.
-    if (1 and $_ = &getChanConf("ircTextCounters")) {
-	s/([^\w\s])/\\$1/g;
-	my $z = join '|', split ' ';
+    # text counters. (eg: hehstats)
+    my $itc;
+    $itc = &getChanConf("ircTextCounters");
+    $itc = &findChanConf("ircTextCounters") unless ($itc);
+    if ($itc) {
+	$itc =~ s/([^\w\s])/\\$1/g;
+	my $z = join '|', split ' ', $itc;
 
 	if ($message =~ /^($z)stats(\s+(\S+))?$/i) {
 	    my $type	= $1;
 	    my $arg	= $3;
 
+	    # even more uglier with channel/time arguments.
+	    my $c	= $chan;
+#	    my $c	= $chan || "PRIVATE";
+	    my $where	= "type=".&dbQuote($type);
+	    $where	.= " AND channel=".&dbQuote($c) if (defined $c);
+	    &DEBUG("not using chan arg") if (!defined $c);
+	    my $sum = (&dbRawReturn("SELECT SUM(counter) FROM stats"
+			." WHERE ".$where ))[0];
+	    &DEBUG("type => $type, arg => $arg");
+
 	    if (!defined $arg or $arg =~ /^\s*$/) {
 		# this is way fucking ugly.
-		my $x = (&dbRawReturn("SELECT SUM(counter) FROM stats WHERE type=".&dbQuote($type) ))[0];
-		my %hash = &dbGetCol("stats", "nick,counter", "type=".&dbQuote($type).
-			" ORDER BY counter DESC LIMIT 3", 1);
+
+		my %hash = &dbGetCol("stats", "nick,counter",
+			$where." ORDER BY counter DESC LIMIT 3", 1);
 		my $i;
 		my @top;
 
@@ -295,7 +307,7 @@ sub Modules {
 		my $tp = 0;
 		foreach $i (sort { $b <=> $a } keys %hash) {
 		    foreach (keys %{ $hash{$i} }) {
-			my $p	= sprintf("%.01f", 100*$i/$x);
+			my $p	= sprintf("%.01f", 100*$i/$sum);
 			$tp	+= $p;
 			push(@top, "\002$_\002 -- $i ($p%)");
 		    }
@@ -306,20 +318,41 @@ sub Modules {
 		    $topstr = ".  Top ".scalar(@top).": ".join(', ', @top);
 		}
 
-		if (defined $x) {
-		    &pSReply("total count of '$type': $x$topstr");
+		if (defined $sum) {
+		    &pSReply("total count of '$type' on $c: $sum$topstr");
 		} else {
 		    &pSReply("zero counter for '$type'.");
 		}
 	    } else {
-		my $x = (&dbRawReturn("SELECT SUM(counter) FROM stats WHERE type=".
-			&dbQuote($type)." AND nick=".&dbQuote($arg) ))[0];
+		my $x = (&dbRawReturn("SELECT SUM(counter) FROM stats".
+			" WHERE $where AND nick=".&dbQuote($arg) ))[0];
 
-		if (defined $x) {	# defined.
-		    &pSReply("$arg has said $type $x times");
-		} else {		# !defined.
+		if (!defined $x) {	# !defined.
 		    &pSReply("$arg has not said $type yet.");
+		    return;
 		}
+
+		# defined.
+		my @array = &dbGet("stats", "nick",
+			$where." ORDER BY counter", 1);
+		my $good = 0;
+		my $i = 0;
+		for($i=0; $i<scalar @array; $i++) {
+		    next unless ($array[0] =~ /^\Q$who\E$/);
+		    $good++;
+		    last;
+		}
+		$i++;
+
+		my $total = scalar(@array);
+		my $xtra = "";
+		if ($total and $good) {
+		    my $pct = sprintf("%.01f", 100*(1+$total-$i)/$total);
+		    $xtra = ", ranked $i/$total (percentile: $pct %)";
+		}
+
+		my $pct1 = sprintf("%.01f", 100*$x/$sum);
+		&pSReply("$arg has said $type $x times ($pct1 %)$xtra");
 	    }
 
 	    return;

@@ -212,6 +212,11 @@ sub fixFileList {
 	my @keys = sort keys %{ $files{$file} };
 	my $i	 = scalar(@keys);
 
+	if (scalar @keys > 3) {
+	    pop @keys while (scalar @keys > 3);
+	    push(@keys, "...");
+	}
+
 	if ($i > 1) {
 	    $file .= "\002{\002". join("\002|\002", @keys) ."\002}\002";
 	} else {
@@ -572,7 +577,8 @@ sub validFactoid {
 	# symbols.
 	/(\"\*)/ and last;
 	/, / and last;
-	/^\'/ and last;
+	(/^'/ and /'$/) and last;
+	(/^"/ and /"$/) and last;
 
 	# delimiters.
 	/\=\>/ and last;		# '=>'.
@@ -587,11 +593,13 @@ sub validFactoid {
 	/ also$/ and last;
 	/ and$/ and last;
 	/^because / and last;
+	/^but / and last;
 	/^gives / and last;
 	/^h(is|er) / and last;
 	/^if / and last;
 	/ is,/ and last;
 	/ it$/ and last;
+	/^or / and last;
 	/ says$/ and last;
 	/^should / and last;
 	/^so / and last;
@@ -704,13 +712,21 @@ sub closeStats {
 
     foreach (keys %cmdstats) {
 	my $type	= $_;
-	my $i = &dbGet("stats", "counter", "nick=".&dbQuote($type).
+	my $i	= &dbGet("stats", "counter", "nick=".&dbQuote($type).
 			" AND type='cmdstats'");
+	my $z	= 0;
+	$z++ unless ($i);
+
 	$i	+= $cmdstats{$type};
 
-	&dbReplace("stats",
-		(nick => $type, type => "cmdstats", counter => $i)
-	);
+	my %hash = (
+		nick => $type,
+		type => "cmdstats",
+		counter => $i
+	);		
+	$hash{time} = time() if ($z);
+
+	&dbReplace("stats", %hash);
     }
 }
 

@@ -396,7 +396,7 @@ sub list {
     &::msg($::who, "|= Last updated $timestr ago.");
     &::msg($::who, " \037Num\037  \037Item ".(" "x40)." \037");
 
-    &::DEBUG("list: expire = $expire");
+    &DEBUG("list: expire = $expire");
     &::DEBUG("list: eno    = $eno");
 
     my $i = 1;
@@ -982,5 +982,7 @@ sub stats {
     &::DEBUG("news:   average: ".sprintf("%.02f", $i/($j||1))." sec/user");
     $i = $j = 0;
 }
+
+sub AUTOLOAD { &::AUTOLOAD(@_); }
 
 1;

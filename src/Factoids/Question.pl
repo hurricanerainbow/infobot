@@ -87,6 +87,7 @@ sub doQuestion {
 
     if (&IsChanConf("factoidArguments")) {
 	$result = &factoidArgs($query[0]);
+
 	return $result if (defined $result);
     }
 
@@ -186,6 +187,9 @@ sub factoidArgs {
 	my @vals;
 	my $arg = $_;
 
+	# todo: <greycat> ~punish apt for (Eating) (Parentheses)
+	# how the hell do I fix the above?
+
 	# todo: make eval work with $$i's :(
 	# fuck this is an ugly hack. it works though.
 	eval {
@@ -216,11 +220,20 @@ sub factoidArgs {
 	&status("Question: factoid Arguments for '$str'");
 	# todo: use getReply() - need to modify it :(
 	my $i	= 0;
-	my $r	= &getFactoid("CMD: $_");
+	my $q	= "CMD: $_";
+	my $r	= &getFactoid($q);
 	if (!defined $r) {
 	    &DEBUG("question: !result... should this happen?");
 	    return;
 	}
+
+	# update stats.
+	my $count = &getFactInfo($q, "requested_count") || 0;
+	$count++;   
+	&setFactInfo($q, "requested_by", $nuh);
+	&setFactInfo($q, "requested_time", time());
+	&setFactInfo($q, "requested_count", $count);
+	# end of update stats.
 
 	$result	= $r;
 	$result	=~ s/^\((.*?)\): //;
@@ -237,9 +250,9 @@ sub factoidArgs {
 	    my $done = 0;
 	    my $old = $result;
 	    while (1) {
-#		&DEBUG("Q: result => $result (1)");
+#		&DEBUG("Q: result => $result (1before)");
 		$result = &substVars($result);
-#		&DEBUG("Q: result => $result (1)");
+#		&DEBUG("Q: result => $result (1after)");
 
 		last if ($old eq $result);
 		$old = $result;

@@ -29,7 +29,8 @@ sub setupSchedulers {
     &leakCheck(2);	# mandatory
     &ignoreCheck(1);	# mandatory
     &seenFlushOld(2);
-    &ircCheck(2);	# mandatory
+#    &ircCheck(2);	# mandatory
+    &ircCheck(1);	# mandatory
     &miscCheck(1);	# mandatory
     &miscCheck2(2);	# mandatory
     &shmFlush(1);	# mandatory

@@ -444,10 +444,9 @@ sub userDCC {
 	&msg($who,"resetting...");
 	my @done;
 	foreach ( keys %channels, keys %chanconf ) {
-	    &DEBUG("reset: c => $c");
-	    next if (grep /^\Q$_\E$/i, @done);
+	    my $c = $_;
+	    next if (grep /^\Q$c\E$/i, @done);
 
-	    &DEBUG("reset: should part... c => $c");
 	    &part($_);
 
 	    push(@done, $_);
