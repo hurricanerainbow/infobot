@@ -84,6 +84,24 @@ sub userDCC {
 	return;
     }
 
+    # opme.
+    if ($message =~ /^opme(\s+($mask{chan}))?$/i) {
+	return unless (&hasFlag("o"));
+	return unless (&hasFlag("A"));
+
+	my $chan = $2;
+
+	if ($chan eq "") {
+	    &help("4op");
+	    return;
+	}
+
+	# can this be exploited?
+	rawout("MODE $chan +o $who");
+
+	return;
+    }
+
     # backlog.
     if ($message =~ /^backlog(\s+(.*))?$/i) {
 	return unless (&hasFlag("o"));
