@@ -39,8 +39,8 @@ sub sqlOpenDB {
     if ($dbh && !$dbh->err) {
 	&status("Opened $type connection$hoststr");
     } else {
-	&ERROR("cannot connect$hoststr.");
-	&ERROR("since $type is not available, shutting down bot!");
+	&ERROR("Cannot connect$hoststr.");
+	&ERROR("Since $type is not available, shutting down bot!");
 	&ERROR( $dbh->errstr ) if ($dbh);
 	&closePID();
 	&closeSHM($shm);
@@ -579,7 +579,7 @@ sub searchTable {
     return @results;
 }
 
-sub dbCreateTable {
+sub sqlCreateTable {
     my($table)	= @_;
     my(@path)	= ($bot_data_dir, ".","..","../..");
     my $found	= 0;
@@ -605,7 +605,7 @@ sub dbCreateTable {
     if (!$found) {
 	return 0;
     } else {
-	&sqlRaw("dbcreateTable($table)", $data);
+	&sqlRaw("sqlCreateTable($table)", $data);
 	return 1;
     }
 }

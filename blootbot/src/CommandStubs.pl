@@ -341,7 +341,7 @@ sub Modules {
 		# this is way fucking ugly.
 
 		my %hash = &sqlSelectColHash("stats", "nick,counter",
-			undef,
+			{ },
 			$where." ORDER BY counter DESC LIMIT 3", 1
 		);
 		my $i;
