@@ -894,14 +894,16 @@ sub nullski {
 &addCmdHook('Uptime', ('CODEREF' => 'uptime', 'Identifier' => 'Uptime', 'Cmdstats' => 'Uptime') );
 &addCmdHook('u(ser)?info', ('CODEREF' => 'userinfo', 'Identifier' => 'UserInfo', 'Help' => 'userinfo', 'Module' => 'UserInfo') );
 &addCmdHook('verstats', ('CODEREF' => 'do_verstats' ) );
-&addCmdHook('Weather', ('CODEREF' => 'Weather::Weather', 'Identifier' => 'Weather', 'Help' => 'weather', 'Cmdstats' => 'Weather', 'Forker' => 1) );
-&addCmdHook('wiki(pedia)?', ('CODEREF' => 'wikipedia::wikipedia', 'Identifier' => 'wikipedia', 'Cmdstats' => 'wikipedia', 'Forker' => 1, 'Help' => 'wikipedia') );
-&addCmdHook('wtf', ('CODEREF' => 'wtf::query', 'Identifier' => 'wtf', 'Cmdstats' => 'wtf', 'Forker' => 1, 'Help' => 'wtf') );
-&addCmdHook('zfi', ('CODEREF' => 'zfi::query', 'Identifier' => 'zfi', 'Cmdstats' => 'zfi', 'Forker' => 1) );
-&addCmdHook('(zippy|yow)', ('CODEREF' => 'zippy::get', 'Identifier' => 'Zippy', 'Cmdstats' => 'Zippy', 'Forker' => 1) );
-&addCmdHook('zsi', ('CODEREF' => 'zsi::query', 'Identifier' => 'zsi', 'Cmdstats' => 'zsi', 'Forker' => 1) );
+&addCmdHook('Weather', ('CODEREF' => 'Weather::Weather', 'Identifier' => 'Weather', 'Help' => 'weather', 'Cmdstats' => 'Weather', 'Forker' => 1, 'Module' => 'Weather') );
+&addCmdHook('wiki(pedia)?', ('CODEREF' => 'wikipedia::wikipedia', 'Identifier' => 'wikipedia', 'Cmdstats' => 'wikipedia', 'Forker' => 1, 'Help' => 'wikipedia', 'Module' => 'wikipedia') );
+&addCmdHook('wtf', ('CODEREF' => 'wtf::query', 'Identifier' => 'wtf', 'Cmdstats' => 'wtf', 'Forker' => 1, 'Help' => 'wtf', 'Module' => 'wtf') );
+&addCmdHook('zfi', ('CODEREF' => 'zfi::query', 'Identifier' => 'zfi', 'Cmdstats' => 'zfi', 'Forker' => 1, 'Module' => 'zfi') );
+&addCmdHook('(zippy|yow)', ('CODEREF' => 'zippy::get', 'Identifier' => 'Zippy', 'Cmdstats' => 'Zippy', 'Forker' => 1, 'Module' => 'Zippy') );
+&addCmdHook('zsi', ('CODEREF' => 'zsi::query', 'Identifier' => 'zsi', 'Cmdstats' => 'zsi', 'Forker' => 1, 'Module' => 'zsi') );
 ###
 ### END OF ADDING HOOKS.
 ###
+
 &status('CMD: loaded '.scalar(keys %cmdhooks).' command hooks.');
+
 1;
