@@ -48,7 +48,7 @@ sub process {
 	    &msg($who, "give me an unlobotomy.") if ($delta_time > 60*60);
 	    $cache{lobotomy}{$who} = time();
 	}
-	return 'LOBOTOMY';
+	return 'LOBOTOMY' unless IsFlag("A");
     }
 
     # talkMethod.
