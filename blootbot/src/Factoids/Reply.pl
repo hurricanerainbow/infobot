@@ -152,10 +152,7 @@ sub smart_replace {
     foreach (split //, $string) {
 
 	if ($_ eq "(") {
-###	    print "( l=>$l, r=>$r\n";
-
 	    if (!$l and !$r) {
-#		print "STARTING at $i\n";
 		$s = $i;
 		$t = $i;
 	    }
@@ -165,25 +162,21 @@ sub smart_replace {
 	}
 
 	if ($_ eq ")") {
-###	    print ") l=>$l, r=>$r\n";
-
 	    $r++;
 	    $l--;
 
 	    if (!$l and !$r) {
 		my $substr = substr($old,$s,$i-$s+1);
-#		print "STOP at $i $substr\n";
 		push(@rand, substr($old,$t+1,$i-$t-1) );
 
 		my $rand = $rand[rand @rand];
-		&status("SARing '$substr' to '$rand'.");
+#		&status("SARing '$substr' to '$rand'.");
 		$string =~ s/\Q$substr\E/$rand/;
 		undef @rand;
 	    }
 	}
 
 	if ($_ eq "|" and $l+$r== 0 and $l==1) {
-#	    print "| at $i (l=>$l,r=>$r)\n";
 	    push(@rand, substr($old,$t+1,$i-$t-1) );
 	    $t = $i;
 	}

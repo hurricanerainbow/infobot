@@ -807,7 +807,6 @@ sub on_part {
     $chanstats{$chan}{'Part'}++;
     &delUserInfo($nick,$chan);
     if ($nick eq $ident) {
-	&DEBUG("on_part: ok, I left $chan... clearChanVars...");
 	&clearChanVars($chan);
     }
 

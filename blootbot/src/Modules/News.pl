@@ -367,7 +367,7 @@ sub del {
 
 sub list {
     if (!scalar keys %{ $::news{$chan} }) {
-	&::notice($who, "No News for \002$chan\002.");
+	&::notice($who, "No news for \002$chan\002.");
 	return;
     }
 
@@ -446,7 +446,7 @@ sub read {
     }
 
     if (!scalar keys %{ $::news{$chan} }) {
-	&::notice($who, "No News for \002$chan\002.");
+	&::notice($who, "No news for \002$chan\002.");
 	return;
     }
 
@@ -758,8 +758,7 @@ sub latest {
 
     if (!defined $t) {
 #	&::msg($who, "News is disabled for $chan");
-	&::DEBUG("news: something went really wrong.");
-	&::DEBUG("news: chan => $chan.");
+	&::DEBUG("news: $chan: something went really wrong.");
 	return;
     }
 

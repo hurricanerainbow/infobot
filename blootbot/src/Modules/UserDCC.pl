@@ -616,7 +616,6 @@ sub userDCC {
 	if ($args =~ s/^(\-)?($mask{chan})\s*//) {
 	    $chan	= $2;
 	    $delete	= ($1) ? 1 : 0;
-	    &DEBUG("chan => $chan.");
 	} else {
 	    &VERB("no chan arg; setting to default.",2);
 	    $chan	= "_default";
