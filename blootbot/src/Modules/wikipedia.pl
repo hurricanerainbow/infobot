@@ -24,11 +24,28 @@ BEGIN {
   if ($@) {
     $missing++;
   }
-
 }
 
 sub wikipedia {
   return '' if $missing;
+  my ($phrase) = @_;
+  my ($reply, $valid_result) = wikipedia_lookup(@_);
+  if ($reply) {
+    &main::pSReply($reply);
+  } else {
+    &main::pSReply("'$phrase' not found in Wikipedia. Perhaps try a different spelling or case?");
+  }
+}
+
+sub wikipedia_silent {
+  return '' if $missing;
+  my ($reply, $valid_result) = wikipedia_lookup(@_);
+  if ($valid_result and $reply) {
+    &main::pSReply($reply);
+  }
+}
+
+sub wikipedia_lookup {
   my ($phrase) = @_;
   &main::DEBUG("wikipedia($phrase)");
 
@@ -41,8 +58,10 @@ sub wikipedia {
   # chop ? from the end
   $phrase =~ s/\?$//;
   # convert phrase to wikipedia conventions
-  $phrase = uri_escape($phrase);
-  $phrase =~ s/%20/+/g;
+#  $phrase = uri_escape($phrase);
+#  $phrase =~ s/%20/+/g;
+#  $phrase =~ s/%25/%/g;
+  $phrase =~ s/ /+/g;
 
   # using the search form will make the request case-insensitive
   # HEAD will follow redirects, catching the first mode of redirects
@@ -55,7 +74,10 @@ sub wikipedia {
   my $res = $ua->request($req);
   &main::DEBUG($res->code);
 
-  if ($res->is_success) {
+  if (!$res->is_success) {
+    return("Wikipedia might be temporarily unavailable (".$res->code."). Please try again in a few minutes...",
+	   0);
+  } else {
     # we have been redirected somewhere
     # (either content or the generic Search form)
     # let's find the title of the article
@@ -63,50 +85,61 @@ sub wikipedia {
     $phrase = $url;
     $phrase =~ s/.*\/wiki\///;
 
-    if ($res->code == '200' and $url !~ m/Special:Search/ ) {
-      # we hit content, let's retrieve it
-      my $text = wikipedia_get_text($phrase);
+    if (!$res->code == '200') {
+      return("Wikipedia might be temporarily unavailable or something is broken (".$res->code."). Please try again later...",
+	     0);
+    } else {
+      if ($url =~ m/Special:Search/) {
+	# we were sent to the the search page
+	return("I couldn't find a matching article in wikipedia, look for yerselves: " . $url,
+	       0);
+      } else {
+	# we hit content, let's retrieve it
+	my $text = wikipedia_get_text($phrase);
 
-      # filtering unprintables
-      $text =~ s/[[:cntrl:]]//g;
-      # filtering headings
-      $text =~ s/==+[^=]*=+//g;
-      # filtering wikipedia tables
-      &main::DEBUG("START:\n" . $text . " :END");
-      $text =~ s/\{\|[^}]+\|\}//g;
-      # some people cannot live without HTML tags, even in a wiki
-      # $text =~ s/&lt;div.*&gt;//gi;
-      # $text =~ s/&lt;!--.*&gt;//gi;
-      # $text =~ s/<[^>]*>//g;
-      # or HTML entities
-      $text =~ s/&amp;/&/g;
-      decode_entities($text);
-      # or tags, again
-      $text =~ s/<[^>]*>//g;
-      #$text =~ s/[&#]+[0-9a-z]+;//gi;
-      # filter wikipedia tags: [[abc: def]]
-      $text =~ s/\[\[[[:alpha:]]*:[^]]*\]\]//gi;
-      # {{abc}}:tag
-      $text =~ s/\{\{[[:alpha:]]+\}\}:[^\s]+//gi;
-      # {{abc}}
-      $text =~ s/\{\{[[:alpha:]]+\}\}//gi;
-      # unescape quotes
-      $text =~ s/'''/'/g;
-      $text =~ s/''/"/g;
-      # filter wikipedia links: [[tag|link]] -> link
-      $text =~ s/\[\[[^]]+\|([^]]+)\]\]/$1/g;
-      # [[link]] -> link
-      $text =~ s/\[\[([^]]+)\]\]/$1/g;
-      # shrink whitespace
-      $text =~ s/[[:space:]]+/ /g;
-      # chop leading whitespace
-      $text =~ s/^ //g;
+	# filtering unprintables
+	$text =~ s/[[:cntrl:]]//g;
+	# filtering headings
+	$text =~ s/==+[^=]*=+//g;
+	# filtering wikipedia tables
+	$text =~ s/\{\|[^}]+\|\}//g;
+	# some people cannot live without HTML tags, even in a wiki
+	# $text =~ s/&lt;div.*&gt;//gi;
+	# $text =~ s/&lt;!--.*&gt;//gi;
+	# $text =~ s/<[^>]*>//g;
+	# or HTML entities
+	$text =~ s/&amp;/&/g;
+	decode_entities($text);
+	# or tags, again
+	$text =~ s/<[^>]*>//g;
+	#$text =~ s/[&#]+[0-9a-z]+;//gi;
+	# filter wikipedia tags: [[abc: def]]
+	$text =~ s/\[\[[[:alpha:]]*:[^]]*\]\]//gi;
+	# {{abc}}:tag
+	$text =~ s/\{\{[[:alpha:]]+\}\}:[^\s]+//gi;
+	# {{abc}}
+	$text =~ s/\{\{[[:alpha:]]+\}\}//gi;
+	# unescape quotes
+	$text =~ s/'''/'/g;
+	$text =~ s/''/"/g;
+	# filter wikipedia links: [[tag|link]] -> link
+	$text =~ s/\[\[[^]]+\|([^]]+)\]\]/$1/g;
+	# [[link]] -> link
+	$text =~ s/\[\[([^]]+)\]\]/$1/g;
+	# shrink whitespace
+	$text =~ s/[[:space:]]+/ /g;
+	# chop leading whitespace
+	$text =~ s/^ //g;
 
-      # shorten article to first one or two sentences
-#      $text = substr($text, 0, 330);
-#      $text =~ s/(.+)\.([^.]*)$/$1./g;
+	# shorten article to first one or two sentences
+	# new: we rely on the output function to know what to do
+	#      with long messages
+	#$text = substr($text, 0, 330);
+	#$text =~ s/(.+)\.([^.]*)$/$1./g;
 
-      &main::pSReply("At " . $url . " (URL), Wikipedia explains: " . $text);
+	return("At " . $url . " (URL), Wikipedia explains: " . $text,
+	       1);
+      }
     }
   }
 }
@@ -122,6 +155,7 @@ sub wikipedia_get_text {
   $ua->agent("Mozilla/5.0 " . $ua->agent);
   $ua->timeout(5);
 
+  &main::DEBUG($wikipedia_export_url . $article);
   my $req = HTTP::Request->new('GET', $wikipedia_export_url .
 			       $article);
   $req->header('Accept-Language' => 'en');
@@ -129,7 +163,7 @@ sub wikipedia_get_text {
 
   my $res = $ua->request($req);
   my ($title, $redirect, $text);
-  # &main::DEBUG($res->code);
+  &main::DEBUG($res->code);
 
   if ($res->is_success) {
     if ($res->code == '200' ) {
@@ -140,18 +174,22 @@ sub wikipedia_get_text {
 	} elsif (/#REDIRECT\s*\[\[(.*?)\]\]/i) {
 	  $redirect = $1;
 	  $redirect =~ tr/ /_/;
+	  &main::DEBUG("wiki redirect to " . $redirect);
 	  last;
 	} elsif (/<text>(.*)/) {
-	  $text = $1;
+	  $text = '"' . $1;
 	} elsif (/(.*)<\/text>/) {
-	  $text = $text . " " . $1;
+	  $text = $text . " " . $1 . '"';
 	  last;
 	} elsif ($text) {
 	  $text = $text . " " . $_;
 	}
       }
+      &main::DEBUG("wikipedia returned text: " . $text . 
+		   ", redirect " . $redirect. "\n");
+
       if (!$redirect and !$text) {
-	return;
+	return ($res->as_string);
       }
       return ($text or wikipedia_get_text($redirect))
     }
