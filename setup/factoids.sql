@@ -1,4 +1,4 @@
-CREATE TABLE factoids (".
+CREATE TABLE factoids (
 	factoid_key VARCHAR(64) NOT NULL,
 
 	requested_by VARCHAR(64),
