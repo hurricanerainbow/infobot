@@ -635,8 +635,10 @@ sub closeStats {
 
     foreach (keys %cmdstats) {
 	my $type	= $_;
-	my $i	= &dbGet("stats", "counter", "nick=".&dbQuote($type).
-			" AND type='cmdstats'");
+	my $i	= &sqlSelect("stats", "counter", {
+		nick	=> $type,
+		type	=> "cmdstats",
+	} );
 	my $z	= 0;
 	$z++ unless ($i);
 
@@ -649,7 +651,15 @@ sub closeStats {
 	);		
 	$hash{time} = time() if ($z);
 
-	&dbReplace("stats", "nick", %hash);
+	if (0) {
+	    &sqlReplace("stats", %hash);
+	} else {
+	    &sqlReplace("stats", {
+		nick		=> $type,
+		type		=> "cmdstats",
+		-counter	=> "counter+1",
+	    } );
+	}
     }
 }
 

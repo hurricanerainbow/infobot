@@ -331,17 +331,19 @@ sub Modules {
 	    # even more uglier with channel/time arguments.
 	    my $c	= $chan;
 #	    my $c	= $chan || "PRIVATE";
-	    my $where	= "type=".&dbQuote($type);
-	    $where	.= " AND channel=".&dbQuote($c) if (defined $c);
+	    my $where	= "type=".&sqlQuote($type);
+	    $where	.= " AND channel=".&sqlQuote($c) if (defined $c);
 	    &DEBUG("not using chan arg") if (!defined $c);
-	    my $sum = (&dbRawReturn("SELECT SUM(counter) FROM stats"
+	    my $sum = (&sqlRawReturn("SELECT SUM(counter) FROM stats"
 			." WHERE ".$where ))[0];
 
 	    if (!defined $arg or $arg =~ /^\s*$/) {
 		# this is way fucking ugly.
 
-		my %hash = &dbGetCol("stats", "nick,counter",
-			$where." ORDER BY counter DESC LIMIT 3", 1);
+		my %hash = &sqlSelectColHash("stats", "nick,counter",
+			undef,
+			$where." ORDER BY counter DESC LIMIT 3", 1
+		);
 		my $i;
 		my @top;
 
@@ -367,8 +369,8 @@ sub Modules {
 		    &pSReply("zero counter for \037$type\037.");
 		}
 	    } else {
-		my $x = (&dbRawReturn("SELECT SUM(counter) FROM stats".
-			" WHERE $where AND nick=".&dbQuote($arg) ))[0];
+		my $x = (&sqlRawReturn("SELECT SUM(counter) FROM stats".
+			" WHERE $where AND nick=".&sqlQuote($arg) ))[0];
 
 		if (!defined $x) {	# !defined.
 		    &pSReply("$arg has not said $type yet.");
@@ -376,8 +378,9 @@ sub Modules {
 		}
 
 		# defined.
-		my @array = &dbGet("stats", "nick",
-			$where." ORDER BY counter", 1);
+		my @array = &sqlSelect("stats", "nick", undef,
+			$where." ORDER BY counter", 1
+		);
 		my $good = 0;
 		my $i = 0;
 		for($i=0; $i<scalar @array; $i++) {
@@ -619,12 +622,12 @@ sub seen {
 
     &seenFlush();	# very evil hack. oh well, better safe than sorry.
 
-    ### TODO: Support &dbGetColInfo(); like in &FactInfo();
+    # TODO: convert to &sqlSelectRowHash();
     my $select = "nick,time,channel,host,message";
     if ($person eq "random") {
 	@seen = &randKey("seen", $select);
     } else {
-	@seen = &dbGet("seen", $select, "nick=".&dbQuote($person) );
+	@seen = &sqlSelect("seen", $select, { nick => $person } );
     }
 
     if (scalar @seen < 2) {
@@ -920,17 +923,20 @@ sub textstats_main {
     # even more uglier with channel/time arguments.
     my $c	= $chan;
 #    my $c	= $chan || "PRIVATE";
-    my $where	= "channel=".&dbQuote($c) if (defined $c);
     &DEBUG("not using chan arg") if (!defined $c);
-    my $sum = (&dbRawReturn("SELECT SUM(counter) FROM stats"
-		." WHERE ".$where ))[0];
+
+    # example of converting from RawReturn to sqlSelect.
+    my $where_href = (defined $c) ? { channel => $c } : "";
+    my $sum = &sqlSelect("stats", "SUM(counter)", $where_href);
 
     if (!defined $arg or $arg =~ /^\s*$/) {
 	# this is way fucking ugly.
 	&DEBUG("_stats: !arg");
 
-	my %hash = &dbGetCol("stats", "nick,counter",
-		$where." ORDER BY counter DESC LIMIT 3", 1);
+	my %hash = &sqlSelectColHash("stats", "nick,counter",
+		$where_href,
+		" ORDER BY counter DESC LIMIT 3", 1
+	);
 	my $i;
 	my @top;
 
@@ -957,8 +963,9 @@ sub textstats_main {
 	    &pSReply("zero counter for \037$type\037.");
 	}
     } else {
-	my %hash = &dbGetCol("stats", "type,counter",
-		"$where AND nick=".&dbQuote($arg) );
+	my %hash = &sqlSelectColHash("stats", "type,counter",
+		$where_href, " AND nick=".&sqlQuote($arg)
+	);
 	# this is totally fucked... needs to be fixed... and cleaned up.
 	my $total;
 	my $good;
@@ -968,7 +975,7 @@ sub textstats_main {
 	foreach (keys %hash) {
 	    &DEBUG("_stats: hash{$_} => $hash{$_}");
 	    # ranking.
-	    my @array = &dbGet("stats", "nick",
+	    my @array = &sqlSelect("stats", "nick", undef,
 		$where." ORDER BY counter", 1);
 	    $good = 0;
 	    $ii = 0;
