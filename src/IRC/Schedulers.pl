@@ -722,23 +722,10 @@ sub miscCheck {
     }
     closedir DEBIAN;
 
-    # user/chan file check.
-    foreach ("chan","users") {
-	my $f		= $bot_misc_dir."/blootbot.$_";
-	my $backup	= 0;
-
-	if ( -e "$f~" ) {
-	    $backup++ if ( -s $f > -s "$f~");
-	    $backup++ if ( (stat $f)[9] - (stat "$f~")[9] > 60*60*24*7);
-	} else {
-	    $backup++;
-	}
-	next unless ($backup);
-
-	### TODO: do internal copying.
-	&status("Backup: $f to $f~");
-	CORE::system("/bin/cp $f $f~");
-    }
+    # make backup of important files.
+    &mkBackup( $bot_misc_dir."/blootbot.chan", 60*60*24*1);
+    &mkBackup( $bot_misc_dir."/blootbot.users", 60*60*24*1);
+    &mkBackup( $bot_base_dir."/blootbot-news.txt", 60*60*24*1);
 
     # flush cache{lobotomy}
     foreach (keys %{ $cache{lobotomy} }) {
@@ -1078,6 +1065,23 @@ sub getChanConfDefault {
     $cache{config}{$what} = 1;
 
     return $default;
+}
+
+sub mkBackup {
+    my($file, $time) = @_;
+    my $backup	= 0;
+
+    if ( -e "$file~" ) {
+	$backup++ if ( -s $file > -s "$file~");
+	$backup++ if ( (stat $file)[9] - (stat "$file~")[9] > $time);
+    } else {
+	$backup++;
+    }
+    return unless ($backup);
+
+    ### TODO: do internal copying.
+    &status("Backup: $file to $file~");
+    CORE::system("/bin/cp $file $file~");
 }
 
 1;
