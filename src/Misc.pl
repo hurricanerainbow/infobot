@@ -676,4 +676,11 @@ sub closePID {
     return 0 if ( -f $file{PID});
 }
 
+sub mkcrypt {
+    my($str) = @_;
+    my $salt = join '',('.','/',0..9,'A'..'Z','a'..'z')[rand 64, rand 64];
+
+    return crypt($str, $salt);
+}
+
 1;
