@@ -67,7 +67,7 @@ sub process {
 	    }
 	}
 
-	if (&validChan($thischan)) {
+	if (&validChan($thischan) and &IsFlag("o") ne "o") {
 	    &msg($who,"I'm already on $thischan...");
 	    return;
 	}
@@ -98,7 +98,10 @@ sub process {
     }
 
     # User Processing, for all users.
-    return '$noreply from userC' if &userCommands() eq $noreply;
+    if ($addressed) {
+	return '$noreply from pCH'   if &parseCmdHook("main",$message);
+	return '$noreply from userC' if &userCommands() eq $noreply;
+    }
 
     ###
     # once useless messages have been parsed out, we match them.
@@ -207,7 +210,7 @@ sub process {
     # here's where the external routines get called.
     # if they return anything but null, that's the "answer".
     if ($addressed) {
-	if (&parseCmdHook()) {
+	if ( &parseCmdHook("extra",$message) ) {
 	    return 'DID SOMETHING IN PCH.';
 	}
 
