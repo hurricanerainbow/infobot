@@ -44,7 +44,8 @@ sub addCmdHook {
 # RUN IF ADDRESSED.
 sub parseCmdHook {
     my ($hashname, $line) = @_;
-    $line =~ /^(\S+)( (.*))?$/;
+    $line =~ s/^\s+|\s+$//g;	# again.
+    $line =~ /^(\S+)(\s+(.*))?$/;
     my $cmd	= $1;	# command name is whitespaceless.
     my $flatarg	= $3;
     my @args	= split(/\s+/, $flatarg || '');
@@ -73,7 +74,7 @@ sub parseCmdHook {
 	    next;
 	}
 
-	&status("hooks($hashname): $cmd matched '$ident'");
+	&status("hooks($hashname): $cmd matched '$ident' '$flatarg'");
 	my %hash = %{ ${"hooks_$hashname"}{$ident} };
 
 	if (!scalar keys %hash) {
