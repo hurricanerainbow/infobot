@@ -35,14 +35,17 @@ sub getReply {
 	@searches = ('_default');
     }
 
-    if ($literal and $message =~ /^_default\s+/) {
+    # requesting the _default one, ignore factoidSearch
+    if ($message =~ /^_default\s+/) {
 	@searches = ('_default');
 	$message =~ s/^_default\s+//;
     }
 
     # check for factoids with each prefix
     foreach $search (@searches) {
-	if ($search eq '_default') {
+	if ($search eq '$chan') {
+	    $factoid = "$chan $message";
+	} elsif ($search eq '_default') {
 	    $factoid = $message;
 	} else {
 	    $factoid = "$search $message";
