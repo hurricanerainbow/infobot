@@ -1,7 +1,7 @@
 #
 #  Dict.pl: Frontend to dict.org.
 #   Author: dms
-#  Version: v0.6b (19991224).
+#  Version: v0.6c (20000924).
 #  Created: 19990914.
 #
 
@@ -21,6 +21,12 @@ sub Dict {
 ###    return unless &main::loadPerlModule("IO::Socket");
     my $socket = new IO::Socket;
     my @results;
+
+    for ($query) {
+	s/^[\s\t]+//;
+	s/[\s\t]+$//;
+	s/[\s\t]+/ /;
+    }
 
     # connect.
     socket($socket, PF_INET, SOCK_STREAM, $proto) or return "error: socket: $!";
