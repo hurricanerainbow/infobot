@@ -56,7 +56,7 @@ if ($@) {
 	"Wingate"	=> "Wingate.pl",
 	"W3Search"	=> "W3Search.pl",
 	"zfi"		=> "zfi.pl",
-	"zippy"		=> "Zippy.pl",
+	"Zippy"		=> "Zippy.pl",
 	"zsi"		=> "zsi.pl",
 );
 ### THIS IS NOT LOADED ON RELOAD :(
