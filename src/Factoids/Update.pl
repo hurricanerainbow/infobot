@@ -55,7 +55,7 @@ sub update {
     # freshmeat
     if (&IsChanConf("freshmeatForFactoid")) {
 	# todo: "name" is invalid for fm ][
-	if ( &dbGet("freshmeat", "name", "name=".&dbQuote($lhs)) ) {
+	if ( &sqlSelect("freshmeat", "name", { name => $lhs } ) ) {
 	    &msg($who, "permission denied. (freshmeat)");
 	    &status("alert: $who wanted to teach me something that freshmeat already has info on.");
 	    return 1;
@@ -107,12 +107,12 @@ sub update {
 
 	&performAddressedReply("okay");
 
-	&dbReplace("factoids", "factoid_key", (
+	&sqlReplace("factoids", {
 		created_by	=> $nuh,
 		created_time	=> time(),	# modified time.
 		factoid_key	=> $lhs,
 		factoid_value	=> $rhs,
-	) );
+	} );
 
 	if (!defined $rhs or $rhs eq "") {
 	    &ERROR("Update: rhs1 == NULL.");
@@ -219,7 +219,7 @@ sub update {
 	$count{'Update'}++;
 	&status("update: <$who> \'$lhs\' =$mhs=> \'$rhs\'; was \'$exists\'");
 
-	# should dbReplace be used here?
+	# todo: use sqlReplace.
 	#&delFactoid($lhs); # breaks dbm. leave it and use modified_* - Tim Riker <Tim@Rikers.org>
 	&setFactInfo($lhs,"modified_by", $nuh);
 	&setFactInfo($lhs,"modified_time", time());
