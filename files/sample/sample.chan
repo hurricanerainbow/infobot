@@ -16,7 +16,7 @@
     +rootWarn
     rootWarnMode aggressive
 
-#nophear
+#testbot
     +autojoin
 
 _default
