@@ -69,7 +69,7 @@ sub process {
 		return;
 	    }
 	}
-	$joinverb{$thischan} = $who;	# used for on_join self.
+	$cache{join}{$thischan} = $who;	# used for on_join self.
 
 	&joinchan($chankey);
 	&status("JOIN $chankey <$who>");

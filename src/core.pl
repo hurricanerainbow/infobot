@@ -29,7 +29,7 @@ use vars qw(@joinchan @ircServers @wingateBad @wingateNow @wingateCache
 # 
 use vars qw(%count %netsplit %netsplitservers %flood %dcc %orig
 	    %nuh %talkWho %seen %floodwarn %param %dbh %ircPort
-	    %jointime %topic %joinverb %moduleAge %last %time %mask %file
+	    %topic %moduleAge %last %time %mask %file
 	    %forked %chanconf %channels
 );
 
