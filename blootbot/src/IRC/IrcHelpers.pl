@@ -266,6 +266,13 @@ sub hookMsg {
 #	&DEBUG("IrcHooks: process returned '$_'.");
     }
 
+    # hack to remove +o from ppl with +O flag.
+    if (exists $users{$userHandle} && exists $users{$userHandle}{FLAGS} &&
+	$users{$userHandle}{FLAGS} =~ /O/
+    ) {
+	$users{$userHandle}{FLAGS} =~ s/o//g;
+    }
+
     return;
 }
 
