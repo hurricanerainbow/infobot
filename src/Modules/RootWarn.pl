@@ -31,8 +31,8 @@ sub rootWarn {
 	}
 
     } elsif ($attempt < 2) {	# 2nd/3rd time occurrance.
-	&status("RootWarn: not first time root user; msg'ing $nick.");
 	if ($_ = &getFactoid("root again")) {
+	    &status("RootWarn: not first time root user; msg'ing $nick.");
 	    &msg($nick, "rootwarn: $attempt : $_");
 	} else {
 	    &status("root again needs to be defined in database.");
@@ -46,6 +46,11 @@ sub rootWarn {
 		rawout("MODE $chan +b *!root\@$host");	# ban
 		&kick($chan,$nick,"bye bye");
 	    }
+	} elsif ($_ = &getFactoid("root again")) {
+	    &status("RootWarn: $attempt times; msg'ing $nick.");
+	    &msg($nick, "rootwarn: $attempt : $_");
+	} else {
+	    &status("root again needs to be defined in database.");
 	}
     }
 
