@@ -31,7 +31,7 @@ use vars qw(%channels %chanstats %cmdstats);
 	Forker => "NULL", ) );
 &addCmdHook("main", 'tell|explain', ('CODEREF' => 'tell', 
 	Help => 'tell', Identifier => 'allowTelling', ) );
-
+&addCmdHook("main", 'news', ('CODEREF' => 'News::Parse', ) );
 
 &status("CMD: loaded ".scalar(keys %hooks_main)." MAIN command hooks.");
 
@@ -74,6 +74,10 @@ sub chaninfo {
 		$uucount++;
 		push(@nicks, $_);
 	    }
+	}
+	&DEBUG("nicks => '".scalar(@nicks)."'...");
+	if (scalar @nicks != $uucount) {
+	    &DEBUG("nicks != uucount...");
 	}
 
 	my $chans = scalar(keys %channels);
@@ -616,17 +620,31 @@ sub userCommands {
     }
 
     # ircstats.
-    if ($message =~ /^ircstats$/i) {
+    if ($message =~ /^ircstats?$/i) {
+	$ircstats{'TotalTime'}	||= 0;
+	$ircstats{'OffTime'}	||= 0;
+
 	my $count	= $ircstats{'ConnectCount'};
 	my $format_time	= &Time2String(time() - $ircstats{'ConnectTime'});
-	my $total_time	= time() - $ircstats{'ConnectTime'} + $ircstats{'TotalTime'};
+	my $total_time	= time() - $ircstats{'ConnectTime'} +
+				$ircstats{'TotalTime'};
 	my $reply;
 
-	&DEBUG("ircstats: total_time => $total_time.");
-	&DEBUG("ircstats: offtime => $ircstats{'OffTime'}");
+	my $connectivity = 100 * ($total_time - $ircstats{'OffTime'}) /
+				$total_time;
+	my $p = sprintf("%.02f", $connectivity);
+	$p =~ s/(\.\d*)0+$/$1/;
+	if ($p =~ s/\.0$//) {
+	    &DEBUG("p sar not working properly :(");
+	} else {
+	    $p =~ s/\.$//
+	}
 
-	foreach (keys %ircstats) {
-	    &DEBUG("ircstats: $_ => '$ircstats{$_}'.");
+	&DEBUG("connectivity => $p %");
+
+	if ($total_time != (time() - $ircstats{'ConnectTime'}) ) {
+	    my $tt_format = &Time2String($total_time);
+	    &DEBUG("tt_format => $tt_format");
 	}
 
 	### RECONNECT COUNT.

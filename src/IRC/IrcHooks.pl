@@ -65,10 +65,12 @@ sub on_chat {
 
 	### TODO: prevent users without CRYPT chatting.
 	if (!defined $crypto) {
-	    &DEBUG("chat: no pass required.");
-###	    $success++;
+	    &DEBUG("todo: dcc close chat");
+	    &msg($who, "nope, no guest logins allowed...");
+	    return;
+	}
 
-	} elsif (&ckpasswd($msg, $crypto)) {
+	if (&ckpasswd($msg, $crypto)) {
 	    # stolen from eggdrop.
 	    $self->privmsg($sock, "Connected to $ident");
 	    $self->privmsg($sock, "Commands start with '.' (like '.quit' or '.help')");
@@ -475,6 +477,35 @@ sub on_join {
 		    $user =~ /^r(oo|ew|00)t$/i &&
 		    $channels{$chan}{'o'}{$ident});
 
+    ### NEWS:
+    if (&IsChanConf("news") && &IsChanConf("newsKeepRead")) {
+	my @new;
+	foreach (keys %{ $::news{$chan} }) {
+	    my $t = $::newsuser{$chan}{$who};
+	    next if (!defined $t);
+	    next if ($t > $::news{$chan}{$_}{Time});
+
+	    push(@new, $_);
+	}
+
+	if (scalar @new) {
+	    &msg($who, "+==== New news for $chan (".scalar(@new)."):");
+	    # todo: show how many sec/min/etc ago?
+	    my $timestr = &Time2String( $::newsuser{$chan}{$who} );
+	    &msg($who, "|= Last time read $timestr ago");
+
+	    foreach (@new) {
+		my $i   = &News::getNewsItem($_);
+		my $age = time() - $::news{$chan}{$_}{Time};
+		&msg($who, sprintf("\002[\002%2d\002]\002 %s (%s)",
+			$i, $_, &Time2String($age) ) );
+	    }
+
+	    # lame hack to prevent dupes if we just ignore it.
+	    $::newsuser{$chan}{$who} = time();
+	}
+    }
+
     ### chanlimit check.
     &chanLimitVerify($chan);
 
@@ -551,6 +582,14 @@ sub on_msg {
     $uh		= $event->userhost();
     $nuh	= $nick."!".$uh;
     $msgtime	= time();
+
+    if ($nick eq $ident) { # hopefully ourselves.
+	if ($msg eq "TEST") {
+	    &status("Local: Yes, we're alive.");
+	    delete $cache{connect};
+	    return;
+	}
+    }
 
     &hookMsg('private', undef, $nick, $msg);
 }

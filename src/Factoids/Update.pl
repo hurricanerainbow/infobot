@@ -49,8 +49,8 @@ sub update {
     }
 
     # also checking.
-    my $also    = ($rhs =~ s/^(-?)also //i);
-    &DEBUG("1=>$1");
+    my $also    = ($rhs =~ s/^(\-)?also //i);
+    &DEBUG("1=>$1");	# this does not work!
     my $also_or = ($also and $rhs =~ s/\s+(or|\|\|)\s+//);
 
     # freshmeat

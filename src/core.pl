@@ -85,6 +85,7 @@ sub doExit {
 	&writeUserFile();
 	&writeChanFile();
 	&uptimeWriteFile()	if (&ChanConfList("uptime"));
+	&News::writeNews()	if (&ChanConfList("news"));
 	&closeDB();
 	&closeSHM($shm);
 	&dumpallvars()		if (&IsParam("dumpvarsAtExit"));
@@ -300,6 +301,7 @@ sub setup {
     &openDB($param{'DBName'}, $param{'SQLUser'}, $param{'SQLPass'});
 
     &status("Setup: ". &countKeys("factoids") ." factoids.");
+    &News::readNews() if (&ChanConfList("news"));
 
     $param{tempDir} =~ s#\~/#$ENV{HOME}/#;
 

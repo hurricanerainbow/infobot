@@ -377,7 +377,6 @@ sub FactoidStuff {
 	}
     }
 
-
     # factoid forget.
     if ($message =~ s/^forget\s+//i) {
 	return 'forget: no addr' unless ($addressed);
@@ -585,9 +584,9 @@ sub FactoidStuff {
 	return;
     }
 
-
     # Fix up $message for question.
-    for ($message) {
+    my $question = $message;
+    for ($question) {
 	# fix the string.
 	s/^hey([, ]+)where/where/i;
 	s/whois/who is/ig;
@@ -619,7 +618,7 @@ sub FactoidStuff {
 	$correction_plausible = 0;
     }
 
-    my $result = &doQuestion($message);
+    my $result = &doQuestion($question);
     if (!defined $result or $result eq $noreply) {
 	return 'result from doQ undef.';
     }
