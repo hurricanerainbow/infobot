@@ -520,7 +520,7 @@ sub FactoidStuff {
 	return;
     }
 
-    return unless ($addressed);
+    return unless ($addressed and !$addrchar);
 
     if (length $message > 64) {
 	&status("unparseable-moron: $message");
