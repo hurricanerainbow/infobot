@@ -41,7 +41,7 @@ if ($@) {
 	"pager"		=> "pager.pl",
 	"Math"		=> "Math.pl",
 	"Plug"		=> "Plug.pl",
-	"quote"		=> "Quote.pl",
+	"Quote"		=> "Quote.pl",
 	"rootwarn"	=> "RootWarn.pl",
 	"rss"		=> "Rss.pl",
 	"search"	=> "Search.pl",
