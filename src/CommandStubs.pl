@@ -309,105 +309,8 @@ sub Modules {
     $itc = &getChanConf("ircTextCounters");
     $itc = &findChanConf("ircTextCounters") unless ($itc);
     if ($itc) {
-	$itc =~ s/([^\w\s])/\\$1/g;
-	my $z = join '|', split ' ', $itc;
-
-	if ($msgType eq "privmsg" and $message =~ / ($mask{chan})$/) {
-	    &DEBUG("ircTC: privmsg detected; chan = $1");
-	    $chan = $1;
-	}
-
-	if ($message =~ /^_stats(\s+(\S+))$/i) {
-	    &textstats_main($2);
-	    return;
-	}
-
-	if ($message =~ /^($z)stats(\s+(\S+))?$/i) {
-	    my $type	= $1;
-	    my $arg	= $3;
-
-	    # even more uglier with channel/time arguments.
-	    my $c	= $chan;
-#	    my $c	= $chan || "PRIVATE";
-	    my $where	= "type=".&sqlQuote($type);
-	    $where	.= " AND channel=".&sqlQuote($c) if (defined $c);
-	    &DEBUG("not using chan arg") if (!defined $c);
-	    my $sum = (&sqlRawReturn("SELECT SUM(counter) FROM stats"
-			." WHERE ".$where ))[0];
-
-	    if (!defined $arg or $arg =~ /^\s*$/) {
-		# this is way fucking ugly.
-
-		# TODO convert $where to hash
-		my %hash = &sqlSelectColHash("stats", "nick,counter",
-			{ },
-			$where." ORDER BY counter DESC LIMIT 3", 1
-		);
-		my $i;
-		my @top;
-
-		# unfortunately we have to sort it again!
-		my $tp = 0;
-		foreach $i (sort { $b <=> $a } keys %hash) {
-		    foreach (keys %{ $hash{$i} }) {
-			my $p	= sprintf("%.01f", 100*$i/$sum);
-			$tp	+= $p;
-			push(@top, "\002$_\002 -- $i ($p%)");
-		    }
-		}
-		my $topstr = "";
-		&DEBUG("*stats: tp => $tp");
-		if (scalar @top) {
-		    $topstr = ".  Top ".scalar(@top).": ".join(', ', @top);
-		}
-
-		if (defined $sum) {
-		    &pSReply("total count of \037$type\037 on \002$c\002: $sum$topstr");
-		} else {
-		    &pSReply("zero counter for \037$type\037.");
-		}
-	    } else {
-		# TODO convert $where to hash and use a sqlSelect
-		my $x = (&sqlRawReturn("SELECT SUM(counter) FROM stats".
-			" WHERE $where AND nick=".&sqlQuote($arg) ))[0];
-
-		if (!defined $x) {	# !defined.
-		    &pSReply("$arg has not said $type yet.");
-		    return;
-		}
-
-		# defined.
-		# TODO convert $where to hash
-		my @array = &sqlSelect("stats", "nick", undef,
-			$where." ORDER BY counter", 1
-		);
-		my $good = 0;
-		my $i = 0;
-		for($i=0; $i<scalar @array; $i++) {
-		    next unless ($array[0] =~ /^\Q$who\E$/);
-		    $good++;
-		    last;
-		}
-		$i++;
-
-		my $total = scalar(@array);
-		my $xtra = "";
-		if ($total and $good) {
-		    my $pct = sprintf("%.01f", 100*(1+$total-$i)/$total);
-		    $xtra = ", ranked $i\002/\002$total (percentile: \002$pct\002 %)";
-		}
-
-		my $pct1 = sprintf("%.01f", 100*$x/$sum);
-		&pSReply("\002$arg\002 has said \037$type\037 \002$x\002 times (\002$pct1\002 %)$xtra");
-	    }
-
-	    return;
-	}
-
-	if ($@) {
-	    &DEBUG("regex failed: $@");
-	    return;
-	}
+	&do_text_counters($itc);
+	return;
     }
 
     # list{keys|values}. xk++. Idea taken from #linuxwarez@EFNET
@@ -629,6 +532,7 @@ sub seen {
     my $reply;
     ### TODO: multi channel support. may require &IsNick() to return
     ###	all channels or something.
+
     my @chans = &getNickInChans($seen[0]);
     if (scalar @chans) {
 	$reply = "$seen[0] is currently on";
@@ -904,6 +808,114 @@ sub verstats_flush {
     $conn->schedule(3, \&verstats_flush() );
 }
 
+sub do_text_counters {
+    my ($itc) = @_;
+    $itc =~ s/([^\w\s])/\\$1/g;
+    my $z = join '|', split ' ', $itc;
+
+    if ($msgType eq "privmsg" and $message =~ / ($mask{chan})$/) {
+	&DEBUG("ircTC: privmsg detected; chan = $1");
+	$chan = $1;
+    }
+
+    if ($message =~ /^_stats(\s+(\S+))$/i) {
+	&textstats_main($2);
+	return;
+    }
+
+    my ($type,$arg);
+    if ($message =~ /^($z)stats(\s+(\S+))?$/i) {
+	$type = $1;
+	$arg  = $3;
+    } else {
+	return;
+    }
+
+    # even more uglier with channel/time arguments.
+    my $c	= $chan;
+#   my $c	= $chan || "PRIVATE";
+    my $where	= "type=".&sqlQuote($type);
+    if (defined $c) {
+	&DEBUG("c => $c");
+	$where	.= " AND channel=".&sqlQuote($c) if (defined $c);
+    } else {
+	&DEBUG("not using chan arg");
+    }
+
+    my $sum = (&sqlRawReturn("SELECT SUM(counter) FROM stats"
+			." WHERE ".$where ))[0];
+
+    if (!defined $arg or $arg =~ /^\s*$/) {
+	# this is way fucking ugly.
+
+	# TODO convert $where to hash
+	my %hash = &sqlSelectColHash("stats", "nick,counter",
+			{ },
+			$where." ORDER BY counter DESC LIMIT 3", 1
+	);
+	my $i;
+	my @top;
+
+	# unfortunately we have to sort it again!
+	my $tp = 0;
+	foreach $i (sort { $b <=> $a } keys %hash) {
+	    foreach (keys %{ $hash{$i} }) {
+		my $p	= sprintf("%.01f", 100*$i/$sum);
+		$tp	+= $p;
+		push(@top, "\002$_\002 -- $i ($p%)");
+	    }
+	}
+	my $topstr = "";
+	if (scalar @top) {
+	    $topstr = ".  Top ".scalar(@top).": ".join(', ', @top);
+	}
+
+	if (defined $sum) {
+	    &pSReply("total count of \037$type\037 on \002$c\002: $sum$topstr");
+	} else {
+	    &pSReply("zero counter for \037$type\037.");
+	}
+    } else {
+	# TODO convert $where to hash and use a sqlSelect
+	my $x = (&sqlRawReturn("SELECT SUM(counter) FROM stats".
+			" WHERE $where AND nick=".&sqlQuote($arg) ))[0];
+
+	if (!defined $x) {	# !defined.
+	    &pSReply("$arg has not said $type yet.");
+	    return;
+	}
+
+	# defined.
+	# TODO convert $where to hash
+	my @array = &sqlSelect("stats", "nick", undef,
+			$where." ORDER BY counter", 1
+	);
+	my $good = 0;
+	my $i = 0;
+	for ($i=0; $i<scalar @array; $i++) {
+	    next unless ($array[0] =~ /^\Q$who\E$/);
+	    $good++;
+	    last;
+	}
+	$i++;
+
+	my $total = scalar(@array);
+	my $xtra = "";
+	if ($total and $good) {
+	    my $pct = sprintf("%.01f", 100*(1+$total-$i)/$total);
+	    $xtra = ", ranked $i\002/\002$total (percentile: \002$pct\002 %)";
+	}
+
+	my $pct1 = sprintf("%.01f", 100*$x/$sum);
+	&pSReply("\002$arg\002 has said \037$type\037 \002$x\002 times (\002$pct1\002 %)$xtra");
+    }
+
+    if ($@) {
+	&DEBUG("regex failed: $@");
+	return;
+    }
+}
+
 sub textstats_main {
     my($arg) = @_;
 
@@ -938,7 +950,6 @@ sub textstats_main {
 	}
 
 	my $topstr = "";
-	&DEBUG("*stats: tp => $tp");
 	if (scalar @top) {
 	    $topstr = ".  Top ".scalar(@top).": ".join(', ', @top);
 	}
@@ -948,53 +959,55 @@ sub textstats_main {
 	} else {
 	    &pSReply("zero counter for \037$type\037.");
 	}
-    } else {
-	# TODO add nick to where_href
-	my %hash = &sqlSelectColHash("stats", "type,counter",
-		$where_href, " AND nick=".&sqlQuote($arg)
-	);
-	# this is totally fucked... needs to be fixed... and cleaned up.
-	my $total;
-	my $good;
-	my $ii;
-	my $x;
-
-	foreach (keys %hash) {
-	    &DEBUG("_stats: hash{$_} => $hash{$_}");
-	    # ranking.
-	    # TODO convert $where to hash
-	    my @array = &sqlSelect("stats", "nick", undef,
-		$where." ORDER BY counter", 1);
-	    $good = 0;
-	    $ii = 0;
-	    for(my $i=0; $i<scalar @array; $i++) {
-		next unless ($array[0] =~ /^\Q$who\E$/);
-		$good++;
-		last;
-	    }
-	    $ii++;
-
-	    $total = scalar(@array);
-	    &DEBUG("   i => $i, good => $good, total => $total");
-	    $x .= " ".$total."blah blah";
-	}
 
 	return;
-
-	if (!defined $x) {	# !defined.
-	    &pSReply("$arg has not said $type yet.");
-	    return;
-	}
-
-	my $xtra = "";
-	if ($total and $good) {
-	    my $pct = sprintf("%.01f", 100*(1+$total-$ii)/$total);
-	    $xtra = ", ranked $ii\002/\002$total (percentile: \002$pct\002 %)";
-	}
-
-	my $pct1 = sprintf("%.01f", 100*$x/$sum);
-	&pSReply("\002$arg\002 has said \037$type\037 \002$x\002 times (\002$pct1\002 %)$xtra");
     }
+
+    # TODO add nick to where_href
+    my %hash = &sqlSelectColHash("stats", "type,counter",
+		$where_href, " AND nick=".&sqlQuote($arg)
+    );
+    # this is totally fucked... needs to be fixed... and cleaned up.
+    my $total;
+    my $good;
+    my $ii;
+    my $x;
+
+    foreach (keys %hash) {
+	&DEBUG("_stats: hash{$_} => $hash{$_}");
+	# ranking.
+	# TODO convert $where to hash
+	my @array = &sqlSelect("stats", "nick", undef,
+		$where." ORDER BY counter", 1);
+	$good = 0;
+	$ii = 0;
+	for(my $i=0; $i<scalar @array; $i++) {
+	    next unless ($array[0] =~ /^\Q$who\E$/);
+	    $good++;
+	    last;
+	}
+	$ii++;
+
+	$total = scalar(@array);
+	&DEBUG("   i => $i, good => $good, total => $total");
+	$x .= " ".$total."blah blah";
+    }
+
+#    return;
+
+    if (!defined $x) {	# !defined.
+	&pSReply("$arg has not said $type yet.");
+	return;
+    }
+
+    my $xtra = "";
+    if ($total and $good) {
+	my $pct = sprintf("%.01f", 100*(1+$total-$ii)/$total);
+	$xtra = ", ranked $ii\002/\002$total (percentile: \002$pct\002 %)";
+    }
+
+    my $pct1 = sprintf("%.01f", 100*$x/$sum);
+    &pSReply("\002$arg\002 has said \037$type\037 \002$x\002 times (\002$pct1\002 %)$xtra");
 }
 
 sub nullski { my ($arg) = @_; return unless (defined $arg);

@@ -775,7 +775,6 @@ sub clearChanVars {
 }
 
 sub clearIRCVars {
-    &DEBUG("clearIRCVars() called!");
     undef %channels;
     undef %floodjoin;
 

@@ -500,7 +500,6 @@ sub hashref2array {
 sub countKeys {
     my ($table, $col) = @_;
     $col ||= "*";
-    &DEBUG("&countKeys($table, $col);");
 
     return (&sqlRawReturn("SELECT count($col) FROM $table"))[0];
 }

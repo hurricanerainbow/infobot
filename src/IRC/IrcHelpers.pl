@@ -6,8 +6,6 @@
 #        NOTE: Based on code by Kevin Lenzo & Patrick Cole  (c) 1997
 #
 
-# use strict;	# TODO
-
 #######################################################################
 ####### IRC HOOK HELPERS   IRC HOOK HELPERS   IRC HOOK HELPERS ########
 #######################################################################
@@ -292,7 +290,7 @@ sub chanLimitVerify {
     }
 
     if (!defined $l) {
-	&DEBUG("running chanlimitCheck from chanLimitVerify; FIXME! (chan = $chan)");
+	&DEBUG("$chan: running chanlimitCheck from chanLimitVerify.");
 	&chanlimitCheck();
 	return;
     }

@@ -155,6 +155,7 @@ sub FactoidStuff {
 	    return;
 	}
 
+	# todo: squeeze 3 getFactInfo calls into one?
 	my $author	= &getFactInfo($faqtoid, "created_by");
 	my $count	= &getFactInfo($faqtoid, "requested_count") || 0;
 	# don't delete if requested $limit times
