@@ -147,7 +147,7 @@ sub setup {
     &loadUsers($bot_misc_dir.		"/blootbot.users");
 
     $shm = &openSHM();
-    &openDB();
+    &openDB($param{'DBName'}, $param{'SQLUser'}, $param{'SQLPass'});
 
     &status("Setup: ". &countKeys("factoids") ." factoids.");
 
@@ -155,6 +155,7 @@ sub setup {
 }
 
 sub setupConfig {
+    $param{'VERBOSITY'} = 1;
     &loadConfig($bot_misc_dir."/blootbot.config");
 
     foreach ("ircNick", "ircUser", "ircName", "DBType") {
