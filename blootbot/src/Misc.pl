@@ -9,7 +9,7 @@ if (&IsParam("useStrict")) { use strict; }
 
 sub help {
     my $topic = $_[0];
-    my $file  = $bot_misc_dir."/blootbotbot.help";
+    my $file  = $bot_misc_dir."/blootbot.help";
     my %help  = ();
 
     if (!open(FILE, $file)) {
@@ -70,6 +70,17 @@ sub help {
     }
 
     return '';
+}
+
+sub getPath {
+    my ($pathnfile) = @_;
+
+    ### TODO: gotta hate an if statement.
+    if (/(.*)\/(.*?)$/) {
+	return $1;
+    } else {
+	return ".";
+    }
 }
 
 sub gettimeofday {
