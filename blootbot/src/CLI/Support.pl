@@ -8,6 +8,8 @@ use strict;
 
 my $postprocess;
 
+use vars qw($uh $message);
+
 sub cliloop {
     &status("Using CLI...");
     &status("Now type what you want.");

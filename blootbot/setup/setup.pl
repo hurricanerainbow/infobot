@@ -7,9 +7,9 @@ require "src/logger.pl";
 require "src/core.pl";
 require "src/modules.pl";
 require "src/Misc.pl";
-require "src/interface.pl";
+require "src/CLI/Support.pl";
 
-$bot_src_dir = "./src/";
+$bot_src_dir = "src/";
 
 # read param stuff from blootbot.config.
 &loadConfig("files/blootbot.config");
