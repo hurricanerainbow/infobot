@@ -194,40 +194,38 @@ sub logLoop {
     }
 
     ### check if all the logs exceed size.
-    if (opendir(LOGS, $bot_log_dir)) {
-	my $tsize = 0;
-	my (%age, %size);
-
-	while (defined($_ = readdir LOGS)) {
-	    my $logfile		= "$bot_log_dir/$_";
-
-	    next unless ( -f $logfile);
-	    my $size		= -s $logfile;
-	    my $age		= (stat $logfile)[9];
-
-	    $age{$age}		= $logfile;
-	    $size{$logfile}	= $size;
-
-	    $tsize		+= $size;
-	}
-	closedir LOGS;
-
-	my $delete	= 0;
-	while ($tsize > $param{'maxLogSize'}) {
-	    &status("LOG: current size > max ($tsize > $param{'maxLogSize'})");
-	    my $oldest	= (sort {$a <=> $b} keys %age)[0];
-	    &status("LOG: unlinking $age{$oldest}.");
-	    unlink $age{$oldest};
-	    $tsize	-= $oldest;
-	    $delete++;
-	}
-
-	### TODO: add how many b,kb,mb removed?
-	&status("LOG: removed $delete logs.") if ($delete);
-    } else {
-	&WARN("could not open dir $bot_log_dir");
+    if (!opendir(LOGS, $bot_log_dir)) {
+	&WARN("logLoop: could not open dir '$bot_log_dir'");
+	return;
     }
 
+    my $tsize		= 0;
+    my (%age, %size);
+    while (defined($_ = readdir LOGS)) {
+	my $logfile	= "$bot_log_dir/$_";
+
+	next unless ( -f $logfile);
+
+	my $size	= -s $logfile;
+	my $age		= (stat $logfile)[9];
+	$age{$age}	= $logfile;
+	$size{$logfile}	= $size;
+	$tsize		+= $size;
+    }
+    closedir LOGS;
+
+    my $delete	= 0;
+    while ($tsize > $param{'maxLogSize'}) {
+	&status("LOG: current size > max ($tsize > $param{'maxLogSize'})");
+	my $oldest	= (sort {$a <=> $b} keys %age)[0];
+	&status("LOG: unlinking $age{$oldest}.");
+	unlink $age{$oldest};
+	$tsize		-= $oldest;
+	$delete++;
+    }
+
+    ### TODO: add how many b,kb,mb removed?
+    &status("LOG: removed $delete logs.") if ($delete);
 }
 
 sub seenFlushOld {

@@ -753,7 +753,7 @@ sub lart {
 }
 
 sub DebianNew {
-    my $idx   = "debian/Packages-woody.idx";
+    my $idx   = "debian/Packages-sid.idx";
     my $error = 0;
     my %pkg;
     my @new;
@@ -762,7 +762,7 @@ sub DebianNew {
     $error++ unless ( -e "$idx-old");
 
     if ($error) {
-	$error = "no woody/woody-old index file found.";
+	$error = "no sid/sid-old index file found.";
 	&ERROR("Debian: $error");
 	&msg($who, $error);
 	return;
@@ -785,7 +785,7 @@ sub DebianNew {
 	next if (/^\*/);
 	next if (exists $pkg{$_});
 
-	push(@new);
+	push(@new, $_);
     }
     close IDX1;
 

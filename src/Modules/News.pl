@@ -789,6 +789,12 @@ sub latest {
     if (!$flag) {
 	return unless ($unread);
 
+	if ($::cache{newsTime} - time() < 5) {
+	    &::status("news: not displaying latest notice to $who/$chan.");
+	    return;
+	}
+
+	$::cache{newsTime} = time();
 	my $reply = "There are unread news in $chan ($unread unread, $total total). /msg $::ident news $::chan latest";
 	$reply	 .= "  If you don't want further news notification, /msg $::ident news unnotify" if ($unread == $total);
 	&::notice($who, $reply);
