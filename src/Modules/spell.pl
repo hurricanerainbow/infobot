@@ -32,7 +32,7 @@ sub spell::spell {
 		return("no binary found.");
 	}
 
-	if (!&main::validExec($query)) {
+	if (!&::validExec($query)) {
 		return("argument appears to be fuzzy.");
 	}
 
@@ -54,13 +54,13 @@ sub spell::spell {
 			$reply = "possible spellings for $query: @array";
 			last;
 		} elsif (/^\+/) {
-			&main::DEBUG("spell: '+' found => '$_'.");
+			&::DEBUG("spell: '+' found => '$_'.");
 			last;
 		} elsif (/^# (.*?) 0$/) {
 			# none found.
 			last;
 		} else {
-			&main::DEBUG("spell: unknown: '$_'.");
+			&::DEBUG("spell: unknown: '$_'.");
 		}
 	}
 

@@ -38,7 +38,7 @@ sub queryText {
 	my ($query) = @_;
 
 	if ($no_zsi) {
-		&main::status("zsi module requires LWP::UserAgent.");
+		&::status("zsi module requires LWP::UserAgent.");
 		return '';
 	}
 

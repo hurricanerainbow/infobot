@@ -31,7 +31,7 @@ sub pager::page {
 	# TODO only allow registered users?
 
 	if ($no_page) {
-		&main::status('page module requires Mail::Mailer.');
+		&::status('page module requires Mail::Mailer.');
 		return 'page module not active';
 	}
 
@@ -66,7 +66,7 @@ sub pager::page {
 		my $channel = $::chan || 'infobot';
 		# TODO disallow use from private message? $chan="_default"
 
-		&main::status("pager: from $from <$fromaddr>, to $to <$toaddr>, msg \"$msg\"");
+		&::status("pager: from $from <$fromaddr>, to $to <$toaddr>, msg \"$msg\"");
 		my %headers = (
 			To => "$to <$toaddr>",
 			From => "$from <$fromaddr>",
@@ -79,7 +79,7 @@ sub pager::page {
 #			$logmsg .= "$_: $headers{$_}\n";
 #		}
 #		$logmsg .= "\n$msg\n";
-#		&main::status("pager:\n$logmsg");
+#		&::status("pager:\n$logmsg");
 
 		my $failed;
 		my $mailer = new Mail::Mailer 'sendmail';

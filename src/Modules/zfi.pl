@@ -38,7 +38,7 @@ sub queryText {
 	my ($query) = @_;
 
 	if ($no_zfi) {
-		&main::status("zfi module requires LWP::UserAgent.");
+		&::status("zfi module requires LWP::UserAgent.");
 		return '';
 	}
 

@@ -31,9 +31,9 @@ sub wikipedia {
   my ($phrase) = @_;
   my ($reply, $valid_result) = wikipedia_lookup(@_);
   if ($reply) {
-    &main::pSReply($reply);
+    &::performStrictReply($reply);
   } else {
-    &main::pSReply("'$phrase' not found in Wikipedia. Perhaps try a different spelling or case?");
+    &::performStrictReply("'$phrase' not found in Wikipedia. Perhaps try a different spelling or case?");
   }
 }
 
@@ -41,13 +41,13 @@ sub wikipedia_silent {
   return '' if $missing;
   my ($reply, $valid_result) = wikipedia_lookup(@_);
   if ($valid_result and $reply) {
-    &main::pSReply($reply);
+    &::performStrictReply($reply);
   }
 }
 
 sub wikipedia_lookup {
   my ($phrase) = @_;
-  &main::DEBUG("wikipedia($phrase)");
+  &::DEBUG("wikipedia($phrase)");
 
   my $ua = new LWP::UserAgent;
   $ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
@@ -69,10 +69,10 @@ sub wikipedia_lookup {
   my $url = $wikipedia_search_url . 'search=' . $phrase . '&go=Go';
   my $req = HTTP::Request->new('HEAD', $url);
   $req->header('Accept-Language' => 'en');
-  &main::DEBUG($url);
+  &::DEBUG($url);
 
   my $res = $ua->request($req);
-  &main::DEBUG($res->code);
+  &::DEBUG($res->code);
 
   if (!$res->is_success) {
     return("Wikipedia might be temporarily unavailable (".$res->code."). Please try again in a few minutes...",
@@ -147,7 +147,7 @@ sub wikipedia_lookup {
 sub wikipedia_get_text {
   return '' if $missing;
   my ($article) = @_;
-  &main::DEBUG("wikipedia_get_text($article)");
+  &::DEBUG("wikipedia_get_text($article)");
 
   my $ua = new LWP::UserAgent;
   $ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
@@ -155,7 +155,7 @@ sub wikipedia_get_text {
   $ua->agent("Mozilla/5.0 " . $ua->agent);
   $ua->timeout(5);
 
-  &main::DEBUG($wikipedia_export_url . $article);
+  &::DEBUG($wikipedia_export_url . $article);
   my $req = HTTP::Request->new('GET', $wikipedia_export_url .
 			       $article);
   $req->header('Accept-Language' => 'en');
@@ -163,7 +163,7 @@ sub wikipedia_get_text {
 
   my $res = $ua->request($req);
   my ($title, $redirect, $text);
-  &main::DEBUG($res->code);
+  &::DEBUG($res->code);
 
   if ($res->is_success) {
     if ($res->code == '200' ) {
@@ -174,7 +174,7 @@ sub wikipedia_get_text {
 	} elsif (/#REDIRECT\s*\[\[(.*?)\]\]/i) {
 	  $redirect = $1;
 	  $redirect =~ tr/ /_/;
-	  &main::DEBUG("wiki redirect to " . $redirect);
+	  &::DEBUG("wiki redirect to " . $redirect);
 	  last;
 	} elsif (/<text>(.*)/) {
 	  $text = '"' . $1;
@@ -185,7 +185,7 @@ sub wikipedia_get_text {
 	  $text = $text . " " . $_;
 	}
       }
-      &main::DEBUG("wikipedia returned text: " . $text . 
+      &::DEBUG("wikipedia returned text: " . $text .
 		   ", redirect " . $redirect. "\n");
 
       if (!$redirect and !$text) {

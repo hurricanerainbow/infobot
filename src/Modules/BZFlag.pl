@@ -28,7 +28,7 @@ sub BZFlag {
 	my ($message) = @_;
 	my ($retval);
 	if ($no_BZFlag) {
-		&main::status("BZFlag module requires Socket.");
+		&::status("BZFlag module requires Socket.");
 		return 'BZFlag module not active';
 	}
 	if ($message =~ /^bzfquery\s+([^:]*)(?::([0-9]*))?$/xi) {
@@ -117,7 +117,7 @@ sub querytext {
 	my ($servernameport) = @_;
 	my ($servername,$port) = split(":",$servernameport);
 	if ($no_BZFlag) {
-		&main::status("BZFlag module requires Socket.");
+		&::status("BZFlag module requires Socket.");
 		return 'BZFlag module not active';
 	}
 	#my @teamName = ("Rogue", "Red", "Green", "Blue", "Purple", "Observer", "Rabbit");

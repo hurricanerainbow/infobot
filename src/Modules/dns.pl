@@ -19,7 +19,7 @@ sub dns::dns {
 	if ($dns =~ /(\d+\.\d+\.\d+\.\d+)/) {
 		use Socket;
 
-		&main::status("DNS query by IP address: $dns");
+		&::status("DNS query by IP address: $dns");
 
 		$y = pack('C4', split(/\./, $dns));
 		$x = (gethostbyaddr($y, &AF_INET));
@@ -32,7 +32,7 @@ sub dns::dns {
 
 	} else {
 
-		&main::status("DNS query by name: $dns");
+		&::status("DNS query by name: $dns");
 		$x = join('.',unpack('C4',(gethostbyname($dns))[4]));
 
 		if ($x !~ /^\s*$/) {

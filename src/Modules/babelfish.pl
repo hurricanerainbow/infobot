@@ -56,7 +56,7 @@ BEGIN {
 sub babelfishParam {
     return '' if $no_babelfish;
   my ($from, $to, $phrase) = @_;
-  &main::DEBUG("babelfish($from, $to, $phrase)");
+  &::DEBUG("babelfish($from, $to, $phrase)");
 
   $from = $lang_code{$from};
   $to = $lang_code{$to};
@@ -84,11 +84,11 @@ sub babelfishParam {
 sub translate {
     return '' if $no_babelfish;
   my ($phrase, $languagepair, $req, $ua) = @_;
-  &main::DEBUG("translate($phrase, $languagepair, $req, $ua)");
+  &::DEBUG("translate($phrase, $languagepair, $req, $ua)");
 
   my $urltext = uri_escape($phrase);
   $req->content("urltext=$urltext&lp=$languagepair");
-  &main::DEBUG("http://babelfish.altavista.com/babelfish/tr??urltext=$urltext&lp=$languagepair");
+  &::DEBUG("http://babelfish.altavista.com/babelfish/tr??urltext=$urltext&lp=$languagepair");
 
   my $res = $ua->request($req);
   my $translated;
@@ -102,13 +102,13 @@ sub translate {
     $translated =~ s/<[^>]*>//sg;
     $translated =~ s/&nbsp;/ /sg;
     $translated =~ s/\s+/ /sg;
-    #&main::DEBUG("$translated\n===remove <attributes>\n");
+    #&::DEBUG("$translated\n===remove <attributes>\n");
 
     $translated =~ s/\s*Translate again.*//i;
-    &main::DEBUG("$translated\n===remove after 'Translate again'\n");
+    &::DEBUG("$translated\n===remove after 'Translate again'\n");
 
     $translated =~ s/[^:]*?:\s*(Help\s*)?//s;
-    &main::DEBUG("len=" . length($translated) . " $translated\n===remove to first ':', optional Help\n");
+    &::DEBUG("len=" . length($translated) . " $translated\n===remove to first ':', optional Help\n");
 
     $translated =~ s/\n/ /g;
     # FIXME: should we do unicode->iso (no. use utf8!)

@@ -31,7 +31,7 @@ sub wtf::wtf {
 	if ($query =~ /^$|[^\w]/){
 		return("usage: wtf <foo>.");
 	}
-	if (!&main::validExec($query)) {
+	if (!&::validExec($query)) {
 		return("argument appears to be fuzzy.");
 	}
 
