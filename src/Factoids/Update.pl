@@ -119,6 +119,10 @@ sub update {
 	    &status("update: <$who> \'$lhs\' =$mhs=> \'$rhs\'; was \'$exists\'");
 	    &AddModified($lhs,$nuh);
 	    &setFactInfo($lhs, "factoid_value", $rhs);
+
+	    if (!defined $rhs or $rhs eq "") {
+		&ERROR("Update: rhs1 == NULL.");
+	    }
 	} else {				# not "also"
 	    if ($correction_plausible) {	# "no, blah is ..."
 		my $author = &getFactInfo($lhs, "created_by") || "";
@@ -137,6 +141,11 @@ sub update {
 		&setFactInfo($lhs,"created_by", $nuh);
 		&setFactInfo($lhs,"created_time", time());
 		&setFactInfo($lhs,"factoid_value", $rhs);
+
+		if (!defined $rhs or $rhs eq "") {
+		    &ERROR("Update: rhs1 == NULL.");
+		}
+
 	    } else {			 # "blah is ..."
 		if ($addressed) {
 		    &performStrictReply("...but \002$lhs\002 is already something else...");
@@ -162,6 +171,10 @@ sub update {
 	&setFactInfo($lhs,"created_by", $nuh);
 	&setFactInfo($lhs,"created_time", time());
 	&setFactInfo($lhs,"factoid_value", $rhs);
+
+	if (!defined $rhs or $rhs eq "") {
+	    &ERROR("Update: rhs1 == NULL.");
+	}
     }
 
     return "$lhs $mhs $rhs";
