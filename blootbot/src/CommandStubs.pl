@@ -457,7 +457,7 @@ sub Modules {
 
     # wingate.
     if ($message =~ /^wingate$/i) {
-	return unless (&hasParam("wingate"));
+	return unless (&hasParam('Wingate'));
 
 	my $reply = "Wingate statistics: scanned \002"
 			.scalar(keys %wingate)."\002 hosts";

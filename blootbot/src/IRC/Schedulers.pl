@@ -924,14 +924,14 @@ sub kernelLoop {
 }
 
 sub wingateCheck {
-    return unless &IsChanConf("wingate");
+    return unless &IsChanConf('Wingate');
 
     ### FILE CACHE OF OFFENDING WINGATES.
     foreach (grep /^$host$/, @wingateBad) {
 	&status("Wingate: RUNNING ON $host BY $who");
-	&ban("*!*\@$host", "") if &IsChanConf("wingateBan");
+	&ban("*!*\@$host", "") if &IsChanConf('wingateBan');
 
-	my $reason	= &getChanConf("wingateKick");
+	my $reason	= &getChanConf('wingateKick');
 
 	next unless ($reason);
 	&kick($who, "", $reason)
@@ -945,21 +945,21 @@ sub wingateCheck {
 	&DEBUG("Already scanned $host. good.");
     }
 
-    my $interval = &getChanConfDefault("wingateInterval", 60); # seconds.
-    return if (defined $forked{'wingate'});
+    my $interval = &getChanConfDefault('wingateInterval', 60); # seconds.
+    return if (defined $forked{'Wingate'});
     return if (time() - $wingaterun <= $interval);
     return unless (scalar(keys %wingateToDo));
 
     $wingaterun = time();
 
-    &Forker("wingate", sub { &Wingate::Wingates(keys %wingateToDo); } );
+    &Forker('Wingate', sub { &Wingate::Wingates(keys %wingateToDo); } );
     undef @wingateNow;
 }
 
 ### TODO: ??
 sub wingateWriteFile {
     if (@_) {
-	&ScheduleThis(60, "wingateWriteFile");
+	&ScheduleThis(60, 'wingateWriteFile');
 	return if ($_[0] eq "2");	# defer.
     }
 
@@ -967,7 +967,7 @@ sub wingateWriteFile {
 
     my $file = "$bot_base_dir/$param{'ircUser'}.wingate";
     if ($bot_pid != $$) {
-	&DEBUG("wingateWriteFile: Reorganising!");
+	&DEBUG('wingateWriteFile: Reorganising!');
 
 	open(IN, $file);
 	while (<IN>) {
@@ -981,7 +981,7 @@ sub wingateWriteFile {
 	@wingateNow = sort keys %hash;
     }
 
-    &DEBUG("wingateWF: writing...");
+    &DEBUG('wingateWF: writing...');
     open(OUT, ">$file");
     foreach (@wingateNow) {
 	print OUT "$_\n";

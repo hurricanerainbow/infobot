@@ -171,7 +171,7 @@ sub on_endofmotd {
     }
     # end of first time run.
 
-    if (&IsChanConf("wingate")) {
+    if (&IsChanConf('Wingate')) {
 	my $file = "$bot_base_dir/$param{'ircUser'}.wingate";
 	open(IN, $file);
 	while (<IN>) {
