@@ -153,10 +153,12 @@ sub FactoidStuff {
 
 	my $author	= &getFactInfo($faqtoid, "created_by");
 	my $count	= &getFactInfo($faqtoid, "requested_count") || 0;
+	# don't delete if requested $limit times
 	my $limit	= &getChanConfDefault(
 				"factoidPreventForgetLimit", 100, $chan);
+	# don't delete if older than $limitage seconds (modified by requests below)
 	my $limitage	= &getChanConfDefault(
-				"factoidPreventForgetLimitTime", 180, $chan);
+				"factoidPreventForgetLimitTime", 7 * 24 * 60 * 60, $chan);
 	my $t		= &getFactInfo($faqtoid, "created_time") || 0;
 	my $age		= time() - $t;
 
@@ -179,13 +181,14 @@ sub FactoidStuff {
 
 	# factoidPreventForgetLimitTime:
 	if (!($isop or $isau) and $age/(60*60*24) > $limitage) {
-	    &msg($who, "cannot remove factoid '$faqtoid' since it is protected by Time.");
+	    &msg($who, "cannot remove factoid '$faqtoid', too old. (" .
+		    $age/(60*60*24) . ">$limitage) use 'no,' instead");
 	    return;
 	}
 
 	# factoidPreventForgetLimit:
 	if (!($isop or $isau) and $limit and $count > $limit) {
-	    &msg($who, "will not delete '$faqtoid', count > limit ($count > $limit)");
+	    &msg($who, "will not delete '$faqtoid', count > limit ($count > $limit) use 'no, ' instead.");
 	    return;
 	}
 
