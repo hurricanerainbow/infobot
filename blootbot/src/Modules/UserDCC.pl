@@ -17,7 +17,7 @@ sub userDCC {
 	# do ircII clients support remote close? if so, cool!
 	&status("userDCC: quit called. FIXME");
 	&dcc_close($who);
-	&status("hrmm....");
+	&status("userDCC: after dcc_close!");
 
 	return;
     }
@@ -504,6 +504,29 @@ sub userDCC {
 	    return;
 	}
 
+	### TODO: move to UserDCC again.
+	if ($cmd eq "chanset" and !defined $what) {
+	    &DEBUG("showing channel conf.");
+
+	    foreach $chan ($chan, "_default") {
+		&pSReply("chan: $chan");
+		### TODO: merge 2 or 3 per line.
+		my @items;
+		my $str = "";
+		foreach (sort keys %{ $chanconf{$chan} }) {
+		    my $newstr = join(', ', @items);
+		    if (length $newstr > 60) {
+			&pSReply("    $str");
+			@items = ();
+		    }
+		    $str = $newstr;
+		    push(@items, "$_ => $chanconf{$chan}{$_}");
+		}
+		&pSReply("    $str") if (@items);
+	    }
+	    return;
+	}
+
 	foreach (@chans) {
 	    &chanSet($cmd, $_, $what, $val);
 	}
@@ -593,6 +616,26 @@ sub userDCC {
 	return;
     }
 
+    if ($message =~ /^newpass(\s+(.*))?$/) {
+	my(@args) = split /[\s\t]+/, $2 || '';
+
+	if (scalar @args != 1) {
+	    &help("newpass");
+	    return;
+	}
+
+	my $u = &getUser($who);
+
+	my $salt = join '',('.','/',0..9,'A'..'Z','a'..'z')[rand 64, rand 64];
+	my $crypt = crypt($args[0], $salt);
+	&pSReply("Set your passwd to '$crypt'");
+	$users{$u}{PASS} = $crypt;
+
+	$utime_userfile = time();
+	$ucount_userfile++;
+
+	return;
+    }
 
     if ($message =~ /^chpass(\s+(.*))?$/) {
 	my(@args) = split /[\s\t]+/, $2 || '';
@@ -607,7 +650,11 @@ sub userDCC {
 	    return;
 	}
 
-	my $u = &getUser($who);
+	my $u = &getUser($args[0]);
+	if (!defined $u) {
+	    &pSReply("Internal error, u = NULL.");
+	    return;
+	}
 
 	if (scalar @args == 1) {	# del pass.
 	    if (!&IsFlag("m") and $who !~ /^\Q$verifyUser\E$/i) {
