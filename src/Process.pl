@@ -135,7 +135,7 @@ sub process {
 	    return;
 	}
 
-	if (!&ckpass($array[0], $crypt)) {
+	if (!&ckpasswd($array[0], $crypt)) {
 	    &pSReply("invalid passwd for $do_nick.");
 	    return;
 	}
