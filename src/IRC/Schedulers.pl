@@ -17,7 +17,7 @@ sub setupSchedulers {
     &randomQuote(1)	if (&IsParam("randomQuote"));
     &randomFactoid(1)	if (&IsParam("randomFactoid"));
     &logCycle(1)	if (defined fileno LOG and &IsParam("logfile") and &IsParam("maxLogSize"));
-    &limitCheck(1)	if (&IsParam("limitcheck"));
+    &chanlimitCheck(1)	if (&IsParam("chanlimitcheck"));
     &netsplitCheck(1);	# mandatory
     &floodCycle(1);	# mandatory
     &seenFlush(1)	if (&IsParam("seen") and &IsParam("seenFlushInterval"));
@@ -204,15 +204,19 @@ sub seenFlushOld {
     &ScheduleThis(1440, "seenFlushOld") if (@_);
 }
 
-sub limitCheck {
-    my $limitplus = $param{'limitcheckPlus'} || 5;
-    my @channels = split(/[\s\t]+/, lc $param{'limitcheck'});
+sub chanlimitCheck {
+    my $limitplus = $param{'chanlimitcheckPlus'} || 5;
+    my @channels = split(/[\s\t]+/, lc $param{'chanlimitcheck'});
 
     foreach (@channels) {
 	next unless (&validChan($_));
 
 	my $newlimit = scalar(keys %{$channels{$_}{''}}) + $limitplus;
 	my $limit = $channels{$_}{'l'};
+
+	if (scalar keys %{$channels{$_}{''}} > $limit) {
+	    &status("LIMIT: set too low!!! FIXME");
+	}
 
 	next unless (!defined $limit or $limit != $newlimit);
 
@@ -222,14 +226,14 @@ sub limitCheck {
 	}
 
 	if (!exists $channels{$_}{'o'}{$ident}) {
-	    &ERROR("limitcheck: dont have ops on $_.");
+	    &ERROR("chanlimitcheck: dont have ops on $_.");
 	    next;
 	}
 	&rawout("MODE $_ +l $newlimit");
     }
 
-    my $interval = $param{'limitcheckInterval'} || 10;
-    &ScheduleThis($interval, "limitCheck") if (@_);
+    my $interval = $param{'chanlimitcheckInterval'} || 10;
+    &ScheduleThis($interval, "chanlimitCheck") if (@_);
 }
 
 sub netsplitCheck {
