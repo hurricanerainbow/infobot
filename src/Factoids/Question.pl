@@ -126,6 +126,19 @@ sub doQuestion {
 
 	    push(@link, $link);
 	    my $newr = &getReply($link);
+
+	    # no such factoid. try commands
+	    if (!defined $newr || $newr =~ /^0?$/) {
+		# support command redirection.
+		# recursive cmdHooks aswell :)
+		my $done = 0;
+		$done++ if &parseCmdHook("main", $link);
+		$done++ if &parseCmdHook("extra", $link);
+		$message	= $link;
+		$done++ unless (&Modules());
+
+		return;
+	    }
 	    last if (!defined $newr or $newr eq "");
 	    $result  = $newr;
 	}
