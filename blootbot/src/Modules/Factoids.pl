@@ -22,7 +22,9 @@ sub CmdFactInfo {
 	return;
     }
 
-    my %factinfo = &dbGetColNiceHash("factoids", "*", "factoid_key=".&dbQuote($faqtoid));
+    my %factinfo = &sqlSelectRowHash("factoids", "*",
+	{ factoid_key => $faqtoid }
+    );
 
     # factoid does not exist.
     if (scalar (keys %factinfo) <= 1) {
@@ -63,7 +65,8 @@ sub CmdFactInfo {
     }
 
     # modified:
-    if ($factinfo{'modified_by'}) {
+    # disabled for the time being... it's misleading/useless info.
+    if (0 && $factinfo{'modified_by'}) {
 	$string	= "last modified";
 
 	my $time = $factinfo{'modified_time'};
@@ -75,14 +78,8 @@ sub CmdFactInfo {
 	    }
 	}
 
-	my @x;
-	foreach (split ",", $factinfo{'modified_by'}) {
-	    /\!/;
-	    push(@x, $`);
-	}
-	$string .= "by ".&IJoin(@x);
+	$string .= " by ".(split ",", $factinfo{'modified_by'})[0];
 
-	$i++;
 	push(@array,$string);
     }
 
@@ -98,24 +95,24 @@ sub CmdFactInfo {
 		$string .= "\002". $requested_count. "\002 ".
 			&fixPlural("time", $requested_count);
 	    }
-	}
 
-	$string .= ", " if ($string ne "");
+	    my $requested_by = $factinfo{'requested_by'};
+	    $requested_by =~ /\!/;
+	    $string .= "last by $`";
 
-	my $requested_by = $factinfo{'requested_by'};
-	$requested_by =~ /\!/;
-	$string .= "last by $`";
-
-	my $requested_time = $factinfo{'requested_time'};
-	if ($requested_time) {
-	    if (time() - $requested_time > 60*60*24*7) {
-		$string .= " at \037". scalar(gmtime $requested_time). "\037";
-	    } else {
-		$string .= ", ".&Time2String(time() - $requested_time)." ago";
+	    my $requested_time = $factinfo{'requested_time'};
+	    if ($requested_time) {
+		if (time() - $requested_time > 60*60*24*7) {
+		    $string .= " at \037". scalar(localtime $requested_time). "\037";
+		} else {
+		    $string .= ", ".&Time2String(time() - $requested_time)." ago";
+		}
 	    }
+	} else {
+	    $string  = "has not been requested yet";
 	}
 
-	push(@array,$string);
+	push(@array, $string);
     }
 
     # locked:
