@@ -303,7 +303,7 @@ sub Modules {
 		}
 
 		my $value = &nickometer($str);
-		$nickometer{$value}{$_} = 1;
+		$nickometer{$value}{$str} = 1;
 	    }
 
 	    # step 2.
@@ -667,7 +667,7 @@ sub do_verstats {
 	return;
     }
 
-    if (scalar keys %ver or scalar @vernick) {
+    if (scalar @vernick > scalar(keys %{ $channels{lc $chan}{''} })/4) {
 	&msg($who, "verstats already in progress for someone else.");
 	return;
     }
@@ -686,7 +686,7 @@ sub do_verstats {
 	my $unknown	= $total - $vtotal;
 	my $perc	= sprintf("%.1f", $unknown * 100 / $total);
 	$perc		=~ s/.0$//;
-	$sorted{$perc}{"unknown/cloak"} = "$unknown ($perc %)";
+	$sorted{$perc}{"unknown/cloak"} = "$unknown ($perc%)";
 
 	foreach (keys %ver) {
 	    my $count	= scalar keys %{ $ver{$_} };
