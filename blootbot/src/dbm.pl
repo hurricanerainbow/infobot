@@ -17,16 +17,16 @@ use vars qw(%factoids %param);
     my %formats = (
 	'factoids', [
 	    'factoid_key',
-	    'factoid_value',
+	    'requested_by',
+	    'requested_time',
+	    'requested_count',
 	    'created_by',
 	    'created_time',
 	    'modified_by',
 	    'modified_time',
-	    'requested_by',
-	    'requested_time',
-	    'requested_count',
 	    'locked_by',
-	    'locked_time'
+	    'locked_time',
+	    'factoid_value'
 	],
 	'freshmeat', [
 	    'projectname_short',
@@ -47,16 +47,21 @@ use vars qw(%factoids %param);
 	    'time',
 	    'channel',
 	    'host',
-	    'messagecount',
-	    'hehcount',
-	    'karma',
 	    'message'
 	],
 	'stats', [
 	    'nick',
 	    'type',
-	    'counter',
-	    'time'
+	    'channel',
+	    'time',
+	    'counter'
+	],
+	'botmail', [
+	    'srcwho',
+	    'dstwho',
+	    'srcuh',
+	    'time',
+	    'msg'
 	]
     );
 
