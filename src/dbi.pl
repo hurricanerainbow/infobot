@@ -514,7 +514,7 @@ sub sumKey {
 # Usage: &randKey($table, $select);
 sub randKey {
     my ($table, $select) = @_;
-    my $rand	= int(rand(&countKeys($table) - 1));
+    my $rand	= int(rand(&countKeys($table)));
     my $query	= "SELECT $select FROM $table LIMIT 1 OFFSET $rand";
 
     my $sth	= $dbh->prepare($query);
