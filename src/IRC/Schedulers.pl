@@ -138,7 +138,7 @@ sub randomFactoid {
 }
 
 sub randomFreshmeat {
-    my $interval = &getChanConfDefault("randomFresheatInterval", 60);
+    my $interval = &getChanConfDefault("randomFreshmeatInterval", 60);
 
     if (@_) {
 	&ScheduleThis($interval, "randomFreshmeat");
@@ -547,7 +547,7 @@ sub seenFlush {
     $stats{'new'}	= 0;
     $stats{'old'}	= 0;
 
-    if ($param{'DBType'} =~ /^(mysql|pgsql|sqlite)$/i) {
+    if ($param{'DBType'} =~ /^(mysql|pgsql|sqlite|dbm)$/i) {
 	foreach $nick (keys %seencache) {
 	    my $retval = &dbReplace("seen", "nick", (
 			"nick" => lc $seencache{$nick}{'nick'},
@@ -556,57 +556,6 @@ sub seenFlush {
 			"channel" => $seencache{$nick}{'chan'},
 			"message" => $seencache{$nick}{'msg'},
 	    ) );
-	    delete $seencache{$nick};
-	    $flushed++;
-
-	    next;
-
-	    ###
-	    ### old code.
-	    ###
-
-	    my $exists = &dbGet("seen", "nick", "nick=".&dbQuote($nick) );
-
-	    if (defined $exists and $exists) {
-		&dbUpdate("seen", "nick", $nick, (
-			"time" => $seencache{$nick}{'time'},
-			"host" => $seencache{$nick}{'host'},
-			"channel" => $seencache{$nick}{'chan'},
-			"message" => $seencache{$nick}{'msg'},
-		) );
-		$stats{'old'}++;
-	    } else {
-		my $retval = &dbInsert("seen", $nick, (
-			"nick" => $seencache{$nick}{'nick'},
-			"time" => $seencache{$nick}{'time'},
-			"host" => $seencache{$nick}{'host'},
-			"channel" => $seencache{$nick}{'chan'},
-			"message" => $seencache{$nick}{'msg'},
-		) );
-		$stats{'new'}++;
-
-		### TODO: put bad nick into a list and don't do it again!
-		&FIXME("Should never happen! (nick => $nick)") if !$retval;
-	    }
-
-	    delete $seencache{$nick};
-	    $flushed++;
-	}
-
-    } elsif ($param{'DBType'} =~ /^dbm/i) {
-
-	foreach $nick (keys %seencache) {
-	    my $retval = &dbInsert("seen", $nick, (
-		"nick" => $seencache{$nick}{'nick'},
-		"time" => $seencache{$nick}{'time'},
-		"host" => $seencache{$nick}{'host'},
-		"channel" => $seencache{$nick}{'chan'},
-		"message" => $seencache{$nick}{'msg'},
-	    ) );
-
-	    ### TODO: put bad nick into a list and don't do it again!
-	    &FIXME("Should never happen! (nick => $nick)") if !$retval;
-
 	    delete $seencache{$nick};
 	    $flushed++;
 	}
