@@ -45,15 +45,15 @@ sub Countdown {
 	my ($to_days,$dayname,$monname);
 
 	if ($param{'DBType'} =~ /^mysql|sqlite$/i) {
-	    $to_days = (&dbRawReturn("SELECT TO_DAYS(NOW()) - TO_DAYS('$sqldate')"))[0];
-	    $dayname = (&dbRawReturn("SELECT DAYNAME('$sqldate')"))[0];
-	    $monname = (&dbRawReturn("SELECT MONTHNAME('$sqldate')"))[0];
+	    $to_days = (&sqlRawReturn("SELECT TO_DAYS(NOW()) - TO_DAYS('$sqldate')"))[0];
+	    $dayname = (&sqlRawReturn("SELECT DAYNAME('$sqldate')"))[0];
+	    $monname = (&sqlRawReturn("SELECT MONTHNAME('$sqldate')"))[0];
 
 	} elsif ($param{'DBType'} =~ /^pgsql$/i) {
-	    $to_days = (&dbRawReturn("SELECT date_trunc('day', 
+	    $to_days = (&sqlRawReturn("SELECT date_trunc('day', 
 				'now'::timestamp - '$sqldate')"))[0];
-	    $dayname = qw(Sun Mon Tue Wed Thu Fri Sat)[(&dbRawReturn("SELECT extract(dow from timestamp '$sqldate')"))[0]];
-	    $monname = qw(BAD Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)[(&dbRawReturn("SELECT extract(month from timestamp '$sqldate')"))[0]];
+	    $dayname = qw(Sun Mon Tue Wed Thu Fri Sat)[(&sqlRawReturn("SELECT extract(dow from timestamp '$sqldate')"))[0]];
+	    $monname = qw(BAD Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)[(&sqlRawReturn("SELECT extract(month from timestamp '$sqldate')"))[0]];
 
 	} elsif ($param{'DBType'} =~ /^dbm$/i) {
 	    &FIXME("Countdown: no dbm support");
