@@ -870,7 +870,7 @@ sub on_ping_reply {
 sub on_public {
     $conn = shift(@_);
     my ($event) = @_;
-    my $msg 	= ($event->args)[0];
+    my $msg	= ($event->args)[0];
     $chan	= lc( ($event->to)[0] );	# CASING.
     my $nick	= $event->nick;
     $who	= $nick;
