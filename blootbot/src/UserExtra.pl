@@ -462,6 +462,10 @@ sub userCommands {
 	my $format_time	= &Time2String(time() - $ircstats{'ConnectTime'});
 	my $reply;
 
+	foreach (keys %ircstats) {
+	    &DEBUG("ircstats: $_ => '$ircstats{$_}'.");
+	}
+
 	### RECONNECT COUNT.
 	if ($count == 1) {	# good.
 	    $reply = "I'm connected to $ircstats{'Server'} and have been so".
