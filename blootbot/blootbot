@@ -6,12 +6,10 @@
 use strict;
 use vars qw($bot_base_dir $bot_src_dir $bot_misc_dir $bot_state_dir
 	    $bot_data_dir $bot_config_dir $bot_log_dir $bot_run_dir 
-	    $bot_pid $memusage %param $fhs
+	    $bot_pid $memusage %param
 );
 
 BEGIN {
-    $fhs = 0;
-
     if (@ARGV and -f $ARGV[0]) {
 	# source passed config to allow $bot_*_dir to be set.
 	do $ARGV[0];
