@@ -83,6 +83,7 @@ sub hookMsg {
     $message	=~ s/[\cA-\c_]//ig;	# strip control characters
     $message	=~ s/^\s+//;		# initial whitespaces.
     $who	=~ tr/A-Z/a-z/;		# lowercase.
+    my $mynick = $conn->nick();
 
     &showProc();
 
@@ -103,7 +104,6 @@ sub hookMsg {
 
 	if ($message =~ /^($mask{nick})([\;\:\>\, ]+) */) {
 	    my $newmessage = $';
-	    my $mynick = $conn->nick();
 	    if ($1 =~ /^\Q$mynick\E$/i) {
 		$message   = $newmessage;
 		$addressed = 1;
@@ -168,11 +168,11 @@ sub hookMsg {
 	}
 
 	if ($addrchar) {
-	    &status("$b_cyan$who$ob is short-addressing me");
+	    &status("$b_cyan$who$ob is short-addressing $mynick");
 	} elsif ($msgType eq "private") {	# private.
-	    &status("$b_cyan$who$ob is /msg'ing me");
+	    &status("$b_cyan$who$ob is /msg'ing $mynick");
 	} else {				# public?
-	    &status("$b_cyan$who$ob is addressing me");
+	    &status("$b_cyan$who$ob is addressing $mynick");
 	}
 
 	$flood{$floodwho}{$message} = time();
