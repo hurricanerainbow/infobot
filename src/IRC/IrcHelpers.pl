@@ -239,7 +239,14 @@ sub hookMsg {
     foreach (@ignore) {
 	s/\*/\\S*/g;
 
-	next unless (eval { $nuh =~ /^$_$/i });
+	next unless (eval { $nuh =~ /^$_$/i } );
+
+	# better to ignore an extra message than to allow one to get
+	# through, although it would be better to go through ignore
+	# checking again.
+	if (time() - $cache{ignoreCheckTime} > 60) {
+	    &ignoreCheck();
+	}
 
 	&status("IGNORE <$who> $message");
 	return;

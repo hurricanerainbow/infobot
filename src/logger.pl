@@ -9,9 +9,9 @@
 use strict;
 
 use vars qw($statcount $bot_pid $forkedtime $statcountfix $addressed);
-use vars qw($logDate $logold $logcount $logtime $logrepeat);
+use vars qw($logDate $logold $logcount $logtime $logrepeat $running);
 use vars qw(@backlog);
-use vars qw(%param %file);
+use vars qw(%param %file %cache);
 
 require 5.001;
 
@@ -189,6 +189,12 @@ sub status {
     my($input) = @_;
     my $status;
 
+    # a way to hook onto status without looping.
+    # todo: find why $channels{undef} is created.
+    if (0 and $running and !$cache{statusSafe}) {
+	&ircCheck();
+    }
+
     if ($input eq $logold) {
 	# allow perl flooding
 	$logrepeat++ unless ($input =~ /PERL: Use of uninitialized/);
@@ -197,6 +203,8 @@ sub status {
 	if ($logrepeat >= 3) {
 	    $logrepeat = 0;
 	    &status("LOG: repeat throttle.");
+	    # we block it to ensure sequence of logging is intact.
+	    # could go with $conn->schedule but that's evil :)
 	    sleep 1;
 	}
     } else {
@@ -217,7 +225,7 @@ sub status {
 
     # Something is using this w/ NULL.
     if (!defined $input or $input =~ /^\s*$/) {
-	$input = "Blank status call? HELP HELP HELP";
+	$input = "ERROR: Blank status call? HELP HELP HELP";
     }
 
     for ($input) {
@@ -287,7 +295,8 @@ sub status {
 	    printf $_green."[%6d]".$ob." ", $statcount;
 	}
 
-	# three uberstabs to Derek Moeller.
+	# three uberstabs to Derek Moeller. I don't remember why but he
+	# deserved it :)
 	my $printable = $input;
 
 	if ($printable =~ s/^(<\/\S+>) //) {
@@ -346,14 +355,14 @@ sub status {
 	my $newlogDate = sprintf("%04d%02d%02d",$year+1900,$month+1,$day);
 	if (defined $logDate and $newlogDate != $logDate) {
 	    &closeLog();
-	    &compress($file{log});
+	    &compress( $file{log} );
 	    &openLog();
 	}
     } else {
 	$date	= $time;
     }
 
-    print LOG sprintf("%s %s\n", $date, $input);
+    printf LOG "%s %s\n", $date, $input;
 }
 
 sub openSQLDebug {

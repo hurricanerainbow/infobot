@@ -22,6 +22,7 @@ use vars qw(
 	$pubsize $pubcount $pubtime
 	$msgsize $msgcount $msgtime
 	$notsize $notcount $nottime
+	$running
 );
 
 # dynamic hash.
@@ -56,6 +57,7 @@ $ucount_userfile = 0;
 $utime_chanfile	= 0;
 $wtime_chanfile	= 0;
 $ucount_chanfile = 0;
+$running	= 0;
 ### more variables...
 $msgtime	= time();
 $msgsize	= 0;

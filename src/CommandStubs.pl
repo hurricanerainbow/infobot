@@ -803,6 +803,17 @@ sub do_verstats {
     $cache{verstats}{who}	= $who;
     $cache{verstats}{msgType}	= $msgType;
 
+    $conn->schedule(30, sub {
+	my $c		= lc $cache{verstats}{chan};
+	@vernicktodo	= ();
+	foreach (keys %{ $channels{$c}{''} } ) {
+	    next if (grep /^\Q$_\E$/i, @vernick);
+	    push(@vernicktodo, $_);
+	}
+
+	&verstats_flush();
+    } );
+
     $conn->schedule(60, sub {
 	my $vtotal	= 0;
 	my $c		= lc $cache{verstats}{chan};
@@ -820,7 +831,7 @@ sub do_verstats {
 	my $unknown	= $total - $vtotal;
 	my $perc	= sprintf("%.1f", $unknown * 100 / $total);
 	$perc		=~ s/.0$//;
-	$sorted{$perc}{"unknown/cloak"} = "$unknown ($perc%)";
+	$sorted{$perc}{"unknown/cloak"} = "$unknown ($perc%)" if ($unknown);
 
 	foreach (keys %ver) {
 	    my $count	= scalar keys %{ $ver{$_} };
@@ -847,6 +858,19 @@ sub do_verstats {
     } );
 
     return;
+}
+
+sub verstats_flush {
+    for (1..5) {
+	last unless (scalar @vernicktodo);
+
+	my $n = shift(@vernicktodo);
+	$conn->ctcp("VERSION", $n);
+    }
+
+    return unless (scalar @vernicktodo);
+
+    $conn->schedule(3, \&verstats_flush() );
 }
 
 sub textstats_main {
