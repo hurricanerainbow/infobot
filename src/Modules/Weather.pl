@@ -27,8 +27,10 @@ sub Weather {
 
 sub queryText {
     my ($station) = shift;
-    $station = uc($station);
     my $result;
+
+    $station = uc($station);
+    $station =~ s/for //i;
 
     if ($no_weather) {
 	return 0;
