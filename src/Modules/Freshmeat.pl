@@ -37,6 +37,7 @@ sub Freshmeat {
 		&downloadIndex();
 		&Freshmeat($sstr);
 	} );
+	# both parent/fork runs here, in case the following looks weird.
 	return if ($$ == $main::bot_pid);
     }
 
@@ -44,11 +45,12 @@ sub Freshmeat {
 	my $start_time = &main::gettimeofday();
 	my %hash;
 
-	# search by key first.
+	# search by key/NAME first.
 	foreach (&main::searchTable("freshmeat", "name","name",$sstr)) {
 	    $hash{$_} = 1 unless exists $hash{$_};
 	}
 
+	# search by description line.
 	foreach (&main::searchTable("freshmeat", "name","oneliner", $sstr)) {
 	    $hash{$_} = 1 unless exists $hash{$_};
 	    last if (scalar keys %hash > 15);
@@ -57,7 +59,7 @@ sub Freshmeat {
 	my @list = keys %hash;
 	# search by value, if we have enough room to do it.
 	if (scalar @list == 1) {
-	    &main::DEBUG("only one partial match found; showing full info.");
+	    &main::status("only one match found; showing full info.");
 	    &showPackage($list[0]);
 	    return;
 	}
@@ -126,8 +128,6 @@ sub downloadIndex {
 	return;
     }
 
-    ### TODO: do not dump full contents to an array.
-    ###		=> process on the fly instead but how?
     open(IN, $idx);
 
     # delete the table before we redo it.
@@ -156,7 +156,8 @@ sub downloadIndex {
 	if ($i % 100 == 0 and $i != 0) {
 	    &main::DEBUG("FM: unlocking and locking.");
 	    &main::dbRaw("UNLOCK", "UNLOCK TABLES");
-	    sleep 1;	# another lame hack to "prevent" errors.
+	    ### another lame hack to "prevent" errors.
+	    select(undef, undef, undef, 0.2);
 	    &main::dbRaw("LOCK", "LOCK TABLES freshmeat WRITE");
 	}
 
@@ -182,6 +183,7 @@ sub freshmeatAnnounce {
     my $file = "$main::bot_base_dir/Temp/fm_recent.txt";
     my @old;
 
+    ### if file exists, lets read it.
     if ( -f $file) {
 	open(IN, $file);
 	while (<IN>) {
@@ -199,8 +201,7 @@ sub freshmeatAnnounce {
 	push(@now, $what);
     }
 
-    ### ...
-
+    ### if file does not exist, write new.
     if (! -f $file) {
 	open(OUT, ">$file");
 	foreach (@now) {
@@ -234,6 +235,7 @@ sub freshmeatAnnounce {
 	&main::notice($_, $line);
     }
 
+    ### output new file.
     open(OUT, ">$file");
     foreach (@now) {
 	print OUT "$_\n";
