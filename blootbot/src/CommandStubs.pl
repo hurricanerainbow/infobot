@@ -282,10 +282,26 @@ sub Modules {
 	    my $arg	= $3;
 
 	    if (!defined $arg or $arg =~ /^\s*$/) {
+		# this is fucking ugly but it works :-)
 		my $x = (&dbRawReturn("SELECT SUM(counter) FROM stats WHERE type=".&dbQuote($type) ))[0];
+		my %hash = &dbGetCol("stats", "nick,counter", "type=".&dbQuote($type).
+			" ORDER BY nick DESC LIMIT 3", 1);
+		my $i;
+		my @top;
+		# unfortunately we have to sort it again!
+		# todo: make dbGetCol return hash and array? too much effort.
+		foreach $i (sort { $b <=> $a } keys %hash) {
+		    foreach (keys %{ $hash{$i} }) {
+			push(@top, "$_ - $i");
+		    }
+		}
+		my $topstr = "";
+		if (scalar @top) {
+		    $topstr = ".  Top ".scalar(@top).": ".join(', ', @top);
+		}
 
 		if (defined $x) {
-		    &pSReply("total count of '$type': $x");
+		    &pSReply("total count of '$type': $x$topstr");
 		} else {
 		    &pSReply("zero counter for '$type'.");
 		}

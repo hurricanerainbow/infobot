@@ -143,7 +143,7 @@ sub CmdFactStats {
     my ($type) = @_;
 
     if ($type =~ /^author$/i) {
-	my %hash = &dbGetCol("factoids", "factoid_key","created_by");
+	my %hash = &dbGetCol("factoids", "factoid_key,created_by", "created_by IS NOT NULL");
 	my %author;
 
 	foreach (keys %hash) {
@@ -177,7 +177,7 @@ sub CmdFactStats {
     } elsif ($type =~ /^broken$/i) {
         &status("factstats(broken): starting...");
 	my $start_time	= &timeget();
-	my %data	= &dbGetCol("factoids", "factoid_key","factoid_value");
+	my %data	= &dbGetCol("factoids", "factoid_key,factoid_value", "factoid_value IS NOT NULL");
 	my @list;
 
 	my $delta_time	= &timedelta($start_time);
@@ -304,7 +304,7 @@ sub CmdFactStats {
     } elsif ($type =~ /^dup(licate|e)$/i) {
         &status("factstats(dupe): starting...");
 	my $start_time	= &timeget();
-	my %hash	= &dbGetCol("factoids", "factoid_key", "factoid_value", 1);
+	my %hash	= &dbGetCol("factoids", "factoid_key,factoid_value", "factoid_value IS NOT NULL", 1);
 	my $refs	= 0;
 	my @list;
 	my $v;
@@ -420,7 +420,7 @@ sub CmdFactStats {
 	return &formListReply(1, $prefix, @list);
 
     } elsif ($type =~ /^locked$/i) {
-	my %hash = &dbGetCol("factoids", "factoid_key","locked_by");
+	my %hash = &dbGetCol("factoids", "factoid_key,locked_by", "locked_by IS NOT NULL");
 	my @list = keys %hash;
 
 	for (@list) {
@@ -431,7 +431,7 @@ sub CmdFactStats {
 	return &formListReply(0, $prefix, @list);
 
     } elsif ($type =~ /^new$/i) {
-	my %hash = &dbGetCol("factoids", "factoid_key","created_time");
+	my %hash = &dbGetCol("factoids", "factoid_key,created_time", "created_time IS NOT NULL");
 	my %age;
 
 	foreach (keys %hash) {
@@ -509,7 +509,7 @@ sub CmdFactStats {
 	return &formListReply(1, $prefix, @list);
 
     } elsif ($type =~ /^profanity$/i) {
-	my %data = &dbGetCol("factoids", "factoid_key","factoid_value");
+	my %data = &dbGetCol("factoids", "factoid_key,factoid_value", "factoid_value IS NOT NULL");
 	my @list;
 
 	foreach (keys %data) {
@@ -555,7 +555,7 @@ sub CmdFactStats {
 	return &formListReply(1, $prefix, @newlist);
 
     } elsif ($type =~ /^request(ed)?$/i) {
-	my %hash = &dbGetCol("factoids", "factoid_key", "requested_count",1);
+	my %hash = &dbGetCol("factoids", "factoid_key,requested_count", "requested_count IS NOT NULL", 1);
 
 	if (!scalar keys %hash) {
 	    return 'sorry, no factoids have been questioned.';
@@ -579,8 +579,25 @@ sub CmdFactStats {
 	my $prefix = "factoid statistics on $type ";
 	return &formListReply(0, $prefix, @list);
 
+    } elsif ($type =~ /^reqrate$/i) {
+	my %hash = &dbGetCol("factoids",
+		"factoid_key,(unix_timestamp() - created_time)/requested_count as rate",
+		"requested_by IS NOT NULL and created_time IS NOT NULL ORDER BY rate LIMIT 15", 1);
+
+	my $rate;
+	my @list;
+	my $total	= 0;
+	my $users	= 0;
+	foreach $rate (sort { $b <=> $a } keys %hash) {
+	    my $f	= join(", ", sort keys %{ $hash{$rate} });
+	    push(@list, "$f - ".&Time2String($rate));
+	}
+
+	my $prefix = "Rank of top factoid rate (time/req): ";
+	return &formListReply(0, $prefix, @list);
+
     } elsif ($type =~ /^requesters?$/i) {
-	my %hash = &dbGetCol("factoids", "factoid_key","requested_by");
+	my %hash = &dbGetCol("factoids", "factoid_key,requested_by", "requested_by IS NOT NULL");
 	my %requester;
 
 	foreach (keys %hash) {

@@ -121,7 +121,7 @@ sub process {
     # 'pass'
     if ($msgType =~ /private/ and $message =~ s/^pass//i) {
 	$message =~ s/^\s+|\s+$//g;
-	my @array = split / /, $message;
+	my @array = split ' ', $message;
 
 	if ($who =~ /^_default$/i) {
 	    &pSReply("you are too eleet.");
@@ -134,14 +134,15 @@ sub process {
 	}
 
 	# todo: use &getUser()?
-	my $first	= (scalar keys %users) ? 1 : 0;
+	my $first	= (scalar keys %users < 2) ? 1 : 0;
+
 	if (!exists $users{$who} and !$first) {
 	    &pSReply("nick $who is not in user list.");
 	    return;
 	}
 
 	if ($first) {
-	    &pSReply("first time user... adding you as master.");
+	    &pSReply("First time user... adding you as Master.");
 	    $users{$who}{FLAGS} = "mrsteon";
 	}
 
@@ -158,7 +159,7 @@ sub process {
 
 	if (!scalar keys %{ $users{$who}{HOSTS} }) {
 	    my $mask = "*!$user@".&makeHostMask($host);
-	    &pSReply("added mask $mask to $who.");
+	    &pSReply("Added hostmask '\002$mask\002' to $who");
 	    $users{$who}{HOSTS}{$mask}	= 1;
 	}
 

@@ -15,6 +15,11 @@ if (&IsParam("useStrict")) { use strict; }
 sub readUserFile {
     my $f = "$bot_misc_dir/blootbot.users";
 
+    if (! -f $f) {
+	&DEBUG("userfile not found; new fresh run detected.");
+	return;
+    }
+
     if ( -f $f and -f "$f~") {
 	my $s1 = -s $f;
 	my $s2 = -s "$f~";

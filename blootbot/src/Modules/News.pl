@@ -387,12 +387,13 @@ sub list {
     }
     my $timestr = &::Time2String(time() - $newest);
     &::msg($::who, "|= Last updated $timestr ago.");
-    &::msg($::who, " \037Num\037 \037Item ".(" "x40)." \037");
+    &::msg($::who, " \037Num\037  \037Item ".(" "x40)." \037");
 
     my $i = 1;
     foreach ( &getNewsAll() ) {
 	my $subtopic	= $_;
 	my $setby	= $::news{$chan}{$subtopic}{Author};
+	my $chr		= (exists $::News{$chan}{$subtopic}{Text}) ? "" : "*";
 
 	if (!defined $subtopic) {
 	    &::DEBUG("news: warn: subtopic == undef.");
@@ -400,9 +401,16 @@ sub list {
 	}
 
 	# todo: show request stats aswell.
-	&::msg($::who, sprintf("\002[\002%2d\002]\002 %s",
-				$i, $subtopic));
+	&::msg($::who, sprintf("\002[\002%2d\002]\002%s %s",
+				$i, $chr, $subtopic));
 	$i++;
+    }
+
+    my $z = $::newsuser{$::who};
+    if (defined $z) {
+	&::DEBUG("cache $::who: $z");
+    } else {
+	&::DEBUG("cache: $::who doesn't have newscache set.");
     }
 
     &::msg($::who, "|= End of News.");
@@ -695,6 +703,12 @@ sub latest {
     }
 
     my $t = $::newsuser{$chan}{$who};
+    if (defined $t) {
+	&::DEBUG("newsuser: $chan/$who == $t");
+    } else {
+	&::DEBUG("newsuser: $chan/$who == undefined");
+    }
+
     if (defined $t and ($t == 0 or $t == -1)) {
 	if ($flag) {
 	    &::notice($::who, "if you want to read news, try /msg $::ident news or /msg $::ident news notify");
@@ -737,7 +751,9 @@ sub latest {
 
     # !scalar @new, $flag
     if (!scalar @new and $flag) {
-	&::notice($::who, "no new news for $chan.");
+	&::notice($::who, "no new news for $chan for $who.");
+	# valid to set this?
+	$::newsuser{$chan}{$who} = time();
 	return;
     }
 

@@ -349,7 +349,7 @@ sub performReply {
 	&msg($who, $reply);
     } elsif ($msgType eq 'chat') {
 	if (!exists $dcc{'CHAT'}{$who}) {
-	    &WARN("pSR: dcc{'CHAT'}{$who} does not exist.");
+	    &VERB("pSR: dcc{'CHAT'}{$who} does not exist.",2);
 	    return;
 	}
 	$conn->privmsg($dcc{'CHAT'}{$who}, $reply);
@@ -379,17 +379,23 @@ sub performStrictReply {
     } elsif ($msgType eq 'public') {
 	&say($reply);
     } elsif ($msgType eq 'chat') {
-	&dccsay(lc $who,$reply);
+	&dccsay(lc $who, $reply);
     } else {
 	&ERROR("pSR: msgType invalid? ($msgType).");
     }
 }
 
 sub dccsay {
-    my ($who, $reply) = @_;
+    my($who, $reply) = @_;
+
+    if (!defined $reply or $reply =~ /^\s*$/) {
+	&WARN("dccsay: reply == NULL.");
+	return;
+    }
+
     if (!exists $dcc{'CHAT'}{$who}) {
-	&WARN("pSR: dcc{'CHAT'}{$who} does not exist.");
-	return '';
+	&VERB("pSR: dcc{'CHAT'}{$who} does not exist. (2)",2);
+	return;
     }
 
     &status("=>$who<= $reply");		# dcc chat.
@@ -405,6 +411,7 @@ sub dcc_close {
 	my @who = grep /^\Q$who\E$/i, keys %{ $dcc{$type} };
 	next unless (scalar @who);
 	$who = $who[0];
+	&DEBUG("dcc_close... close $who!");
     }
 }
 
@@ -776,21 +783,23 @@ sub getJoinChans {
 }
 
 sub closeDCC {
-###    &DEBUG("closeDCC called.");
+#    &DEBUG("closeDCC called.");
 
     foreach $type (keys %dcc) {
 	next if ($type ne uc($type));
  
 	foreach $nick (keys %{ $dcc{$type} }) {
 	    next unless (defined $nick);
-	    &DEBUG("closing DCC $type to $nick (FIXME).");
+	    &status("DCC CHAT: closing DCC $type to $nick.");
 	    next unless (defined $dcc{$type}{$nick});
 
 	    my $ref = $dcc{$type}{$nick};
-	    &DEBUG("ref => $ref");
-
-#	    $dcc{$type}{$nick}->close();
+	    &dccsay($nick, "bye bye, $nick") if ($type =~ /^chat$/i);
+	    $dcc{$type}{$nick}->close();
+	    delete $dcc{$type}{$nick};
+	    &DEBUG("after close for $nick");
 	}
+	delete $dcc{$type};
     }
 }
 
