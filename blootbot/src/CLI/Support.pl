@@ -13,7 +13,7 @@ sub cliloop {
     $uh  = "local\@local";
     $who = "local";
     $orig{who} = "local";
-    $ident = $param{'ircNick'};
+    $ident = $param{'ircUser'};
     $chan = $talkchannel = "_local";
     $addressed = 1;
     $msgType = 'public';

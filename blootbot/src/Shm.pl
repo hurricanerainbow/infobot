@@ -82,7 +82,7 @@ sub shmWrite {
     my $read = &shmRead($key);
     $read =~ s/\0+//g;
     if ($read eq "") {
-	$str = sprintf("%s:%d:%d: ", $param{ircNick}, $bot_pid, time());
+	$str = sprintf("%s:%d:%d: ", $param{ircUser}, $bot_pid, time());
     } else {
 	$str = $read ."||". $str;
     }
