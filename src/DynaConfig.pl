@@ -19,7 +19,10 @@ sub readUserFile {
 	exit 1;
     }
 
-    undef %users;		# clear on reload.
+    undef %users;	# clear on reload.
+    undef %bans;	# reset.
+    undef %ingore;	# reset.
+
     my $ver = <IN>;
     if ($ver !~ /^#v1/) {
 	&ERROR("old or invalid user file found.");
@@ -60,12 +63,12 @@ sub readUserFile {
 	} elsif (/^- (\S+):\+(\d+):\+(\d+):(\S+):(.*)$/ and $type eq "ignore") {
 	    ### ignore: middle entry.
 	    my $mask = $1;
+	    my(@array) = ($2,$3,$4,$5);
 	    ### DEBUG purposes only!
 	    if ($mask !~ /^$mask{nuh}$/) {
 		&WARN("ignore: mask $mask is invalid.");
 		next;
 	    }
-	    my(@array) = ($2,$3,$4,$5);
 	    $ignore{$chan}{$mask} = \@array;
 
 	} elsif (/^::(\S+) bans$/) {		# bans: start entry.
@@ -146,8 +149,13 @@ sub writeUserFile {
 	print OUT "::$chan bans\n";
 	foreach (keys %{ $bans{$chan} }) {
 # format: bans: mask expire time-added count who-added reason
-	    printf OUT "- %s:+%d:+%d:%d:%s:%s\n",
-	    $_, @{ $bans{$chan}{$_} };
+	    my @array = @{ $bans{$chan}{$_} };
+	    if (scalar @array != 5) {
+		&WARN("bans: $chan/$_ is corrupted.");
+		next;
+	    }
+
+	    printf OUT "- %s:+%d:+%d:%d:%s:%s\n", $_, @array;
 	}
     }
     print OUT "\n" if ($cbans);
@@ -166,15 +174,15 @@ sub writeUserFile {
 
 	### TODO: use hash instead of array for flexibility?
 	print OUT "::$chan ignore\n";
-	&DEBUG("ignore: chan => $chan");
 	foreach (keys %{ $ignore{$chan} }) {
-	    &DEBUG("   => $_");
 # format: ignore: mask expire time-added who-added reason
-	    printf OUT "- %s:+%d:+%d:%s:%s\n", $_,
-					@{ $ignore{$chan}{$_} };
-	    foreach ( @{ $ignore{$chan}{$_} } ) {
-		&DEBUG("      => $_");
+	    my @array = @{ $ignore{$chan}{$_} };
+	    if (scalar @array != 4) {
+		&WARN("ignore: $chan/$_ is corrupted.");
+		next;
 	    }
+
+	    printf OUT "- %s:+%d:+%d:%s:%s\n", $_, @array;
 	}
     }
 
@@ -198,8 +206,7 @@ sub readChanFile {
     }
 
     undef %chanconf;	# reset.
-    undef %bans;	# reset.
-    undef %ingore;	# reset.
+
     $_ = <IN>;		# version string.
 
     my $chan;
