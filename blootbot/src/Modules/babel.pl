@@ -115,6 +115,8 @@ sub translate {
   } else {
       $translated = ":("; # failure
   }
+  $translated = "babel.pl: result too long, probably an error" if (length($translated) > 370);
+
   &main::pSReply($translated);
 }
 
