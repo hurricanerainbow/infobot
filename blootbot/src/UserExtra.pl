@@ -800,6 +800,7 @@ sub userCommands {
 	foreach (keys %forked) {
 	    $forks += scalar keys %{ $forked{$_} };
 	}
+	$forks /= 2;
 	$count{'Commands'}	= 0;
 	foreach (keys %cmdstats) {
 	    $count{'Commands'} += $cmdstats{$_};
