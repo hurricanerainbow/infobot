@@ -5,7 +5,10 @@
 #     Created: 19991008
 #
 
-### use strict;
+use strict;
+
+use vars qw(%channels %param);
+use vars qw($dbh $found $ident);
 
 sub rootWarn {
     my ($nick,$user,$host,$chan) = @_;

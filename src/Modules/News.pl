@@ -15,9 +15,11 @@
 #	Text	- Actual text.
 ###
 
-use vars qw($who $chan);
-
 package News;
+
+use strict;
+
+use vars qw($who $chan);
 
 sub Parse {
     my($what)	= @_;
@@ -225,6 +227,7 @@ sub writeNews {
 	$c = scalar keys %{ $::news{$chan} };
 	next unless ($c);
 	$cc++;
+	my $item;
 
 	foreach $item (sort keys %{ $::news{$chan} }) {
 	    $c = scalar keys %{ $::news{$chan}{$item} };
@@ -232,6 +235,7 @@ sub writeNews {
 	    $ci++;
 
 	    print NEWS "$chan $item\n";
+	    my $what;
 	    foreach $what (sort keys %{ $::news{$chan}{$item} }) {
 		print NEWS "    $what: $::news{$chan}{$item}{$what}\n";
 	    }
@@ -393,7 +397,9 @@ sub list {
 	$newest = $t if ($t > $newest);
 	if ($e > 1 and $e < $expire) {
 	    $expire	= $e;
-	    $eno	= &newsS2N($item);
+	    &::DEBUG("before newsS2N($_)");
+	    $eno	= &newsS2N($_);
+	    &::DEBUG("after newsS2N($_) == $eno");
 	}
     }
     my $timestr = &::Time2String(time() - $newest);

@@ -4,9 +4,9 @@
 #	     => use the command hooks system aswell
 #
 
-use strict;
-
 package Insult;
+
+use strict;
 
 sub Insult {
     my ($insultwho) = @_;

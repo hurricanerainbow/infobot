@@ -5,10 +5,16 @@
 #      NOTE: Based on code by Kevin Lenzo & Patrick Cole  (c) 1997
 #
 
-if (&IsParam("useStrict")) { use strict; }
+use strict;
 
-use vars qw($nickserv);
-$nickserv	= 0;
+use vars qw(%floodjoin %nuh %dcc %cache %channels %param %mask
+	%chanconf %orig %ircPort %ircstats %last %netsplit);
+use vars qw($irc $nickserv $ident $conn $msgType $who $talkchannel
+	$addressed);
+use vars qw($notcount $nottime $notsize $msgcount $msgtime $msgsize
+		$pubcount $pubtime $pubsize);
+use vars qw($b_blue $ob);
+use vars qw(@joinchan @ircServers);
 
 # static scalar variables.
 $mask{ip}	= '(\d+)\.(\d+)\.(\d+)\.(\d+)';
@@ -18,6 +24,8 @@ my $isnick1	= 'a-zA-Z\[\]\{\}\_\`\^\|\\\\';
 my $isnick2	= '0-9\-';
 $mask{nick}	= "[$isnick1]{1}[$isnick1$isnick2]*";
 $mask{nuh}	= '\S*!\S*\@\S*';
+
+$nickserv	= 0;
 
 sub ircloop {
     my $error	= 0;
@@ -636,7 +644,7 @@ sub invite {
 # Usage: &joinNextChan();
 sub joinNextChan {
     if (scalar @joinchan) {
-	$chan = shift @joinchan;
+	my $chan = shift @joinchan;
 	&joinchan($chan);
 
 	if (my $i = scalar @joinchan) {
@@ -707,6 +715,7 @@ sub IsNickInChan {
 
 sub IsNickInAnyChan {
     my ($nick) = @_;
+    my $chan;
 
     foreach $chan (keys %channels) {
 	next unless (grep /^\Q$nick\E$/i, keys %{ $channels{$chan}{''}  });
@@ -812,10 +821,12 @@ sub getJoinChans {
 
 sub closeDCC {
 #    &DEBUG("closeDCC called.");
+    my $type;
 
     foreach $type (keys %dcc) {
 	next if ($type ne uc($type));
  
+	my $nick;
 	foreach $nick (keys %{ $dcc{$type} }) {
 	    next unless (defined $nick);
 	    &status("DCC CHAT: closing DCC $type to $nick.");

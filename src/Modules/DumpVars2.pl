@@ -5,7 +5,8 @@
 #       Created: 20020329
 #
 
-#use strict;
+# use strict;	# TODO
+
 use Devel::Symdump;
 
 sub symdumplog {

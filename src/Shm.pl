@@ -5,6 +5,8 @@
 #   Created: 20000124
 #
 
+# use strict;	# TODO
+
 use POSIX qw(_exit);
 
 sub openSHM {
@@ -12,7 +14,7 @@ sub openSHM {
     my $size = 2000;
 
     if (&IsParam("noSHM")) {
-	&status("Created shared memory: disabled. [bot may become unreliable]");
+	&status("Shared memory: Disabled. WARNING: bot may become unreliable");
 	return 0;
     }
 

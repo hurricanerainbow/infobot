@@ -24,6 +24,8 @@ package zfi;
 
 # We reply publicly or privately, depending how we were called
 
+use strict;
+
 my $no_zfi;
 
 BEGIN {
@@ -43,7 +45,7 @@ sub queryText {
 	my $res_return = 5;
 
 	my $ua = new LWP::UserAgent;
-  $ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
+	$ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
 
 	$ua->timeout(10);
 
@@ -95,7 +97,7 @@ sub queryText {
 sub query {
 	my ($args) = @_;
 	&::performStrictReply(&queryText($args));
-  return;
+	return;
 }
 
 1;

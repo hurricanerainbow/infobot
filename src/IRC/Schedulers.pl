@@ -5,7 +5,7 @@
 #         Created: 20000117
 #
 
-if (&IsParam("useStrict")) { use strict; }
+# use strict;	# TODO
 
 use POSIX qw(strftime);
 use vars qw(%sched);
@@ -41,10 +41,10 @@ sub setupSchedulers {
     &factoidCheck(2);	# takes a couple of seconds on a 486. defer it
     &newsFlush(1);
 
+    # todo: squeeze this into a one-liner.
 #    my $count = map { exists $sched{$_}{TIME} } keys %sched;
     my $count	= 0;
     foreach (keys %sched) {
-#	next unless (exists $sched{$_}{TIME});
 	my $time = $sched{$_}{TIME};
 	next unless (defined $time and $time > time());
 

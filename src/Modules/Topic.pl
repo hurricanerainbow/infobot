@@ -6,8 +6,8 @@
 #
 
 use strict;
-use vars qw(%topiccmp);
-no strict "refs";		### FIXME!!!
+use vars qw(%topiccmp %topic %channels %orig);
+use vars qw($who $chan $conn $uh $ident);
 
 ###############################
 ##### INTERNAL FUNCTIONS

@@ -5,8 +5,9 @@
 #  Created: 20000309
 #
 
-#use strict;
-use vars qw(%ftp);
+use strict;
+
+use vars qw(%ftp %param);
 
 # Usage: &ftpGet($host,$dir,$file,[$lfile]);
 sub ftpGet {
@@ -144,6 +145,7 @@ sub ftpList {
 
 ### LWP.
 # Usage: &getURL($url, [$post]);
+# todo: rename this to getHTTP
 sub getURL {
     my ($url,$post) = @_;
     my ($ua,$res,$req);

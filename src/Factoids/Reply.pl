@@ -10,7 +10,7 @@
 #   rhs - factoid message.
 ##
 
-if (&IsParam("useStrict")) { use strict; }
+# use strict;	# TODO
 
 use vars qw($msgType $uh $lastWho $ident);
 use vars qw(%lang %lastWho);

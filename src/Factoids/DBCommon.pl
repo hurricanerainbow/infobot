@@ -5,7 +5,7 @@
 #     Created: 19991020
 #
 
-if (&IsParam("useStrict")) { use strict; }
+# use strict;	# TODO
 
 #####
 # Usage: &setFactInfo($faqtoid, $key, $val);

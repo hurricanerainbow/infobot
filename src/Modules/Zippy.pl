@@ -7,6 +7,8 @@
 
 package zippy;
 
+use strict;
+
 my $no_zippy; # Can't think of any situation in which this won't work..
 
 sub zippy::get {
