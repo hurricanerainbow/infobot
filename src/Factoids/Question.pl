@@ -182,7 +182,8 @@ sub factoidArgs {
     # which will make it less than linear => quicker!
     # todo: cache this, update cache when altered. !!! !!! !!!
 #    my $t = &timeget();
-    my @list = &searchTable("factoids", "factoid_key", "factoid_key", "^CMD: ");
+    my ($first) = split(/\s+/, $str); 
+    my @list = &searchTable("factoids", "factoid_key", "factoid_key", "^CMD: $first ");
 #    my $delta_time = &timedelta($t);
 #    &DEBUG("factArgs: delta_time = $delta_time s");
 #    &DEBUG("factArgs: list => ".scalar(@list) );
