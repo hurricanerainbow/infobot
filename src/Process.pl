@@ -133,7 +133,7 @@ sub process {
 	    return;
 	}
 
-	my $mask = "*!$user@".&makeHostMask($host);
+	my $mask = "$who!$user@".&makeHostMask($host);
 	### TODO: prevent adding multiple dupe masks?
 	### TODO: make &addHostMask() CMD?
 	&pSReply("Added $mask for $do_nick...");
