@@ -12,19 +12,20 @@ use vars qw($bot_base_dir $bot_src_dir $bot_misc_dir $bot_state_dir
 BEGIN {
     $fhs = 0;
 
-    if ($fhs) {	# FHS
-	$bot_base_dir	= $bot_state_dir;
-	$bot_config_dir	= '.';
-    } else {	# non-FHS
-	$bot_base_dir	= '.';
-	$bot_config_dir	= 'files/';
-	$bot_data_dir	= 'files/';
-	$bot_state_dir	= 'files/';
-	$bot_run_dir	= '.';
+    if (@ARGV and -f $ARGV[0]) {
+	# source passed config to allow $bot_*_dir to be set.
+	do $ARGV[0];
     }
-    # common.
-    $bot_src_dir	= "$bot_base_dir/src";
-    $bot_misc_dir	= "$bot_base_dir/files";
+
+    # set any $bot_*_dir var's that aren't already set
+    $bot_base_dir	||= '.';
+    $bot_config_dir	||= 'files/';
+    $bot_data_dir	||= 'files/';
+    $bot_state_dir	||= 'files/';
+    $bot_run_dir	||= '.';
+    $bot_src_dir	||= "$bot_base_dir/src";
+    $bot_log_dir	||= "$bot_base_dir/log";
+    $bot_misc_dir	||= "$bot_base_dir/files";
 
     $bot_pid		= $$;
 
