@@ -51,7 +51,6 @@ sub query {
     }
 
     &::performStrictReply( &::formListReply(0, "Nickometer list for $term ", @list) );
-    &::DEBUG("test.");
 
     return;
   }
