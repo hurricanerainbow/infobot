@@ -1,18 +1,21 @@
 #
 # logger.pl: logger functions!
 #    Author: dms
-#   Version: 19991205
+#   Version: v0.3 (20000731)
+#  FVersion: 19991205
 #      NOTE: Based on code by Kevin Lenzo & Patrick Cole  (c) 1997
 #
 
 use strict;
 
-use vars qw($logDate $loggingstatus $statcount $infobot_pid
-	    $statcountfix $addressed);
+use vars qw($logDate $loggingstatus $statcount $bot_pid
+	    $statcountfix $addressed $logcount $logtime);
 use vars qw(@backlog);
 use vars qw(%param %file);
 
 require 5.001;
+
+$logtime	= time();
 
 my %attributes = (
 	'clear'      => 0,
@@ -148,7 +151,11 @@ sub WARN {
 }
 
 sub FIXME {
-    &status("${b_cyan}!FIXME!$ob $_[0] (SHOULD NOT HAPPEN)");
+    &status("${b_cyan}!FIXME!$ob $_[0] (SHOULD NOT HAPPEN?)");
+}
+
+sub TODO {
+    &status("${b_cyan}!TODO!$ob $_[0]");
 }
 
 sub VERB {
@@ -174,12 +181,32 @@ sub status {
     $statcount++;
 
     # fix style of output if process is child.
-    if (defined $infobot_pid and $$ != $infobot_pid and !defined $statcountfix) {
+    if (defined $bot_pid and $$ != $bot_pid and !defined $statcountfix) {
 	$statcount	= 1;
 	$statcountfix	= 1;
     }
 
-    # for logging and non-ansi control.
+    ### LOG THROTTLING.
+    ### TODO: move this _after_ printing?
+    my $time = time();
+    my $reset = 0;
+    if ($logtime != $time) {
+	$reset++;
+    } elsif ($logtime == $time) {
+	if ($logcount < 25) {		# too high?
+	    $logcount++;
+	} else {
+	    sleep 1;
+	    &status("LOG: Throttling.");	# recursive?
+	    $reset++;
+	}
+    }
+    if ($reset) {
+	$logtime	= $time;
+	$logcount	= 0;
+    }
+
+    # Log differently for forked/non-forked output.
     if ($statcountfix) {
 	$status = "!$statcount! ".$input;
 	if ($statcount > 1000) {
