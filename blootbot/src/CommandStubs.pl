@@ -161,7 +161,7 @@ sub parseCmdHook {
 ###
 ### START ADDING HOOKS.
 ###
-&addCmdHook("extra", 'd?bugs', ('CODEREF' => 'DBugs::Parse',
+&addCmdHook("extra", 'd?bugs', ('CODEREF' => 'DebianExtra::Parse',
 	'Forker' => 1, 'Identifier' => 'DebianExtra',
 	'Cmdstats' => 'Debian Bugs') );
 &addCmdHook("extra", 'dauthor', ('CODEREF' => 'Debian::searchAuthor',
