@@ -14,7 +14,7 @@ sub Insult {
     my @adjs;
     my @amts;
     my @nouns;
-    print "Reading...\n";
+    &::DEBUG("Reading insult data");
     while (<DATA>) {
 	chomp;
 	push(@adjs, split(" ", $1)) if /^adj\s*(.*)/;

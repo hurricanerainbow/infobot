@@ -13,7 +13,7 @@ my $no_zippy; # Can't think of any situation in which this won't work..
 
 sub zippy::get {
     my @yows;
-    print "Reading...\n";
+    &::DEBUG("Reading zippy data");
     while (<DATA>) {
 	chomp;
 	push @yows, $_;
