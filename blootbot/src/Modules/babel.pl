@@ -61,7 +61,7 @@ sub babelfish {
 	&::pSReply($xlate) if ($xlate);
 	return;
     }
-    &DEBUG("what's this junk?");
+    &::DEBUG("what's this junk?");
 
     my $last_english = $phrase;
     my $last_lang;
@@ -93,7 +93,7 @@ sub translate {
 	    $textarea	= 1	if (/<textarea/i);
 	    next unless ($textarea);
 
-	    &DEBUG("   '$_'");
+	    &::DEBUG("   '$_'");
 
 	    $textarea	= 0	if (/<\/textarea/i);
 	}
