@@ -136,14 +136,14 @@ sub CmdFactStats {
     my ($type) = @_;
 
     if ($type =~ /^author$/i) {
-	my @array = &sqlSelectColArray("factoids",
+	my %hash = &sqlSelectColHash("factoids",
 		"factoid_key,created_by", { },
 		"created_by IS NOT NULL"
 	);
 	my %author;
 
-	foreach (@array) {
-	    my $thisnuh = $hash{$_};
+	foreach my $factoid (keys %hash) {
+	    my $thisnuh = $hash{$factoid};
 
 	    $thisnuh =~ /^(\S+)!\S+@\S+$/;
 	    $author{lc $1}++;
