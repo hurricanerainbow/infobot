@@ -207,8 +207,8 @@ sub parseCmdHook {
 &addCmdHook("extra", 'u(ser)?info', ('CODEREF' => 'userinfo',
 	'Identifier' => 'userinfo', 'Help' => 'userinfo',
 	'Module' => 'userinfo') );
-&addCmdHook("extra", 'rootWarn', ('CODEREF' => 'CmdrootWarn',
-	'Identifier' => 'rootWarn', 'Module' => 'rootwarn') );
+&addCmdHook("extra", 'RootWarn', ('CODEREF' => 'CmdrootWarn',
+	'Identifier' => 'RootWarn', 'Module' => 'RootWarn') );
 &addCmdHook("extra", 'seen', ('CODEREF' => 'seen', 'Identifier' =>
 	'seen') );
 &addCmdHook("extra", 'Dict', ('CODEREF' => 'Dict::Dict',

@@ -572,7 +572,7 @@ sub on_join {
 
     ### ROOTWARN:
     &rootWarn($who,$user,$host,$chan) if (
-		&IsChanConf("rootWarn") &&
+		&IsChanConf('RootWarn') &&
 		$user =~ /^~?r(oo|ew|00)t$/i
     );
 

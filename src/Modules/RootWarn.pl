@@ -13,29 +13,29 @@ use vars qw($dbh $found $ident);
 sub rootWarn {
     my ($nick,$user,$host,$chan) = @_;
     my $n	= lc $nick;
-    my $attempt = &sqlSelect("rootwarn", "attempt", { nick => $n } ) || 0;
-    my $warnmode	= &getChanConf("rootWarnMode");
+    my $attempt = &sqlSelect('rootwarn', 'attempt', { nick => $n } ) || 0;
+    my $warnmode	= &getChanConf('rootWarnMode');
 
     if ($attempt == 0) {	# first timer.
 	if (defined $warnmode and $warnmode =~ /quiet/i) {
-	    &status("rootwarn: Detected root user; notifying user");
+	    &status('RootWarn: Detected root user; notifying user');
 	} else {
-	    &status("rootwarn: Detected root user; notifying nick and channel.");
+	    &status('RootWarn: Detected root user; notifying nick and channel.');
 	    &msg($chan, "ROO".("O" x int(rand 8))."T has landed!");
 	}
 
-	if ($_ = &getFactoid("root")) {
-	    &msg($nick, "rootwarn: $attempt : $_");
+	if ($_ = &getFactoid('root')) {
+	    &msg($nick, "RootWarn: $attempt : $_");
 	} else {
-	    &status("root needs to be defined in database.");
+	    &status('"root" needs to be defined in database.');
 	}
 
     } elsif ($attempt < 2) {	# 2nd/3rd time occurrance.
-	if ($_ = &getFactoid("root again")) {
+	if ($_ = &getFactoid('root again')) {
 	    &status("RootWarn: not first time root user; msg'ing $nick.");
-	    &msg($nick, "rootwarn: $attempt : $_");
+	    &msg($nick, "RootWarn: $attempt : $_");
 	} else {
-	    &status("root again needs to be defined in database.");
+	    &status('"root again" needs to be defined in database.');
 	}
 
     } else {			# >3rd time occurrance.
@@ -44,11 +44,11 @@ sub rootWarn {
 	    if ($channels{$chan}{'o'}{$ident}) {
 		&status("RootWarn: $nick... sigh... bye bye.");
 		rawout("MODE $chan +b *!root\@$host");	# ban
-		&kick($chan,$nick,"bye bye");
+		&kick($chan,$nick,'bye bye');
 	    }
-	} elsif ($_ = &getFactoid("root again")) {
+	} elsif ($_ = &getFactoid('root again')) {
 	    &status("RootWarn: $attempt times; msg'ing $nick.");
-	    &msg($nick, "rootwarn: $attempt : $_");
+	    &msg($nick, "RootWarn: $attempt : $_");
 	} else {
 	    &status("root again needs to be defined in database.");
 	}
@@ -59,7 +59,7 @@ sub rootWarn {
     # ok... don't record the attempt if nick==root.
     return if ($nick eq "root");
 
-    &sqlSet("rootwarn", { nick => lc($nick) }, {
+    &sqlSet('rootwarn', { nick => lc($nick) }, {
 	attempt	=> $attempt,
 	time	=> time(),
 	host	=> $user."\@".$host,
@@ -73,7 +73,7 @@ sub rootWarn {
 # TODO: support arguments to get info on a particular nick?
 sub CmdrootWarn {
     my $reply;
-    my $count = &countKeys("rootwarn");
+    my $count = &countKeys('rootwarn');
 
     if ($count == 0) {
 	&performReply("no-one has been warned about root, woohoo");
