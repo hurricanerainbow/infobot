@@ -229,8 +229,9 @@ sub fixString {
 	s/\s+/ /g;		# remove excessive whitespaces.
 
 	next unless (defined $level);
-	&DEBUG("strip control chars?");
-	s/[\cA-\c_]//ig		# remove control characters.
+	if (s/[\cA-\c_]//ig) {		# remove control characters.
+	    &DEBUG("stripped control chars");
+	}
     }
 
     return $str;
