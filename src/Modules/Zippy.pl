@@ -20,7 +20,7 @@ sub zippy::get {
     }
 
     if ($no_zippy) { # ..but just in case :-)
-	return "YOW! I'm an INFOBOT without ZIPPY!" if $main::addressed;
+	return "YOW! I'm an INFOBOT without ZIPPY!" if $::addressed;
     }
 
     srand(); # fork seems to not change rand. force it here
@@ -54,6 +54,9 @@ zippy
 It's OBVIOUS ... The FURS never reached ISTANBUL ... You were an EXTRA
 in the REMAKE of "TOPKAPI" ... Go home to your WIFE ... She's making
 FRENCH TOAST!
+
+Zippy the Pinhead quotations
+(from various comic books and strips by Bill Griffith)
 
 =head1 AUTHORS
 
@@ -99,7 +102,8 @@ But Ken says, WOO-WOO!!  No credit at "Mr. Liquor"!!
 BARRY ... That was the most HEART-WARMING rendition of "I DID IT MY WAY" I've ever heard!!
 Being a BALD HERO is almost as FESTIVE as a TATTOOED KNOCKWURST.
 BELA LUGOSI is my co-pilot ...
-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI- ... bleakness ... desolation ... plastic forks ...
+BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-BI-
+... bleakness ... desolation ... plastic forks ...
 Bo Derek ruined my life!
 Boy, am I glad it's only 1971...
 Boys, you have ALL been selected to LEAVE th' PLANET in 15 minutes!!
@@ -366,8 +370,7 @@ Is this TERMINAL fun?
 Is this the line for the latest whimsical YUGOSLAVIAN drama which also makes you want to CRY and reconsider the VIETNAM WAR?
 Isn't this my STOP?!
 It don't mean a THING if you ain't got that SWING!!
-It was a JOKE!!  Get it??  I was receiving messages from DAVID LETTERMAN!!
-YOW!!
+It was a JOKE!!  Get it??  I was receiving messages from DAVID LETTERMAN!! YOW!!
 It's a lot of fun being alive ... I wonder if my bed is made?!?
 It's NO USE ... I've gone to "CLUB MED"!!
 It's OBVIOUS ... The FURS never reached ISTANBUL ... You were an EXTRA in the REMAKE of "TOPKAPI" ... Go home to your WIFE ... She's making FRENCH TOAST!
@@ -475,13 +478,10 @@ Someone in DAYTON, Ohio is selling USED CARPETS to a SERBO-CROATIAN
 Sometime in 1993 NANCY SINATRA will lead a BLOODLESS COUP on GUAM!!
 Somewhere in DOWNTOWN BURBANK a prostitute is OVERCOOKING a LAMB CHOP!!
 Somewhere in suburban Honolulu, an unemployed bellhop is whipping up a batch of illegal psilocybin chop suey!!
-Somewhere in Tenafly, New Jersey, a chiropractor is viewing "Leave it
-to Beaver"!
+Somewhere in Tenafly, New Jersey, a chiropractor is viewing "Leave it to Beaver"!
 Spreading peanut butter reminds me of opera!!  I wonder why?
-TAILFINS!! ... click ... Talking Pinhead Blues: Oh, I LOST my ``HELLO KITTY'' DOLL and I get BAD reception on channel TWENTY-SIX!!
-Th'HOSTESS FACTORY is closin' down and I just heard ZASU PITTS has been DEAD for YEARS..  (sniff)
-My PLATFORM SHOE collection was CHEWED up by th' dog, ALEXANDER HAIG  won't let me take a SHOWER 'til Easter ... (snurf)
-So I went to the kitchen, but WALNUT PANELING whup me upside mah HAID!!  (on no, no, no..  Heh, heh)
+TAILFINS!! ... click ...
+Talking Pinhead Blues: Oh, I LOST my ``HELLO KITTY'' DOLL and I get BAD reception on channel TWENTY-SIX!! Th'HOSTESS FACTORY is closin' down and I just heard ZASU PITTS has been DEAD for YEARS..  (sniff) My PLATFORM SHOE collection was CHEWED up by th' dog, ALEXANDER HAIG  won't let me take a SHOWER 'til Easter ... (snurf) So I went to the kitchen, but WALNUT PANELING whup me upside mah HAID!!  (on no, no, no..  Heh, heh)
 TAPPING?  You POLITICIANS!  Don't you realize that the END of the "Wash Cycle" is a TREASURED MOMENT for most people?!
 Tex SEX!  The HOME of WHEELS!  The dripping of COFFEE!!  Take me to Minnesota but don't EMBARRASS me!!
 Th' MIND is the Pizza Palace of th' SOUL
@@ -510,8 +510,7 @@ This MUST be a good party -- My RIB CAGE is being painfully pressed up against s
 This PIZZA symbolizes my COMPLETE EMOTIONAL RECOVERY!!
 This PORCUPINE knows his ZIPCODE ... And he has "VISA"!!
 This TOPS OFF my partygoing experience!  Someone I DON'T LIKE is talking to me about a HEART-WARMING European film ...
-Those aren't WINOS -- that's my JUGGLER, my AERIALIST, my SWORD
-SWALLOWER, and my LATEX NOVELTY SUPPLIER!!
+Those aren't WINOS -- that's my JUGGLER, my AERIALIST, my SWORD SWALLOWER, and my LATEX NOVELTY SUPPLIER!!
 Thousands of days of civilians ... have produced a ... feeling for the aesthetic modules --
 Today, THREE WINOS from DETROIT sold me a framed photo of TAB HUNTER before his MAKEOVER!
 Toes, knees, NIPPLES.  Toes, knees, nipples, KNUCKLES ... Nipples, dimples, knuckles, NICKLES, wrinkles, pimples!! TONY RANDALL!  Is YOUR life a PATIO of FUN??
@@ -530,8 +529,7 @@ We are now enjoying total mutual interaction in an imaginary hot tub ...
 We have DIFFERENT amounts of HAIR --
 We just joined the civil hair patrol!
 We place two copies of PEOPLE magazine in a DARK, HUMID mobile home. 45 minutes later CYNDI LAUPER emerges wearing a BIRD CAGE on her head!
-Well, here I am in AMERICA..  I LIKE it.  I HATE it.  I LIKE it.  I
-HATE it.  I LIKE it.  I HATE it.  I LIKE it.  I HATE it.  I LIKE ... EMOTIONS are SWEEPING over me!!
+Well, here I am in AMERICA..  I LIKE it.  I HATE it.  I LIKE it.  I HATE it.  I LIKE it.  I HATE it.  I LIKE it.  I HATE it.  I LIKE ... EMOTIONS are SWEEPING over me!!
 Well, I'm a classic ANAL RETENTIVE!!  And I'm looking for a way to VICARIOUSLY experience some reason to LIVE!!
 Well, I'm INVISIBLE AGAIN ... I might as well pay a visit to the LADIES  ROOM ...
 Well, O.K.  I'll compromise with my principles because of EXISTENTIAL DESPAIR!
@@ -546,8 +544,7 @@ What's the MATTER Sid? ... Is your BEVERAGE unsatisfactory?
 When I met th'POPE back in '58, I scrubbed him with a MILD SOAP or DETERGENT for 15 minutes.  He seemed to enjoy it ...
 When this load is DONE I think I'll wash it AGAIN ...
 When you get your PH.D. will you get able to work at BURGER KING?
-When you said "HEAVILY FORESTED" it reminded me of an overdue CLEANING
-BILL ... Don't you SEE?  O'Grogan SWALLOWED a VALUABLE COIN COLLECTION and HAD to murder the ONLY MAN who KNEW!!
+When you said "HEAVILY FORESTED" it reminded me of an overdue CLEANING BILL ... Don't you SEE?  O'Grogan SWALLOWED a VALUABLE COIN COLLECTION and HAD to murder the ONLY MAN who KNEW!!
 Where do your SOCKS go when you lose them in th' WASHER?
 Where does it go when you flush?
 Where's SANDY DUNCAN?
@@ -606,7 +603,6 @@ YOW!!  I'm in a very clever and adorable INSANE ASYLUM!!
 YOW!!  Now I understand advanced MICROBIOLOGY and th' new TAX REFORM laws!!
 YOW!!  The land of the rising SONY!!
 YOW!!  Up ahead!  It's a DONUT HUT!!
-YOW!!  What should the entire human race DO??  Consume a fifth of
-CHIVAS REGAL, ski NUDE down MT. EVEREST, and have a wild SEX WEEKEND!
+YOW!!  What should the entire human race DO??  Consume a fifth of CHIVAS REGAL, ski NUDE down MT. EVEREST, and have a wild SEX WEEKEND!
 YOW!!!  I am having fun!!!
 Zippy's brain cells are straining to bridge synapses ...
