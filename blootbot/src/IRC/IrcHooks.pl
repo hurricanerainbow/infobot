@@ -374,7 +374,7 @@ sub on_endofnames {
     # sync time should be done in on_endofwho like in BitchX
     if (exists $cache{jointime}{$chan}) {
 	my $delta_time = sprintf("%.03f", &timedelta($cache{jointime}{$chan}) );
-	$delta_time    = 0	if ($delta_time < 0);
+	$delta_time    = 0	if ($delta_time <= 0);
 	if ($delta_time > 100) {
 	    &WARN("endofnames: delta_time > 100 ($delta_time)");
 	}
@@ -382,7 +382,7 @@ sub on_endofnames {
 	&status("$b_blue$chan$ob: sync in ${delta_time}s.");
     }
 
-    rawout("MODE $chan");
+    &rawout("MODE $chan");
 
     my $txt;
     my @array;
@@ -756,6 +756,11 @@ sub on_part {
     $who	= $nick;
     $msgType	= "public";
 
+    if (0 and !exists $channels{$chan}) {
+	&DEBUG("on_part: found out we're on $chan!");
+	$channels{$chan} = 1;
+    }
+
     if (exists $floodjoin{$chan}{$nick}{Time}) {
 	delete $floodjoin{$chan}{$nick};
     }
@@ -818,17 +823,40 @@ sub on_public {
 
     # would this slow things down?
     if ($_ = &getChanConf("ircTextCounters")) {
-	foreach (split /[\s]+/) {
-	    next unless ($msg =~ /^\Q$_\E$/i);
-	    &VERB("textcounters: $_ matched for $who",2);
+	my $time = time();
 
-	    my $v = &dbGet("stats", "counter", "nick=".&dbQuote($who).
-			" AND type='$msg'");
+	foreach (split /[\s]+/) {
+	    my $x = $_;
+
+	    # either full word or ends with a space, etc...
+	    next unless ($msg =~ /^\Q$x\E[\$\s!.]/i);
+
+	    &VERB("textcounters: $x matched for $who",2);
+	    my $c = $chan || "PRIVATE";
+
+	    my ($v,$t) = &dbGet("stats", "counter,time",
+			"nick=". &dbQuote($who)
+			." AND type=".&dbQuote($x)
+			." AND channel=".&dbQuote($c)
+	    );
 	    $v++;
 
-	    &dbReplace("stats", (nick => $who, type => $_, counter => $v) );
+	    # don't allow ppl to cheat the stats :-)
+	    next unless ($time - $t > 10);
+
+	    my %hash = (
+		nick	=> $who,
+		type	=> $x,
+		channel => $c,
+
+		time	=> $time,
+		counter => $v,
+	    );
+		
+
+	    &dbReplace("stats", %hash);
 	    # does not work, atleast with old mysql!!! :(
-#	    &dbReplace("stats", (nick => $who, type => $_, -counter => "counter+1") );
+#	    &dbReplace("stats", (nick => $who, type => $x, -counter => "counter+1") );
 	}
     }
 
@@ -1076,13 +1104,26 @@ sub on_who {
     $nuh{lc $args[5]} = $args[5]."!".$args[2]."\@".$args[3];
 }
 
-sub on_whoisuser {
+sub on_whois {
     my ($self, $event) = @_;
     my @args	= $event->args;
 
-    &DEBUG("on_whoisuser: @args");
-
     $nuh{lc $args[1]} = $args[1]."!".$args[2]."\@".$args[3];
+}
+
+sub on_whoischannels {
+    my ($self, $event) = @_;
+    my @args	= $event->args;
+
+    &DEBUG("on_whoischannels: @args");
+}
+
+sub on_useronchannel {
+    my ($self, $event) = @_;
+    my @args	= $event->args;
+
+    &DEBUG("on_useronchannel: @args");
+    &joinNextChan();
 }
 
 ###

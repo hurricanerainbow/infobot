@@ -299,6 +299,31 @@ sub getChanConf {
     return $chanconf{"_default"}{$param};
 }
 
+#####
+#  Usage: &findChanConf($param);
+#  About: Retrieve value for 'param' value from any chan.
+# Return: scalar for success, undef for failure.
+sub findChanConf {
+    my($param)	= @_;
+
+    if (!defined $param) {
+	&WARN("param == NULL.");
+	return 0;
+    }
+
+    my $c;
+    foreach $c (keys %chanconf) {
+	foreach (keys %{ $chanconf{$c} }) {
+	    next unless (/^$param$/);
+
+	    &DEBUG("chanconf{$c}{$_} ...");
+	    return $chanconf{$c}{$_};
+	}
+    }
+
+    return;
+}
+
 sub showProc {
     my ($prefix) = $_[0] || "";
 

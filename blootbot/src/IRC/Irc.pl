@@ -135,12 +135,15 @@ sub irc {
 	$conn->add_handler('nick',	\&on_nick);
 	$conn->add_handler('quit',	\&on_quit);
 	$conn->add_handler('notice',	\&on_notice);
-	$conn->add_handler('whoisuser',	\&on_whoisuser);
+	$conn->add_handler('whoischannels', \&on_whoischannels);
+	$conn->add_handler('useronchannel', \&on_useronchannel);
+	$conn->add_handler('whois',	\&on_whois);
 	$conn->add_handler('other',	\&on_other);
 	$conn->add_global_handler('disconnect', \&on_disconnect);
 	$conn->add_global_handler([251,252,253,254,255], \&on_init);
 ###	$conn->add_global_handler([251,252,253,254,255,302], \&on_init);
 	$conn->add_global_handler(315, \&on_endofwho);
+	$conn->add_global_handler(422, \&on_endofwho); # nomotd.
 	$conn->add_global_handler(324, \&on_modeis);
 	$conn->add_global_handler(333, \&on_topicinfo);
 	$conn->add_global_handler(352, \&on_who);
@@ -430,11 +433,11 @@ sub joinchan {
 	$chan = lc $1;
     }
 
-    &status("joining $b_blue$chan$ob");
-
+    # hopefully validChan is right.
     if (&validChan($chan)) {
 	&status("join: already on $chan");
     } else {
+	&status("joining $b_blue$chan$ob");
 	if (!$conn->join($chan)) {
 	    &DEBUG("joinchan: join failed. trying connect!");
 	    $conn->connect();
@@ -448,6 +451,11 @@ sub part {
     foreach $chan (@_) {
 	next if ($chan eq "");
 	$chan =~ tr/A-Z/a-z/;	# lowercase.
+
+	if ($chan !~ /^$mask{chan}$/) {
+	    &WARN("part: chan is invalid ($chan)");
+	    next;
+	}
 
 	&status("parting $chan");
 	if (!&validChan($chan)) {
@@ -845,10 +853,15 @@ sub joinfloodCheck {
 
     ### Clean it up.
     my $delete = 0;
+    my $time = time();
     foreach $chan (keys %floodjoin) {
 	foreach $who (keys %{ $floodjoin{$chan} }) {
-	    my $time = time() - $floodjoin{$chan}{$who}{Time};
-	    next unless ($time > 10);
+	    my $t	= $floodjoin{$chan}{$who}{Time};
+	    next unless (defined $t);
+
+	    my $delta	= $time - $t;
+	    next unless ($delta > 10);
+
 	    delete $floodjoin{$chan}{$who};
 	    $delete++;
 	}
