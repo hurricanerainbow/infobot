@@ -59,7 +59,7 @@ sub on_chat {
     }
 
     if (!exists $dcc{'CHAT'}{$nick}) {
-	my $userHandle	= &verifyUser($who, $nuh);
+	$userHandle	= &verifyUser($who, $nuh);
 	my $crypto	= $userList{$userHandle}{'pass'};
 	my $success	= 0;
 
@@ -90,7 +90,6 @@ sub on_chat {
 
 	return;
     }
-
 
     $userHandle = &verifyUser($who, $nuh);
     &status("$b_red=$b_cyan$who$b_red=$ob $message");
@@ -184,11 +183,11 @@ sub on_dcc_close {
 
     &DEBUG("dcc_close: nick => '$nick'.");
 
-    if (exists $dcc{'SEND'}{$nick} and -f "temp/$nick.txt") {
+    if (exists $dcc{'SEND'}{$nick} and -f "$param{tempDir}/$nick.txt") {
 	&status("${b_green}DCC SEND$ob close from $b_cyan$nick$ob");
 
 	&status("dcc_close: purging $nick.txt from Debian.pl");
-	unlink "temp/$nick.txt";
+	unlink "$param{tempDir}/$nick.txt";
 
 	delete $dcc{'SEND'}{$nick};
     } elsif (exists $dcc{'CHAT'}{$nick} and $dcc{'CHAT'}{$nick} eq $sock) {
@@ -210,7 +209,7 @@ sub on_dcc_open {
 	&status("${b_green}DCC lGET$ob established with $b_cyan$nick$ob");
     } elsif ($type eq 'CHAT') {
 	&status("${b_green}DCC CHAT$ob established with $b_cyan$nick$ob ($nuh{$nick})");
-	my $userHandle  = &verifyUser($nick, $nuh{lc $nick});
+	$userHandle     = &verifyUser($nick, $nuh{lc $nick});
 	my $crypto	= $userList{$userHandle}{'pass'};
 	if (defined $crypto) {
 	    $self->privmsg($sock,"Enter Password, $userHandle.");
