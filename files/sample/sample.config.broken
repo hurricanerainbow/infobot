@@ -45,6 +45,7 @@ set maxLogSize		10000000
 # [str] Ability to remember/tell factoids
 #	none	-- disable.
 #	mysql	-- MySQL
+#	sqlite  -- SQLite (libdbd-sqlite-perl)
 #	pgsql	-- PostGreSQL (NOT SUPPORTED YET)
 #	dbm	-- Berkeley DBM
 ### REQUIRED by factoids,freshmeat,karma,seen,...

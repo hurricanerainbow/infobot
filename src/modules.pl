@@ -105,12 +105,12 @@ sub loadDBModules {
 	&status("Loading pgsql support.");
 	require "$bot_src_dir/db_pgsql.pl";
 	&showProc(" (pgsql)");
-    } elsif ($param{'DBType'} =~ /^dbm$/i) {
-	&status("Loading Berkeley DBM support.");
-	$f = "$bot_src_dir/db_dbm.pl";
-	require $f;
+    } elsif ($param{'DBType'} =~ /^sqlite$|^dbm$/i) {
+	&status("Loading " . $param{'DBType'} . " support.");
+	$f="$bot_src_dir/db_" . $param{'DBType'} . ".pl";
 	$moduleAge{$f} = (stat $f)[9];
-	&showProc(" $bot_src_dir/db_dbm.pl");
+	require $f;
+	&showProc(" $bot_src_dir/db_" . $param{'DBType'} . ".pl");
     } else {
 	&status("DB support DISABLED.");
 	return;

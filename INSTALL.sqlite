@@ -1,0 +1,5 @@
+INSTALL.sqlite
+----------------
+
+- Install SQLite libraries and DBI Perl modules.
+	- Debian: (apt-get install libsqlite0 libdbd-sqlite-perl)

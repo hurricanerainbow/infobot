@@ -243,10 +243,10 @@ sub seenFlushOld {
     my $max_time = &getChanConfDefault("seenMaxDays", 30) *60*60*24;
     my $delete   = 0;
 
-    if ($param{'DBType'} =~ /^pgsql|mysql/i) {
+    if ($param{'DBType'} =~ /^pgsql|mysql|sqlite/i) {
 	my $query;
 
-	if ($param{'DBType'} =~ /^mysql$/i) {
+	if ($param{'DBType'} =~ /^mysql|sqlite$/i) {
 	    $query = "SELECT nick,time FROM seen GROUP BY nick HAVING ".
 			"UNIX_TIMESTAMP() - time > $max_time";
 	} else {	# pgsql.
@@ -547,7 +547,7 @@ sub seenFlush {
     $stats{'new'}	= 0;
     $stats{'old'}	= 0;
 
-    if ($param{'DBType'} =~ /^(mysql|pgsql)$/i) {
+    if ($param{'DBType'} =~ /^(mysql|pgsql|sqlite)$/i) {
 	foreach $nick (keys %seencache) {
 	    my $retval = &dbReplace("seen", "nick", (
 			"nick" => lc $seencache{$nick}{'nick'},

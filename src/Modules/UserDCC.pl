@@ -358,7 +358,7 @@ sub userDCC {
 	    return;
 	}
 
-	### TODO: fix up $op to support mysql/pgsql/dbm(perl)
+	### TODO: fix up $op to support mysql/sqlite/pgsql/dbm(perl)
 	### TODO: => add db/sql specific function to fix this.
 	my @list = &searchTable("factoids", "factoid_key",
 			"factoid_value", $op);
