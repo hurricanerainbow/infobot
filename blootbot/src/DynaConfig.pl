@@ -6,7 +6,14 @@
 #	   NOTE: Merged from User.pl
 #
 
-#use strict;
+use strict;
+
+use vars qw(%chanconf %cache %bans %channels %nuh %users %ignore
+	%talkWho %dcc %mask);
+use vars qw($utime_userfile $ucount_userfile $utime_chanfile $who
+	$ucount_chanfile $userHandle $chan $msgType $talkchannel
+	$ident $bot_state_dir $talkWho $flag_quit $wtime_userfile
+	$wcount_userfile $wtime_chanfile $nuh $message);
 
 #####
 ##### USERFILE CONFIGURATION READER/WRITER
@@ -398,6 +405,7 @@ sub writeChanFile {
 ##### USER COMMANDS.
 #####
 
+# todo: support multiple flags.
 sub IsFlag {
     my $flags = shift;
     my ($ret, $f, $o) = "";
@@ -418,7 +426,7 @@ sub IsFlag {
 
 sub verifyUser {
     my ($nick, $lnuh) = @_;
-    my ($user,$m);
+    my ($user, $m);
 
     if ($userHandle = $dcc{'CHATvrfy'}{$who}) {
 	&VERB("vUser: cached auth for $who.",2);
@@ -506,7 +514,7 @@ sub ignoreAdd {
     my $count	||= 0;
 
     if ($expire > 0) {
-	$expire		= $expire*60 + time();
+	$expire		= ($expire*60) + time();
     } else {
 	$expire		= 0;
     }
@@ -517,7 +525,11 @@ sub ignoreAdd {
     $ignore{$chan}{$mask} = [$expire, time(), $who, $comment];
 
     # todo: improve this.
-    &status("ignore: Added $mask for $chan to expire $expire, by $who, for $comment");
+    if ($expire == 0) {
+	&status("ignore: Added $mask for $chan to NEVER expire, by $who, for $comment");
+    } else {
+	&status("ignore: Added $mask for $chan to expire $expire mins, by $who, for $comment");
+    }
 
     if ($exist) {
 	$utime_userfile = time();
@@ -687,7 +699,7 @@ sub chanSet {
 	    return;
 	}
 	$chanconf{$chan}{_time_added}	= time();
-	$chanconf{$what}{autojoin}	= 1;
+	$chanconf{$chan}{autojoin}	= 1;
 
 	&pSReply("Joining $chan...");
 	&joinchan($chan);
@@ -702,9 +714,10 @@ sub chanSet {
 
     my $update	= 0;
 
-    ### ".chanset +blah"
-    ### ".chanset +blah 10"		-- error.
     if (defined $what and $what =~ s/^([+-])(\S+)/$2/) {
+	### ".chanset +blah"
+	### ".chanset +blah 10"		-- error.
+
 	my $state	= ($1 eq "+") ? 1 : 0;
 	my $was		= $chanconf{$chan}{$what};
 
@@ -714,7 +727,6 @@ sub chanSet {
 		return;
 	    }
 
-	    $was	= ($was) ? "; was '$was'" : "";
 	    $val	= 1;
 
 	} else {			# delete/unset.
@@ -728,9 +740,11 @@ sub chanSet {
 		return;
 	    }
 
-	    $was	= ($was) ? "; was '$was'" : "";
 	    $val	= 0;
 	}
+
+	# alter for cosmetic (print out) reasons only.
+	$was	= ($was) ? "; was '$was'" : "";
 
 	if ($val eq "0") {
 	    &pSReply("Unsetting $what for $chan$was.");
@@ -742,8 +756,9 @@ sub chanSet {
 
 	$update++;
 
-    ### ".chanset blah testing"
     } elsif (defined $val) {
+	### ".chanset blah testing"
+
 	my $was	= $chanconf{$chan}{$what};
 	if (defined $was and $was eq $val) {
 	    &pSReply("setting $what for $chan already '$val'.");
@@ -756,9 +771,10 @@ sub chanSet {
 
 	$update++;
 
-    ### ".chanset"
-    ### ".chanset blah"
     } else {				# read only.
+	### ".chanset"
+	### ".chanset blah"
+
 	if (!defined $what) {
 	    &WARN("chanset/DC: what == undefine.");
 	    return;
@@ -780,8 +796,8 @@ sub chanSet {
 }
 
 sub rehashConfVars {
-    # this is an attempt to fix where an option is loaded but the module
-    # has not loaded. it also can be used for other things.
+    # this is an attempt to fix where an option is enabled but the module
+    # has been not loaded. it also can be used for other things.
 
     foreach (keys %{ $cache{confvars} }) {
 	my $i = $cache{confvars}{$_};
@@ -808,6 +824,7 @@ sub rehashConfVars {
     delete $cache{confvars};
 }
 
+# following arrays are not used... forgot what I intended to use them for.
 my @regFlagsChan = (
 	"autojoin",
 	"freshmeat",
@@ -819,9 +836,14 @@ my @regFlagsChan = (
 );
 
 my @regFlagsUser = (
-	"m",		# master
-	"n",		# owner
-	"o",		# op
+	"m",		# modify factoid.
+	"r",		# remove factoid.
+	"s",		# search (deprecated)
+	"t",		# teach/add factoid.
+	"a",		# ask/request factoid.
+	"n",		# bot owner
+	"o",		# master of bot (automatic +amrt)
+	"O",		# dynamic ops (as on channel). (automatic +o)
 );	# todo...
 
 1;
