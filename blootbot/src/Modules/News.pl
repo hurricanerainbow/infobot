@@ -42,26 +42,26 @@ sub Parse {
 	$chan	= lc $1;
 
 	if (!&::IsNickInChan($who, $chan)) {
-	    &::notice($::who, "sorry but you're not on $chan.");
+	    &::notice($who, "sorry but you're not on $chan.");
 	    return;
 	}
     }
 
     if (!defined $chan) {
-	my @chans = &::getNickInChans($::who);
+	my @chans = &::getNickInChans($who);
 
 	if (scalar @chans > 1) {
-	    &::notice($::who, "error: I dunno which channel you are referring to since you're on more than one. Try 'news #chan ...' instead");
+	    &::notice($who, "error: I dunno which channel you are referring to since you're on more than one. Try 'news #chan ...' instead");
 	    return;
 	}
 
 	if (scalar @chans == 0) {
-	    &::notice($::who, "error: I couldn't find you on any chan. This must be a bug!");
+	    &::notice($who, "error: I couldn't find you on any chan. This must be a bug!");
 	    return;
 	}
 
 	$chan	= $chans[0];
-	&::VERB("Guessed $::who being on chan $chan",2);
+	&::VERB("Guessed $who being on chan $chan",2);
 	$::chan	= $chan;	# hack for IsChanConf().
     }
 
@@ -109,7 +109,7 @@ sub Parse {
 	&::help("news$1");
 
     } elsif ($what =~ /^newsflush$/i) {
-	&::msg($::who, "newsflush called... check out the logs!");
+	&::msg($who, "newsflush called... check out the logs!");
 	&::newsFlush();
 
     } elsif ($what =~ /^(un)?notify$/i) {
@@ -118,31 +118,31 @@ sub Parse {
 	# todo: don't notify even if "news" is called.
 	if (!&::IsChanConf("newsNotifyAll")) {
 	    &::DEBUG("news: chan => $chan, ::chan => $::chan.");
-	    &::notice($::who, "not available for this channel or disabled altogether.");
+	    &::notice($who, "not available for this channel or disabled altogether.");
 	    return;
 	}
 
 	my $t = $::newsuser{$chan}{$who};
 	if ($state) {	# state = 1
 	    if (defined $t and ($t == 0 or $t == -1)) {
-		&::notice($::who, "enabled notify.");
+		&::notice($who, "enabled notify.");
 		delete $::newsuser{$chan}{$who};
 		return;
 	    }
-	    &::notice($::who, "already enabled.");
+	    &::notice($who, "already enabled.");
 
 	} else {		# state = 0
 	    my $x = $::newsuser{$chan}{$who};
 	    if (defined $x and ($x == 0 or $x == -1)) {
-		&::notice($::who, "notify already disabled");
+		&::notice($who, "notify already disabled");
 		return;
 	    }
 	    $::newsuser{$chan}{$who} = -1;
-	    &::notice($::who, "notify is now disabled.");
+	    &::notice($who, "notify is now disabled.");
 	}
 
     } else {
-	&::notice($::who, "unknown command: $what");
+	&::notice($who, "unknown command: $what");
     }
 }
 
@@ -263,26 +263,26 @@ sub add {
     }
 
     if (length $str > 64) {
-	&::notice($::who, "That's not really an item (>64chars)");
+	&::notice($who, "That's not really an item (>64chars)");
 	return;
     }
 
     if (exists $::news{$chan}{$str}{Time}) {
-	&::notice($::who, "'$str' for $chan already exists!");
+	&::notice($who, "'$str' for $chan already exists!");
 	return;
     }
 
     $::news{$chan}{$str}{Time}	= time();
     my $expire = &::getChanConfDefault("newsDefaultExpire",7);
     $::news{$chan}{$str}{Expire}	= time() + $expire*60*60*24;
-    $::news{$chan}{$str}{Author}	= $::who;
+    $::news{$chan}{$str}{Author}	= $::who;	# case!
 
     my $agestr	= &::Time2String($::news{$chan}{$str}{Expire} - time() );
     my $item	= &newsS2N($str);
-    &::notice($::who, "Added '\037$str\037' at [".localtime(time).
+    &::notice($who, "Added '\037$str\037' at [".localtime(time).
 		"] by \002$::who\002 for item #\002$item\002.");
-    &::notice($::who, "Now do 'news text $item <your_description>'");
-    &::notice($::who, "This item will expire at \002".
+    &::notice($who, "Now do 'news text $item <your_description>'");
+    &::notice($who, "This item will expire at \002".
 	localtime($::news{$chan}{$str}{Expire})."\002 [$agestr from now] "
     );
 
@@ -301,12 +301,12 @@ sub del {
     if ($what =~ /^\d+$/) {
 	my $count = scalar keys %{ $::news{$chan} };
 	if (!$count) {
-	    &::notice($::who, "No news for $chan.");
+	    &::notice($who, "No news for $chan.");
 	    return;
 	}
 
 	if ($what > $count or $what < 0) {
-	    &::notice($::who, "$what is out of range (max $count)");
+	    &::notice($who, "$what is out of range (max $count)");
 	    return;
 	}
 
@@ -325,12 +325,12 @@ sub del {
 	    }
 
 	    if (!scalar @found) {
-		&::notice($::who, "could not find $what.");
+		&::notice($who, "could not find $what.");
 		return;
 	    }
 
 	    if (scalar @found > 1) {
-		&::notice($::who, "too many matches for $what.");
+		&::notice($who, "too many matches for $what.");
 		return;
 	    }
 
@@ -346,20 +346,20 @@ sub del {
 
 	if (!$auth) {
 	    # todo: show when it'll expire.
-	    &::notice($::who, "Sorry, you cannot remove items; just let them expire on their own.");
+	    &::notice($who, "Sorry, you cannot remove items; just let them expire on their own.");
 	    return;
 	}
 
-	&::notice($::who, "ok, deleted '$what' from \002$chan\002...");
+	&::notice($who, "ok, deleted '$what' from \002$chan\002...");
 	delete $::news{$chan}{$what};
     } else {
-	&::notice($::who, "error: not found $what in news for $chan.");
+	&::notice($who, "error: not found $what in news for $chan.");
     }
 }
 
 sub list {
     if (!scalar keys %{ $::news{$chan} }) {
-	&::notice($::who, "No News for \002$chan\002.");
+	&::notice($who, "No News for \002$chan\002.");
 	return;
     }
 
@@ -367,10 +367,10 @@ sub list {
 	my $x = $::newsuser{$chan}{$who};
 
 	if (defined $x and ($x == 0 or $x == -1)) {
-	    &::DEBUG("news: not updating time for $::who.");
+	    &::DEBUG("news: not updating time for $who.");
 	} else {
 	    if (!scalar keys %{ $::news{$chan} }) {
-		&::DEBUG("news: should not add $chan/$::who to cache!");
+		&::DEBUG("news: should not add $chan/$who to cache!");
 	    }
 
 	    $::newsuser{$chan}{$who} = time();
@@ -379,7 +379,7 @@ sub list {
 
     # &notice() breaks OPN :( - using msg() instead!
     my $count = scalar keys %{ $::news{$chan} };
-    &::msg($::who, "|==== News for \002$chan\002: ($count items)");
+    &::msg($who, "|==== News for \002$chan\002: ($count items)");
     my $newest	= 0;
     my $expire	= 0;
     my $eno	= 0;
@@ -393,8 +393,8 @@ sub list {
 	}
     }
     my $timestr = &::Time2String(time() - $newest);
-    &::msg($::who, "|= Last updated $timestr ago.");
-    &::msg($::who, " \037Num\037  \037Item ".(" "x40)." \037");
+    &::msg($who, "|= Last updated $timestr ago.");
+    &::msg($who, " \037Num\037  \037Item ".(" "x40)." \037");
 
     &DEBUG("list: expire = $expire");
     &::DEBUG("list: eno    = $eno");
@@ -411,20 +411,20 @@ sub list {
 	}
 
 	# todo: show request stats aswell.
-	&::msg($::who, sprintf("\002[\002%2d\002]\002%s %s",
+	&::msg($who, sprintf("\002[\002%2d\002]\002%s %s",
 				$i, $chr, $subtopic));
 	$i++;
     }
 
-    my $z = $::newsuser{$::who};
+    my $z = $::newsuser{$who};
     if (defined $z) {
-	&::DEBUG("cache $::who: $z");
+	&::DEBUG("cache $who: $z");
     } else {
-	&::DEBUG("cache: $::who doesn't have newscache set.");
+	&::DEBUG("cache: $who doesn't have newscache set.");
     }
 
-    &::msg($::who, "|= End of News.");
-    &::msg($::who, "use 'news read <#>' or 'news read <keyword>'");
+    &::msg($who, "|= End of News.");
+    &::msg($who, "use 'news read <#>' or 'news read <keyword>'");
 }
 
 sub read {
@@ -436,18 +436,18 @@ sub read {
     }
 
     if (!scalar keys %{ $::news{$chan} }) {
-	&::notice($::who, "No News for \002$chan\002.");
+	&::notice($who, "No News for \002$chan\002.");
 	return;
     }
 
     my $item	= &getNewsItem($str);
     if (!defined $item or !scalar keys %{ $::news{$chan}{$item} }) {
-	&::notice($::who, "No news item called '$str'");
+	&::notice($who, "No news item called '$str'");
 	return;
     }
 
     if (!exists $::news{$chan}{$item}{Text}) {
-	&::notice($::who, "Someone forgot to add info to this news item");
+	&::notice($who, "Someone forgot to add info to this news item");
 	return;
     }
 
@@ -478,11 +478,11 @@ sub read {
 	);
     }
 
-    &::notice($::who, "+- News \002$chan\002 #$num: $item");
-    &::notice($::who, "| Added by $a at \037$t\037");
-    &::notice($::who, "| Expire: $e") if (defined $e);
-    &::notice($::who, $text);
-    &::notice($::who, "| Requested \002$rcount\002 times, last by \002$rwho\002") if ($rcount and $rwho);
+    &::notice($who, "+- News \002$chan\002 #$num: $item");
+    &::notice($who, "| Added by $a at \037$t\037");
+    &::notice($who, "| Expire: $e") if (defined $e);
+    &::notice($who, $text);
+    &::notice($who, "| Requested \002$rcount\002 times, last by \002$rwho\002") if ($rcount and $rwho);
 
     $::news{$chan}{$item}{'Request_By'}   = $::who;
     $::news{$chan}{$item}{'Request_Time'} = time();
@@ -512,7 +512,7 @@ sub mod {
 	my ($delim, $op, $np, $flags) = ($1,$2,$3,$4);
 
 	if ($flags !~ /^(g)?$/) {
-	    &::notice($::who, "error: Invalid flags to regex.");
+	    &::notice($who, "error: Invalid flags to regex.");
 	    return;
 	}
 
@@ -529,17 +529,17 @@ sub mod {
 	}
 
 	if (!$done) {
-	    &::notice($::who, "warning: regex not found in news.");
+	    &::notice($who, "warning: regex not found in news.");
 	    return;
 	}
 
 	if ($mod_news ne $news) { # news item.
 	    if (exists $::news{$chan}{$mod_news}) {
-		&::notice($::who, "item '$mod_news' already exists.");
+		&::notice($who, "item '$mod_news' already exists.");
 		return;
 	    }
 
-	    &::notice($::who, "Moving item '$news' to '$mod_news' with SAR s/$op/$np/.");
+	    &::notice($who, "Moving item '$news' to '$mod_news' with SAR s/$op/$np/.");
 	    foreach (keys %{ $::news{$chan}{$news} }) {
 		$::news{$chan}{$mod_news}{$_} = $::news{$chan}{$news}{$_};
 		delete $::news{$chan}{$news}{$_};
@@ -549,7 +549,7 @@ sub mod {
 	}
 
 	if ($mod_nnews ne $nnews) { # news Text/Description.
-	    &::notice($::who, "Changing text for '$news' SAR s/$op/$np/.");
+	    &::notice($who, "Changing text for '$news' SAR s/$op/$np/.");
 	    if ($mod_news ne $news) {
 		$::news{$chan}{$mod_news}{Text} = $mod_nnews;
 	    } else {
@@ -559,11 +559,11 @@ sub mod {
 
 	return;
     } else {
-	&::notice($::who, "error: that regex failed ;(");
+	&::notice($who, "error: that regex failed ;(");
 	return;
     }
 
-    &::notice($::who, "error: Invalid regex. Try s/1/2/, s#3#4#...");
+    &::notice($who, "error: Invalid regex. Try s/1/2/, s#3#4#...");
 }
 
 sub set {
@@ -584,13 +584,13 @@ sub set {
     my $news = &getNewsItem($item);
 
     if (!defined $news) {
-	&::notice($::who, "Could not find item '$item' substring or # in news list.");
+	&::notice($who, "Could not find item '$item' substring or # in news list.");
 	return;
     }
 
     # list all values for chan.
     if (!defined $what or $what =~ /^\s*$/) {
-	&::msg($::who, "set: you didn't fill me on the arguments! (what and values)");
+	&::msg($who, "set: you didn't fill me on the arguments! (what and values)");
 	return;
     }
 
@@ -604,18 +604,18 @@ sub set {
     }
 
     if (!$ok) {
-	&::notice($::who, "Invalid set.  Try: @elements");
+	&::notice($who, "Invalid set.  Try: @elements");
 	return;
     }
 
     # show (read) what.
     if (!defined $value or $value =~ /^\s*$/) {
-	&::msg($::who, "set: you didn't fill me on the arguments! (value)");
+	&::msg($who, "set: you didn't fill me on the arguments! (value)");
 	return;
     }
 
     if (!exists $::news{$chan}{$news}) {
-	&::notice($::who, "news '$news' does not exist");
+	&::notice($who, "news '$news' does not exist");
 	return;
     }
 
@@ -647,17 +647,17 @@ sub set {
 
 	if (!$time or ($value and $value !~ /^never$/i)) {
 	    &::DEBUG("news: set: Expire... need to parse.");
-	    &::msg($::who, "hrm... couldn't parse that.");
+	    &::msg($who, "hrm... couldn't parse that.");
 	    return;
 	}
 
 	if ($time == -1) {
-	    &::notice($::who, "Set never expire for \002$item\002." );
+	    &::notice($who, "Set never expire for \002$item\002." );
 	} elsif ($time < -1) {
 	    &::DEBUG("news: time should never be negative ($time).");
 	    return;
 	} else {
-	    &::notice($::who, "Set expire for \002$item\002, to ".
+	    &::notice($who, "Set expire for \002$item\002, to ".
 		localtime($time) ." [".&::Time2String($time - time())."]" );
 
 	    if (time() > $time) {
@@ -672,7 +672,7 @@ sub set {
     }
 
     my $auth = 0;
-    &::DEBUG("news: who => '$::who'");
+    &::DEBUG("news: who => '$who'");
     my $author = $::news{$chan}{$news}{Author};
     $auth++ if ($::who eq $author);
     $auth++ if (&::IsFlag("o"));
@@ -685,7 +685,7 @@ sub set {
 
     if (!$auth) {
 	# todo: show when it'll expire.
-	&::notice($::who, "Sorry, you cannot set items. (author $author owns it)");
+	&::notice($who, "Sorry, you cannot set items. (author $author owns it)");
 	return;
     }
 
@@ -695,7 +695,7 @@ sub set {
 	&::DEBUG("news: old => $old.");
     }
     $::news{$chan}{$news}{$what} = $value;
-    &::notice($::who, "Setting [$chan]/{$news}/<$what> to '$value'.");
+    &::notice($who, "Setting [$chan]/{$news}/<$what> to '$value'.");
 }
 
 sub latest {
@@ -911,7 +911,7 @@ sub getNewsItem {
 
 	if (scalar @items > 1) {
 	    &::DEBUG("news: Multiple matches, not guessing.");
-	    &::notice($::who, "Multiple matches, not guessing.");
+	    &::notice($who, "Multiple matches, not guessing.");
 	    return;
 	}
 
@@ -951,7 +951,7 @@ sub do_set {
 
 sub stats {
     &::DEBUG("News: stats called.");
-    &::msg($::who, "check my logs/console.");
+    &::msg($who, "check my logs/console.");
     my($i,$j) = (0,0);
 
     # total request count.
