@@ -54,11 +54,28 @@ sub update {
 
     # freshmeat
     if (&IsChanConf("freshmeatForFactoid")) {
+	# todo: "name" is invalid for fm ][
 	if (&dbGet("freshmeat", "name", $lhs, "name")) {
 	    &msg($who, "permission denied. (freshmeat)");
 	    &status("alert: $who wanted to teach me something that freshmeat already has info on.");
 	    return 1;
 	}
+    }
+
+    if (&IsChanConf("factoidArguments") and $lhs =~ /\$/) {
+	&status("Update: Factoid Arguments found.");
+	&status("Update: orig lhs => '$lhs'.");
+	&status("Update: orig rhs => '$rhs'.");
+	$lhs =~ s/^/CMD: /;
+	my @list;
+	while ($lhs =~ s/\$(\S+)/(.*?)/) {
+	    push(@list, "\$$1");
+	}
+	my $z = join(',',@list);
+	$rhs =~ s/^/($z): /;
+
+	&status("Update: new  lhs => '$lhs'.");
+	&status("Update: new  rhs => '$rhs'.");
     }
 
     # the fun begins.

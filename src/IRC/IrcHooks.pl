@@ -355,7 +355,7 @@ sub on_endofnames {
 
     # sync time should be done in on_endofwho like in BitchX
     if (exists $cache{jointime}{$chan}) {
-	my $delta_time = sprintf("%.03f", &timeget() - $cache{jointime}{$chan});
+	my $delta_time = sprintf("%.03f", &timedelta($cache{jointime}{$chan}) );
 	$delta_time    = 0	if ($delta_time < 0);
 	if ($delta_time > 100) {
 	    &WARN("endofnames: delta_time > 100 ($delta_time)");
@@ -382,7 +382,8 @@ sub on_endofnames {
     &status("$b_blue$chan$ob: [$chanstats]");
 
     &chanServCheck($chan);
-    &joinNextChan();
+    # schedule used to solve ircu (OPN) "target too fast" problems.
+    $conn->schedule(5, sub { &joinNextChan(); } );
 }
 
 sub on_init {
@@ -432,16 +433,17 @@ sub on_join {
     if (exists $netsplit{lc $who}) {
 	delete $netsplit{lc $who};
 	$netsplit = 1;
+	&netsplitCheck() if (time() != $sched{netsplitCheck}{TIME});
     }
 
-    if ($netsplit and !$netsplittime) {
+    if ($netsplit and !exists $cache{netsplit}) {
 	&DEBUG("on_join: ok.... re-running chanlimitCheck in 60.");
 	$conn->schedule(60, sub {
 		&chanlimitCheck();
-		$netsplittime = undef;
+		delete $cache{netsplit};
 	} );
 
-	$netsplittime = time();
+	$cache{netsplit} = time();
     }
 
     # how to tell if there's a netjoin???
@@ -489,6 +491,7 @@ sub on_join {
 
     # no need to go further.
     return if ($netsplit);
+
     # who == bot.
     if ($who eq $ident or $who =~ /^$ident$/i) {
 	if (defined( my $whojoin = $cache{join}{$chan} )) {
@@ -617,6 +620,7 @@ sub on_nick {
     if (exists $netsplit{lc $newnick}) {
 	&status("Netsplit: $newnick/$nick came back from netsplit and changed to original nick! removing from hash.");
 	delete $netsplit{lc $newnick};
+	&netsplitCheck() if (time() != $sched{netsplitCheck}{TIME});
     }
 
     my ($chan,$mode);
@@ -838,7 +842,7 @@ sub on_quit {
 
 	$netsplit{lc $nick} = time();
 	if (!exists $netsplitservers{$1}{$2}) {
-	    &status("netsplit detected between $1 and $2.");
+	    &status("netsplit detected between $1 and $2 at [".scalar(localtime)."]");
 	    $netsplitservers{$1}{$2} = time();
 	}
     }
@@ -849,6 +853,7 @@ sub on_quit {
 	&ERROR("^^^ THIS SHOULD NEVER HAPPEN (10).");
     }
 
+    # does this work?
     if ($nick !~ /^\Q$ident\E$/ and $nick =~ /^\Q$param{'ircNick'}\E$/i) {
 	&status("nickchange: own nickname became free; changing.");
 	&nick($param{'ircNick'});
@@ -878,11 +883,12 @@ sub on_targettoofast {
 	    $cache{sleepTime} = time();
 	}
 
-    } else {
-	if (!exists $cache{TargetTooFast}) {
-	    &DEBUG("on_ttf: failed: $why");
-	    $cache{TargetTooFast}++;
-	}
+	return;
+    }
+
+    if (!exists $cache{TargetTooFast}) {
+	&DEBUG("on_ttf: failed: $why");
+	$cache{TargetTooFast}++;
     }
 }
 
@@ -953,27 +959,38 @@ sub on_crversion {
 
     if ($ver =~ /bitchx/i) {
 	$ver{bitchx}{$nick}	= $ver;
+
     } elsif ($ver =~ /xc\!|xchat/i) {
 	$ver{xchat}{$nick}	= $ver;
+
     } elsif ($ver =~ /irssi/i) {
 	$ver{irssi}{$nick}	= $ver;
+
     } elsif ($ver =~ /epic/i) {
 	$ver{epic}{$nick}	= $ver;
+
     } elsif ($ver =~ /mirc/i) {
 	&DEBUG("verstats: mirc: $nick => '$ver'.");
 	$ver{mirc}{$nick}	= $ver;
+
     } elsif ($ver =~ /ircle/i) {
 	$ver{ircle}{$nick}	= $ver;
+
     } elsif ($ver =~ /ircII/i) {
 	$ver{ircII}{$nick}	= $ver;
+
     } elsif ($ver =~ /sirc /i) {
 	$ver{sirc}{$nick}	= $ver;
+
     } elsif ($ver =~ /kvirc/i) {
 	$ver{kvirc}{$nick}	= $ver;
+
     } elsif ($ver =~ /eggdrop/i) {
 	$ver{eggdrop}{$nick}	= $ver;
+
     } elsif ($ver =~ /xircon/i) {
 	$ver{xircon}{$nick}	= $ver;
+
     } else {
 	&DEBUG("verstats: other: $nick => '$ver'.");
 	$ver{other}{$nick}	= $ver;
@@ -1024,6 +1041,7 @@ sub on_whoisuser {
 sub on_chanfull {
     my ($self, $event) = @_;
     my @args	= $event->args;
+
     &DEBUG("on_chanfull: args => @args");
     &joinNextChan();
 }
@@ -1031,6 +1049,7 @@ sub on_chanfull {
 sub on_inviteonly {
     my ($self, $event) = @_;
     my @args	= $event->args;
+
     &DEBUG("on_inviteonly: args => @args");
     &joinNextChan();
 }
@@ -1038,6 +1057,7 @@ sub on_inviteonly {
 sub on_banned {
     my ($self, $event) = @_;
     my @args	= $event->args;
+
     &DEBUG("on_banned: args => @args");
     &joinNextChan();
 }
@@ -1045,6 +1065,7 @@ sub on_banned {
 sub on_badchankey {
     my ($self, $event) = @_;
     my @args	= $event->args;
+
     &DEBUG("on_badchankey: args => @args");
     &joinNextChan();
 }

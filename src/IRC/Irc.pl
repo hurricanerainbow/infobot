@@ -40,25 +40,25 @@ loop:;
 	}
 	next unless (exists $ircPort{$host});
 
-	my $retval = &irc($host, $ircPort{$host});
-	&DEBUG("ircloop: after irc()");
-
+	my $retval	= &irc($host, $ircPort{$host});
 	next unless (defined $retval and $retval == 0);
-
 	$error++;
 
 	if ($error % 3 == 0 and $error != 0) {
-	    &ERROR("CANNOT connect to this server; next!");
+	    &status("IRC: Could not connect.");
+	    &status("IRC: ");
 	    next;
 	}
 
-	if ($error >= 3*3) {
-	    &ERROR("CANNOT connect to any irc server; stopping.");
+	if ($error >= 3*2) {
+	    &status("IRC: cannot connect to any IRC servers; stopping.");
+	    &shutdown();
 	    exit 1;
 	}
     }
 
-    &DEBUG("ircloop: end... going back.");
+    &status("IRC: ok, done one cycle of IRC servers; trying again.");
+
     &loadIRCServers();
     goto loop;
 }
@@ -90,13 +90,15 @@ sub irc {
 
     $irc = new Net::IRC;
 
-    $conn = $irc->newconn(
+    my %args = (
 		Nick	=> $param{'ircNick'},
 		Server	=> $server,
 		Port	=> $port,
 		Ircname	=> $param{'ircName'},
-		LocalAddr => $param{'ircHost'},
     );
+    $args{'LocalAddr'} = $param{'ircHost'} if ($param{'ircHost'});
+
+    $conn = $irc->newconn(%args);
 
     if (!defined $conn) {
 	&ERROR("irc: conn was not created!defined!!!");
@@ -107,6 +109,8 @@ sub irc {
 
     # change internal timeout value for scheduler.
     $irc->{_timeout}	= 10;	# how about 60?
+    # Net::IRC debugging.
+    $irc->{_debug}	= 1;
 
     $ircstats{'Server'}	= "$server:$port";
 
@@ -555,7 +559,11 @@ sub unban {
 sub quit {
     my ($quitmsg) = @_;
     &status("QUIT $param{'ircNick'} has quit IRC ($quitmsg)");
-    $conn->quit($quitmsg);
+    if (defined $conn) {
+	$conn->quit($quitmsg);
+    } else {
+	&WARN("quit: could not quit!");
+    }
 }
 
 sub nick {
@@ -622,16 +630,17 @@ sub joinNextChan {
     }
 
     # !scalar @joinchan:
-    if (exists $cache{joinTime}) {
-	my $delta	= time() - $cache{joinTime};
+    my @c	= &getJoinChans();
+    if (exists $cache{joinTime} and scalar @c) {
+	my $delta	= time() - $cache{joinTime} - 5;
 	my $timestr	= &Time2String($delta);
-	my $rate	= sprintf("%.1f", $delta / &getJoinChans() );
+	my $rate	= sprintf("%.1f", $delta / @c);
 	delete $cache{joinTime};
 
 	&DEBUG("time taken to join all chans: $timestr; rate: $rate sec/join");
     }
-    # chanserv check: global channels, in case we missed one.
 
+    # chanserv check: global channels, in case we missed one.
     foreach ( &ChanConfList("chanServ_ops") ) {
 	&chanServCheck($_);
     }
@@ -728,7 +737,7 @@ sub clearChanVars {
 }
 
 sub clearIRCVars {
-###    &DEBUG("clearIRCVars() called!");
+#    &DEBUG("clearIRCVars() called!");
     undef %channels;
     undef %floodjoin;
 

@@ -80,6 +80,63 @@ sub doQuestion {
 	$questionWord = "where";
     }
 
+    if (&IsChanConf("factoidArguments")) {
+	# to make it eleeter, split each arg and use "blah OR blah or BLAH"
+	# which will make it less than linear => quicker!
+	# todo: cache this, update cache when altered.
+	my @list = &searchTable("factoids", "factoid_key", "factoid_key", "CMD: ");
+
+	# from a design perspective, it's better to have the regex in
+	# the factoid key to reduce repetitive processing.
+
+	foreach (@list) {
+	    s/^CMD: //;
+#	    &DEBUG("factarg: ''$query[0]' =~ /^$_\$/'");
+	    my @vals;
+	    my $arg = $_;
+
+	    eval {
+		next unless ($query[0] =~ /^$arg$/i);
+
+		for ($i=1; $i<=5; $i++) {
+		    $val = $$i;
+		    last unless (defined $val);
+
+		    push(@vals, $val);
+		}
+	    };
+
+	    if ($@) {	# it failed!!!
+		&WARN("factargs: regex failed! '$query[0]' =~ /^$_\$/");
+		next;
+	    }
+
+	    &status("Question: factoid Arguments for '$query[0]'");
+	    # todo: use getReply() - need to modify it :(
+	    my $i	= 0;
+	    my $result	= &getFactoid("CMD: $_");
+	    $result	=~ s/^\((.*?)\): //;
+
+	    foreach ( split(',', $1) ) {
+		my $val = $vals[$i];
+		if (!defined $val) {
+		    &status("factArgs: vals[$i] == undef; not SARing '$_' for '$query[0]'");
+		    next;
+		}
+
+		&status("factArgs: SARing '$_' to '$vals[$i]'.");
+		$result =~ s/\Q$_\E/$vals[$i]/;
+		$i++;
+	    }
+
+	    # nasty hack to get partial &getReply() functionality.
+	    $result =~ s/^\s*<action>\s*(.*)/\cAACTION $1\cA/i;
+	    $result =~ s/^\s*<reply>\s*//i;
+
+	    return $result;
+	}
+    }
+
     my @link;
     for (my$i=0; $i<scalar @query; $i++) {
 	$query	= $query[$i];

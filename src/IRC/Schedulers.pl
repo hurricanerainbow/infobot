@@ -361,6 +361,9 @@ sub chanlimitCheck {
 	return if ($_[0] eq "2");
     }
 
+    $cache{chanlimitCheck}++;
+    &DEBUG("clC: chanlimitCheck => $cache{chanlimitCheck}");
+
     foreach $chan ( &ChanConfList("chanlimitcheck") ) {
 	next unless (&validChan($chan));
 
@@ -422,7 +425,8 @@ sub netsplitCheck {
 	return if ($_[0] eq "2");
     }
 
-    &DEBUG("running netsplitCheck...");
+    $cache{'netsplitCache'}++;
+    &DEBUG("running netsplitCheck... $cache{netsplitCache}");
 
     foreach $s1 (keys %netsplitservers) {
 	&DEBUG("nsC: s1 => $s1");
@@ -434,6 +438,7 @@ sub netsplitCheck {
 	    if (time() - $netsplitservers{$s1}{$s2} > 3600) {
 		&status("netsplit between $s1 and $s2 appears to be stale.");
 		delete $netsplitservers{$s1}{$s2};
+		&chanlimitCheck();
 	    }
 	}
 
@@ -457,6 +462,11 @@ sub netsplitCheck {
 
     &DEBUG("nsC: netsplitservers: ".scalar(keys %netsplitservers) );
     &DEBUG("nsC: netsplit: ".scalar(keys %netsplit) );
+
+    if (!scalar %netsplit and scalar %netsplitservers) {
+	&DEBUG("ok hash netsplit is NULL; purging hash netsplitservers");
+	undef %netsplitservers;
+    }
 
     if ($count and !scalar keys %netsplit) {
 	&DEBUG("nsC: netsplit is hopefully gone. reinstating chanlimit check.");

@@ -152,10 +152,15 @@ sub chaninfo {
     my %new;
     foreach (keys %userstats) {
 	next unless (exists $userstats{$_}{'Count'});
+	if ($userstats{$_}{'Count'} =~ /^\D+$/) {
+	    &WARN("userstats{$_}{Count} is non-digit.");
+	    next;
+	}
+
 	$new{$_} = $userstats{$_}{'Count'};
     }
 
-    my($count) = (sort { $b <=> $a } keys %new)[0];
+    my($count) = (sort { $a <=> $b } keys %new)[0];
     if ($count) {
 	$reply .= ".  \002$count\002 has said the most with a total of \002$new{$count}\002 messages";
     }

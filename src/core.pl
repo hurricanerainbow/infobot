@@ -89,6 +89,7 @@ sub doExit {
 	&status("parent caught SIG$sig (pid $$).") if (defined $sig);
 
 	&status("--- Start of quit.");
+	$ident ||= "blootbot";	# lame hack.
 
 	&closeDCC();
 	&closePID();
@@ -354,6 +355,7 @@ sub setup {
     $shm = &openSHM();
     &openSQLDebug()	if (&IsParam("SQLDebug"));
     &openDB($param{'DBName'}, $param{'SQLUser'}, $param{'SQLPass'});
+    &checkTables();
 
     &status("Setup: ". &countKeys("factoids") ." factoids.");
     &News::readNews() if (&ChanConfList("news"));
@@ -414,6 +416,8 @@ sub startup {
 sub shutdown {
     # reverse order of &setup().
     &DEBUG("shutdown called.");
+
+    $ident ||=	"blootbot";	# hack.
 
     # opened files must be written to on shutdown/hup/whatever
     # unless they're write-only, like uptime.

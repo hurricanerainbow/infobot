@@ -88,6 +88,10 @@ sub Parse {
 
     } elsif ($what =~ /^(latest|new)(\s+(.*))?$/i) {
 	&latest($3 || $chan, 1);
+#	$::cmdstats{'News latest'}++;
+
+    } elsif ($what =~ /^stats?$/i) {
+	&stats();
 
     } elsif ($what =~ /^list$/i) {
 	&list();
@@ -363,6 +367,10 @@ sub list {
 	if (defined $x and ($x == 0 or $x == -1)) {
 	    &::DEBUG("not updating time for $::who.");
 	} else {
+	    if (!scalar keys %{ $::news{$chan} }) {
+		&DEBUG("news: should not add $chan/$::who to cache!");
+	    }
+
 	    $::newsuser{$chan}{$::who} = time();
 	}
     }
@@ -729,7 +737,7 @@ sub latest {
     if (!$flag) {
 	return unless ($unread);
 
-	my $reply = "There are unread news in $chan ($unread unread, $total total). /msg $::ident news latest";
+	my $reply = "There are unread news in $chan ($unread unread, $total total). /msg $::ident news $::chan latest";
 	$reply	 .= "  If you don't want further news notification, /msg $::ident news unnotify" if ($unread == $total);
 	&::notice($::who, $reply);
 
@@ -902,6 +910,39 @@ sub do_set {
     }
 
     &::DEBUG("do_set: TODO...");
+}
+
+sub stats {
+    &::DEBUG("News: stats called.");
+    &::msg($::who, "check my logs/console.");
+    my($i,$j) = (0,0);
+
+    # total request count.
+    foreach $chan (keys %::news) {
+	foreach (keys %{ $::news{$chan} }) {
+	    $i += $::news{$chan}{$_}{Request_Count};
+	}
+    }
+    &::DEBUG("news: stats: total request count => $i");
+    $i = 0;
+
+    # total user cached.
+    foreach $chan (keys %::newsuser) {
+	$i += $::newsuser{$chan}{$_};
+    }
+    &::DEBUG("news: stats: total user cache => $i");
+    $i = 0;
+
+    # average latest time read.
+    my $t = time();
+    foreach $chan (keys %::newsuser) {
+	$i += $t - $::newsuser{$chan}{$_};
+	$j++;
+    }
+    &::DEBUG("news: stats: average latest time read: total time: $i");
+    &::DEBUG("... count: $j");
+    &::DEBUG("   average: ".sprintf("%.02f", $i/($j||1))." sec/user");
+    $i = $j = 0;
 }
 
 1;
