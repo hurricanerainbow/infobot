@@ -400,7 +400,7 @@ sub op {
     my ($chan, @who) = @_;
     my $os	= "o" x scalar(@who);
 
-    &mode($chan, "+$os ".@who);
+    &mode($chan, "+$os @who");
 }
 
 sub deop {
@@ -443,11 +443,10 @@ sub kick {
 
 sub ban {
     my ($mask,$chan) = @_;
-    my (@chans) = ($chan eq "") ? (keys %channels) : lc($chan);
+    my (@chans) = ($chan =~ /^\*?$/) ? (keys %channels) : lc($chan);
     my $ban	= 0;
 
-    &DEBUG("ban: mask = $mask, chan = $chan");
-    if ($chan ne "" and &validChan($chan) == 0) {
+    if ($chan !~ /^\*?$/ and &validChan($chan) == 0) {
 	&ERROR("ban: invalid channel $chan.");
 	return;
     }
@@ -460,6 +459,27 @@ sub ban {
 
 	&status("Banning $mask from $chan.");
 	&rawout("MODE $chan +b $mask");
+	$ban++;
+    }
+
+    return $ban;
+}
+
+sub unban {
+    my ($mask,$chan) = @_;
+    my (@chans) = ($chan =~ /^\*?$/) ? (keys %channels) : lc($chan);
+    my $ban	= 0;
+
+    &DEBUG("unban: mask = $mask, chan = @chans");
+
+    foreach $chan (@chans) {
+	if (!exists $channels{$chan}{o}{$ident}) {
+	    &status("unBan: do not have ops on $chan :(");
+	    next;
+	}
+
+	&status("Removed ban $mask from $chan.");
+	&rawout("MODE $chan -b $mask");
 	$ban++;
     }
 
