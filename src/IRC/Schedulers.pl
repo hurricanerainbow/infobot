@@ -553,7 +553,7 @@ sub seenFlush {
     if ($param{'DBType'} =~ /^(mysql|pgsql)$/i) {
 	foreach $nick (keys %seencache) {
 	    my $retval = &dbReplace("seen", "nick", (
-			"nick" => $seencache{$nick}{'nick'},
+			"nick" => lc $seencache{$nick}{'nick'},
 			"time" => $seencache{$nick}{'time'},
 			"host" => $seencache{$nick}{'host'},
 			"channel" => $seencache{$nick}{'chan'},

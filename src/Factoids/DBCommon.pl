@@ -17,6 +17,35 @@ sub setFactInfo {
 }   
 
 #####
+# Usage: &getFactInfo($faqtoid, [$what]);
+sub main::getFactInfo {
+    return &dbGet("factoids", $_[1], "factoid_key=".&dbQuote($_[0]) );
+}
+
+#####
+# Usage: &getFactoid($faqtoid);
+sub main::getFactoid {
+    return &getFactInfo($_[0], "factoid_value");
+}
+
+#####
+# Usage: &setFactInfo($faqtoid, $type, $what);
+sub main::setFactInfo {
+    &dbSet("factoids", "factoid_key", $_[0], $_[1], $_[2]);
+}
+
+##### 
+# Usage: &delFactoid($faqtoid);
+sub main::delFactoid {
+    my ($faqtoid) = @_;
+
+    &dbDel("factoids", "factoid_key",$faqtoid);
+    &status("DELETED $faqtoid");
+ 
+    return 1;
+}
+
+#####
 # Usage: &IsLocked($faqtoid);
 sub IsLocked {
     my ($faqtoid) = @_;
