@@ -109,27 +109,30 @@ sub addForked {
     }
 
     if (exists $forked{$name}) {
-	my $time = $forked{$name}{Time};
+	my $time	= $forked{$name}{Time};
+	my $continue	= 0;
+
 	if (-d "/proc/$forked{$name}{PID}") {
 	    &status("fork: still running; good. BAIL OUT.");
 	} else {
-	    &status("fork: lost the fork? REMOVE IT!");
+	    &WARN("Found dead fork; removing and resetting.");
+	    $continue = 1;
 	}
 
-	if (time() - $time > 900) {	# stale fork > 15m.
+	if ($continue) {
+	    # NOTHING.
+	} elsif (time() - $time > 900) {	# stale fork > 15m.
 	    &status("forked: forked{$name} presumably exited without notifying us.");
-	    $forked{$name}{Time} = time();
-	    return 1;
 	} else {				# fresh fork.
-	    &msg($who, "$name is already running ". &Time2String(time() - $forked{$name}));
+	    &msg($who, "$name is already running ". &Time2String(time() - $time));
 	    return 0;
 	}
-    } else {
-	$forked{$name}{Time}	= time();
-	$forkedtime		= time();
-	$count{'Fork'}++;
-	return 1;
     }
+
+    $forked{$name}{Time}	= time();
+    $forkedtime			= time();
+    $count{'Fork'}++;
+    return 1;
 }
 
 sub delForked {
@@ -152,7 +155,7 @@ sub delForked {
 	&ERROR("delForked: forked{$name} does not exist. should not happen.");
     }
 
-    &status("fork finished for '$name'.");
+    &status("--- fork finished for '$name' ---");
 
     POSIX::_exit(0);
 }
