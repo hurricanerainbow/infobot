@@ -493,10 +493,11 @@ sub shutdown {
 
     $ident ||=	"blootbot";	# hack.
 
-    if ($sig eq "HUP") {
-	&status("::: not writing user/chan file w/ SIGHUP");
-    } else {
-	&writeUserFile();
+    if (!&isFileUpdated("$bot_state_dir/blootbot.users", $wtime_userfile)) {
+	&writeUserFile()
+    }
+
+    if (!&isFileUpdated("$bot_state_dir/blootbot.chan", $wtime_chanfile)) {
 	&writeChanFile();
     }
 
