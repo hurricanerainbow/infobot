@@ -99,6 +99,12 @@ sub addForked {
 	&WARN("Fork: looks like we lost '$_', executed $time ago");
 
 	my $pid = $forked{$name}{PID};
+	if (!defined $pid) {
+	    &WARN("Fork: no pid for $name.");
+	    delete $forked{$name};
+	    next;
+	}
+
 	# don't kill parent!
 	if ($pid == $$) {
 	    &status("Fork: pid == \$\$ ($$)");
