@@ -401,14 +401,22 @@ sub FactoidStuff {
 	    return 'locked factoid' if (&IsLocked($faqtoid) == 1);
 
 	    if (&IsParam("factoidDeleteDelay")) {
+		if ($faqtoid =~ /#DEL#/ and !&IsFlag("o")) {
+		    &msg($who, "cannot delete it ($faqtoid).");
+		    return;
+		}
 		&status("forgot (safe delete): <$who> '$faqtoid' =is=> '$result'");
 		### TODO: check if the "backup" exists and overwrite it
 		my $check = &getFactoid("$faqtoid #DEL#");
 		if (!$check) {
-		    &setFactInfo($faqtoid, "factoid_key", $faqtoid." #DEL#");
+		    if ($faqtoid !~ /#DEL#/) {
+			&setFactInfo($faqtoid, "factoid_key", $faqtoid." #DEL#");
 
-		    &setFactInfo($faqtoid, "modified_by", $who);
-		    &setFactInfo($faqtoid, "modified_time", time());
+			&setFactInfo($faqtoid, "modified_by", $who);
+			&setFactInfo($faqtoid, "modified_time", time());
+		    } else {
+			&status("not backing up $faqtoid.");
+		    }
 		} else {
 		    &status("forget: not overwriting backup!");
 		}
