@@ -29,7 +29,6 @@ BEGIN {
 
     require "$bot_src_dir/logger.pl";
     require "$bot_src_dir/core.pl";
-    require "$bot_src_dir/interface.pl";
     require "$bot_src_dir/modules.pl";
 
     # load the configuration (params) file.
