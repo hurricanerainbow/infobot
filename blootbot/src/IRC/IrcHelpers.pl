@@ -344,10 +344,10 @@ sub chanServCheck {
     &VERB("chanServCheck($chan) called.",2);
 
     if ( &IsParam("nickServ_pass") and !$nickserv) {
-	&DEBUG("chanServ_ops($chan): nickserv enabled but not alive? (ircCheck)");
 	$conn->who("NickServ");
 	return 0;
     }
+
     # check for first hash then for next hash.
     # todo: a function for &ischanop()? &isvoice()?
     if (exists $channels{$chan} and exists $channels{$chan}{'o'}{$ident}) {
