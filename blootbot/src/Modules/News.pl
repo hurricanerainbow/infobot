@@ -752,9 +752,10 @@ sub latest {
 
     $::chan	= $chan;
     my $x = &::IsChanConf("newsNotifyAll");
-    if (&::IsChanConf("newsNotifyAll") and !defined $t) {
-	$t = 1;
-    }
+    return if (!$x);
+
+    # I don't understand this code ;)
+    $t = 1 if (!defined $t);
 
     if (!defined $t) {
 #	&::msg($who, "News is disabled for $chan");
