@@ -316,9 +316,11 @@ sub getChanConf {
 sub getChanConfDefault {
     my($what, $default, $chan) = @_;
 
+    $chan	||= "_default";
+
     if (exists $param{$what}) {
 	if (!exists $cache{config}{$what}) {
-	    &status("conf: backward-compat: found param{$what} ($param{$what}) instead.");
+	    &status("conf: backward-compat: found param{$what} ($param{$what}) for $chan instead.");
 	    $cache{config}{$what} = 1;
 	}
 
@@ -328,7 +330,7 @@ sub getChanConfDefault {
     return $val if (defined $val);
 
     $param{$what}	= $default;
-    &status("conf: auto-setting param{$what} = $default");
+    &status("conf: $chan auto-setting param{$what} = $default");
     $cache{config}{$what} = 1;
     return $default;
 }
