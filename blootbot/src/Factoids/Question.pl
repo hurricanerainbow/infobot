@@ -35,7 +35,7 @@ sub doQuestion {
     if (!$addressed) {
 	return '' unless ($finalQMark);
 	return '' if (&IsParam("minVolunteerLength") == 0);
-	return '' if (length($query) < $param{'minVolunteerLength'});
+	return '' if (length $query < $param{'minVolunteerLength'});
     } else {
 	### TODO: this should be caught in Process.pl?
 	return '' unless ($talkok);
@@ -51,6 +51,11 @@ sub doQuestion {
     my @query;
 
     push(@query, $query);	# 1: push original.
+
+    # valid factoid.
+    if ($query =~ s/[!.]$//) {
+	push(@query,$query);
+    }
 
     $x = &normquery($query);
     push(@query, $x) if ($x ne $query);
@@ -76,11 +81,6 @@ sub doQuestion {
 	$questionWord = "where";
     }
 
-    # valid factoid.
-    if ($query =~ s/[\!\.]$//) {
-	push(@query,$query);
-    }
-
     for (my$i=0; $i<scalar(@query); $i++) {
 	$query	= $query[$i];
 	$result = &getReply($query);
@@ -93,7 +93,7 @@ sub doQuestion {
 	}
 
 	if ($i != 0) {
-	    &DEBUG("Question: guessed factoid correctly ($i) => '$query'.");
+	    &DEBUG("Question: '$query[0]' did not exist; '$query[$i]' ($i) did");
 	}
 
 	return $result;

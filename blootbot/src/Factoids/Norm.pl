@@ -57,6 +57,7 @@ sub normquery {
 
 	$in =~ s/\s+/ /g;
 	$in =~ s/^\s*(.*?)\s*$/$1/;
+	$in =~ s/^\s+|\s+$//g;		# why twice, see Question.pl
 
 	$in;
 }
