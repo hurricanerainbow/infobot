@@ -51,7 +51,7 @@ sub getReply {
     my $fauthor = &dbGet("factoids", "factoid_key", $message, "created_by");
     ### we need non-evaluating regex like in factoid sar.
     if ($msgType =~ /^private$/) {
-	if (defined $fauthor and $fauthor =~ /^\Q$who\E\!/i) {
+	if (0 and defined $fauthor and $fauthor =~ /^\Q$who\E\!/i) {
 	    &status("Reply.pl: author requested own factoid in private; literal!");
 	    $literal = 1;
 	}
