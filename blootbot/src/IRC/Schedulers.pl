@@ -1,7 +1,7 @@
 #
 # ProcessExtra.pl: Extensions to Process.pl
 #          Author: dms
-#         Version: v0.3 (20000707)
+#         Version: v0.4 (20000918)
 #         Created: 20000117
 #
 
@@ -288,6 +288,10 @@ sub floodCycle {
 sub seenFlush {
     my $nick;
     my $flushed = 0;
+    my %stats;
+    $stats{'count_old'} = &countKeys("seen");
+    $stats{'new'}	= 0;
+    $stats{'old'}	= 0;
 
     if ($param{'DBType'} =~ /^mysql|pg|postgres/i) {
 	foreach $nick (keys %seencache) {
@@ -300,6 +304,7 @@ sub seenFlush {
 			"channel" => $seencache{$nick}{'chan'},
 			"message" => $seencache{$nick}{'msg'},
 		) );
+		$stats{'old'}++;
 	    } else {
 		my $retval = &dbInsert("seen", $nick, (
 			"nick" => $seencache{$nick}{'nick'},
@@ -308,6 +313,7 @@ sub seenFlush {
 			"channel" => $seencache{$nick}{'chan'},
 			"message" => $seencache{$nick}{'msg'},
 		) );
+		$stats{'new'}++;
 
 		### TODO: put bad nick into a list and don't do it again!
 		if ($retval == 0) {
@@ -341,6 +347,13 @@ sub seenFlush {
     } else {
 	&DEBUG("seenFlush: NO VALID FACTOID SUPPORT?");
     }
+
+    &DEBUG(sprintf("new seen: %03.01f%% (%d/%d)",
+			$stats{'new'}*100/$stats{'count_old'}),
+			$stats{'new'}, $stats{'count_old'} );
+    &DEBUG(sprintf("now seen: %3.1f%% (%d/%d)",
+			$stats{'old'}*100/&countKeys("seen")),
+			$stats{'old'}, &countKeys("seen") );
 
     &VERB("Flushed $flushed seen entries.",1); # was 2.
     &DEBUG("seen: ".scalar(keys %seenflush)." remaining.");
@@ -410,10 +423,9 @@ sub ircCheck {
 	&WARN("ircCheck: ident($ident) != param{ircNick}($param{IrcNick}).");
     }
 
-    if (scalar @joinchan) {
-	&WARN("We have some channels to join, doing so.");
-	&joinNextChan();
-    }
+    &joinNextChan();
+	# if scalar @joinnext => join more channels
+	# else check for chanserv.
 
     if (grep /^\s*$/, keys %channels) {
 	&WARN("we have a NULL chan in hash channels? removing!");
