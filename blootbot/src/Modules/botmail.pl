@@ -66,7 +66,7 @@ sub next {
 	my $ago = &::Time2String(time() - $hash{'time'});
 	&::msg($recipient, "From $hash{srcwho} ($hash{srcuh}) on $hash{time} [$ago]:");
 	&::msg($recipient, $hash{'msg'});
-	#&::dbDel("botmail", "id", $hash{id}); # FIXME need a way to delete from 2 keys (hash)
+	&::dbDel("botmail", { 'dstwho'=>$hash{dstwho}, 'srcwho'=>$hash{srcwho}});
     }
 }
 

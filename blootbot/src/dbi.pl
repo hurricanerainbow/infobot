@@ -408,14 +408,16 @@ sub dbSetRow ($@$) {
 }
 
 #####
-# Usage: &dbDel($table, $primkey, $primval, [$key]);
+# Usage: &dbDel($table, $primhash_ref);
 #  Note: dbDel does dbQuote
 sub dbDel {
-    my ($table, $primkey, $primval, $key) = @_;
-
-    &dbRaw("Del", "DELETE FROM $table WHERE $primkey=".
-		&dbQuote($primval)
+    my ($table, $phref) = @_;
+    my $where = join(' AND ', map {
+		$_."=".&dbQuote($phref->{$_})
+	} keys %{$phref}
     );
+
+    &dbRaw("Del", "DELETE FROM $table WHERE $where");
 
     return 1;
 }
