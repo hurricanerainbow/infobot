@@ -21,6 +21,7 @@ if ($@) {
 
 ### MODULES.
 %myModules = (
+	"bzflag"	=> "BZFlag.pl",
 	"countdown"	=> "Countdown.pl",
 	"debian"	=> "Debian.pl",
 	"debianExtra"	=> "DebianExtra.pl",
