@@ -12,7 +12,6 @@ if (&IsParam('useStrict')) { use strict;}
 
 use vars qw(%factoids %freshmeat %seen %rootwarn);	# db hash.
 
-
 {
     my %formats = (
 	'factoids', [
@@ -29,18 +28,11 @@ use vars qw(%factoids %freshmeat %seen %rootwarn);	# db hash.
 	    'locked_time'
 	],
 	'freshmeat', [
-	    'name',
-	    'stable',
-	    'devel',
-	    'section',
+	    'projectname_short',
+	    'latest_version',
 	    'license',
-	    'homepage',
-	    'download',
-	    'changelog',
-	    'deb',
-	    'rpm',
-	    'link',
-	    'oneliner'
+	    'url_homepage',
+	    'desc_short'
 	],
 	'rootwarn', [
 	    'nick',
@@ -144,14 +136,14 @@ sub dbGet {
 	return(@retval);
     }
 
-    &DEBUG("dbGet: select => '$select'.");
+    &DEBUG("dbGet: select=>'$select'.");
     my @array = split "$;", ${"$table"}{lc $val};
     unshift(@array,$key);
     for (0 .. $#format) {
 	my $str = $format[$_];
 	next unless (grep /^$str$/, split(/\,/, $select));
 	$array[$_] ||= '';
-	&DEBUG("dG: pushing $format[$_]=>'$array[$_]'.");
+	&DEBUG("dG: '$format[$_]'=>'$array[$_]'.");
 	push(@retval, $array[$_]);
     }
 
@@ -210,13 +202,13 @@ sub dbInsert {
 	$array[$i - 1]=$hash{$col};
 	$array[$i - 1]='' unless $array[$i - 1];
 	delete $hash{$col};
-	&DEBUG("dbI: setting $table->$primkey\{$col\} => '$array[$i - 1]'.");
+	&DEBUG("dbI: '$col'=>'$array[$i - 1]'");
     }
 
     if (scalar keys %hash) {
 	&ERROR("dbI: not added...");
 	foreach (keys %hash) {
-	    &ERROR("dbI:   '$_' => '$hash{$_}'");
+	    &ERROR("dbI: '$_'=>'$hash{$_}'");
 	}
 	return 0;
     }
@@ -227,7 +219,7 @@ sub dbInsert {
 }
 
 sub dbUpdate {
-    &FIXME("STUB: &dbUpdate(@_); => somehow use dbInsert!");
+    &FIXME("STUB: &dbUpdate(@_);=>somehow use dbInsert!");
 }
 
 #####
@@ -296,6 +288,7 @@ sub dbSet {
     my $where = $key . "=" . $phref->{$key};
 
     my %hash = &dbGetColNiceHash($table, "*", $where);
+    $hash{$key}=$phref->{$key};
     foreach (keys %{$href}) {
 	&DEBUG("dbSet: setting $_=${$href}{$_}");
 	$hash{$_} = ${$href}{$_};
@@ -327,7 +320,22 @@ sub getKeys {
 }
 
 sub randKey {
-    &FIXME("STUB: &randKey(@_);");
+    &DEBUG("STUB: &randKey(@_);");
+    my @format = &dbGetColInfo($table);
+    if (!scalar @format) {
+	return;
+    }
+
+    my $rand = int(rand(&countKeys($table) - 1));
+    my @keys = keys %{$table};
+    &dbGet($table, '*', "@format[0]=@keys[$rand]");
+}
+
+#####
+# Usage: &deleteTable($table);
+sub deleteTable {
+    my ($table) = @_;
+    &FIXME("STUB: deleteTable($table)");
 }
 
 ##### $select is misleading???
