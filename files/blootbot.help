@@ -131,8 +131,8 @@ listvalues: U: ## <regex>
 listvalues: E: ## blootbot
 
 quote: D: Frontend to yahoo's online stock market share listing
-quote: U: ## <query>
-quote: E: ## RHAT
+quote: U: ## <query...>
+quote: E: ## RHAT,MSFT
 
 topic add: D: Add your own topic
 topic add: U: ## <topic>
