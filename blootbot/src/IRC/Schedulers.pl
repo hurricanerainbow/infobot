@@ -399,7 +399,7 @@ sub chanlimitCheck {
 	}
 
 	if (defined $limit and scalar keys %{ $channels{$chan}{''} } > $limit) {
-	    &FIXME("LIMIT: set too low!!! FIXME");
+	    &FIXME("LIMIT: set too low!!!");
 	    ### run NAMES again and flush it.
 	}
 
@@ -678,9 +678,7 @@ sub ircCheck {
     my $iconf	= scalar( @x );
     my $inow	= scalar( keys %channels );
     if ($iconf > 2 and $inow * 2 <= $iconf) {
-	&FIXME("ircCheck: current channels * 2 <= config channels. FIXME.");
-	&FIXME("ircCheck: iconf = $iconf");
-	&FIXME("ircCheck: inow  = $inow");
+	&FIXME("ircCheck: current channels ($inow) * 2 <= config channels ($iconf).");
 #	@joinchan	= @x;
 	&joinNextChan();
     }

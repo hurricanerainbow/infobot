@@ -32,7 +32,7 @@ sub readUserFile {
 	my $s2 = -s "$f~";
 
 	if ($s2 > $s1*3) {
-	    &DEBUG("rUF: backup file bigger than current file. FIXME");
+	    &FIXME("rUF: backup file bigger than current file.");
 	}
     }
 
@@ -239,7 +239,7 @@ sub readChanFile {
 	my $s2 = -s "$f~";
 
 	if ($s2 > $s1*3) {
-	    &DEBUG("rCF: backup file bigger than current file. FIXME");
+	    &FIXME("rCF: backup file bigger than current file.");
 	}
     }
 

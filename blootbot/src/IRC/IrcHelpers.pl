@@ -115,12 +115,15 @@ sub hookMsg {
 
     # Determine floodwho.
     my $c	= "_default";
-    if ($msgType =~ /public/i) {		# public.
+    if ($msgType =~ /public/i) {
+	# public.
 	$floodwho = $c = lc $chan;
-    } elsif ($msgType =~ /private/i) {	# private.
+    } elsif ($msgType =~ /private/i) {
+	# private.
 	$floodwho = lc $who;
-    } else {				# dcc?
-	&DEBUG("FIXME: floodwho = ???");
+    } else {
+	# dcc?
+	&FIXME("floodwho = ???");
     }
 
     my $val = &getChanConfDefault("floodRepeat", "2:5", $c);

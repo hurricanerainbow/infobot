@@ -118,7 +118,7 @@ sub perlMath {
 	    }
 	} else {
 	    if (defined $locMsg) {
-		&DEBUG("math: locMsg => '$locMsg'... FIXME");
+		&FIXME("math: locMsg => '$locMsg'...");
 	    } else {
 		&status("math: could not really compute.");
 		$locMsg = "";
