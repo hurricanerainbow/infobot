@@ -596,11 +596,6 @@ sub seen {
     my($person) = lc shift;
     $person =~ s/\?*$//;
 
-    if (&whatInterface() !~ /IRC/) {
-	&status("seen disabled in CLI.");
-	return;
-    }
-
     if (!defined $person or $person =~ /^$/) {
 	&help("seen");
 
