@@ -6,9 +6,9 @@
 #   FModified: 19991020
 #
 
-package main;
+#package main;
 
-if (&IsParam('useStrict')) { use strict;}
+if (&::IsParam('useStrict')) { use strict;}
 
 use vars qw(%factoids %freshmeat %seen %rootwarn);	# db hash.
 
@@ -60,17 +60,18 @@ use vars qw(%factoids %freshmeat %seen %rootwarn);	# db hash.
     );
 
     sub openDB {
+	my ($dbname) = @_;
 	use DB_File;
 	foreach (keys %formats) {
-	    next unless (&IsParam($_));
+	    next unless (&::IsParam($_));
 
-	    my $file = "$param{'DBName'}-$_";
+	    my $file = "$dbname-$_";
 
 	    if (dbmopen(%{ $_ }, $file, 0666)) {
-		&status("Opened DBM $_ ($file).");
+		&::status("Opened DBM $_ ($file).");
 	    } else {
-		&ERROR("Failed open to DBM $_ ($file).");
-		&shutdown();
+		&::ERROR("Failed open to DBM $_ ($file).");
+		&::shutdown();
 		exit 1;
 	    }
 	}
@@ -78,13 +79,13 @@ use vars qw(%factoids %freshmeat %seen %rootwarn);	# db hash.
 
     sub closeDB {
 	foreach (keys %formats) {
-	    next unless (&IsParam($_));
+	    next unless (&::IsParam($_));
 
 	    if (dbmclose(%{ $_ })) {
-		&status("Closed DBM $_ successfully.");
+		&::status("Closed DBM $_ successfully.");
 		next;
 	    }
-	    &ERROR("Failed closing DBM $_.");
+	    &::ERROR("Failed closing DBM $_.");
 	}
     }
 
@@ -96,7 +97,7 @@ use vars qw(%factoids %freshmeat %seen %rootwarn);	# db hash.
 	if (scalar @{$formats{$table}}) {
 	    return @{$formats{$table}};
 	} else {
-	    &ERROR("dbGCI: no format for table ($table).");
+	    &::ERROR("dbGCI: no format for table ($table).");
 	    return;
 	}
     }
@@ -116,7 +117,7 @@ sub dbGet {
     my $found = 0;
     my @retval;
     my $i;
-    &DEBUG("dbGet($table, $select, $where);");
+    &::DEBUG("dbGet($table, $select, $where);");
     return unless $key;
 
     my @format = &dbGetColInfo($table);
@@ -125,7 +126,7 @@ sub dbGet {
     }
 
     if (!defined ${ "$table" }{lc $val}) {	# dbm hash exception.
-	&DEBUG("dbGet: '$val' does not exist in $table.");
+	&::DEBUG("dbGet: '$val' does not exist in $table.");
 	return;
     }
 
@@ -136,14 +137,14 @@ sub dbGet {
 	return(@retval);
     }
 
-    &DEBUG("dbGet: select=>'$select'.");
+    &::DEBUG("dbGet: select=>'$select'.");
     my @array = split "$;", ${"$table"}{lc $val};
     unshift(@array,$val);
     for (0 .. $#format) {
 	my $str = $format[$_];
 	next unless (grep /^$str$/, split(/\,/, $select));
 	$array[$_] ||= '';
-	&DEBUG("dG: '$format[$_]'=>'$array[$_]'.");
+	&::DEBUG("dG: '$format[$_]'=>'$array[$_]'.");
 	push(@retval, $array[$_]);
     }
 
@@ -161,14 +162,14 @@ sub dbGet {
 # Usage: &dbGetCol($table, $select, $where, [$type]);
 sub dbGetCol {
     my ($table, $select, $where, $type) = @_;
-    &FIXME("STUB: &dbGetCol($table, $select, $where, $type);");
+    &::FIXME("STUB: &dbGetCol($table, $select, $where, $type);");
 }
 
 #####
 # Usage: &dbGetColNiceHash($table, $select, $where);
 sub dbGetColNiceHash {
     my ($table, $select, $where) = @_;
-    &DEBUG("dbGetColNiceHash($table, $select, $where);");
+    &::DEBUG("dbGetColNiceHash($table, $select, $where);");
     my ($key, $val) = split('=',$where) if $where =~ /=/;
     return unless ${$table}{lc $val};
     my (%hash) = ();
@@ -185,7 +186,7 @@ sub dbGetColNiceHash {
 sub dbInsert {
     my ($table, $primkey, %hash) = @_;
     my $found = 0;
-    &DEBUG("dbInsert($table, $primkey, ...)");
+    &::DEBUG("dbInsert($table, $primkey, ...)");
 
     my $info = ${$table}{lc $primkey} || '';	# primkey or primval?
 
@@ -202,13 +203,13 @@ sub dbInsert {
 	$array[$i - 1]=$hash{$col};
 	$array[$i - 1]='' unless $array[$i - 1];
 	delete $hash{$col};
-	&DEBUG("dbI: '$col'=>'$array[$i - 1]'");
+	&::DEBUG("dbI: '$col'=>'$array[$i - 1]'");
     }
 
     if (scalar keys %hash) {
-	&ERROR("dbI: not added...");
+	&::ERROR("dbI: not added...");
 	foreach (keys %hash) {
-	    &ERROR("dbI: '$_'=>'$hash{$_}'");
+	    &::ERROR("dbI: '$_'=>'$hash{$_}'");
 	}
 	return 0;
     }
@@ -219,14 +220,14 @@ sub dbInsert {
 }
 
 sub dbUpdate {
-    &FIXME("STUB: &dbUpdate(@_);=>somehow use dbInsert!");
+    &::FIXME("STUB: &dbUpdate(@_);=>somehow use dbInsert!");
 }
 
 #####
 # Usage: &dbSetRow($table, @values);
 sub dbSetRow {
     my ($table, @values) = @_;
-    &DEBUG("dbSetRow(@_);");
+    &::DEBUG("dbSetRow(@_);");
     my $key = lc $values[0];
 
     my @format = &dbGetColInfo($table);
@@ -235,16 +236,16 @@ sub dbSetRow {
     }
 
     if (defined ${$table}{$key}) {
-	&WARN("dbSetRow: $table {$key} already exists?");
+	&::WARN("dbSetRow: $table {$key} already exists?");
     }
 
     if (scalar @values != scalar @format) {
-	&WARN("dbSetRow: scalar values != scalar ${table} format.");
+	&::WARN("dbSetRow: scalar values != scalar ${table} format.");
     }
 
     for (0 .. $#format) {
 	if (defined $array[$_] and $array[$_] ne "") {
-	    &DEBUG("dbSetRow: array[$_] != NULL($array[$_]).");
+	    &::DEBUG("dbSetRow: array[$_] != NULL($array[$_]).");
 	}
 	$array[$_] = $values[$_];
     }
@@ -256,10 +257,10 @@ sub dbSetRow {
 # Usage: &dbDel($table, $primkey, $primval, [$key]);
 sub dbDel {
     my ($table, $primkey, $primval, $key) = @_;
-    &DEBUG("dbDel($table, $primkey, $primval);");
+    &::DEBUG("dbDel($table, $primkey, $primval);");
 
     if (!defined ${$table}{lc $primval}) {
-	&DEBUG("dbDel: lc $primval does not exist in $table.");
+	&::DEBUG("dbDel: lc $primval does not exist in $table.");
     } else {
 	delete ${$table}{lc $primval};
     }
@@ -272,7 +273,7 @@ sub dbDel {
 #  Note: dbReplace does optional dbQuote.
 sub dbReplace {
     my ($table, $key, %hash) = @_;
-    &DEBUG("dbReplace($table, $key, %hash);");
+    &::DEBUG("dbReplace($table, $key, %hash);");
 
     &dbDel($table, $key, $hash{$key}, %hash);
     &dbInsert($table, $hash{$key}, %hash);
@@ -283,14 +284,14 @@ sub dbReplace {
 # Usage: &dbSet($table, $primhash_ref, $hash_ref);
 sub dbSet {
     my ($table, $phref, $href) = @_;
-    &DEBUG("dbSet(@_)");
+    &::DEBUG("dbSet(@_)");
     my ($key) = keys %{$phref};
     my $where = $key . "=" . $phref->{$key};
 
     my %hash = &dbGetColNiceHash($table, "*", $where);
     $hash{$key}=$phref->{$key};
     foreach (keys %{$href}) {
-	&DEBUG("dbSet: setting $_=${$href}{$_}");
+	&::DEBUG("dbSet: setting $_=${$href}{$_}");
 	$hash{$_} = ${$href}{$_};
     }
     &dbReplace($table, $key, %hash);
@@ -298,11 +299,11 @@ sub dbSet {
 }
 
 sub dbRaw {
-    &FIXME("STUB: &dbRaw(@_);");
+    &::FIXME("STUB: &dbRaw(@_);");
 }
 
 sub dbRawReturn {
-    &FIXME("STUB: &dbRawReturn(@_);");
+    &::FIXME("STUB: &dbRawReturn(@_);");
 }
 
 
@@ -316,11 +317,11 @@ sub countKeys {
 }
 
 sub getKeys {
-    &FIXME("STUB: &getKeys(@_); -- REDUNDANT");
+    return keys %{$_[0]};
 }
 
 sub randKey {
-    &DEBUG("STUB: &randKey(@_);");
+    &::DEBUG("STUB: &randKey(@_);");
     my ($table, $select) = @_;
     my @format = &dbGetColInfo($table);
     if (!scalar @format) {
@@ -336,16 +337,16 @@ sub randKey {
 # Usage: &deleteTable($table);
 sub deleteTable {
     my ($table) = @_;
-    &FIXME("STUB: deleteTable($table)");
+    &::FIXME("STUB: deleteTable($table)");
 }
 
 ##### $select is misleading???
 # Usage: &searchTable($table, $returnkey, $primkey, $str);
 sub searchTable {
     my ($table, $primkey, $key, $str) = @_;
-    &FIXME("STUB: searchTable($table, $primkey, $key, $str)");
+    &::FIXME("STUB: searchTable($table, $primkey, $key, $str)");
     return;
-    &DEBUG("searchTable($table, $primkey, $key, $str)");
+    &::DEBUG("searchTable($table, $primkey, $key, $str)");
 
     if (!scalar &dbGetColInfo($table)) {
 	return;
@@ -358,7 +359,7 @@ sub searchTable {
 	push(@results, $_);
     }
 
-    &DEBUG("sT: ".scalar(@results) );
+    &::DEBUG("sT: ".scalar(@results) );
 
     @results;
 }
@@ -383,7 +384,7 @@ sub getFactInfo {
 
     # specific.
     if (!grep /^$type$/, @format) {
-	&ERROR("gFI: type '$type' not valid for factoids.");
+	&::ERROR("gFI: type '$type' not valid for factoids.");
 	return;
     }
 
@@ -393,7 +394,7 @@ sub getFactInfo {
 	return $array[$_];
     }
 
-    &ERROR("gFI: should never happen.");
+    &::ERROR("gFI: should never happen.");
 }   
 
 #####
@@ -402,7 +403,7 @@ sub getFactoid {
     my ($faqtoid) = @_;
 
     if (!defined $faqtoid or $faqtoid =~ /^\s*$/) {
-	&WARN("getF: faqtoid == NULL.");
+	&::WARN("getF: faqtoid == NULL.");
 	return;
     }
 
@@ -412,9 +413,9 @@ sub getFactoid {
 	my $retval = (split $;, $factoids{$faqtoid})[1];
 
 	if (defined $retval) {
-	    &DEBUG("getF: returning '$retval' for '$faqtoid'.");
+	    &::DEBUG("getF: returning '$retval' for '$faqtoid'.");
 	} else {
-	    &DEBUG("getF: returning NULL for '$faqtoid'.");
+	    &::DEBUG("getF: returning NULL for '$faqtoid'.");
 	}
 	return $retval;
     } else {
@@ -428,15 +429,15 @@ sub delFactoid {
     my ($faqtoid) = @_;
 
     if (!defined $faqtoid or $faqtoid =~ /^\s*$/) {
-	&WARN("delF: faqtoid == NULL.");
+	&::WARN("delF: faqtoid == NULL.");
 	return;
     }
 
     if (defined $factoids{$faqtoid}) {	# dbm hash exception.
 	delete $factoids{$faqtoid};
-	&status("DELETED $faqtoid");
+	&::status("DELETED $faqtoid");
     } else {
-	&WARN("delF: nothing to deleted? ($faqtoid)");
+	&::WARN("delF: nothing to deleted? ($faqtoid)");
 	return;
     }
 }
