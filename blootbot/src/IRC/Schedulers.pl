@@ -685,6 +685,13 @@ sub ircCheck {
 	&joinNextChan();
     }
 
+    # debug. needed for testing
+    open(OUT, ">>irccheck.log");
+    my $t = scalar(localtime);
+    printf OUT "%s: conn->connected = %s\n", $t, $conn->connected();
+    printf OUT "%s: time()-msgtime  = %d\n", $t, time() - $msgtime;
+    close OUT;
+
     if (!$conn->connected or time() - $msgtime > 3600) {
 	# todo: shouldn't we use cache{connect} somewhere?
 	if (exists $cache{connect}) {
