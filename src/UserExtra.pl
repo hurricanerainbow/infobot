@@ -550,7 +550,6 @@ sub userCommands {
 	    $tell_obj	= $4;
 	    $query	= $tell_obj;
 
-	    $target	= ""	if ($target =~ /^us$/i);
         } elsif ($args =~ /^(\S+) (what|where) (.*?) (is|are)[.?!]*$/i) {
 	    $target	= lc $1;
 	    $qWord	= $2;
@@ -558,23 +557,11 @@ sub userCommands {
 	    $verb	= $4;
 	    $query	= "$qWord $verb $tell_obj";
 
-	    $target	= ""	if ($target =~ /^us$/i);
 	} elsif ($args =~ /^(.*?) to (\S+)$/i) {
 	    $target	= lc $3;
 	    $tell_obj	= $2;
 	    $query	= $tell_obj;
-	    $target	= ""	if ($target =~ /^us$/i);
         }
-
-	### FIX IT UP.
-	# required for privmsg if excessive size.(??)
-	if ($target =~ /^us$/i) {
-	    $target	= $talkchannel;
-	} elsif ($target =~ /^(me|myself)$/i) {
-	    $target	= $who;
-	}
-
-	&status("target: $target query: $query");  
 
 	# check target type. Deny channel targets.
 	if ($target !~ /^$mask{nick}$/ or $target =~ /^$mask{chan}$/) {
@@ -582,8 +569,13 @@ sub userCommands {
 	    return $noreply;
 	}
 
+	$target	= $talkchannel  if ($target =~ /^us$/i);
+	$target = $who		if ($target =~ /^(me|myself)$/i);
+
+	&status("target: $target query: $query");  
+
 	# "intrusive".
-	if (!&IsNickInAnyChan($target)) {
+	if ($target !~ /^$mask{chan}$/ and !&IsNickInAnyChan($target)) {
 	    &msg($who, "No, $target is not in any of my chans.");
 	    return $noreply;
 	}
