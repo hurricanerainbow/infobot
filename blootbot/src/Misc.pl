@@ -76,7 +76,7 @@ sub getPath {
     my ($pathnfile) = @_;
 
     ### TODO: gotta hate an if statement.
-    if (/(.*)\/(.*?)$/) {
+    if ($pathnfile =~ /(.*)\/(.*?)$/) {
 	return $1;
     } else {
 	return ".";
