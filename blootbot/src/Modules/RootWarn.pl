@@ -1,7 +1,7 @@
 #
 # RootWarn.pl: Warn people about usage of root on IRC.
 #      Author: dms
-#     Version: v0.2c (19991125)
+#     Version: v0.3 (20000923)
 #     Created: 19991008
 #
 
@@ -61,12 +61,18 @@ sub CmdrootWarn {
     my $count = &countKeys("rootwarn");
 
     if ($count == 0) {
-	return "no-one has been warned about root, woohoo";
+	&performReply("no-one has been warned about root, woohoo");
+	return;
     }
 
     # reply #1.
     $reply = "there ".&fixPlural("has",$count) ." been \002$i\002 ".
 		&fixPlural("rooter",$count) ." warned about root.";
+
+    if ($param{'DBType'} !~ /^mysql$/i) {
+	&FIXME("rootwarn does not yet support non-mysql.");
+	return;
+    }
 
     # reply #2.
     $found = 0;
@@ -87,7 +93,7 @@ sub CmdrootWarn {
 		" done it at least 3 times.";
     }
 
-    return $reply;
+    &performStrictReply($reply);
 }
 
 1;
