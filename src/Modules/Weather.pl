@@ -60,8 +60,8 @@ sub queryText {
 	if (!$response->is_success) {
 	    if ($response->code == 404) {
 		return "I can't find station code \"$station\""
-		    . " (see http://www.nws.noaa.gov/oso/site.shtml "
-			. " or http://www.nws.noaa.gov/tg/siteloc.shtml "
+		    . " (see http://www.nws.noaa.gov/oso/site.shtml"
+			. " or http://www.nws.noaa.gov/tg/siteloc.shtml"
 		    . " for ICAO locations codes).";
 	    } else {
 		return "Something failed in connecting to the NOAA web"
