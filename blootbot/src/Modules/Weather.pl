@@ -60,7 +60,10 @@ sub queryText {
 	}
 
 	$content = $response->content;
-	$content =~ s|.*?current weather conditions.*?<BR>([^<]*?)\s*<.*?</TR>||is;
+	$content =~ s|.*?<BODY[^>]*>||is;
+	#$content =~ s|.*?current weather conditions.*?<BR>([^<]*?)\s*<.*?</TR>||is;
+	$content =~ s|.*?current weather conditions[^<]*(<[^>]+>\s*)+||is;
+	$content =~ s|([^<]*?)\s*<.*?</TR>||is;
 	my $place = $1;
 	chomp $place;
 
