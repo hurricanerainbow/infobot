@@ -44,175 +44,56 @@ if ($param{'DBType'} =~ /mysql/i) {
 
     &openDB("mysql", $adminuser, $adminpass);
 
+    my $database_exists = 0;
+    foreach $database (&dbRawReturn("SHOW DATABASES")) {
+	$database_exists++ if $database eq $param{DBName};
+    }
+    if ($database_exists) {
+	&status("Hmm, database '$param{DBName}' already exists. Continuing...");
+    } else {
+	&status("Creating db ...");
+	&dbRaw("create(database)", "CREATE DATABASE $param{DBName}");
+    }
+
     &status("Creating db ...");
     &dbRaw("CREATE DATABASE $param{'DBName'}");
 
-    # Step 1.
-    &status("Step 1: Adding user information.");
+    &status("--- Adding user information.");
 
-    # Step 2.
-    if (!&dbGet("user","user",$param{'SQLUser'},"user")) {
-	&status("  Adding user $param{'SQLUser'} $dbname/user table...");
+    if (!&dbGet("user","user", "user=".&dbQuote($param{'SQLUser'}) ) ) {
+	&status("--- Adding user $param{'SQLUser'} $dbname/user table...");
 
 	$query = "INSERT INTO user VALUES ".
 		"('localhost', '$param{'SQLUser'}', ".
 		"password('$param{'SQLPass'}'), ";
 
 	$query .= "'Y','Y','Y','Y','Y','Y','N','N','N','N','N','N','N','N')";
-###	$query .= "'Y','Y','Y','Y','N','N','N','N','N','N')";
 
 	&dbRaw("create(user)", $query);
+    } else {
+	&status("... User information already present.");
     }
 
-    # Step 3. what's this for?
-    if (!&dbGet("db","db",$param{'SQLUser'},"db")) {
-	&status("  Adding 'db' entry");
+    if (!&dbGet("db","db","db=".&dbQuote($param{'SQLUser'}) ) ) {
+	&status("--- Adding 'db' stuff.");
 
 	$query = "INSERT INTO db VALUES ".
 		"('localhost', '$dbname', ".
 		"'$param{'SQLUser'}', ";
 
 	$query .= "'Y','Y','Y','Y','Y','Y','Y','N','N','N')";
-###	$query .= "'Y','Y','Y','Y','Y','N')";
 
 	&dbRaw("create(db)", $query);
-    }
-
-    # grant.
-    &status("  Granting user access to table.");
-    foreach ("factoids","seen","freshmeat") {
-	$query = "GRANT SELECT,INSERT,UPDATE,DELETE ON $dbname.$_ TO $param{'SQLUser'}";
-	&dbRaw("GRANT", $query);
+    } else {
+	&status("... db info already present.");
     }
 
     # flush.
     &status("Flushing privileges...");
-    $query = "FLUSH PRIVILEGES";		# DOES NOT WORK on slink?
+    $query = "FLUSH PRIVILEGES";
     &dbRaw("mysql(flush)", $query);
-
-} elsif ($param{'DBType'} =~ /pgsql|postgres/i) {
-    if ($param{'DBType'} =~ /pgsql|postgres/i) { use Pg; } # for runtime.
-    my $dbh = Pg::connectdb("dbname=$dbname");
-
-    if (PGRES_CONNECTION_OK eq $conn->status) {
-	print "  opened mysql connection to $param{'mysqlHost'}\n";
-    } else {
-	print "  error: cannot connect to $param{'mysqlHost'}.\n";
-	print "  $conn->errorMessage\n";
-	exit 1;
-    }
-
-    # retrieve a list of db's from the server.
-    my %db;
-    foreach ($dbh->func('_ListTables')) {
-	$db{$_} = 1;
-    }
-
-    # Step 4.
-    print "Step 4: Creating the tables.\n";
-
-    # factoid db.
-    if (!exists $db{'factoids'}) {
-	print "  creating new table factoids...\n";
-
-	$query = "CREATE TABLE factoids (".
-		"factoid_key varying(64) NOT NULL,".
-
-		"requested_by varying(64),".
-		"requested_time numeric(11,0),".
-		"requested_count numeric(5,0),".
-		"created_by varying(64),".
-		"created_time numeric(11,0),".
-
-		"modified_by character varying(192),".
-		"modified_time numeric(11,0),".
-
-		"locked_by character varying(64),".
-		"locked_time numeric(11,0),".
-
-		"factoid_value text NOT NULL,".
-
-		"PRIMARY KEY (factoid_key)".
-	")";
-
-	&dbRaw("create(factoids)", $query);
-    }
-
-    # freshmeat.
-    if (!exists $db{'freshmeat'}) {
-	print "  creating new table freshmeat...\n";
-
-	$query = "CREATE TABLE freshmeat (".
-		"name charcter varying(64) NOT NULL,".
-		"stable character varying(32),".
-		"devel character varying(32),".
-		"section character varying(40),".
-		"license character varying(32),".
-		"homepage character varying(128),".
-		"download character varying(128),".
-		"changelog character varying(128),".
-		"deb character varying(128),".
-		"rpm character varying(128),".
-		"link character varying(55),".
-		"oneliner character varying(96) NOT NULL,".
-
-		"PRIMARY KEY (name)".
-	")";
-
-	&dbRaw("create(freshmeat)", $query);
-    }
-
-    # karma.
-    if (!exists $db{'karma'}) {
-	print "  creating new table karma...\n";
-
-	$query = "CREATE TABLE karma (".
-		"nick character varying(20) NOT NULL,".
-		"karma numeric(5,0),".
-
-		"PRIMARY KEY (nick)".
-	")";
-
-	&dbRaw("create(karma)", $query);
-    }
-
-    # rootwarn.
-    if (!exists $db{'rootwarn'}) {
-	print "  creating new table rootwarn...\n";
-
-	$query = "CREATE TABLE rootwarn (".
-		"nick character varying(20) NOT NULL,".
-		"attempt numeric(5,0),".
-		"time numeric(11,0) NOT NULL,".
-		"host character varying(80) NOT NULL,".
-		"channel character varying(20) NOT NULL,".
-
-		"PRIMARY KEY (nick)".
-	")";
-
-	&dbRaw("create(rootwarn)", $query);
-    }
-
-    # seen.
-    if (!exists $db{'seen'}) {
-	print "  creating new table seen...\n";
-
-	$query = "CREATE TABLE seen (".
-		"nick character varying(20) NOT NULL,".
-		"time numeric(11,0) NOT NULL,".
-		"channel character varying(20) NOT NULL,".
-		"host character varying(80) NOT NULL,".
-		"messagecount numeric(5,0),".
-		"hehcount numeric(5,0),".
-		"message text NOT NULL,".
-
-		"PRIMARY KEY (nick)".
-	")";
-
-	&dbRaw("create(seen)", $query);
-    }
 }
 
-print "Done.\n";
+&status("Done.");
 
 &closeDB();
