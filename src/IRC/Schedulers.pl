@@ -172,7 +172,7 @@ sub logLoop {
 
     ### check if current size is too large.
     if ( -s $file{log} > $param{'maxLogSize'}) {
-	my $date = sprintf("%04d%02d%02d", (localtime)[5,4,3]);
+	my $date = sprintf("%04d%02d%02d", (gmtime)[5,4,3]);
 	$file{log} = $param{'logfile'} ."-". $date;
 	&status("cycling log file.");
 
@@ -689,7 +689,7 @@ sub ircCheck {
 	    delete $cache{connect};
 	} else {
 	    &status("IRCTEST: possible lost in space; checking. ".
-		scalar(localtime) );
+		scalar(gmtime) );
 	    &msg($ident, "TEST");
 	    $cache{connect} = time();
 	}
@@ -803,7 +803,7 @@ sub miscCheck2 {
 
     # compress logs that should have been compressed.
     # todo: use strftime?
-    my ($day,$month,$year) = (localtime(time()))[3,4,5];
+    my ($day,$month,$year) = (gmtime(time()))[3,4,5];
     my $date = sprintf("%04d%02d%02d",$year+1900,$month+1,$day);
 
     if (!opendir(DIR,"$bot_log_dir")) {
@@ -1057,7 +1057,7 @@ sub dccStatus {
 	return if ($_[0] eq "2");	# defer.
     }
 
-    my $time = strftime("%H:%M", localtime(time()) );
+    my $time = strftime("%H:%M", gmtime(time()) );
 
     my $c;
     foreach (keys %channels) {

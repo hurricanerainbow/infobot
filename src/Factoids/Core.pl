@@ -249,7 +249,7 @@ sub FactoidStuff {
 		return;
 	    }
 
-	    &status("forgot (safe delete): '$faqtoid' - ". scalar(localtime));
+	    &status("forgot (safe delete): '$faqtoid' - ". scalar(gmtime));
 	    ### TODO: check if the "backup" exists and overwrite it
 	    my $check = &getFactoid("$faqtoid #DEL#");
 

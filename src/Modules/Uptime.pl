@@ -17,7 +17,7 @@ sub uptimeStr {
   my $uptimenow = &uptimeNow();
 
   if (defined $_[0]) {
-    return "$uptimenow.$$ running $bot_version, ended ". localtime(time());
+    return "$uptimenow.$$ running $bot_version, ended ". gmtime(time());
   } else {
     return "$uptimenow running $bot_version";
   }

@@ -72,7 +72,7 @@ $notcount	= 0;
 ###
 if ( -d "CVS" ) {
     use POSIX qw(strftime);
-    $bot_release	= strftime("cvs (%Y%m%d)", localtime( (stat("CVS"))[9] ) );
+    $bot_release	= strftime("cvs (%Y%m%d)", gmtime( (stat("CVS"))[9] ) );
 } else {
     $bot_release	= "1.0.10 (2001xxxx)";
 }
@@ -515,7 +515,7 @@ sub restart {
 	my $delta = time() - $msgtime;
 	&DEBUG("restart: dtime = $delta");
 	if (!$conn->connected or time() - $msgtime > 900) {
-	    &status("reconnecting because of uncaught disconnect \@ ".scalar(localtime) );
+	    &status("reconnecting because of uncaught disconnect \@ ".scalar(gmtime) );
 ###	    $irc->start;
 	    &clearIRCVars();
 	    $conn->connect();

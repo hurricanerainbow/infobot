@@ -606,7 +606,7 @@ sub nick {
 
     if ($bad) {
 	&WARN("Nick: not going to try and get my nick back. [".
-		scalar(localtime). "]");
+		scalar(gmtime). "]");
 # hrm... over time we lose track of our own nick.
 #	return;
     }

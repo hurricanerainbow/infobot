@@ -790,7 +790,7 @@ sub userCommands {
 
     # status.
     if ($message =~ /^statu?s$/i) {
-	my $startString	= scalar(localtime $^T);
+	my $startString	= scalar(gmtime $^T);
 	my $upString	= &Time2String(time() - $^T);
 	my $count	= &countKeys("factoids");
 

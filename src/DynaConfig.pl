@@ -134,7 +134,7 @@ sub writeUserFile {
 	return;
     }
 
-    my $time		= scalar(localtime);
+    my $time		= scalar(gmtime);
 
     print OUT "#v1: blootbot -- $ident -- written $time\n\n";
 
@@ -311,7 +311,7 @@ sub writeChanFile {
 	return;
     }
 
-    my $time		= scalar(localtime);
+    my $time		= scalar(gmtime);
     print OUT "#v1: blootbot -- $ident -- written $time\n\n";
 
     if ($flag_quit) {
