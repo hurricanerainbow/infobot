@@ -298,11 +298,16 @@ sub newsFlush {
     my $delete	= 0;
     my $oldest	= time();
     foreach $chan (keys %::news) {
+	&DEBUG("sched: chan => $chan");
+
 	foreach $item (keys %{ $::news{$chan} }) {
 	    my $t = $::news{$chan}{$item}{Expire};
+	    &DEBUG("sched; item => $item");
 
 	    my $tadd	= $::news{$chan}{$item}{Time};
 	    $oldest	= $tadd if ($oldest > $tadd);
+
+	    &DEBUG("sched: t => $t");
 
 	    next if ($t == 0 or $t == -1);
 	    if ($t < 1000) {
@@ -311,12 +316,21 @@ sub newsFlush {
 		next;
 	    }
 
+	    my $delta = $t - time();
+	    &DEBUG("news: delta: $delta");
+
 	    next unless (time() > $t);
+
 	    # todo: show how old it was.
 	    delete $::news{$chan}{$item};
 	    &VERB("NEWS: deleted '$item'", 2);
 	    $delete++;
 	}
+    }
+
+    if ($delete) {
+	&DEBUG("sched: Writing news....");
+	&News::writeNews();
     }
 
     # todo: flush users aswell.
@@ -556,9 +570,9 @@ sub seenFlush {
     &status("Flushed $flushed seen entries.")		if ($flushed);
     &VERB(sprintf("  new seen: %03.01f%% (%d/%d)",
 	$stats{'new'}*100/($stats{'count_old'} || 1),
-	$stats{'new'}, $stats{'count_old'} ), 2)	if ($stats{'new'});
+	$stats{'new'}, ( $stats{'count_old'} || 1) ), 2) if ($stats{'new'});
     &VERB(sprintf("  now seen: %3.1f%% (%d/%d)",
-	$stats{'old'}*100/&countKeys("seen"),
+	$stats{'old'}*100 / ( &countKeys("seen") || 1),
 	$stats{'old'}, &countKeys("seen") ), 2)		if ($stats{'old'});
 
     &WARN("scalar keys seenflush != 0!")	if (scalar keys %seenflush);

@@ -262,7 +262,7 @@ sub chanLimitVerify {
     my $l	= $channels{$chan}{'l'};
 
     if (scalar keys %netsplitservers) {
-	&WARN("clV: netsplit active (1); skipping. (netsplit => $netsplit)");
+	&WARN("clV: netsplit active (1); skipping.");
 	return;
     }
 
