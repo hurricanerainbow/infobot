@@ -514,6 +514,10 @@ sub IsNickInChan {
     if (grep /^\Q$nick\E$/i, keys %{$channels{$chan}{''}}) {
 	return 1;
     } else {
+	foreach (keys %channels) {
+	    next unless (/[A-Z]/);
+	    &DEBUG("hash channels contains mixed cased chan!!!");
+	}
 	return 0;
     }
 }
