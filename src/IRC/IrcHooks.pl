@@ -366,17 +366,19 @@ sub on_disconnect {
     &DEBUG("on_disconnect: 1");
     &clearIRCVars();
     &DEBUG("on_disconnect: 2");
-    if (defined $self and !$self->connect()) {
+
+    if (!defined $self) {
+	&WARN("on_disconnect: self is undefined! WTF");
+	&DEBUG("running function irc... lets hope this works.");
+	&irc();
+	return;
+    }
+
+    if (!$self->connect()) {
 	&DEBUG("on_disconnect: 3");
 	&WARN("not connected? help me. gonna call ircCheck() in 60s");
 	&clearIRCVars();
 	&ScheduleThis(1, "ircCheck");
-#	&ScheduleThis(10, "ircCheck");
-#	&ScheduleThis(30, "ircCheck");
-    } else {
-	&WARN("on_disconnect: self is undefined! WTF");
-	&DEBUG("running function irc... lets hope this works.");
-	&irc();
     }
 }
 
