@@ -283,11 +283,11 @@ sub Modules {
     $debiancmd		.= '|recommends?|suggests?|maint|maintainer';
 
     if ($message =~ /^($debiancmd)(\s+(.*))?$/i) {
-	return unless (&hasParam("debian"));
+	return unless (&hasParam('Debian'));
 	my $package = lc $3;
 
 	if (defined $package) {
-	    &Forker("debian", sub { &Debian::infoPackages($1, $package); } );
+	    &Forker('Debian', sub { &Debian::infoPackages($1, $package); } );
 	} else {
 	    &help($1);
 	}
