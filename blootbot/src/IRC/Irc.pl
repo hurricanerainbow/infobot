@@ -24,7 +24,7 @@ sub ircloop {
     my $lastrun = 0;
 
 loop:;
-    foreach (shift @ircServers) {
+    while (my $host = shift @ircServers) {
 	# JUST IN CASE. irq was complaining about this.
 	if ($lastrun == time()) {
 	    &DEBUG("hrm... lastrun == time()");
@@ -33,14 +33,14 @@ loop:;
 	    next;
 	}
 
-	if (!defined $_) {
+	if (!defined $host) {
 	    &DEBUG("ircloop: ircServers[x] = NULL.");
 	    $lastrun = time();
 	    next;
 	}
-	next unless (exists $ircPort{$_});
+	next unless (exists $ircPort{$host});
 
-	my $retval = &irc($_, $ircPort{$_});
+	my $retval = &irc($host, $ircPort{$host});
 	&DEBUG("ircloop: after irc()");
 
 	next unless (defined $retval and $retval == 0);
