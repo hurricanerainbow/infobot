@@ -461,21 +461,21 @@ sub userDCC {
 
     # +chan.
     if ($message =~ /^(chanset|\+chan)(\s+(.*?))?$/) {
-	my $cmd  = $1;
-	my $args = $3;
+	my $cmd		= $1;
+	my $args	= $3;
+	my $no_chan	= 0;
 
 	if (!defined $args) {
 	    &help($cmd);
 	    return;
 	}
 
-	my ($chan);
+	my $chan;
 	if ($args =~ s/^($mask{chan})\s*//) {
 	    $chan	= $1;
-	    &DEBUG("chan => $chan.");
 	} else {
-	    &DEBUG("no chan arg; setting to default.");
 	    $chan	= "_default";
+	    $no_chan	= 1;
 	}
 
 	my($what,$val) = split /[\s\t]+/, $args, 2;
@@ -500,24 +500,44 @@ sub userDCC {
 
 	my $update	= 0;
 	### TODO: $what can be undefined. fix it!
-	if ($what =~ /^\+(\S+)/) {
+	if ($what =~ s/^\+(\S+)/$1/) {
 	    my $was	= $chanconf{$chan}{$1};
-	    $was	= ($was) ? "; was '$was'" : "";
-	    &pSReply("Setting $1 for $chan to '1'$was.");
+	    if ($was eq "1") {
+		&pSReply("setting $what for $chan already 1.");
+		return;
+	    }
 
-	    $chanconf{$chan}{$1} = 1;
+	    $was	= ($was) ? "; was '$was'" : "";
+	    &pSReply("Setting $what for $chan to '1'$was.");
+
+	    $chanconf{$chan}{$what} = 1;
 
 	    $update++;
-	} elsif ($what =~ /^\-(\S+)/) {
+	} elsif ($what =~ s/^\-(\S+)/$1/) {
 	    my $was	= $chanconf{$chan}{$1};
-	    $was	= ($was) ? "; was '$was'" : "";
-	    &pSReply("Setting $1 for $chan to '0'$was.");
+	    # hrm...
+	    if (!defined $was) {
+		&pSReply("setting $1 for $chan is not set.");
+		return;
+	    }
 
-	    $chanconf{$chan}{$1} = 0;
+	    if ($was eq "0") {
+		&pSReply("setting $1 for $chan already 0.");
+		return;
+	    }
+
+	    $was	= ($was) ? "; was '$was'" : "";
+	    &pSReply("Setting $what for $chan to '0'$was.");
+
+	    $chanconf{$chan}{$what} = 0;
 
 	    $update++;
 	} elsif (defined $val) {
 	    my $was	= $chanconf{$chan}{$what};
+	    if ($was eq $val) {
+		&pSReply("setting $1 for $chan already '$val'.");
+		return;
+	    }
 	    $was	= ($was) ? "; was '$was'" : "";
 	    &pSReply("Setting $what for $chan to '$val'$was.");
 
