@@ -21,6 +21,15 @@ sub Parse {
     my($what)	= @_;
     $chan	= undef;
 
+    if (!keys %::news) {
+	if (!exists $cache{newsFirst}) {
+	    &::DEBUG("looks like we enabled news option just then; loading up news file just in case.");
+	    $cache{newsFirst} = 1;
+	}
+
+	&readNews();
+    }
+
     if ($::msgType eq "private") {
     } else {
 	$chan = $::chan;
