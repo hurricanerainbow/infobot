@@ -1,36 +1,50 @@
 #
-# db_mysql.pl: MySQL database frontend.
-#      Author: dms
-#     Version: v0.2c (19991224)
-#     Created: 19991203
+#   dbi.pl: DBI (mysql/pgsql/sqlite) database frontend.
+#   Author: dms
+#  Version: v0.2c (19991224)
+#  Created: 19991203
+#    Notes: based on db_mysql.pl
 #
+
+use strict;
+
+use vars qw(%param);
+use vars qw($dbh $shm $bot_data_dir);
 
 package main;
 
-if (&IsParam("useStrict")) { use strict; }
-
 #####
-# &openDB($dbname, $sqluser, $sqlpass, $nofail);
+# &openDB($dbname, $dbtype, $sqluser, $sqlpass, $nofail);
 sub openDB {
-    my ($db, $user, $pass, $no_fail) = @_;
-    my $dsn = "DBI:mysql:$db";
+    my ($db, $type, $user, $pass, $no_fail) = @_;
+    # this is a mess. someone fix it, please.
+    if ($type =~ /^SQLite$/i) {
+	$db = "dbname=$db.sqlite";
+    } elsif ($type =~ /^pg/i) {
+	$db = "dbname=$db";
+	$type = "Pg";
+    }
+
+    my $dsn = "DBI:$type:$db";
     my $hoststr = "";
+    # does sqlite support remote servers?
     if (exists $param{'SQLHost'} and $param{'SQLHost'}) {
 	$dsn    .= ":$param{SQLHost}";
 	$hoststr = " to $param{'SQLHost'}";
     }
     $dbh    = DBI->connect($dsn, $user, $pass);
 
-    if ($dbh) {
-	&status("Opened MySQL connection$hoststr");
+    if ($dbh && !$dbh->err) {
+	&status("Opened $type connection$hoststr");
     } else {
 	&ERROR("cannot connect$hoststr.");
-	&ERROR("since mysql is not available, shutting down bot!");
+	&ERROR("since $type is not available, shutting down bot!");
+	&ERROR( $dbh->errstr ) if ($dbh);
 	&closePID();
 	&closeSHM($shm);
 	&closeLog();
 
-	return if ($no_fail);
+	return 0 if ($no_fail);
 
 	exit 1;
     }
@@ -39,10 +53,10 @@ sub openDB {
 sub closeDB {
     return 0 unless ($dbh);
 
-    my $hoststr = "";
-    $hoststr = " to $param{'SQLHost'}" if (exists $param{'SQLHost'});
+    my $x = $param{SQLHost};
+    my $hoststr = ($x) ? " to $x" : "";
 
-    &status("Closed MySQL connection$hoststr.");
+    &status("Closed DBI connection$hoststr.");
     $dbh->disconnect();
 
     return 1;
@@ -173,6 +187,10 @@ sub dbGetColInfo {
     my ($table) = @_;
 
     my $query = "SHOW COLUMNS from $table";
+    if ($param{DBType} =~ /^pg/i) {
+	$query = "SELECT * FROM $table LIMIT 1";
+    }
+
     my %retval;
 
     my $sth = $dbh->prepare($query);
@@ -289,7 +307,7 @@ sub dbInsert {
 
     foreach (keys %hash) {
 	push(@keys, $_);
-	push(@vals, &dbQuote($hash{$_}));
+	push(@vals, &dbQuote( $hash{$_} ));
     }
 
     &dbRaw("Insert($table)", "INSERT $p INTO $table (".join(',',@keys).
@@ -316,11 +334,8 @@ sub dbReplace {
 	}
     }
 
-    if (0) {
-	&DEBUG("REPLACE INTO $table (".join(',',@keys).
-		") VALUES (". join(',',@vals). ")" );
-    }
-
+    # hrm... does pgsql support REPLACE?
+    # if not, well... fuck it.
     &dbRaw("Replace($table)", "REPLACE INTO $table (".join(',',@keys).
 		") VALUES (". join(',',@vals). ")"
     );
@@ -369,16 +384,13 @@ sub dbRaw {
     my $sth;
 
     if (!($sth = $dbh->prepare($query))) {
-	&ERROR("Raw($prefix): $DBI::errstr");
+	&ERROR("Raw($prefix): !prepare => '$query'");
 	return 0;
     }
 
-#    &DEBUG("query => '$query'.");
-
     &SQLDebug($query);
     if (!$sth->execute) {
-	&ERROR("Raw($prefix): => '$query'");
-	# $DBI::errstr is printed as warning automatically.
+	&ERROR("Raw($prefix): !execute => '$query'");
 	$sth->finish;
 	return 0;
     }
@@ -395,6 +407,8 @@ sub dbRawReturn {
 
     my $sth = $dbh->prepare($query);
     &SQLDebug($query);
+    # what happens when it can't execute it? does it throw heaps more
+    # error lines? if so. follow dbRaw()'s style.
     &ERROR("RawReturn => '$query'.") unless $sth->execute;
     while (my @row = $sth->fetchrow_array) {
 	push(@retval, $row[0]);
@@ -413,10 +427,12 @@ sub dbRawReturn {
 sub countKeys {
     my ($table, $col) = @_;
     $col ||= "*";
+    &DEBUG("&countKeys($table, $col);");
 
     return (&dbRawReturn("SELECT count($col) FROM $table"))[0];
 }
 
+#####
 # Usage: &sumKey($table, $col);
 sub sumKey {
     my ($table, $col) = @_;
@@ -430,6 +446,9 @@ sub randKey {
     my ($table, $select) = @_;
     my $rand	= int(rand(&countKeys($table) - 1));
     my $query	= "SELECT $select FROM $table LIMIT $rand,1";
+    if ($param{DBType} =~ /^pg/i) {
+	$query =~ s/$rand,1/1,$rand/;
+    }
 
     my $sth	= $dbh->prepare($query);
     &SQLDebug($query);
@@ -466,7 +485,7 @@ sub searchTable {
 
     $str =~ s/\_/\\_/g;
     $str =~ s/\?/_/g;	# '.' should be supported, too.
-    $str =~ s/\*/%/g;	# for mysql.
+    $str =~ s/\*/%/g;
     # end of string fix.
 
     my $query = "SELECT $select FROM $table WHERE $key LIKE ". 
@@ -476,6 +495,7 @@ sub searchTable {
     &SQLDebug($query);
     if (!$sth->execute) {
 	&WARN("Search($query)");
+	$sth->finish;
 	return;
     }
 
@@ -495,7 +515,7 @@ sub dbCreateTable {
 
     foreach (@path) {
 	my $file = "$_/setup/$table.sql";
-	&DEBUG("dbCT: file => $file");
+	&DEBUG("dbCT: table => '$table', file => '$file'");
 	next unless ( -f $file );
 
 	&DEBUG("dbCT: found!!!");
@@ -513,40 +533,50 @@ sub dbCreateTable {
     if (!$found) {
 	return 0;
     } else {
-	&dbRaw("createTable($table)", $data);
+	&dbRaw("dbcreateTable($table)", $data);
 	return 1;
     }
 }
 
 sub checkTables {
     my $database_exists = 0;
-    foreach ( &dbRawReturn("SHOW DATABASES") ) {
-	$database_exists++ if ($_ eq $param{'DBName'});
-    }
-
-    unless ($database_exists) {
-	&status("Creating database $param{DBName}...");
-	$query = "CREATE DATABASE $param{DBName}";
-	&dbRaw("create(db $param{DBName})", $query);
-    }
-
-    # retrieve a list of db's from the server.
     my %db;
-    foreach ($dbh->func('_ListTables')) {
-	$db{$_} = 1;
+
+    if ($param{DBType} =~ /^mysql$/i) {
+	my $sql = "SHOW DATABASES";
+	foreach ( &dbRawReturn($sql) ) {
+	    $database_exists++ if ($_ eq $param{'DBName'});
+	}
+
+	unless ($database_exists) {
+	    &status("Creating database $param{DBName}...");
+	    my $query = "CREATE DATABASE $param{DBName}";
+	    &dbRaw("create(db $param{DBName})", $query);
+	}
+
+	# retrieve a list of db's from the server.
+	foreach ($dbh->func('_ListTables')) {
+	    $db{$_} = 1;
+	}
+
+    } elsif ($param{DBType} =~ /^SQLite$/i) {
+
+	# retrieve a list of db's from the server.
+	foreach ( &dbRawReturn("SELECT name FROM sqlite_master WHERE type='table'") ) {
+	    $db{$_} = 1;
+	}
+
+	# create database.
+	if (!scalar keys %db) {
+	    &status("Creating database $param{'DBName'}...");
+	    my $query = "CREATE DATABASE $param{'DBName'}";
+	    &dbRaw("create(db $param{'DBName'})", $query);
+	}
     }
 
-    # create database.
-    if (!scalar keys %db) {
-#	&status("Creating database $param{'DBName'}...");
-#	$query = "CREATE DATABASE $param{'DBName'}";
-#	&dbRaw("create(db $param{'DBName'})", $query);
-    }
-
-    foreach ("factoids", "freshmeat", "rootwarn", "seen", "stats",
-    ) {
+    foreach ( qw(factoids freshmeat rootwarn seen stats) ) {
 	next if (exists $db{$_});
-	&status("  creating new table $_...");
+	&status("checkTables: creating new table $_...");
 
 	&dbCreateTable($_);
     }
