@@ -166,7 +166,11 @@ sub dbGetColNiceHash {
     $query	.= " WHERE ".$where if ($where);
     my %retval;
 
-    my $sth = $dbh->prepare($query);
+    my $sth;
+    if (!($sth = $dbh->prepare($query))) {
+	&ERROR("GetColNiceHash: prepare: $DBI::errstr");
+	return;
+    }
     &SQLDebug($query);
     if (!$sth->execute) {
 	&ERROR("GetColNiceHash: execute: '$query'");
@@ -175,7 +179,7 @@ sub dbGetColNiceHash {
 	return;
     }
 
-    %retval = %{ $sth->fetchrow_hashref() };
+    %retval = %{ $sth->fetchrow_hashref() } if $sth->fetchrow_hashref();
 
     $sth->finish;
 
@@ -608,7 +612,7 @@ sub checkTables {
 	}
     }
 
-    foreach ( qw(factoids freshmeat rootwarn seen stats) ) {
+    foreach ( qw(factoids freshmeat rootwarn seen stats botmail) ) {
 	next if (exists $db{$_});
 	&status("checkTables: creating new table $_...");
 
