@@ -797,7 +797,7 @@ sub do_verstats {
 	return;
     }
 
-    &msg($who, "Sending CTCP VERSION to #chan...");
+    &msg($who, "Sending CTCP VERSION to #$chan...");
     $conn->ctcp("VERSION", $chan);
     $cache{verstats}{chan}	= $chan;
     $cache{verstats}{who}	= $who;
