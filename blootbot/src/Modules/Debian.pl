@@ -1,7 +1,7 @@
 #
 #   Debian.pl: Frontend to debian contents and packages files
 #      Author: dms
-#     Version: v0.7b (20000527)
+#     Version: v0.8 (20000918)
 #     Created: 20000106
 #
 
@@ -15,6 +15,10 @@ my %dists	= (
 	"unstable"	=> "woody",
 	"stable"	=> "potato",
 	"incoming"	=> "incoming",
+	"slink"		=> "archive-2.1",
+	"hamm"		=> "archive-2.0",
+	"rex"		=> "archive-1.?",
+	"bo"		=> "archive-1.?",
 );
 
 my %urlcontents = (
@@ -328,8 +332,14 @@ sub searchAuthor {
 	if (/^Package: (\S+)$/) {
 	    $package = $1;
 	} elsif (/^Maintainer: (.*) \<(\S+)\>$/) {
-	    $maint{$1}{$2} = 1;
-	    $pkg{$1}{$package} = 1;
+	    my($name,$email) = ($1,$2);
+	    if ($package eq "") {
+		&main::DEBUG("sA: package == NULL.");
+		next;
+	    }
+	    $maint{$name}{$email} = 1;
+	    $pkg{$name}{$package} = 1;
+	    $package = "";
 	} else {
 	    &main::WARN("invalid line: '$_'.");
 	}
@@ -421,7 +431,12 @@ sub searchDesc {
 	} elsif (/^Description: (.*)$/) {
 	    my $desc = $1;
 	    next unless ($desc =~ /\Q$query\E/i);
+	    if ($package eq "") {
+		&main::WARN("sD: package == NULL?");
+		next;
+	    }
 	    $desc{$package} = $desc;
+	    $package = "";
 	} else {
 	    &main::WARN("invalid line: '$_'.");
 	}
@@ -934,6 +949,12 @@ sub getDistro {
     if (!defined $dist or $dist eq "") {
 	&main::DEBUG("gD: dist == NULL; dist = defaultdist.");
 	$dist = $defaultdist;
+    }
+
+    if ($dist =~ /^(slink|hamm|rex|bo)$/i) {
+	&main::DEBUG("Debian: deprecated version ($dist).");
+	&main::msg($main::who, "Debian: deprecated distribution version.");
+	return;
     }
 
     if (exists $dists{$dist}) {
