@@ -61,9 +61,8 @@ sub randomQuote {
 	$good++;
     }
 
-    if (!$good) {
+    if (!$good and scalar @channels) {
 	&WARN("randomQuote: no valid channels?");
-	return;
     }
 
     my $interval = $param{'randomQuoteInterval'} || 60;
@@ -98,9 +97,8 @@ sub randomFactoid {
 	$good++;
     }
 
-    if (!$good) {
+    if (!$good and scalar @channels) {
 	&WARN("randomFactoid: no valid channels?");
-	return;
     }
 
     my $interval = $param{'randomFactoidInterval'} || 60;
@@ -157,8 +155,7 @@ sub logCycle {
 	    &status("LOG: current size > max ($tsize > $param{'maxLogSize'})");
 	    my $oldest = (sort {$a <=> $b} keys %age)[0];
 	    &status("LOG: unlinking $age{$oldest}.");
-	    ### NOT YET.
-	    # unlink $age{$oldest};
+	    unlink $age{$oldest};
 	    $tsize -= $oldest;
 	    $delete++;
 	}
@@ -209,27 +206,25 @@ sub seenFlushOld {
 
 sub limitCheck {
     my $limitplus = $param{'limitcheckPlus'} || 5;
-
-    if (scalar keys %netsplit) {
-	&status("limitcheck: netsplit active.");
-	return;
-    }
-
     my @channels = split(/[\s\t]+/, lc $param{'limitcheck'});
 
     foreach (@channels) {
 	next unless (&validChan($_));
-
-	if (!exists $channels{$_}{'o'}{$ident}) {
-	    &ERROR("limitcheck: dont have ops on $_.");
-	    next;
-	}
 
 	my $newlimit = scalar(keys %{$channels{$_}{''}}) + $limitplus;
 	my $limit = $channels{$_}{'l'};
 
 	next unless (!defined $limit or $limit != $newlimit);
 
+	if (scalar keys %netsplit and $limit) {
+	    &status("Removing limit for $_ [netsplit!!!]");
+	    &rawout("MODE $_ -l");
+	}
+
+	if (!exists $channels{$_}{'o'}{$ident}) {
+	    &ERROR("limitcheck: dont have ops on $_.");
+	    next;
+	}
 	&rawout("MODE $_ +l $newlimit");
     }
 
@@ -494,6 +489,7 @@ sub shmFlush {
     &ScheduleThis(5, "shmFlush") if (@_);
 }
 
+### this is semi-scheduled
 sub getNickInUse {
     if ($ident eq $param{'ircNick'}) {
 	&status("okay, got my nick back.");
