@@ -3,6 +3,8 @@ CVS COMMIT:
 
 
 TODO:
+	- all IsChanConf tests MUST be checking for >0 as -1 is possible
+	  there are a lot of incorrect "if(IsChanConf("foo")) instances now
 	- make sure scheduler design is _right_ - it's broken'ish.
 	- debian BTS frontend "bugs"
 	- !country
