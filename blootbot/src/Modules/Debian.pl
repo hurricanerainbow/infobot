@@ -871,7 +871,7 @@ sub generateIndex {
 	}
 
 	&::DEBUG("deb: gIndex: calling DebianDownload($dist, ...).");
-	&DebianDownload($dist, %urlpackages);
+	&DebianDownload($dist, &fixDist($dist, %urlpackages) );
 
 	&::status("Debian: generating index for '$dist'.");
 	if (!open(OUT,">$idx")) {
