@@ -10,7 +10,7 @@ use vars qw(@W3Search_engines $W3Search_regex);
 		Lycos Magellan PLweb SFgate Simple Verity Google z);
 $W3Search_regex = join '|', @W3Search_engines;
 
-my $maxshow	= 3;
+my $maxshow	= 5;
 
 sub W3Search {
     my ($where, $what, $type) = @_;
@@ -28,7 +28,7 @@ sub W3Search {
     return unless &::loadPerlModule("WWW::Search");
 
     eval {
-	$Search	= new WWW::Search($where);
+	$Search	= new WWW::Search($where, agent_name => 'Mozilla/4.5');
     };
 
     if (!defined $Search) {
@@ -38,34 +38,22 @@ sub W3Search {
 
     my $Query	= WWW::Search::escape_query($what);
     $Search->native_query($Query,
-#	{
+	{
+		num => 10,
 #		search_debug => 2,
 #		search_parse_debug => 2,
-#	}
+	}
     );
     $Search->http_proxy($::param{'httpProxy'}) if (&::IsParam("httpProxy"));
-    my $max = $Search->maximum_to_retrieve(10);	# DOES NOT WORK.
+    #my $max = $Search->maximum_to_retrieve(10);	# DOES NOT WORK.
 
-    my (%results, $count, $r);
+    my (@results, $count, $r);
+	$retval = "$where says \002$what\002 is at ";
     while ($r = $Search->next_result()) {
 	my $url = $r->url();
-
-	### TODO: fix regex.
-	### TODO: use array to preserve order.
-	if ($url =~ /^http:\/\/([\w\.]*)/) {
-	    my $hostname = $1;
-	    next if (exists $results{$hostname});
-	    $results{$hostname} = $url;
-	} else {
-	    &::DEBUG("W3S: url isn't good? ($url).");
-	}
-
+	$retval .= ' or ' if ($count > 0);
+	$retval .= $url;
 	last if ++$count >= $maxshow;
-    }
-
-    if (scalar keys %results) {
-	$retval = "$where says \002$what\002 is at ".
-		join(' or ', map { $results{$_} } sort keys %results);
     }
 
     &::performStrictReply($retval);
