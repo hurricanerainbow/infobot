@@ -41,7 +41,7 @@ sub topicDecipher {
 	$owner		= $2;
     }
 
-    if (grep /^\Q$subtopic||$owner\E$/, @results) {
+    if (grep /^\Q$subtopic\E\|\|\Q$owner\E$/, @results) {
 	&DEBUG("topic: we have found a dupe in the topic, not adding.");
 	next;
     }
