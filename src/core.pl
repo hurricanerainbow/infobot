@@ -112,6 +112,7 @@ sub doExit {
 	&closeDB();
 	&closeSHM($shm);
 	&dumpallvars()		if (&IsParam("dumpvarsAtExit"));
+	&symdumpAll()		if (&IsParam("symdumpAtExit"));
 	&closeLog();
 	&closeSQLDebug()	if (&IsParam("SQLDebug"));
 

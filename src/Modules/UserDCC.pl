@@ -116,6 +116,17 @@ sub userDCC {
 	return;
     }
 
+    # dump variables ][.
+    if ($message =~ /^symdump$/i) {
+	return unless (&hasFlag("o"));
+	return unless (&IsParam("symdump"));
+
+	&status("Dumping all variables...");
+	&symdumpAllFile();
+
+	return;
+    }
+
     # kick.
     if ($message =~ /^kick(\s+(\S+)(\s+(\S+))?)?/) {
 	return unless (&hasFlag("o"));

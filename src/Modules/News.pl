@@ -1,7 +1,7 @@
 #
 # News.pl: Advanced news management
 #   Author: dms
-#  Version: v0.3 (20014012)
+#  Version: v0.3 (20010412)
 #  Created: 20010326
 #    Notes: Testing done by greycat, kudos!
 #
@@ -102,8 +102,9 @@ sub Parse {
     } elsif ($what =~ /^(expire|text|desc)(\s+(.*))?$/i) {
 	# shortcut/link.
 	# nice hack.
+	my $cmd = $1;
 	my($arg1,$arg2) = split(/\s+/, $3, 2);
-	&set("$arg1 $1 $arg2");
+	&set("$arg1 $cmd $arg2");
 
     } elsif ($what =~ /^help(\s+(.*))?$/i) {
 	&::help("news $2");
@@ -192,11 +193,13 @@ sub readNews {
     close NEWS;
 
     my $cn = scalar(keys %::news);
+    return unless ($ci or $cn or $cu);
+
     &::status("News: read ".
 	$ci. &::fixPlural(" item", $ci). " for ".
 	$cn. &::fixPlural(" chan", $cn). ", ".
 	$cu. &::fixPlural(" user", $cu), " cache"
-    ) if ($ci or $cn or $cu);
+    );
 }
 
 sub writeNews {
@@ -205,10 +208,11 @@ sub writeNews {
 	return;
     }
 
+    # should define this at the top of file.
     my $file = "$::bot_base_dir/blootbot-news.txt";
 
     if (fileno NEWS) {
-	&::ERROR("fileno NEWS exists, should never happen.");
+	&::ERROR("News: write: fileno NEWS exists, should never happen.");
 	return;
     }
 
@@ -443,11 +447,11 @@ sub read {
     my $item	= &getNewsItem($str);
     if (!defined $item or !scalar keys %{ $::news{$chan}{$item} }) {
 	# todo: numerical check.
-	if ($str =~ /^(\d+) (\d+)$/ or
-	    $str =~ /^(\d+)-(\d+)$/ or
-	    $str =~ /^-(\d+)$/ or $str =~ /^(\d+)-$/ or 0
+	if ($str =~ /^(\d+)[-, ](\d+)$/ or
+	    $str =~ /^-(\d+)$/ or
+	    $str =~ /^(\d+)-$/ or 0
 	) {
-	    &::notice($who, "We don't support multiple requests of news items, sorry.");
+	    &::notice($who, "We don't support multiple requests of news items yet.  Sorry.");
 	    return;
 	}
 
@@ -714,8 +718,8 @@ sub latest {
     my($tchan, $flag) = @_;
 
     # hack hack hack.
-    $chan	||= $tchan;
-    $who	= $::who;
+    $chan ||= $tchan;
+    $who    = $::who;
 
     # todo: if chan = undefined, guess.
 #    if (!exists $::news{$chan}) {
@@ -733,7 +737,7 @@ sub latest {
 
     if (defined $t and ($t == 0 or $t == -1)) {
 	if ($flag) {
-	    &::notice($who, "if you want to read news, try /msg $::ident news or /msg $::ident news notify");
+	    &::notice($who, "if you want to read news, try \002/msg $::ident news $chan\002 or \002/msg $::ident news $chan notify\002");
 	} else {
 	    &::DEBUG("news: not displaying any new news for $who");
 	    return;
@@ -818,7 +822,7 @@ sub latest {
 #		$i, $_, &::Time2String($age) ) );
 	}
 
-	&::notice($who, "|= to read, do 'news read <#>' or 'news read <keyword>'");
+	&::notice($who, "|= to read, do \002news $chan read <#>\002 or \002news $chan read <keyword>\002");
 
 	# lame hack to prevent dupes if we just ignore it.
 	my $x = $::newsuser{$chan}{$who};

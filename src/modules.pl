@@ -26,6 +26,7 @@ if ($@) {
 	"debianExtra"	=> "DebianExtra.pl",
 	"dict"		=> "Dict.pl",
 	"dumpvars"	=> "DumpVars.pl",
+	"symdump"	=> "DumpVars2.pl",
 	"factoids"	=> "Factoids.pl",
 	"freshmeat"	=> "Freshmeat.pl",
 	"kernel"	=> "Kernel.pl",
@@ -51,7 +52,7 @@ if ($@) {
 my @myModulesLoadNow;
 my @myModulesReloadNot;
 BEGIN {
-    @myModulesLoadNow	= ('topic', 'uptime', 'news', 'rootWarn');
+    @myModulesLoadNow	= ('topic', 'uptime', 'news', 'rootWarn', 'symdump');
     @myModulesReloadNot	= ('IRC/Irc.pl','IRC/Schedulers.pl');
 }
 
