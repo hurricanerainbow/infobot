@@ -1,3 +1,6 @@
+DONE:
+	- add handling for channel specific factoids:
+	  "#botpark logs" -> http://ibot.rikers.org/botpark
 TODO:
 	- let's get a release out!
 	- kill SHM and and move to a pipe
@@ -8,8 +11,6 @@ TODO:
 	- move channel flags to sql table, include initial state
 	- move praise from blootbot.lang to "praise:<something>" in factoids?
 	- move lart from blootbot.lang to "lart:<something>" in factoids?
-	- add handling for channel specific factoids:
-	  "#botpark logs" -> http://ibot.rikers.org/botpark
 	- all IsChanConf tests MUST be checking for >0 as -1 is possible
 	  there are a lot of incorrect "if(IsChanConf("foo")) instances now
 	- move src/modules.pl to a built list from src/Modules/*
