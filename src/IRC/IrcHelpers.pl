@@ -6,7 +6,7 @@
 #        NOTE: Based on code by Kevin Lenzo & Patrick Cole  (c) 1997
 #
 
-if (&IsParam("useStrict")) { use strict; }
+# use strict;	# TODO
 
 #######################################################################
 ####### IRC HOOK HELPERS   IRC HOOK HELPERS   IRC HOOK HELPERS ########
@@ -196,10 +196,12 @@ sub hookMsg {
 
 	my $i = scalar keys %{ $flood{$floodwho} };
 	if ($i > $count) {
-	    &msg($who,"overflow of messages ($i > $count)");
+	    my $expire = $param{'ignoreAutoExpire'} || 5;
+
+#	    &msg($who,"overflow of messages ($i > $count)");
+	    &msg($who,"Too many queries from you, ignoring for $expire minutes.");
 	    &status("FLOOD overflow detected from $floodwho; ignoring");
 
-	    my $expire = $param{'ignoreAutoExpire'} || 5;
 	    &ignoreAdd("*!$uh", $chan, $expire, "flood overflow auto-detected.");
 	    return;
 	}
