@@ -12,6 +12,9 @@ sub help {
     my $file  = $bot_misc_dir."/blootbot.help";
     my %help  = ();
 
+    # crude hack for pSReply() to work as expected.
+    $msgType = "private" if ($msgType eq "public");
+
     if (!open(FILE, $file)) {
 	&ERROR("FAILED loadHelp ($file): $!");
 	return;
