@@ -7,6 +7,7 @@ require "src/core.pl";
 require "src/logger.pl";
 require "src/modules.pl";
 require "src/Misc.pl";
+require "src/interface.pl";
 
 $bot_src_dir = "./src/";
 
@@ -23,7 +24,26 @@ if ($dbname eq "") {
 
 if ($param{'DBType'} =~ /mysql/i) {
     use DBI;
-    &openDB($param{'DBName'}, $param{'SQLUser'}, $param{'SQLPass'});
+
+    print "Enter root information...\n";
+    # username.
+    print "Username: ";
+    chop (my $adminuser = <STDIN>);
+
+    # passwd.
+    system "stty -echo";
+    print "Password: ";
+    chop(my $adminpass = <STDIN>);
+    print "\n";
+    system "stty echo";
+
+    if ($adminuser eq "" or $adminpass eq "") {
+	&ERROR("error: adminuser || adminpass is NULL.");
+	exit 1;
+    }
+
+    # open the db.
+    &openDB($dbname, $adminuser, $adminpass);
 
     # retrieve a list of db's from the server.
     my %db;
@@ -134,6 +154,57 @@ if ($param{'DBType'} =~ /mysql/i) {
 
 	&dbRaw("create(seen)", $query);
     }
+
+    ### USER SETUP.
+    &closeDB();
+    &openDB("mysql", $adminuser, $adminpass);
+
+    # Step 1.
+    &status("Step 1: Adding user information.");
+
+    # Step 2.
+    if (!&dbGet("user","user",$param{'SQLUser'},"user")) {
+	&status("  Adding user $param{'SQLUser'} $dbname/user table...");
+
+	$query = "INSERT INTO user VALUES ".
+		"('localhost', '$param{'SQLUser'}', ".
+		"password('$param{'SQLPass'}'), ";
+
+	$query .= "'Y','Y','Y','Y','N','N','N','N','N','N','N','N','N','N')";
+###	$query .= "'Y','Y','Y','Y','N','N','N','N','N','N')";
+
+	&dbRaw("create(user)", $query);
+    }
+
+    # Step 3. what's this for?
+    if (!&dbGet("db","db",$param{'SQLUser'},"db")) {
+	&status("  Adding 'db' entry");
+
+	$query = "INSERT INTO db VALUES ".
+		"('localhost', '$dbname', ".
+		"'$param{'SQLUser'}', ";
+
+	$query .= "'Y','Y','Y','Y','Y','N','N','N','N','N')";
+###	$query .= "'Y','Y','Y','Y','Y','N')";
+
+	&dbRaw("create(db)", $query);
+    }
+
+    # grant.
+    &status("  Granting user access to table.");
+    $query = "GRANT SELECT,INSERT,UPDATE,DELETE ON $dbname TO $param{'SQLUser'}";
+    &dbRaw("??", $query);
+
+    # flush.
+    &status("Flushing privileges...");
+    $query = "FLUSH PRIVILEGES";		# DOES NOT WORK on slink?
+    &dbRaw("mysql(flush)", $query);
+
+    # create database.
+    &status("Creating database $param{'DBName'}...");
+    $query = "CREATE DATABASE $param{'DBName'}";
+    &dbRaw("create(db $param{'DBName'})", $query);
+
 } elsif ($param{'DBType'} =~ /pgsql|postgres/i) {
     if ($param{'DBType'} =~ /pgsql|postgres/i) { use Pg; } # for runtime.
     my $dbh = Pg::connectdb("dbname=$dbname");
@@ -257,6 +328,6 @@ if ($param{'DBType'} =~ /mysql/i) {
     }
 }
 
-&closeDB();
-
 print "Done.\n";
+
+&closeDB();
