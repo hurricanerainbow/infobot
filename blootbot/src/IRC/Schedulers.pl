@@ -42,10 +42,10 @@ sub setupSchedulers {
     &wingateWriteFile(1);
     &factoidCheck(1);
 
-#    my $count = map { exists $sched{$_}{RUNNING} } keys %sched;
+#    my $count = map { exists $sched{$_}{TIME} } keys %sched;
     my $count	= 0;
     foreach (keys %sched) {
-	next unless (exists $sched{$_}{RUNNING});
+	next unless (exists $sched{$_}{TIME});
 	$count++;
     }
 
@@ -62,7 +62,7 @@ sub ScheduleThis {
 	return;
     }
 
-    if (exists $sched{$codename}) {
+    if (exists $sched{$codename}{RUNNING}) {
 	&WARN("Sched for $codename already exists.");
 	return;
     }
@@ -79,7 +79,7 @@ sub ScheduleChecked {
 
     # what the hell is this for?
     if (exists $sched{$codename}{RUNNING}) {
-	&DEBUG("SC: Removed $codename.");
+###	&DEBUG("SC: Removed $codename.");
 	delete $sched{$codename}{RUNNING};
     } else {
 ###	&WARN("sched $codename already removed.");
@@ -357,7 +357,8 @@ sub floodCycle {
     my $time	= time();
     foreach $who (keys %flood) {
 	foreach (keys %{$flood{$who}}) {
-	    if (!exists $flood{$who}{$_} or defined $flood{$who}{$_}) {
+	    if (!exists $flood{$who}{$_}) {
+# or !defined $flood{$who}{$_}) {
 		&WARN("flood{$who}{$_} undefined?");
 		next;
 	    }
