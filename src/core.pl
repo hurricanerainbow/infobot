@@ -148,6 +148,11 @@ sub setup {
     &showProc(" (\&openLog before)");
     &openLog();		# write, append.
 
+    foreach ("debian","Temp") {
+	&status("Making dir $_");
+	mkdir "$bot_base_dir/$_/", 0755;
+    }
+
     # read.
     &loadIgnore($bot_misc_dir.		"/blootbot.ignore");
     &loadLang($bot_misc_dir.		"/blootbot.lang");
