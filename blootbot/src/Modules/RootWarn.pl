@@ -35,7 +35,9 @@ sub rootWarn {
 	}
 
     } else {			# >3rd time occurrance.
-	if ($warnmode =~ /aggressive/i) {
+
+	# disable this for the time being.
+	if (0 and $warnmode =~ /aggressive/i) {
 	    if ($channels{$chan}{'o'}{$ident}) {
 		&status("RootWarn: $nick... sigh... bye bye.");
 		rawout("MODE $chan +b *!root\@$host");	# ban
@@ -46,12 +48,13 @@ sub rootWarn {
 
     $attempt++;
     ### TODO: OPTIMIZE THIS.
-    if (1) {	# old
+    # ok... don't record the attempt if nick==root.
+    if (1 and $nick ne "root") {	# old
 	&dbSet("rootwarn", { nick => lc($nick) }, { attempt => $attempt });
 	&dbSet("rootwarn", { nick => lc($nick) }, { time => time() });
 	&dbSet("rootwarn", { nick => lc($nick) }, { host => $user."\@".$host });
 	&dbSet("rootwarn", { nick => lc($nick) }, { channel => $chan });
-    } else {	# new. replace.
+    } else {	# new. replace. TODO
 	&dbSet("rootwarn", "nick", lc($nick), "attempt", $attempt);
 	&dbSet("rootwarn", "nick", lc($nick), "time", time());
 	&dbSet("rootwarn", "nick", lc($nick), "host", $user."\@".$host);

@@ -272,7 +272,8 @@ sub Modules {
     }
 
     # text counters.
-    if ($_ = &getChanConf("ircTextCounters")) {
+    # warn: lets process it anyway.
+    if (1 and $_ = &getChanConf("ircTextCounters")) {
 	s/([^\w\s])/\\$1/g;
 	my $z = join '|', split ' ';
 
