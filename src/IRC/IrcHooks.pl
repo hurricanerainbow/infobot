@@ -725,14 +725,10 @@ sub on_nick {
 sub on_nick_taken {
     $conn = shift(@_);
     my $nick	= $conn->nick();
-    my $newnick = $nick.int(rand 10);
+    #my $newnick = $nick . int(rand 10);
+    my $newnick = $nick . "_";
 
-    if ($nick eq $ident) {
-	&DEBUG("on_nick_tane: nick eq ident... wtf?");
-	return;
-    }
-
-    &DEBUG("on_nick_taken: ident => $ident");
+    &DEBUG("on_nick_taken: nick => $nick");
 
     &status("nick taken ($nick); preparing nick change.");
 
@@ -999,12 +995,12 @@ sub on_quit {
     delete $chanstats{lc $nick};
     ###
 
-    # FIXME: does this work?
-    my $mynick = $conn->nick();
-    if ($nick !~ /^\Q$ident\E$/ and $nick =~ /^\Q$mynick\E$/i) {
-	&status("nickchange: own nickname became free; changing.");
-	&nick($mynick);
-    }
+    # FIXME: broken for multiple connects
+    #my $mynick = $conn->nick();
+    #if ($nick !~ /^\Q$ident\E$/ and $nick =~ /^\Q$mynick\E$/i) {
+	#&status("nickchange: own nickname became free; changing.");
+	#&nick($mynick);
+    #}
 }
 
 sub on_targettoofast {
