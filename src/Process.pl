@@ -27,7 +27,6 @@ sub process {
     # is $who arg lowercase?
     if (exists $channels{$chan}{o}{ $orig{who} } && &IsFlag("O") eq "O") {
 	&status("Gave $who/$chan +o (+O)\'ness");
-	$users{$userHandle}{FLAGS} =~ s/o//g;
 	$users{$userHandle}{FLAGS} .= "o";
     }
 
