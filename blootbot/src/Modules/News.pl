@@ -22,12 +22,13 @@ sub Parse {
     $chan	= undef;
 
     if ($::msgType eq "private") {
-	# todo: check if the channel exists aswell.
-	if (defined $what and $what =~ s/^($::mask{chan})\s*//) {
-	    $chan = $1;
-	}
     } else {
 	$chan = $::chan;
+    }
+
+    if (defined $what and $what =~ s/^($::mask{chan})\s*//) {
+	# todo: check if the channel exists aswell.
+	$chan = $1;
     }
 
     if (!defined $chan) {
@@ -130,6 +131,11 @@ sub readNews {
 }
 
 sub writeNews {
+    if (!scalar keys %::news) {
+	&::DEBUG("wN: nothing to write.");
+	return;
+    }
+
     my $file = "$::bot_base_dir/blootbot-news.txt";
 
     if (fileno NEWS) {
@@ -302,7 +308,7 @@ sub list {
     }
     my $timestr = &::Time2String(time() - $newest);
     &::msg($::who, "|= Last updated $timestr ago.");
-    &::msg($::who, " \037No\037  \037Item ".(" "x40)." \037");
+    &::msg($::who, " \037Num\037 \037Item ".(" "x40)." \037");
 
     my $i = 1;
     foreach ( &getNewsAll() ) {
