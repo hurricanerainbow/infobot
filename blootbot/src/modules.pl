@@ -40,7 +40,7 @@ if ($@) {
 	"nickometer"	=> "nickometer.pl",
 	"pager"		=> "pager.pl",
 	"Math"		=> "Math.pl",
-	"plug"		=> "Plug.pl",
+	"Plug"		=> "Plug.pl",
 	"quote"		=> "Quote.pl",
 	"rootwarn"	=> "RootWarn.pl",
 	"rss"		=> "Rss.pl",
