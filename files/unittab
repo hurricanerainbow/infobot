@@ -1,21 +1,23 @@
 #
 # Unit defintions
-# 10 March 1998  M-J. Dominus (mjd-perl-units-id-iut+buobvyy+@plover.com). 
+# 18 May 2001  M-J. Dominus (mjd-perl-units+@plover.com). 
 # This file is in the PUBLIC DOMAIN.
 # All rights abandoned.
 #
 # If you discover definitions of units that do not appear in this
-# file, you are invited to mail them to mjd@pobox.com, so that I can
-# include them in a future version.  Please include the date of this
-# file, 3 March 1996, with all such submissions.
+# file, you are invited to mail them to mjd-perl-units+@plover.com, so
+# that I can include them in a future version.  Please include the
+# date of this file, 18 May 2001, with all such submissions.
 
 # If a unit is defined as `***', that means
 # it has no definition because it is a fundamental unit.
 
+# http://perl.plover.com/units/unittab
+
 # Fundamental units:
 # Seven instrinsic SI units:
 gram       ***
-metre	   ***
+meter	   ***
 second     ***
 ampere     ***
 candela    ***
@@ -43,11 +45,11 @@ B          bel
 dB         decibel
 
 # LENGTH
-m       metre
-km      kilometre
-cm      centimetre
-mm      millimetre
-micron  micrometre
+m       meter
+km      kilometer
+cm      centimeter
+mm      millimeter
+micron  micrometer
 inch    2.54 cm        # This is the official definition and is exact
 in      inch
 inches  inch           # plural
@@ -91,7 +93,7 @@ bigpoint 1|72 in
 pica     12 pt
 didot    1238|1157 pt
 dd       didot
-cicero   12dd  # TeX likes to abbreviate this to cc, but cc is cubic centimetre
+cicero   12dd  # TeX likes to abbreviate this to cc, but cc is cubic centimeter
 scaledpoint 1|65536 pt # Internal to TeX
 sp       scaledpoint
 
@@ -102,13 +104,13 @@ are     (10 m)2        # Implies `hectare'
 acre    chain furlong  # Now you know why an acre is the size it is
 rood    1|4 acre
 township 36 mi2        # Who uses these?
-barn    (1.0E-12 centimetre)2 # Particle physics
+barn    (1.0E-12 centimeter)2 # Particle physics
 board   144 in3/ft     # Implies `board feet'
 
 # VOLUME
 cc      cm3
-litre   (decimetre)3
-ml      millilitre
+liter   (decimeter)3
+ml      milliliter
 stere   m3
 floz    29.573 ml      # `floz' means `fluid ounce', which is different
                        # from `ounce', which is a measurement of mass.
@@ -140,6 +142,15 @@ tun        two butts
 firkin     9 gal        # American firkin, not British firkin
 perch      24.75 ft3    # Masonry
 puncheon   84 gal
+# Following units contributed 20011217 Thomas R Wyant III
+fifth 1|5 gallon
+magnum 2.5 fifth
+jeroboam 4 fifth
+rehoboam 7.5 fifth
+methuselah 10 fifth
+shalmanazar 14 fifth
+balthazar 20 fifth
+nebuchadnezzar 25 fifth
 
 # Delightful British liquid volumes; they all begin with `brit'.
 britfloz   28.41225 ml
@@ -161,7 +172,7 @@ britkilderkin  two britfirkins
 kilderkin britkilderkin  # kilderkin is British only
 britbucket 4 britgal     # That's `britbucket,' not `bit bucket'.
 bucket     britbucket    # Buckets are brit only.
-britlast   2909.414 litres
+britlast   2909.414 liters
 last       britlast
 
 # Dry volume
@@ -275,12 +286,6 @@ kelvin        Kelvin
 K             Kelvin
 Rankine       5|9 K     # This is a very funny unit
 Ra            Rankine
-### TODO: allow addition aswell.
-#celsius       Celsius
-#C             Celsius
-#Celsius       K+273.1
-#farenheit     Farenheit
-#F             Farenheit
 
 # Amount of substance
 mol           mole
@@ -293,7 +298,7 @@ molecule      1 mole per Avogadro # 1 mole is an Avogagro-number of molecules
 # which, if maintained in two straight parallel conductors of infinite
 # length, of negligible circular cross-section, and placed 1m apart in
 # vacuum, would produce between these conductors a force equal to 2e-7
-# newtons per metre of length.
+# newtons per meter of length.
 Ampere        ampere
 amp           ampere
 abampere      10 amps
@@ -319,7 +324,6 @@ statcoulomb   3.335635e-11 abcoulomb
 Newton        kg m/s2
 newton        Newton
 N             newton
-Nm            newton-metre
 dyne          g cm/s2
 grav          9.8 m/s2  # Acceleration due to gravity
 gee           grav
@@ -332,11 +336,9 @@ lbf           lb grav
 Pascal        N/m2
 pascal        Pascal
 Pa            pascal
-hPa           hectopascal
-atmosphere    1.01325 N/m2  # NIST 1990301 EXACT
+atmosphere    101325 N/m2  # NIST 20010518 EXACT
 atm           atmosphere
 bar           megadyne/cm2  # Implies `millibars'
-psi           pound/inch/sec2
 mercury       1|760 atm/mm # Implies `mm mercury' and `inches mercury'
 hg            mercury
 torricelli    mm hg
@@ -346,10 +348,9 @@ barye         dyne/cm2
 air           6.6083e-5 atm/foot  # At 60 deg.F; Implies `feet air'
 
 # Work and energy
-Joule         newton-metre
+Joule         newton-meter
 joule         Joule
 J             joule
-kJ            kilojoule
 footpound     ft-lbf   # foot-pound won't work, because `pound' is a mass
 calorie       4.186 J
 cal           calorie
@@ -364,8 +365,6 @@ erg           dyne-cm
 Watt          J/sec
 watt          Watt
 W             Watt
-kW            kiloWatt
-MW            megaWatt
 horsepower    550 ft-lbf/s
 
 # Electric potential
@@ -527,6 +526,7 @@ ream            10 quires
 
 # INFORMATION
 byte		8 bits
+nybble          half byte
 kbyte           1024 bytes   # `kilobyte' means 1000    bytes
 # Don't use `K'; that's for Kelvins.
 kb              kbyte
@@ -623,9 +623,26 @@ farthing             1|4 penny
 hapenny              half penny
 twopence             two pence
 tuppence             two pence
+thruppence           3 pence   
+threepence           3 pence   
+sixpence             6 pence   
 crown                5 shillings  # Implies `half crown'
 guinea               21 shillings
 florin               2 shillings
+
+
+# 18th century French coinage. References:
+# http://home.nordnet.fr/~jlmorel/mesures.html and reverse-engineered
+# from The Three Musketeers
+# 20011227 Thomas R Wyant III
+livre franc ### 3 Musketeers has francs!
+            ### Now, you too can convert Louis d'Or to U.S. Dollars!
+sou 1|20 livre
+crown 3 livres # It's ecu in French, not to be confused with ECU.
+pistole 10 livres
+double 2    # 3 Musketeers refers to double pistoles, so ...
+louis 24 livres
+### Now if only I had good definitions for reals and doubloons ...
 
 
 # For `register tons'
