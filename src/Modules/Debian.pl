@@ -10,6 +10,7 @@ package Debian;
 use strict;
 
 # format: "alias=real".
+my $announce	= 0;
 my $defaultdist	= "woody";
 my %dists	= (
 	"unstable"	=> "woody",
@@ -27,7 +28,7 @@ my %urlcontents = (
 		"/debian/dists/##DIST/Contents-i386.gz", #woody = BROKEN
 
 	"debian/Contents-##DIST-i386-non-US.gz" =>
-		"ftp://non-us.debian.org".
+		"ftp://ftp.ca.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/Contents-i386.gz",
 );
 
@@ -43,13 +44,13 @@ my %urlpackages = (
 		"/debian/dists/##DIST/non-free/binary-i386/Packages.gz",
 
 	"debian/Packages-##DIST-non-US-main-i386.gz" =>
-		"ftp://non-us.debian.org".
+		"ftp://ftp.ca.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/main/binary-i386/Packages.gz",
 	"debian/Packages-##DIST-non-US-contrib-i386.gz" =>
-		"ftp://non-us.debian.org".
+		"ftp://ftp.ca.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/contrib/binary-i386/Packages.gz",
 	"debian/Packages-##DIST-non-US-non-free-i386.gz" =>
-		"ftp://non-us.debian.org".
+		"ftp://ftp.ca.debian.org".
 		"/debian-non-US/dists/##DIST/non-US/non-free/binary-i386/Packages.gz",
 );
 
@@ -88,9 +89,11 @@ sub DebianDownload {
 
 	next unless ($update);
 
-	if ($good + $bad == 0) {
+	&main::DEBUG("announce == $announce.");
+	if ($good + $bad == 0 and !$announce) {
 	    &main::status("Debian: Downloading files for '$dist'.");
 	    &main::msg($main::who, "Updating debian files... please wait.");
+	    $announce++;
 	}
 
 	if (exists $main::debian{$url}) {
@@ -188,7 +191,20 @@ sub searchContents {
 
     my $found = 0;
     my %contents;
-    my $search = "$query.*\[ \t]";
+    my $search;
+    my $front = 0;
+    ### TODO: search properly if /usr/bin/blah is done.
+    if ($query =~ s/\$$//) {
+	&main::DEBUG("search-regex found.");
+	$search = "$query\[ \t]";
+    } elsif ($query =~ s/^\^//) {
+	&main::DEBUG("front marker regex found.");
+	$front = 1;
+	$search = $query;
+    } else {
+	$search = "$query.*\[ \t]";
+    }
+
     my @files;
     foreach (keys %urlcontents) {
 	s/##DIST/$dist/g;
@@ -217,6 +233,7 @@ sub searchContents {
 		next unless ($basename =~ /\Q$query\E/);
 	    }
 	    next if ($query !~ /\.\d\.gz/ and $file =~ /\/man\//);
+	    next unless ($front and $file =~ /^\/\Q$query\E/);
 
 	    $contents{$package}{$file} = 1;
 	    $found++;
@@ -820,7 +837,7 @@ sub generateIndex {
 	&main::DEBUG("gIndeX: calling DebianDownload($dist, ...).");
 	&DebianDownload($dist, %urlpackages);
 
-	&main::status("Debian: generating index for '$_'.");
+	&main::status("Debian: generating index for '$dist'.");
 	if (!open(OUT,">$idx")) {
 	    &main::ERROR("cannot write to $idx.");
 	    return 0;
@@ -839,9 +856,8 @@ sub generateIndex {
 	    open(IN,"zcat $packages |");
 
 	    while (<IN>) {
-		if (/^Package: (.*)\n$/) {
-		    print OUT $1."\n";
-		}
+		next unless (/^Package: (.*)\n$/);
+		print OUT $1."\n";
 	    }
 	    close IN;
 	}
@@ -897,13 +913,9 @@ sub searchPackage {
     my $error = 0;
 
     &main::status("Debian: Search package matching '$query' in '$dist'.");
-    if ( -z $file) {
-	&main::DEBUG("sP: $file == NULL; removing, redoing.");
-	unlink $file;
-    }
+    unlink $file if ( -z $file);
 
     while (!open(IN, $file)) {
-	&main::ERROR("$file does not exist (#2).");
 	if ($dist eq "incoming") {
 	    &main::DEBUG("sP: dist == incoming; calling gI().");
 	    &generateIncoming();
@@ -913,7 +925,9 @@ sub searchPackage {
 	    &main::ERROR("could not generate index!!!");
 	    return;
 	}
+
 	$error++;
+	&main::DEBUG("should we be doing this?");
 	&generateIndex(($dist));
     }
 
@@ -921,7 +935,7 @@ sub searchPackage {
 	chop;
 
 	if (/^\*(.*)$/) {
-	    &main::DEBUG("sP: hrm => '$1'.");
+	    $file = $1;
 
 	    if (&main::isStale($file, $main::param{'debianRefreshInterval'})) {
 		&main::DEBUG("STALE $file! regen.");
@@ -931,7 +945,6 @@ sub searchPackage {
 		last;
 	    }
 
-	    $file = $1;
 	    next;
 	}
 
