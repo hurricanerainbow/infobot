@@ -42,7 +42,7 @@ if ($@) {
 	"Math"		=> "Math.pl",
 	"Plug"		=> "Plug.pl",
 	"Quote"		=> "Quote.pl",
-	"rootwarn"	=> "RootWarn.pl",
+	"RootWarn"	=> "RootWarn.pl",
 	"rss"		=> "Rss.pl",
 	"search"	=> "Search.pl",
 	"slashdot"	=> "Slashdot3.pl",
@@ -64,7 +64,7 @@ if ($@) {
 my @myModulesLoadNow;
 my @myModulesReloadNot;
 BEGIN {
-    @myModulesLoadNow	= ('topic', 'uptime', 'News', 'rootWarn', 'symdump', 'botmail');
+    @myModulesLoadNow	= ('topic', 'uptime', 'News', 'RootWarn', 'symdump', 'botmail');
     @myModulesReloadNot	= ('IRC/Irc.pl','IRC/Schedulers.pl');
 }
 
@@ -190,9 +190,7 @@ sub loadMyModulesNow {
 	    next;
 	}
 
-	# weird hack to get rootwarn to work.
-	# it may break on other cases though, any ideas?
-	&loadMyModule( $myModules{$_} || $myModules{lc $_} );
+	&loadMyModule($myModules{$_});
 	$loaded++;
     }
 

@@ -806,17 +806,17 @@ sub rehashConfVars {
 	&DEBUG("rehashConfVars: _ => $_");
 
 	if (/^news$/ and $i) {
-	    &loadMyModule("news");
+	    &loadMyModule('News');
 	    delete $cache{confvars}{$_};
 	}
 
 	if (/^uptime$/ and $i) {
-	    &loadMyModule("uptime");
+	    &loadMyModule('uptime');
 	    delete $cache{confvars}{$_};
 	}
 
 	if (/^rootwarn$/i and $i) {
-	    &loadMyModule($_);
+	    &loadMyModule('RootWarn');
 	    delete $cache{confvars}{$_};
 	}
     }
