@@ -424,20 +424,30 @@ sub read {
     my $rcount	= $::news{$chan}{$item}{Request_Count} || 0;
 
     if (length $text < $::param{maxKeySize}) {
-	&::DEBUG("NEWS: Possible news->factoid redirection.");
+	&::VERB("NEWS: Possible news->factoid redirection.",2);
 	my $f	= &::getFactoid($text);
 
 	if (defined $f) {
-	    &::DEBUG("NEWS: ok, $text is factoid redirection.");
+	    &::VERB("NEWS: ok, $text is factoid redirection.",2);
 	    $f =~ s/^<REPLY>\s*//i;	# anything else?
 	    $text = $f;
 	}
     }
 
+    $_ = $::news{$chan}{$item}{'Expire'};
+    my $e;
+    if ($_) {
+	$e = sprintf("\037%s\037  [%s from now]",
+		scalar(localtime($_)),
+		&::Time2String($_ - time())
+	);
+    }
+
     &::notice($::who, "+- News \002$chan\002 #$num: \037$item\037");
-    &::notice($::who, "| Added by $a at $t");
-    &::notice($::who, "| Requested $rcount times, last by $rwho") if ($rcount);
+    &::notice($::who, "| Added by $a at \037$t\037");
+    &::notice($::who, "| Expire: $e") if (defined $e);
     &::notice($::who, $text);
+    &::notice($::who, "| Requested \002$rcount\002 times, last by \002$rwho\002") if ($rcount and $rwho);
 
     $::news{$chan}{$item}{'Request_By'}   = $::who;
     $::news{$chan}{$item}{'Request_Time'} = time();
