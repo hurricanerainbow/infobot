@@ -16,17 +16,21 @@ use vars qw(
 	$bot_src_dir $conn $irc $learnok $nick $ident $no_syscall
 	$force_public_reply $addrchar $userHandle $addressedother
 	$floodwho $chan $msgtime $server $firsttime $wingaterun
+	$flag_quit $msgType
+	$utime_userfile	$wtime_userfile	$ucount_userfile
+	$utime_chanfile	$wtime_chanfile	$ucount_chanfile
 );
 
 # dynamic hash.
 use vars qw(@joinchan @ircServers @wingateBad @wingateNow @wingateCache
 );
 
-# dynamic hash. MUST BE REDUCED IN SIZE!!!
+### dynamic hash. MUST BE REDUCED IN SIZE!!!
+# 
 use vars qw(%count %netsplit %netsplitservers %flood %dcc %orig
-	    %nuh %talkWho %seen %floodwarn %param %dbh %ircPort %userList
+	    %nuh %talkWho %seen %floodwarn %param %dbh %ircPort
 	    %jointime %topic %joinverb %moduleAge %last %time %mask %file
-	    %forked %pid %fork
+	    %forked %pid %chanconf %channels
 );
 
 # Signals.
@@ -44,6 +48,12 @@ $userHandle	= "default";
 $msgtime	= time();
 $wingaterun	= time();
 $firsttime	= 1;
+$utime_userfile	= 0;
+$wtime_userfile	= 0;
+$ucount_userfile = 0;
+$utime_chanfile	= 0;
+$wtime_chanfile	= 0;
+$ucount_chanfile = 0;
 
 ### CHANGE TO STATIC.
 $bot_version = "blootbot cvs (20001212) -- $^O";
@@ -54,7 +64,13 @@ $noreply	= "NOREPLY";
 ###
 
 sub doExit {
-    my ($sig) = @_;
+    my ($sig)	= @_;
+
+    if (defined $flag_quit) {
+	&WARN("doExit: quit already called.");
+	return;
+    }
+    $flag_quit	= 1;
 
     if (!defined $bot_pid) {	# independent.
 	exit 0;
@@ -63,17 +79,19 @@ sub doExit {
 
 	&status("--- Start of quit.");
 
-	my $type;
 	&closeDCC();
 	&closePID();
 	&seenFlush();
 	&quit($param{'quitMsg'}) if (&whatInterface() =~ /IRC/);
-	&uptimeWriteFile();
+	&writeUserFile();
+	&writeChanFile();
+	&uptimeWriteFile()	if (&IsParam("uptime"));
 	&closeDB();
 	&closeSHM($shm);
-	&dumpallvars()  if (&IsParam("dumpvarsAtExit"));
+	&dumpallvars()		if (&IsParam("dumpvarsAtExit"));
 	&closeLog();
 	&closeSQLDebug()	if (&IsParam("SQLDebug"));
+
 	&status("--- QUIT.");
     } else {					# child.
 	&status("child caught SIG$sig (pid $$).");
@@ -93,6 +111,7 @@ sub doWarn {
 }
 
 # Usage: &IsParam($param);
+# blootbot.config specific.
 sub IsParam {
     my $param = $_[0];
 
@@ -101,6 +120,111 @@ sub IsParam {
     return 0 unless ($param{$param});
     return 0 if $param{$param} =~ /^false$/i;
     return 1;
+}
+
+#####
+#  Usage: &ChanConfList($param)
+#  About: gets channels with 'param' enabled. (!!!)
+# Return: array of channels
+sub ChanConfList {
+    my $param	= $_[0];
+    my %chan	= &getChanConfList($param);
+
+    return unless (defined $param);
+
+    ### TODO: -option is included aswell though.
+    if ($chan{_default}) {
+	return keys %channels;
+    } else {
+	return keys %chan;
+    }
+}
+
+#####
+#  Usage: &getChanConfList($param)
+#  About: gets channels with 'param' enabled, internal use only.
+# Return: hash of channels
+sub getChanConfList {
+    my $param	= $_[0];
+    my %chan;
+
+    return unless (defined $param);
+
+    foreach (keys %chanconf) {
+	my $chan	= $_;
+#	&DEBUG("chan => $chan");
+	my @array	= grep /^$param$/, keys %{ $chanconf{$chan} };
+
+	next unless (scalar @array);
+
+	if (scalar @array > 1) {
+	    &WARN("multiple items found?");
+	}
+
+	if ($array[0] eq "0") {
+	    $chan{$chan}	= -1;
+	} else {
+	    $chan{$chan}	=  1;
+	}
+    }
+
+    return %chan;
+}
+
+#####
+#  Usage: &IsChanConf($param);
+#  About: Check for 'param' on the basis of channel config.
+# Return: 1 for enabled, 0 for passive disable, -1 for active disable.
+sub IsChanConf {
+    my($param)	= shift;
+
+    if (!defined $param) {
+	&WARN("param == NULL.");
+	return 0;
+    }
+
+    ### TODO: VERBOSITY on how chanconf returned 1 or 0 or -1.
+    my %chan	= &getChanConfList($param);
+    if (!defined $msgType) {
+	return $chan{_default} || 0;
+    }
+
+    if ($msgType eq "public") {
+	return $chan{lc $chan} || $chan{_default} || 0;
+    }
+
+    if ($msgType eq "private") {
+	return $chan{_default} || 0;
+    }
+
+    &DEBUG("param => $param, msgType => $msgType.");
+    foreach (keys %chan) {
+	&DEBUG("   $_ => $chan{$_}");
+    }
+
+    return 0;
+}
+
+#####
+#  Usage: &getChanConf($param);
+#  About: Retrieve value for 'param' value in current/default chan.
+# Return: scalar for success, undef for failure.
+sub getChanConf {
+    my($param,$chan)	= @_;
+
+    if (!defined $param) {
+	&WARN("param == NULL.");
+	return 0;
+    }
+
+    $chan	||= "_default";
+    my @c	= grep /^$chan$/i, keys %chanconf;
+
+    if ($c[0] ne $chan) {
+	&WARN("c ne chan ($c[0] ne $chan)");
+    }
+
+    return $chanconf{$c[0] || "_default"}{$param};
 }
 
 sub showProc {
@@ -161,17 +285,11 @@ sub setup {
     }
 
     # read.
-    &loadIgnore($bot_misc_dir.		"/blootbot.ignore");
     &loadLang($bot_misc_dir.		"/blootbot.lang");
     &loadIRCServers($bot_misc_dir.	"/ircII.servers");
-    &loadUsers($bot_misc_dir.		"/blootbot.users");
-    if (&IsParam("WIP")) {
-	require "src/UserFile.pl";
-	&NEWloadUsers($bot_misc_dir."/blootbot.users_NEW");
-	&closePID();
-	&closeLog();
-	exit 0;
-    }
+    &readUserFile();
+    &readChanFile();
+    &loadMyModulesNow();	# must be after chan file.
 
     $shm = &openSHM();
     &openSQLDebug()	if (&IsParam("SQLDebug"));
@@ -199,7 +317,7 @@ sub setupConfig {
     }
 
     if ($param{tempDir} =~ s#\~/#$ENV{HOME}/#) {
-	&status("Fixing up tempDir.");
+	&VERB("Fixing up tempDir.",2);
     }
 
     if ($param{tempDir} =~ /~/) {
@@ -227,8 +345,6 @@ sub startup {
     $count{'Question'}	= 0;
     $count{'Update'}	= 0;
     $count{'Dunno'}	= 0;
-
-    &loadMyModulesNow();
 }
 
 sub shutdown {
@@ -244,7 +360,6 @@ sub restart {
     my ($sig) = @_;
 
     &DEBUG(" forked => ".scalar(keys %forked) );
-    &DEBUG(" fork   => ".scalar(keys %fork) );
     &DEBUG(" pid    => ".scalar(keys %pid) );
 
     if ($$ == $bot_pid) {
