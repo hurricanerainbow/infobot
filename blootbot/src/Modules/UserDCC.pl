@@ -335,7 +335,7 @@ sub userDCC {
 
 	&doExit();
 
-	status("Dying by $who\'s request");
+	&status("Dying by $who\'s request");
 	exit 0;
     }
 

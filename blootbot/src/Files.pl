@@ -142,7 +142,7 @@ sub loadUsers {
 		    }
 		}
 	    } else {
-		status("parse error: User Entry $userName without right brace");
+		&status("parse error: User Entry $userName without right brace");
 	    }
 	}
     }
@@ -157,7 +157,7 @@ sub loadUsers {
 	&status("    flags: +$userList{$userName}{'flags'}");
 
 	foreach (keys %{$userList{$userName}{'mask'}}) {
-	    status("    hostmask: $_");
+	    &status("    hostmask: $_");
 	}
     }
 }
