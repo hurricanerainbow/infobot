@@ -7,7 +7,7 @@ if (&IsParam("useStrict")) { use strict; }
 $babel::lang_regex = "";	# lame fix.
 
 ### PROPOSED COMMAND HOOK IMPLEMENTATION.
-# addCmdHook('TEXT_HOOK',
+# addCmdHook("SECTION", 'TEXT_HOOK',
 #	(CODEREF	=> 'Blah', 
 #	Forker		=> 1,
 #	CheckModule	=> 1,			# ???
@@ -19,26 +19,39 @@ $babel::lang_regex = "";	# lame fix.
 ###
 
 sub addCmdHook {
-    my ($ident, %hash) = @_;
+    my ($hashname, $ident, %hash) = @_;
 
     &VERB("aCH: added $ident",2);	# use $hash{'Identifier'}?
-    $cmdhooks{$ident} = \%hash;
+    ### hrm... prevent warnings?
+    ${"hooks_$hashname"}{$ident} = \%hash;
 }
 
 # RUN IF ADDRESSED.
 sub parseCmdHook {
-    my @args	= split(' ', $message);
+    my ($hashname, $line) = @_;
+    my @args	= split(' ', $line);
     my $cmd	= shift(@args);
 
     &shmFlush();
 
-    foreach (keys %cmdhooks) {
+### DOES NOT WORK?
+#    if (!exists %{"hooks_$hashname"}) {
+#	&WARN("cmd hooks \%$hashname does not exist.");
+#	return 0;
+#    }
+
+    foreach (keys %{"hooks_$hashname"}) {
 	my $ident = $_;
 
 	next unless ($cmd =~ /^$ident$/i);
 
-	&DEBUG("pCH: $cmd matched $ident");
-	my %hash = %{ $cmdhooks{$ident} };
+	&DEBUG("pCH(hooks_$hashname): $cmd matched $ident");
+	my %hash = %{ ${"hooks_$hashname"}{$ident} };
+
+	if (!exists $hash{CODEREF}) {
+	    &ERROR("CODEREF undefined for $cmd or $ident.");
+	    return 1;
+	}
 
 	### DEBUG.
 	foreach (keys %hash) {
@@ -73,7 +86,7 @@ sub parseCmdHook {
 
 	### CMDSTATS.
 	if (exists $hash{'Cmdstats'}) {
-	    $cmdstats{$hash{'Cmdstats'}}++;
+	    ${"hooks_$hashname"}{$hash{'Cmdstats'}}++;
 	}
 
 	&DEBUG("pCH: ended.");
@@ -84,73 +97,77 @@ sub parseCmdHook {
     return 0;
 }
 
-&addCmdHook('d?bugs', ('CODEREF' => 'debianBugs',
+###
+### START ADDING HOOKS.
+###
+&addCmdHook("extra", 'd?bugs', ('CODEREF' => 'debianBugs',
 	'Forker' => 1, 'Identifier' => 'debianExtra',
 	'Cmdstats' => 'Debian Bugs') );
-&addCmdHook('dauthor', ('CODEREF' => 'Debian::searchAuthor',
+&addCmdHook("extra", 'dauthor', ('CODEREF' => 'Debian::searchAuthor',
 	'Forker' => 1, 'Identifier' => 'debian',
 	'Cmdstats' => 'Debian Author Search', 'Help' => "dauthor" ) );
-&addCmdHook('(d|search)desc', ('CODEREF' => 'Debian::searchDesc',
+&addCmdHook("extra", '(d|search)desc', ('CODEREF' => 'Debian::searchDesc',
 	'Forker' => 1, 'Identifier' => 'debian',
 	'Cmdstats' => 'Debian Desc Search', 'Help' => "ddesc" ) );
-&addCmdHook('dincoming', ('CODEREF' => 'Debian::generateIncoming',
+&addCmdHook("extra", 'dnew', ('CODEREF' => 'DebianNew',
+	'Identifier' => 'debian' ) );
+&addCmdHook("extra", 'dincoming', ('CODEREF' => 'Debian::generateIncoming',
 	'Forker' => 1, 'Identifier' => 'debian' ) );
-&addCmdHook('dstats', ('CODEREF' => 'Debian::infoStats',
+&addCmdHook("extra", 'dstats', ('CODEREF' => 'Debian::infoStats',
 	'Forker' => 1, 'Identifier' => 'debian',
 	'Cmdstats' => 'Debian Statistics' ) );
-&addCmdHook('d?contents', ('CODEREF' => 'Debian::searchContents',
+&addCmdHook("extra", 'd?contents', ('CODEREF' => 'Debian::searchContents',
 	'Forker' => 1, 'Identifier' => 'debian',
 	'Cmdstats' => 'Debian Contents Search', 'Help' => "contents" ) );
-&addCmdHook('d?find', ('CODEREF' => 'Debian::DebianFind',
+&addCmdHook("extra", 'd?find', ('CODEREF' => 'Debian::DebianFind',
 	'Forker' => 1, 'Identifier' => 'debian',
 	'Cmdstats' => 'Debian Search', 'Help' => "find" ) );
-&addCmdHook('insult', ('CODEREF' => 'Insult::Insult',
+&addCmdHook("extra", 'insult', ('CODEREF' => 'Insult::Insult',
 	'Forker' => 1, 'Identifier' => 'insult', 'Help' => "insult" ) );
-&addCmdHook('kernel', ('CODEREF' => 'Kernel::Kernel',
+&addCmdHook("extra", 'kernel', ('CODEREF' => 'Kernel::Kernel',
 	'Forker' => 1, 'Identifier' => 'kernel',
 	'Cmdstats' => 'Kernel') );
-&addCmdHook('listauth', ('CODEREF' => 'CmdListAuth',
+&addCmdHook("extra", 'listauth', ('CODEREF' => 'CmdListAuth',
 	'Identifier' => 'search', Module => 'factoids', 
 	'Help' => 'listauth') );
-&addCmdHook('quote', ('CODEREF' => 'Quote::Quote',
+&addCmdHook("extra", 'quote', ('CODEREF' => 'Quote::Quote',
 	'Forker' => 1, 'Identifier' => 'quote',
 	'Help' => 'quote', 'Cmdstats' => 'Quote') );
-&addCmdHook('countdown', ('CODEREF' => 'Countdown',
+&addCmdHook("extra", 'countdown', ('CODEREF' => 'Countdown',
 	'Module' => 'countdown', 'Identifier' => 'countdown',
 	'Cmdstats' => 'Countdown') );
-&addCmdHook('lart', ('CODEREF' => 'lart',
+&addCmdHook("extra", 'lart', ('CODEREF' => 'lart',
 	'Identifier' => 'lart', 'Help' => 'lart') );
-&addCmdHook('convert', ('CODEREF' => 'convert',
+&addCmdHook("extra", 'convert', ('CODEREF' => 'convert',
 	'Forker' => 1, 'Identifier' => 'units',
 	'Help' => 'convert') );
-&addCmdHook('(cookie|random)', ('CODEREF' => 'cookie',
+&addCmdHook("extra", '(cookie|random)', ('CODEREF' => 'cookie',
 	'Forker' => 1, 'Identifier' => 'factoids') );
-&addCmdHook('u(ser)?info', ('CODEREF' => 'userinfo',
+&addCmdHook("extra", 'u(ser)?info', ('CODEREF' => 'userinfo',
 	'Identifier' => 'userinfo', 'Help' => 'userinfo',
 	'Module' => 'userinfo') );
-&addCmdHook('rootWarn', ('CODEREF' => 'CmdrootWarn',
+&addCmdHook("extra", 'rootWarn', ('CODEREF' => 'CmdrootWarn',
 	'Identifier' => 'rootWarn', 'Module' => 'rootwarn') );
-&addCmdHook('seen', ('CODEREF' => 'seen', 'Identifier' => 'seen') );
-&addCmdHook('dict', ('CODEREF' => 'Dict::Dict',
+&addCmdHook("extra", 'seen', ('CODEREF' => 'seen', 'Identifier' =>
+	'seen') );
+&addCmdHook("extra", 'dict', ('CODEREF' => 'Dict::Dict',
 	'Identifier' => 'dict', 'Help' => 'dict',
 	'Forker' => 1, 'Cmdstats' => 'Dict') );
-&addCmdHook('slashdot', ('CODEREF' => 'Slashdot::Slashdot',
+&addCmdHook("extra", 'slashdot', ('CODEREF' => 'Slashdot::Slashdot',
 	'Identifier' => 'slashdot', 'Forker' => 1,
 	'Cmdstats' => 'Slashdot') );
-&addCmdHook('uptime', ('CODEREF' => 'uptime', 'Identifier' => 'uptime',
+&addCmdHook("extra", 'uptime', ('CODEREF' => 'uptime', 'Identifier' => 'uptime',
 	'Cmdstats' => 'Uptime') );
-&addCmdHook('nullski', ('CODEREF' => 'nullski', ) );
-&addCmdHook('crash', ('CODEREF' => 'crash' ) );
+&addCmdHook("extra", 'nullski', ('CODEREF' => 'nullski', ) );
+&addCmdHook("extra", 'crash', ('CODEREF' => 'crash' ) );
 sub nullski { my ($arg) = @_; foreach (`$arg`) { &msg($who,$_); } }
-&addCmdHook('(fm|freshmeat)', ('CODEREF' => 'Freshmeat::Freshmeat',
+&addCmdHook("extra", '(fm|freshmeat)', ('CODEREF' => 'Freshmeat::Freshmeat',
 	'Identifier' => 'freshmeat', 'Cmdstats' => 'Freshmeat',
 	'Forker' => 1, 'Help' => 'freshmeat') );
-
-
-
-
-&status("CMD: loaded ".scalar(keys %cmdhooks)." command hooks.");
-
+###
+### END OF ADDING HOOKS.
+###
+&status("CMD: loaded ".scalar(keys %hooks_extra)." EXTRA command hooks.");
 
 sub Modules {
     if (!defined $message) {
@@ -529,6 +546,46 @@ sub lart {
     } else {
 	&status("lart: error reading file?");
     }
+}
+
+sub DebianNew {
+    my $idx   = "debian/Packages-woody.idx";
+    my $error = 0;
+    my %pkg;
+    my @new;
+
+    $error++ unless ( -e $idx);
+    $error++ unless ( -e "$idx-old");
+
+    if ($error) {
+	$error = "no woody/woody-old index file found.";
+	&ERROR("Debian: $error");
+	&msg($who, $error);
+	return;
+    }
+
+    open(IDX1, $idx);
+    open(IDX2, "$idx-old");
+
+    while (<IDX2>) {
+	chop;
+	next if (/^\*/);
+
+	$pkg{$_} = 1;
+    }
+    close IDX2;
+
+    open(IDX1,$idx);
+    while (<IDX1>) {
+	chop;
+	next if (/^\*/);
+	next if (exists $pkg{$_});
+
+	push(@new);
+    }
+    close IDX1;
+
+    &main::performStrictReply( &main::formListReply(0, "New debian packages:", @new) );
 }
 
 1;
