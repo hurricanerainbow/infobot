@@ -164,8 +164,8 @@ sub getReply {
     # remove excessive beginning and end whitespaces.
     $reply	=~ s/^\s+|\s+$//g;
 
-    if (length($reply) < 5 or $reply =~ /^\s+$/) {
-	&DEBUG("Reply: FIXME: reply => '$reply'.");
+    if ($reply =~ /^\s+$/) {
+	&DEBUG("Reply: Null factoid ($message)");
 	return '';
     }
 
