@@ -105,8 +105,12 @@ sub update {
 
 	    # max length check again.
 	    if (length($rhs) > $param{'maxDataSize'}) {
-		&performAddressedReply("that's too long");
-		return $noreply;
+		if (length($rhs) > length($exists)) {
+		    &performAddressedReply("that's too long");
+		    return $noreply;
+		} else {
+		    &status("Update: new length is still longer than maxDataSize but less than before, we'll let it go.");
+		}
 	    }
 
 	    &performAddressedReply("okay");
