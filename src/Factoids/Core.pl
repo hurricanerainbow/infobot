@@ -300,7 +300,7 @@ sub FactoidStuff {
 
 	my $faqtoid = $message;
 	if ($faqtoid eq "") {
-	    &help("undelete");
+	    &help("unforget");
 	    return;
 	}
 
@@ -377,29 +377,31 @@ sub FactoidStuff {
 	}
 
 	if ($message =~ /^'(.*)'\s+'(.*)'$/) {
-	    my($from,$to) = (lc $1, lc $2);
+	    my ($from,$to) = (lc $1, lc $2);
 
 	    my $result = &getFactoid($from);
 	    if (defined $result) {
-		my $author = &getFactInfo($from, "created_by");
-
-		if (0 and !&IsFlag("m") or $author !~ /^\Q$who\E\!/i) {
-		    &msg($who, "It's not yours to modify.");
-		    return;
-		}
-
-		if ($_ = &getFactoid($to)) {
-		    &performReply("destination factoid already exists.");
-		    return;
-		}
-
-		&setFactInfo($from,"factoid_key",$to);
-
-		&status("rename: <$who> '$from' is now '$to'");
-		&performReply("i renamed '$from' to '$to'");
-	    } else {
 		&performReply("i didn't have anything called '$from'");
+		return;
 	    }
+
+	    my $author = &getFactInfo($from, "created_by");
+
+	    # who == nick!user@host.
+	    if (&IsFlag("m") ne "m" and $author !~ /^\Q$who\E\!/i) {
+		&msg($who, "factoid '$form' is not yours to modify.");
+		return;
+	    }
+
+	    if ($_ = &getFactoid($to)) {
+		&performReply("destination factoid already exists.");
+		return;
+	    }
+
+	    &setFactInfo($from,"factoid_key",$to);
+
+	    &status("rename: <$who> '$from' is now '$to'");
+	    &performReply("i renamed '$from' to '$to'");
 	} else {
 	    &msg($who,"error: wrong format. ask me about 'help rename'.");
 	}

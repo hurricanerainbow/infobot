@@ -301,7 +301,7 @@ sub getChanConf {
     $c		||= $chan;
     $c		||= "_default";
     $c		= "_default" if ($c eq "*");	# fix!
-    my @c	= grep /^$c$/i, keys %chanconf;
+    my @c	= grep /^\Q$c\E$/i, keys %chanconf;
 
     if (@c) {
 	if (0 and $c[0] ne $c) {

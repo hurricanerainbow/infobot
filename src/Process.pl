@@ -24,7 +24,12 @@ sub process {
     return 'addressedother set' if ($addressedother);
 
     $talkok	= ($param{'addressing'} =~ /^OPTIONAL$/i or $addressed);
-    $learnok	= ($param{'learn'}      =~ /^HUNGRY$/i   or $addressed);
+    $learnok	= 1 if ($addressed);
+    if ($param{'learn'} =~ /^HUNGRY$/i) {
+	$learnok	= 1;
+	$addressed	= 1;
+	$talkok		= 1;
+    }
 
     &shmFlush();		# hack.
 
@@ -70,6 +75,11 @@ sub process {
 	    return;
 	}
 
+	if ($thischan !~ /^$mask{chan}$/) {
+	    &msg($who, "$thischan is not a valid channel name.");
+	    return;
+	}
+
 	if (&IsFlag("o") ne "o") {
 	    if (!exists $chanconf{$thischan}) {
 		&msg($who, "I am not allowed to join $thischan.");
@@ -77,8 +87,7 @@ sub process {
 	    }
 
 	    if (&validChan($thischan)) {
-		&msg($who,"warn: I'm already on $thischan, joining  anyway...");
-#		return;
+		&msg($who,"warn: I'm already on $thischan, joining anyway...");
 	    }
 	}
 	$cache{join}{$thischan} = $who;	# used for on_join self.
@@ -290,18 +299,11 @@ sub process {
     ###
 
     # karma. set...
-    if ($message =~ /^(\S+)(--|\+\+)\s*$/ and $addressed) {
-	return '' unless (&hasParam("karma"));
-	# well... since it is policy to do bot functions before factoids
-	# karma gets hit if, for example, "g++" is issued.
-	# only way to request it is to put a question mark at the end.
-
-	my($term,$inc) = (lc $1,$2);
-
-	if ($msgType !~ /public/i) {
-	    &msg($who, "karma must be done in public!");
-	    return;
-	}
+    if ($message =~ /^(\S+)(--|\+\+)\s*$/ && $addressed &&
+	&hasParam("karma") && $msgType =~ /public/i
+    ) {
+	# to request factoids such as "g++" or "libstdc++", append "?" to the query.
+	my ($term,$inc) = (lc $1,$2);
 
 	if (lc $term eq lc $who) {
 	    &msg($who, "please don't karma yourself");

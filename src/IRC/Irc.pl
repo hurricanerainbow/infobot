@@ -868,7 +868,10 @@ sub joinfloodCheck {
 
 	my $time;
 	foreach (keys %{ $floodjoin{$c} }) {
-	    $time += $floodjoin{$c}{$_}{Time};
+	    my $t = $floodjoin{$c}{$_}{Time};
+	    next unless (defined $t);
+
+	    $time += $t;
 	}
 	&DEBUG("joinflood: time => $time");
 	$time /= $count;
