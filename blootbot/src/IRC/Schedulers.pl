@@ -21,14 +21,14 @@ sub setupSchedulers {
     # ONCE OFF.
 
     # REPETITIVE.
-    &uptimeCycle(1);
+    &uptimeLoop(1);
     &randomQuote(2);
     &randomFactoid(2);
     &randomFreshmeat(2);
-    &logCycle(1);
+    &logLoop(1);
     &chanlimitCheck(1);
     &netsplitCheck(1);	# mandatory
-    &floodCycle(1);	# mandatory
+    &floodLoop(1);	# mandatory
     &seenFlush(1);
     &leakCheck(1);	# mandatory
     &ignoreCheck(1);	# mandatory
@@ -36,9 +36,9 @@ sub setupSchedulers {
     &ircCheck(1);	# mandatory
     &miscCheck(1);	# mandatory
     &shmFlush(1);	# mandatory
-    &slashdotCycle(2);
-    &freshmeatCycle(2);
-    &kernelCycle(2);
+    &slashdotLoop(2);
+    &freshmeatLoop(2);
+    &kernelLoop(2);
     &wingateWriteFile(1);
     &factoidCheck(1);
 
@@ -63,7 +63,7 @@ sub ScheduleThis {
     }
 
     if (exists $sched{$codename}{RUNNING}) {
-	&WARN("Sched for $codename already exists.");
+	&WARN("Sched for $codename already exists. forgot ScheduleChecked?");
 	return;
     }
 
@@ -163,10 +163,10 @@ sub randomFreshmeat {
     } );
 }
 
-sub logCycle {
+sub logLoop {
     if (@_) {
-	&ScheduleThis(60, "logCycle");
-	&ScheduleChecked("logCycle");
+	&ScheduleThis(60, "logLoop");
+	&ScheduleChecked("logLoop");
 	return if ($_[0] eq "2");	# defer.
     }
 
@@ -344,17 +344,17 @@ sub netsplitCheck {
     }
 }
 
-sub floodCycle {
+sub floodLoop {
     my $delete   = 0;
     my $who;
 
     if (@_) {
-	&ScheduleThis(60, "floodCycle");	# minutes.
-	&ScheduleChecked("floodCycle");
+	&ScheduleThis(60, "floodLoop");	# minutes.
+	&ScheduleChecked("floodLoop");
 	return if ($_[0] eq "2");
     }
 
-    my $time	= time();
+    my $time		= time();
     my $interval	= &getChanConfDefault("floodCycle","",60);
 
     foreach $who (keys %flood) {
@@ -370,7 +370,7 @@ sub floodCycle {
 	    }
 	}
     }
-    &VERB("floodCycle: deleted $delete items.",2);
+    &VERB("floodLoop: deleted $delete items.",2);
 }
 
 sub seenFlush {
@@ -657,15 +657,18 @@ sub getNickInUse {
     &ScheduleThis(5, "getNickInUse") if (@_);
 }
 
-sub uptimeCycle {
-    &uptimeWriteFile();
+sub uptimeLoop {
+    if (@_) {
+	&ScheduleThis(60, "uptimeLoop");
+	&ScheduleChecked("uptimeLoop");
+    }
 
-    &ScheduleThis(60, "uptimeCycle") if (@_);
+    &uptimeWriteFile();
 }
 
-sub slashdotCycle {
-    &ScheduleThis(60, "slashdotCycle") if (@_);
-    &ScheduleChecked("slashdotCycle");
+sub slashdotLoop {
+    &ScheduleThis(60, "slashdotLoop") if (@_);
+    &ScheduleChecked("slashdotLoop");
     return if ($_[0] eq "2");
 
     my @chans = &ChanConfList("slashdotAnnounce");
@@ -686,10 +689,12 @@ sub slashdotCycle {
     } );
 }
 
-sub freshmeatCycle {
-    &ScheduleThis(60, "freshmeatCycle") if (@_);
-    &ScheduleChecked("freshmeatCycle");
-    return if ($_[0] eq "2");
+sub freshmeatLoop {
+    if (@_) {
+	&ScheduleThis(60, "freshmeatLoop");
+	&ScheduleChecked("freshmeatLoop");
+	return if ($_[0] eq "2");
+    }
 
     my @chans = &ChanConfList("freshmeatAnnounce");
     return unless (scalar @chans);
@@ -706,10 +711,12 @@ sub freshmeatCycle {
     } );
 }
 
-sub kernelCycle {
-    &ScheduleThis(240, "kernelCycle") if (@_);
-    &ScheduleChecked("kernelCycle");
-    return if ($_[0] eq "2");
+sub kernelLoop {
+    if (@_) {
+	&ScheduleThis(240, "kernelLoop");
+	&ScheduleChecked("kernelLoop");
+	return if ($_[0] eq "2");
+    }
 
     my @chans = &ChanConfList("kernelAnnounce");
     return unless (scalar @chans);
@@ -867,7 +874,8 @@ sub getChanConfDefault {
     if (defined $val) {
 	return $val;
     }
-    &DEBUG("returning default $default for $what");
+    $param{$what}	= $default;
+    &DEBUG("not configured; setting param{$what} = $default");
     ### TODO: set some vars?
     return $default;
 }
