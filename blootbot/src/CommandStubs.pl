@@ -540,13 +540,13 @@ sub Modules {
     }
 
     # User Information Services. requested by Flugh.
-    if ($message =~ /^uinfo(\s+(.*))?$/i) {
+    if ($message =~ /^u(ser)?info(\s+(.*))?$/i) {
 	return $noreply unless (&hasParam("userinfo"));
 	&loadMyModule($myModules{'userinfo'});
 
-	my $arg = $1;
+	my $arg = $3;
 	if (!defined $arg or $arg eq "") {
-	    &help("uinfo");
+	    &help("userinfo");
 	    return $noreply;
 	}
 
