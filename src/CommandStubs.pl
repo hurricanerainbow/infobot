@@ -3,18 +3,17 @@
 # WARN: this file does not reload on HUP.
 #
 
-# TODO:
-# use strict;
+#use strict; # TODO: ${"hooks_$hashname"}{$ident}
 
 use vars qw($who $msgType $conn $chan $message $ident $talkchannel
 	$bot_version $bot_data_dir);
 use vars qw(@vernick @vernicktodo);
 use vars qw(%channels %cache %mask %userstats %myModules %cmdstats
 	%hooks_extra %lang %ver);
-# FIX THE FOLLOWING:
-use vars qw($total $x $type $i $good);
+# TODO: FIX THE FOLLOWING:
+use vars qw($total $x $type $i $good %wingateToDo);
 
-$w3search_regex   = "google";
+my $w3search_regex   = "google";
 
 ### COMMAND HOOK IMPLEMENTATION.
 # addCmdHook("SECTION", 'TEXT_HOOK',
@@ -478,7 +477,7 @@ sub Modules {
 	return unless (&IsChanConfOrWarn('Wingate'));
 
 	my $reply = "Wingate statistics: scanned \002"
-			.scalar(keys %wingate)."\002 hosts";
+			.scalar(keys %wingateToDo)."\002 hosts";
 	my $queue = scalar(keys %wingateToDo);
 	if ($queue) {
 	    $reply .= ".  I have \002$queue\002 hosts in the queue";
@@ -869,7 +868,7 @@ sub do_text_counters {
 			." WHERE ".$where ))[0];
 
     if (!defined $arg or $arg =~ /^\s*$/) {
-	# this is way fucking ugly.
+	# this is way ugly.
 
 	# TODO: convert $where to hash
 	my %hash = &sqlSelectColHash("stats", "nick,counter",
@@ -949,7 +948,7 @@ sub textstats_main {
     my $sum = &sqlSelect("stats", "SUM(counter)", $where_href);
 
     if (!defined $arg or $arg =~ /^\s*$/) {
-	# this is way fucking ugly.
+	# this is way ugly.
 	&DEBUG("_stats: !arg");
 
 	my %hash = &sqlSelectColHash("stats", "nick,counter",
@@ -987,7 +986,8 @@ sub textstats_main {
     my %hash = &sqlSelectColHash("stats", "type,counter",
 		$where_href, " AND nick=".&sqlQuote($arg)
     );
-    # this is totally fucked... needs to be fixed... and cleaned up.
+
+    # this is totally messed up... needs to be fixed... and cleaned up.
     my $total;
     my $good;
     my $ii;
@@ -997,8 +997,8 @@ sub textstats_main {
 	&DEBUG("_stats: hash{$_} => $hash{$_}");
 	# ranking.
 	# TODO: convert $where to hash
-	my @array = &sqlSelect("stats", "nick", undef,
-		$where." ORDER BY counter", 1);
+	my $where = '';
+	my @array = &sqlSelect("stats", "nick", undef, $where." ORDER BY counter", 1);
 	$good = 0;
 	$ii = 0;
 	for(my $i=0; $i<scalar @array; $i++) {
