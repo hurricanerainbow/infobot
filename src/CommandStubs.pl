@@ -230,6 +230,9 @@ sub parseCmdHook {
 &addCmdHook("extra", 'zfi', ('CODEREF' => 'zfi::query',
 	'Identifier' => 'zfi', 'Cmdstats' => 'zfi',
 	'Forker' => 1) );
+&addCmdHook("extra", '(zippy|yow)', ('CODEREF' => 'zippy::get',
+	'Identifier' => 'zippy', 'Cmdstats' => 'zippy',
+	'Forker' => 1) );
 &addCmdHook("extra", 'zsi', ('CODEREF' => 'zsi::query',
 	'Identifier' => 'zsi', 'Cmdstats' => 'zsi',
 	'Forker' => 1) );
