@@ -829,12 +829,16 @@ sub generateIndex {
     foreach (@dists) {
 	my $dist = &getDistro($_); # incase the alias is returned, possible?
 	my $idx  = "debian/Packages-$dist.idx";
+	&::DEBUG("gI: dist => $dist.");
+	&::DEBUG("gI: idx  => $idx.");
+	&::DEBUG("gI: r    => $refresh.");
 
 	# TODO: check if any of the Packages file have been updated then
 	#	regenerate it, even if it's not stale.
 	# TODO: also, regenerate the index if the packages file is newer
 	#	than the index.
 	next unless (&::isStale($idx, $refresh));
+
 	if (/^incoming$/i) {
 	    &::DEBUG("gIndex: calling generateIncoming()!");
 	    &generateIncoming();
@@ -884,6 +888,11 @@ sub validPackage {
     my ($package,$dist) = @_;
     my @files;
     my $file;
+
+    ### this majorly sucks, we need some standard in place.
+    # why is this needed... need to investigate later.
+    my $olddist	= $dist;
+    $dist = &getDistro($dist);
 
     &::DEBUG("D: validPackage($package, $dist) called.");
 
