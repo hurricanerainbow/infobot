@@ -138,11 +138,12 @@ sub formListReply {
 	@list = @list[0..$maxshow-1];
     }
 
+    @list = sort @list;
     # form the reply.
     while () {
 	$reply  = $prefix ."(\002". scalar(@list). "\002 shown";
 	$reply .= "; \002$total\002 total" if ($total != scalar @list);
-	$reply .= "): ". join(" \002;;\002 ",@list) .".";
+	$reply .= "): ". join(" \002;;\002 ", @list) .".";
 
 	last if (length($reply) < $maxlen and scalar(@list) <= $maxshow);
 	last if (scalar(@list) == 1);
