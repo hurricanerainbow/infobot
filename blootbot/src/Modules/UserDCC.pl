@@ -135,14 +135,17 @@ sub userDCC {
     }
 
     # kick.
-    if ($message =~ /^kick(\s+(\S+)(\s+(\S+))?)?/) {
+    if ($message =~ /^kick(\s+(.*?))$/) {
 	return unless (&hasFlag("o"));
-	my ($nick,$chan) = (lc $2,lc $4);
 
-	if ($nick eq "") {
+	my $arg = $2;
+
+	if ($arg eq "") {
 	    &help("kick");
 	    return;
 	}
+	my @args = split(/\s+/, $arg);
+	my ($nick,$chan,$reason) = @args;
 
 	if (&validChan($chan) == 0) {
 	    &msg($who,"error: invalid channel \002$chan\002");
@@ -154,12 +157,12 @@ sub userDCC {
 	    return;
 	}
 
-	&kick($nick,$chan);
+	&kick($nick,$chan,$reason);
 
 	return;
     }
 
-    # kick.
+    # mode.
     if ($message =~ /^mode(\s+(.*))?$/) {
 	return unless (&hasFlag("n"));
 	my ($chan,$mode) = split /\s+/,$2,2;
@@ -1150,7 +1153,6 @@ sub userDCC {
 
 	&writeUserFile();
 	&writeChanFile();
-	&News::writeNews() if (&ChanConfList("news"));
 
 	return;
     }
