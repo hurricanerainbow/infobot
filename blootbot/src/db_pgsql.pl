@@ -1,66 +1,78 @@
 #
 # db_pgsql.pl: PostgreSQL database frontend.
-#      Author: dms <dms@users.sourceforge.net>
-#     Version: v0.1 (20000629)
+#      Author: dms
+#     Version: v0.2 (20010908)
 #     Created: 20000629
 #
 
 if (&IsParam("useStrict")) { use strict; }
 
 sub openDB {
-    $dbh = Pg::connectdb("dbname=$param{'DBName'}");
-#    $dbh = Pg::setdbLogin($param{'SQLHost'}, , , , $param{'DBName'},
-#	$param{'SQLUser'}, $param{'SQLPass'});
+    my $connectstr="dbi:Pg:dbname=$param{DBName};";
+    $connectstr.=";host=$param{SQLHost}" if(defined $param{'SQLHost'});
+    $dbh = DBI->connect($connectstr, $param{'SQLUser'}, $param{'SQLPass'});
 
-    if (PGRES_CONNECTION_OK eq $dbh->status) {
-	&status("Opened pgSQL connection to $param{'SQLHost'}");
+    if (!$dbh->err) {
+	&status("Opened PgSQL connection to $param{'SQLHost'}");
     } else {
 	&ERROR("cannot connect to $param{'SQLHost'}.");
-	&ERROR("pgSQL: ".$dbh->errorMessage);
+	&ERROR("pgSQL: ".$dbh->errstr);
+
+	&closePID();
 	&closeSHM($shm);
 	&closeLog();
+
 	exit 1;
     }
 }
 
 sub closeDB {
-    if (!$dbh) {
-	&WARN("closeDB: connection already closed?");
-	return 0;
-    }
+    return 0 unless ($dbh);
 
     &status("Closed pgSQL connection to $param{'SQLHost'}.");
     $dbh->disconnect();
+
     return 1;
 }
 
 #####
 # Usage: &dbQuote($str);
 sub dbQuote {
-    $_[0] =~ s/\'/\\\\'/g;
-    return "'$_[0]'";
+    return $dbh->quote($_[0]);
+
+    $_ = $_[0];
+    s/'/\\'/g;
+    return "'$_'";
 }
 
 #####
-# Usage: &dbGet($table, $primkey, $primval, $select);
+# Usage: &dbGet($table, $select, $where);
 sub dbGet {
-    my ($table, $primkey, $primval, $select) = @_;
-    my $query = "SELECT $select FROM $table WHERE $primkey=". 
-		&dbQuote($primval);
+    my ($table, $select, $where) = @_;
+    my $query	= "SELECT $select FROM $table";
+    $query	.= " WHERE $where" if ($where);
 
-    my $res = $dbh->exec($query);
-    if (PGRES_TUPLES_OK ne $res->resultStatus) {
-	&ERROR("Get: $dbh->errorMessage");
+    if (!defined $select) {
+	&WARN("dbGet: select == NULL. table => $table");
 	return;
     }
 
+    my $sth;
+    if (!($sth = $dbh->prepare($query))) {
+	&ERROR("Get: prepare: $DBI::errstr");
+	return;
+    }
+
+    &SQLDebug($query);
     if (!$sth->execute) {
-	&ERROR("Get => '$query'");
-	&ERROR("Get => $DBI::errstr");
-	return;
+	&ERROR("Get: execute: '$query'");
+	$sth->finish;
+	return 0;
     }
 
-    my @retval = $res->fetchrow;
+    my @retval = $sth->fetchrow_array;
+
+    $sth->finish;
 
     if (scalar @retval > 1) {
 	return @retval;
@@ -72,19 +84,37 @@ sub dbGet {
 }
 
 #####
-# Usage: &dbGetCol($table, $primkey, $key, [$type]);
+# Usage: &dbGetCol($table, $select, $where, [$type]);
 sub dbGetCol {
-    my ($table, $primkey, $key, $type) = @_;
-    my $query = "SELECT $primkey,$key FROM $table WHERE $key IS NOT NULL";
+    my ($table, $select, $where, $type) = @_;
+    my $query	= "SELECT $select FROM $table";
+    $query	.= " WHERE ".$where if ($where);
     my %retval;
 
     my $sth = $dbh->prepare($query);
-    &ERROR("GetCol => '$query'") unless $sth->execute;
+    &SQLDebug($query);
+    if (!$sth->execute) {
+	&ERROR("GetCol: execute: '$query'");
+	$sth->finish;
+	return;
+    }
 
-    if (defined $type and $type == 1) {
+    if (defined $type and $type == 2) {
+	&DEBUG("dbgetcol: type 2!");
+	while (my @row = $sth->fetchrow_array) {
+	    $retval{$row[0]} = join(':', $row[1..$#row]);
+	}
+	&DEBUG("dbgetcol: count => ".scalar(keys %retval) );
+
+    } elsif (defined $type and $type == 1) {
 	while (my @row = $sth->fetchrow_array) {
 	    # reverse it to make it easier to count.
-	    $retval{$row[1]}{$row[0]} = 1;
+	    if (scalar @row == 2) {
+		$retval{$row[1]}{$row[0]} = 1;
+	    } elsif (scalar @row == 3) {
+		$retval{$row[1]}{$row[0]} = 1;
+	    }
+	    # what to do if there's only one or more than 3?
 	}
     } else {
 	while (my @row = $sth->fetchrow_array) {
@@ -98,18 +128,108 @@ sub dbGetCol {
 }
 
 #####
-# Usage: &dbSet($table, $primkey, $primval, $key, $val);
-sub dbSet {
-    my ($table, $primkey, $primval, $key, $val) = @_;
-    my $query;
+# Usage: &dbGetColNiceHash($table, $select, $where);
+sub dbGetColNiceHash {
+    my ($table, $select, $where) = @_;
+    $select	||= "*";
+    my $query	= "SELECT $select FROM $table";
+    $query	.= " WHERE ".$where if ($where);
+    my %retval;
 
-    my $result = &dbGet($table,$primkey,$primval,$primkey);
+    &DEBUG("dbGetColNiceHash: query => '$query'.");
+
+    my $sth = $dbh->prepare($query);
+    &SQLDebug($query);
+    if (!$sth->execute) {
+	&ERROR("GetColNiceHash: execute: '$query'");
+#	&ERROR("GetCol => $DBI::errstr");
+	$sth->finish;
+	return;
+    }
+
+    # todo: get column names, do $hash{$primkey}{blah} = ...
+    while (my @row = $sth->fetchrow_array) {
+	# todo: reverse it to make it easier to count.
+    }
+
+    $sth->finish;
+
+    return %retval;
+}
+
+####
+# Usage: &dbGetColInfo($table);
+sub dbGetColInfo {
+    my ($table) = @_;
+
+#    my $query = "SELECT * FROM $table LIMIT 1;";
+    my $query = "SHOW COLUMNS from $table";
+    my %retval;
+
+    my $sth = $dbh->prepare($query);
+    &SQLDebug($query);
+    if (!$sth->execute) {
+	&ERROR("GRI => '$query'");
+	&ERROR("GRI => $DBI::errstr");
+	$sth->finish;
+	return;
+    }
+
+    if (0) {
+	%retval=%{$sth->fetchrow_hashref()};
+	return keys %retval;
+    }
+
+    my @cols;
+    while (my @row = $sth->fetchrow_array) {
+	push(@cols, $row[0]);
+    }
+    $sth->finish;
+
+    return @cols;
+}
+
+#####
+# Usage: &dbSet($table, $primhash_ref, $hash_ref);
+#  Note: dbSet does dbQuote.
+sub dbSet {
+    my ($table, $phref, $href) = @_;
+    my $where = join(' AND ', map {
+		$_."=".&dbQuote($phref->{$_})
+	} keys %{$phref}
+    );
+
+    my $result = &dbGet($table, join(',', keys %{$phref}), $where);
+
+    my(@keys,@vals);
+    foreach (keys %{$href}) {
+	push(@keys, $_);
+	push(@vals, &dbQuote($href->{$_}) );
+    }
+
+    if (!@keys or !@vals) {
+	&WARN("dbset: keys or vals is NULL.");
+	return;
+    }
+
+    my $query;
     if (defined $result) {
-	$query = "UPDATE $table SET $key=".&dbQuote($val).
-		" WHERE $primkey=".&dbQuote($primval);
+	my @keyval;
+	for(my$i=0; $i<scalar @keys; $i++) {
+	    push(@keyval, $keys[$i]."=".$vals[$i] );
+	}
+
+	$query = "UPDATE $table SET ".
+		join(' AND ', @keyval).
+		" WHERE $where";
     } else {
-	$query = "INSERT INTO $table ($primkey,$key) VALUES (".
-		&dbQuote($primval).",".&dbQuote($val).")";
+	foreach (keys %{$phref}) {
+	    push(@keys, $_);
+	    push(@vals, &dbQuote($phref->{$_}) );
+	}
+
+	$query = sprintf("INSERT INTO $table (%s) VALUES (%s)",
+		join(',',@keys), join(',',@vals) );
     }
 
     &dbRaw("Set", $query);
@@ -118,11 +238,16 @@ sub dbSet {
 }
 
 #####
-# Usage: &dbUpdate($table, $primkey, $primval, $key, $val);
+# Usage: &dbUpdate($table, $primkey, $primval, %hash);
 sub dbUpdate {
-    my ($table, $primkey, $primval, $key, $val) = @_;
+    my ($table, $primkey, $primval, %hash) = @_;
+    my (@array);
+ 
+    foreach (keys %hash) {
+	push(@array, "$_=".&dbQuote($hash{$_}) );
+    }
 
-    &dbRaw("Update", "UPDATE $table SET $key=".&dbQuote($val).
+    &dbRaw("Update", "UPDATE $table SET ".join(', ', @array).
 		" WHERE $primkey=".&dbQuote($primval)
     );
 
@@ -130,32 +255,85 @@ sub dbUpdate {
 }
 
 #####
-# Usage: &dbInsert($table, $primkey, $primval, $key, $val);
+# Usage: &dbInsert($table, $primkey, $primval, %hash);
 sub dbInsert {
-    my ($table, $primkey, $primval, $key, $val) = @_;
+    my ($table, $primkey, $primval, %hash, $delay) = @_;
+    my (@keys, @vals);
+    my $p	= "";
 
-    &dbRaw("Insert", "INSERT INTO $table ($primkey,$key) VALUES (".
-		&dbQuote($primval).",".&dbQuote($val).")"
+    if ($delay) {
+	&DEBUG("dbI: delay => $delay");
+	$p	= " DELAYED";
+    }
+
+    foreach (keys %hash) {
+	push(@keys, $_);
+	push(@vals, &dbQuote($hash{$_}));
+    }
+
+    &dbRaw("Insert($table)", "INSERT $p INTO $table (".join(',',@keys).
+               ") VALUES (".join(',',@vals).")"
     );
 
     return 1;
 }
 
 #####
-# Usage: &dbSetRow($table, @values);
-sub dbSetRow {
-    my ($table, @values) = @_;
+# Usage: &dbReplace($table, %hash);
+#  Note: dbReplace does optional dbQuote.
+sub dbReplace {
+    my ($table, %hash) = @_;
+    my (@keys, @vals);
+    my $iquery = "INSERT INTO $table ";
+    my $uquery = "UPDATE $table SET ";
 
-    foreach (@values) {
-	$_ = &dbQuote($_);
+    foreach (keys %hash) {
+	if (s/^-//) {   # as is.
+	    push(@keys, $_);
+	    push(@vals, $hash{'-'.$_});
+	} else {
+	    push(@keys, $_);
+	    push(@vals, &dbQuote($hash{$_}));
+	}
+	$uquery .= "$keys[-1] = $vals[-1], ";
+    }
+    $uquery = ~s/, $/;/;
+    $iquery .= "(". join(',',@keys) .") VALUES (". join(',',@vals) .");";
+
+    &DEBUG($query) if (0);
+
+    if(!&dbRaw("Replace($table)", $iquery)) {
+	&dbRaw("Replace($table)", $uquery);
     }
 
-    return &dbRaw("SetRow", "INSERT INTO $table VALUES (".
+    return 1;
+}
+
+#####
+# Usage: &dbSetRow($table, $vref, $delay);
+#  Note: dbSetRow does dbQuote.
+sub dbSetRow ($@$) {
+    my ($table, $vref, $delay) = @_;
+    my $p      = ($delay) ? " DELAYED " : "";
+
+    # see 'perldoc perlreftut'
+    my @values;
+    foreach (@{ $vref }) {
+	push(@values, &dbQuote($_) );
+    }
+
+    if (!scalar @values) {
+	&WARN("dbSetRow: values array == NULL.");
+	return;
+    }
+
+    return &dbRaw("SetRow", "INSERT $p INTO $table VALUES (".
 	join(",", @values) .")" );
 }
 
 #####
 # Usage: &dbDel($table, $primkey, $primval, [$key]);
+#  Note: dbDel does dbQuote
 sub dbDel {
     my ($table, $primkey, $primval, $key) = @_;
 
@@ -171,17 +349,15 @@ sub dbRaw {
     my ($prefix,$query) = @_;
     my $sth;
 
-    my $res = $dbh->exec($query);
-    if (PGRES_COMMAND_OK ne $res->resultStatus) {
-	&ERROR("Raw($prefix): $dbh->errorMessage");
+    if (!($sth = $dbh->prepare($query))) {
+	&ERROR("Raw($prefix): $DBI::errstr");
 	return 0;
     }
 
-    &DEBUG("Raw: oid status => '$res->oidStatus'.");
-
+    &SQLDebug($query);
     if (!$sth->execute) {
 	&ERROR("Raw($prefix): => '$query'");
-	&ERROR("Raw($prefix): $DBI::errstr");
+	$sth->finish;
 	return 0;
     }
 
@@ -196,6 +372,7 @@ sub dbRawReturn {
     my @retval;
 
     my $sth = $dbh->prepare($query);
+    &SQLDebug($query);
     &ERROR("RawReturn => '$query'.") unless $sth->execute;
     while (my @row = $sth->fetchrow_array) {
 	push(@retval, $row[0]);
@@ -210,29 +387,19 @@ sub dbRawReturn {
 #####
 
 #####
-# Usage: &countKeys($table);
+# Usage: &countKeys($table, [$col]);
 sub countKeys {
-    my ($table) = @_;
+    my ($table, $col) = @_;
+    $col ||= "*";
 
-    return (&dbRawReturn("SELECT count(*) FROM $table"))[0];
+    return (&dbRawReturn("SELECT count($col) FROM $table"))[0];
 }
 
-##### NOT USED.
-# Usage: &getKeys($table,$primkey);
-sub getKeys {
-    my ($table,$primkey) = @_;
-    my @retval;
+# Usage: &sumKey($table, $col);
+sub sumKey {
+    my ($table, $col) = @_;
 
-    my $query	= "SELECT $primkey FROM $table";
-    my $sth	= $dbh->prepare($query);
-
-    $sth->execute;
-    while (my @row = $sth->fetchrow_array) {
-	push(@retval, $row[0]);
-    }
-    $sth->finish;
-
-    return @retval;
+    return (&dbRawReturn("SELECT sum($col) FROM $table"))[0];
 }
 
 #####
@@ -243,14 +410,23 @@ sub randKey {
     my $query	= "SELECT $select FROM $table LIMIT $rand,1";
 
     my $sth	= $dbh->prepare($query);
-    $sth->execute;
+    &SQLDebug($query);
+    &WARN("randKey($query)") unless $sth->execute;
     my @retval	= $sth->fetchrow_array;
     $sth->finish;
 
     return @retval;
 }
 
+#####
+# Usage: &deleteTable($table);
+sub deleteTable {
+    &dbRaw("deleteTable($_[0])", "DELETE FROM $_[0]");
+}
+
+#####
 # Usage: &searchTable($table, $select, $key, $str);
+#  Note: searchTable does dbQuote.
 sub searchTable {
     my($table, $select, $key, $str) = @_;
     my $origStr = $str;
@@ -273,7 +449,11 @@ sub searchTable {
     my $query = "SELECT $select FROM $table WHERE $key LIKE ". 
 		&dbQuote($str);
     my $sth = $dbh->prepare($query);
-    $sth->execute;
+    &SQLDebug($query);
+    if (!$sth->execute) {
+	&WARN("Search($query)");
+	return;
+    }
 
     while (my @row = $sth->fetchrow_array) {
 	push(@results, $row[0]);
@@ -288,9 +468,10 @@ sub searchTable {
 #####
 
 #####
-# Usage: &getFactInfo($faqtoid, [$what]);
+# Usage: &getFactInfo($faqtoid, $type);
+#  Note: getFactInfo does dbQuote
 sub getFactInfo {
-    return &dbGet("factoids", "factoid_key", $_[0], $_[1]);
+    return &dbGet("factoids", $_[1], "factoid_key=".&dbQuote($_[0]) );
 }
 
 #####
@@ -300,17 +481,20 @@ sub getFactoid {
 }
 
 #####
-# Usage: &setFactInfo($faqtoid, $type, $what);
-sub setFactInfo {
-    &dbSet("factoids", "factoid_key", $_[0], $_[1], $_[2]);
-}
-
+# Usage: &delFactoid($faqtoid);
 sub delFactoid {
     my ($faqtoid) = @_;
 
     &dbDel("factoids", "factoid_key",$faqtoid);
-    &status("DELETED $faqtoid");
+    &status("DELETED '$faqtoid'");
 
+    return 1;
+}
+
+#####
+#
+sub checkTables {
+    &FIXME("pgsql: checkTables(@_);");
     return 1;
 }
 

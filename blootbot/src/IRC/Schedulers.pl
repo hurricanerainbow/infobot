@@ -363,8 +363,16 @@ sub chanlimitCheck {
 	return if ($_[0] eq "2");
     }
 
+    my $str = join(' ', &ChanConfList("chanlimitcheck") );
+    &DEBUG("chanlimitCheck: str => $str");
+
     foreach $chan ( &ChanConfList("chanlimitcheck") ) {
 	next unless (&validChan($chan));
+
+	if ($chan eq "_default") {
+	    &WARN("chanlimit: we're doing $chan!! HELP ME!");
+	    next;
+	}
 
 	my $limitplus	= &getChanConfDefault("chanlimitcheckPlus", 5, $chan);
 	my $newlimit	= scalar(keys %{ $channels{$chan}{''} }) + $limitplus;
@@ -464,6 +472,15 @@ sub netsplitCheck {
 
 	$delete++;
 	delete $netsplit{$_};
+    }
+
+    # yet another hack.
+    foreach (keys %channels) {
+	my $i = $cache{maxpeeps}{$chan} || 0;
+	my $j = scalar(keys %{ $channels{$chan} });
+	next unless ($i > 10 and 0.25*$i > $j);
+
+	&DEBUG("netsplit: 0.25*max($i) > current($j); possible netsplit?");
     }
 
     if ($delete) {

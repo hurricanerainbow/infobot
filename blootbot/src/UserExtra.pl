@@ -160,6 +160,7 @@ sub chaninfo {
 	$new{$_} = $userstats{$_}{'Count'};
     }
 
+    # todo: show top 3 with percentages?
     my($count) = (sort { $a <=> $b } keys %new)[0];
     if ($count) {
 	$reply .= ".  \002$count\002 has said the most with a total of \002$new{$count}\002 messages";
@@ -693,19 +694,28 @@ sub userCommands {
 	my $raw_perc2	= $cpu_usage2*100/$time;
 	my $perc;
 	my $perc2;
+	my $total;
+	my $ratio;
 
 	if ($raw_perc > 1) {
 	    $perc	= sprintf("%.01f", $raw_perc);
 	    $perc2	= sprintf("%.01f", $raw_perc2);
+	    $total	= sprintf("%.01f", $raw_perc+$raw_perc2);
 	} elsif ($raw_perc > 0.1) {
 	    $perc	= sprintf("%.02f", $raw_perc);
 	    $perc2	= sprintf("%.02f", $raw_perc2);
+	    $total	= sprintf("%.02f", $raw_perc+$raw_perc2);
 	} else {			# <=0.1
 	    $perc	= sprintf("%.03f", $raw_perc);
 	    $perc2	= sprintf("%.03f", $raw_perc2);
+	    $total	= sprintf("%.03f", $raw_perc+$raw_perc2);
 	}
+	$ratio	= sprintf("%.01f", 100*$perc/($perc+$perc2) );
 
-	&pSReply("Total CPU usage: $cpu_usage s ... Percentage CPU used: $perc % (+childs: $perc2 %)");
+	&pSReply("Total CPU usage: \002$cpu_usage\002 s ... ".
+		"Total used: \002$total\002 % ".
+		"(parent/child ratio: $ratio %)"
+	);
 
 	return;
     }

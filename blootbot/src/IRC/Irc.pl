@@ -97,6 +97,7 @@ sub irc {
 		Ircname	=> $param{'ircName'},
     );
     $args{'LocalAddr'} = $param{'ircHost'} if ($param{'ircHost'});
+    $args{'Password'} = $param{'ircPasswd'} if ($param{'ircPasswd'});
 
     $conn = $irc->newconn(%args);
 
@@ -440,6 +441,7 @@ sub joinchan {
 	&status("joining $b_blue$chan$ob");
 	if (!$conn->join($chan)) {
 	    &DEBUG("joinchan: join failed. trying connect!");
+	    &clearIRCVars();
 	    $conn->connect();
 	}
     }
@@ -723,6 +725,11 @@ sub validChan {
     }
 
     if (exists $channels{$chan}) {
+	if ($chan eq "_default") {
+#	    &WARN("validC: chan cannot be _default! returning 0!");
+	    return 0;
+	}
+
 	return 1;
     } else {
 	return 0;
@@ -752,7 +759,7 @@ sub clearChanVars {
 }
 
 sub clearIRCVars {
-#    &DEBUG("clearIRCVars() called!");
+    &DEBUG("clearIRCVars() called!");
     undef %channels;
     undef %floodjoin;
 

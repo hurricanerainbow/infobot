@@ -107,12 +107,13 @@ sub update {
 
 	&performAddressedReply("okay");
 
-	### BROKEN!!!
 	if (1) {	# old
+	    &setFactInfo($lhs,"factoid_value", $rhs);
 	    &setFactInfo($lhs,"created_by", $nuh);
 	    &setFactInfo($lhs,"created_time", time());
-	    &setFactInfo($lhs,"factoid_value", $rhs);
 	} else {
+	    ### BROKEN!!!
+	    # I'd prefer to use dbReplace but it don't work.
 	    &dbReplace("factoids", (
 		factoid_key	=> $lhs,
 		created_by	=> time(),

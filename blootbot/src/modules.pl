@@ -87,6 +87,7 @@ sub loadDBModules {
 	&showProc(" (DBI // mysql)");
 
 	&status("  using MySQL support.");
+	require "$bot_src_dir/db_sql.pl";
 	require "$bot_src_dir/db_mysql.pl";
 	$moduleAge{"$bot_src_dir/db_mysql.pl"} = time();
 
@@ -99,11 +100,13 @@ sub loadDBModules {
 	&showProc(" (Pg // postgreSQLl)");
 
 	&status("  using PostgreSQL support.");
+	require "$bot_src_dir/db_sql.pl";
 	require "$bot_src_dir/db_pgsql.pl";
+
     } elsif ($param{'DBType'} =~ /^dbm$/i) {
 
 	&status("  using Berkeley DBM 1.85/2.0 support.");
-	&ERROR("dbm support is broken... you want it, you fix it!");
+	&ERROR("dbm support is broken... if you want it, fix it yourself!");
 	&shutdown();
 	exit 1;
 

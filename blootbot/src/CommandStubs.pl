@@ -280,6 +280,11 @@ sub Modules {
 	$itc =~ s/([^\w\s])/\\$1/g;
 	my $z = join '|', split ' ', $itc;
 
+	if ($message =~ /^_stats(\s+(\S+))$/i) {
+	    &textstats_main($2);
+	    return;
+	}
+
 	if ($message =~ /^($z)stats(\s+(\S+))?$/i) {
 	    my $type	= $1;
 	    my $arg	= $3;
@@ -292,7 +297,6 @@ sub Modules {
 	    &DEBUG("not using chan arg") if (!defined $c);
 	    my $sum = (&dbRawReturn("SELECT SUM(counter) FROM stats"
 			." WHERE ".$where ))[0];
-	    &DEBUG("type => $type, arg => $arg");
 
 	    if (!defined $arg or $arg =~ /^\s*$/) {
 		# this is way fucking ugly.
@@ -319,9 +323,9 @@ sub Modules {
 		}
 
 		if (defined $sum) {
-		    &pSReply("total count of '$type' on $c: $sum$topstr");
+		    &pSReply("total count of \037$type\037 on \002$c\002: $sum$topstr");
 		} else {
-		    &pSReply("zero counter for '$type'.");
+		    &pSReply("zero counter for \037$type\037.");
 		}
 	    } else {
 		my $x = (&dbRawReturn("SELECT SUM(counter) FROM stats".
@@ -348,11 +352,11 @@ sub Modules {
 		my $xtra = "";
 		if ($total and $good) {
 		    my $pct = sprintf("%.01f", 100*(1+$total-$i)/$total);
-		    $xtra = ", ranked $i/$total (percentile: $pct %)";
+		    $xtra = ", ranked $i\002/\002$total (percentile: \002$pct\002 %)";
 		}
 
 		my $pct1 = sprintf("%.01f", 100*$x/$sum);
-		&pSReply("$arg has said $type $x times ($pct1 %)$xtra");
+		&pSReply("\002$arg\002 has said \037$type\037 \002$x\002 times (\002$pct1\002 %)$xtra");
 	    }
 
 	    return;
@@ -843,6 +847,88 @@ sub do_verstats {
     } );
 
     return;
+}
+
+sub textstats_main {
+    my($arg) = @_;
+
+    # even more uglier with channel/time arguments.
+    my $c	= $chan;
+#    my $c	= $chan || "PRIVATE";
+    my $where	= "channel=".&dbQuote($c) if (defined $c);
+    &DEBUG("not using chan arg") if (!defined $c);
+    my $sum = (&dbRawReturn("SELECT SUM(counter) FROM stats"
+		." WHERE ".$where ))[0];
+
+    if (!defined $arg or $arg =~ /^\s*$/) {
+	# this is way fucking ugly.
+	&DEBUG("_stats: !arg");
+
+	my %hash = &dbGetCol("stats", "nick,counter",
+		$where." ORDER BY counter DESC LIMIT 3", 1);
+	my $i;
+	my @top;
+
+	# unfortunately we have to sort it again!
+	# todo: make dbGetCol return hash and array? too much effort.
+	my $tp = 0;
+	foreach $i (sort { $b <=> $a } keys %hash) {
+	    foreach (keys %{ $hash{$i} }) {
+		my $p	= sprintf("%.01f", 100*$i/$sum);
+		$tp	+= $p;
+		push(@top, "\002$_\002 -- $i ($p%)");
+	    }
+	}
+
+	my $topstr = "";
+	&DEBUG("tp => $tp");
+	if (scalar @top) {
+	    $topstr = ".  Top ".scalar(@top).": ".join(', ', @top);
+	}
+
+	if (defined $sum) {
+	    &pSReply("total count of \037$type\037 on \002$c\002: $sum$topstr");
+	} else {
+	    &pSReply("zero counter for \037$type\037.");
+	}
+    } else {
+	my %hash = &dbGetCol("stats", "type,counter",
+		"$where AND nick=".&dbQuote($arg) );
+
+	foreach (keys %hash) {
+	    &DEBUG("_stats: hash{$_} => $hash{$_}");
+	    # ranking.
+	    my @array = &dbGet("stats", "nick",
+		$where." ORDER BY counter", 1);
+	    my $good = 0;
+	    my $i = 0;
+	    for($i=0; $i<scalar @array; $i++) {
+		next unless ($array[0] =~ /^\Q$who\E$/);
+		$good++;
+		last;
+	    }
+	    $i++;
+
+	    my $total = scalar(@array);
+	    &DEBUG("   i => $i, good => $good, total => $total");
+	}
+
+	return;
+
+	if (!defined $x) {	# !defined.
+	    &pSReply("$arg has not said $type yet.");
+	    return;
+	}
+
+	my $xtra = "";
+	if ($total and $good) {
+	    my $pct = sprintf("%.01f", 100*(1+$total-$i)/$total);
+	    $xtra = ", ranked $i\002/\002$total (percentile: \002$pct\002 %)";
+	}
+
+	my $pct1 = sprintf("%.01f", 100*$x/$sum);
+	&pSReply("\002$arg\002 has said \037$type\037 \002$x\002 times (\002$pct1\002 %)$xtra");
+    }
 }
 
 sub nullski { my ($arg) = @_; return unless (defined $arg);

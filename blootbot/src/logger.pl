@@ -282,9 +282,9 @@ sub status {
 
     if (&IsParam("VERBOSITY")) {
 	if ($statcountfix) {
-	    printf $_red."!%5d!".$ob." ", $statcount;
+	    printf $_red."!%6d!".$ob." ", $statcount;
 	} else {
-	    printf $_green."[%5d]".$ob." ", $statcount;
+	    printf $_green."[%6d]".$ob." ", $statcount;
 	}
 
 	# three uberstabs to Derek Moeller.
