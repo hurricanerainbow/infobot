@@ -192,7 +192,7 @@ sub dbSet {
 }
 
 sub dbUpdate {
-    &DEBUG("STUB: &dbUpdate(@_); FIXME!!!");
+    &FIXME("STUB: &dbUpdate(@_); => somehow use dbInsert!");
 }
 
 sub dbInsert {
