@@ -19,7 +19,7 @@ sub parse {
 	return;
     }
 
-    if ($what =~ /^add(\s+(.*))?$/i) {
+    if ($what =~ /^add\s+(.*)$/i) {
 	&add( split(/\s+/, $1, 2) );
 
     } elsif ($what =~ /^next$/i) {
@@ -30,80 +30,79 @@ sub parse {
 }
 
 #####
-# Usage: botmail::check($who)
+# Usage: botmail::check($recipient)
 sub check {
-    my($w) = @_;
+    my($recipient) = @_;
 
     # todo: simplify this select (use a diff function)
-    my @from = &::dbGet("botmail", "srcwho"
-	"dstwho=".&::dbQuote(lc $w)
+    my @from = &::dbGet("botmail", "srcwho",
+	"dstwho=".&::dbQuote(lc $recipient)
     );
     my $t	= scalar @from;
     my $from	= join(", ", @from);
 
     if ($t == 0) {
-	&::msg($w, "You have no botmail.");
+	&::msg($recipient, "You have no botmail.");
     } else {
-	&::msg($w, "You have $t messages awaiting, from: $from");
+	&::msg($recipient, "You have $t messages awaiting, from: $from");
     }
 }
 
 #####
-# Usage: botmail::read($who)
+# Usage: botmail::read($recipient)
 sub read {
-    my($w) = @_;
+    my($recipient) = @_;
 
     # todo: simplify this select (use a diff function)
     my $H = &::dbSelectHashref("*", "botmail", "srcwho",
-	"dstwho=".&::dbQuote(lc $w)
+	"dstwho=".&::dbQuote(lc $recipient)
     );
 
     my $t = $H->total;	# possible?
 
     if ($t == 0) {
-	&::msg($w, "You have no botmail.");
+	&::msg($recipient, "You have no botmail.");
     } else {
 	my $ago = &::Time2String(time() - $H->{time});
-	&::msg($w, "From $H->{srcwho} ($H->{srcuh}) on $H->{time} [$ago]:");
-	&::msg($w, $H->{message});
+	&::msg($recipient, "From $H->{srcwho} ($H->{srcuh}) on $H->{time} [$ago]:");
+	&::msg($recipient, $H->{message});
 	&::dbDel("botmail", "id", $H->{id});
     }
 }
 
 #####
-# Usage: botmail::add($who, $msg)
+# Usage: botmail::add($recipient, $msg)
 sub add {
-    my($w, $msg) = @_;
+    my($recipient, $msg) = @_;
+    &::DEBUG("botmail::add(@_)");
 
-    # todo: simplify this select (use a diff function)
-    my $H = &::dbSelectHashref("*", "botmail", "srcwho",
-	"srcwho=".&::dbQuote(lc $::who)." AND ".
-	"dstwho=".&::dbQuote(lc $w)
-    );
-
-    my $t = $H->total;	# possible?
-
-    # only support 1 botmail with unique dstwho/srcwho to have same
-    # functionality as botmail from infobot.
-    if ($t == 1) {
-	&::msg($::who, "$w already has a message queued from you");
-	return;
-    }
-
-    if (lc $w == $::who) {
+    if (lc $recipient eq $::who) {
 	&::msg($::who, "well... a botmail to oneself is stupid!");
 	return;
     }
 
-    &::dbSetRow("botmail", {
-	dstwho	=> lc $w,
-	srcwho	=> lc $::who,
-	srcuh	=> $::nuh{lc $w},	# will this work?
-	-time	=> "NOW()",		# todo: add '-' support.
-					# dbUpdate() supports it.
+    # only support 1 botmail with unique dstwho/srcwho to have same
+    # functionality as botmail from infobot.
+    my %hash = &::dbGetColNiceHash("botmail", "*",
+	"srcwho=".&::dbQuote(lc $::who)." AND ".
+	"dstwho=".&::dbQuote(lc $recipient)
+    );
+
+    if (%hash) {
+	&::msg($::who, "$recipient already has a message queued from you");
+	return;
+    }
+
+    &::dbSet("botmail", {
+	'dstwho'	=> lc $recipient,
+	'srcwho'	=> lc $::who,
+    }, {
+	'srcuh'	=> $::nuh,	# will this work?
+	'time'	=> time(),
+	'msg'	=> $msg,
     } );
 
-    &::msg($::who, "OK, $::who, I'll let $w know.");
+    &::msg($::who, "OK, $::who, I'll let $recipient know.");
 }
 
 1;
