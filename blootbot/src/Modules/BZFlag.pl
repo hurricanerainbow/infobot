@@ -138,6 +138,7 @@ sub BZFlag::querytext {
 	$server = pack($sockaddr, AF_INET, $port, $serveraddr);
 
 	# connect
+	# TODO wrap this with a 5 second alarm()
 	return 'socket() error' unless socket(S1, AF_INET, SOCK_STREAM, $proto);
 	return "could not connect to $servername:$port" unless connect(S1, $server);
 
