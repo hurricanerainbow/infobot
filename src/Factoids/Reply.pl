@@ -250,11 +250,11 @@ sub substVars {
     my($reply,$flag) = @_;
 
     # $date, $time.
-    my $date	=  scalar(localtime());
+    # todo: support localtime.
+    my $date	=  scalar(gmtime());
     $date	=~ s/\:\d+(\s+\w+)\s+\d+$/$1/;
     $reply	=~ s/\$date/$date/gi;
     $date	=~ s/\w+\s+\w+\s+\d+\s+//;
-    # todo: support UTC.
     $reply	=~ s/\$time/$date/gi;
 
     # dollar variables.
@@ -286,28 +286,24 @@ sub substVars {
 	}
 
 	# eg: $rand100.3
-	### TODO: number of digits. 'x.y'
-	# too hard.
 	if ($reply =~ /\$rand(\d+)(\.(\d+))?/) {
 	    my $max = $1;
 	    my $dot = $3 || 0;
-	    &status("dot => $dot, max => $max, rand=>$rand");
-	    $rand = sprintf("%.*f", $dot, $rand*$max);
 	    my $orig = $&;
+	    #&DEBUG("dot => $dot, max => $max, rand=>$rand");
+	    $rand = sprintf("%.*f", $dot, $rand*$max);
 
-	    &status("swapping $orig to $rand");
-	    &status("reply => $reply");
-	    $reply =~ s/$orig/$rand/eg;
-	    &status("reply => $reply");
+	    &DEBUG("swapping $orig to $rand");
+	    $reply =~ s/\Q$orig\E/$rand/eg;
+	} else {
+	    $reply =~ s/\$rand/$rand/g;
 	}
-
-	$reply =~ s/\$rand/$rand/g;
     }
 
     $reply	=~ s/\$ident/$ident/g;
 
     if ($reply =~ /\$startTime/) {
-	my $time = scalar(localtime $^T);
+	my $time = scalar(gmtime $^T);
 	$reply =~ s/\$startTime/$time/;
     }
 
@@ -317,7 +313,7 @@ sub substVars {
     }
 
     if ($reply =~ /\$factoids/) {
-	my $count = &countKeys("factoids");
+	my $factoids = &countKeys("factoids");
 	$reply =~ s/\$factoids/$factoids/;
     }
 
