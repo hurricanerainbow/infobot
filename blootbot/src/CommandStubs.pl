@@ -55,7 +55,7 @@ sub parseCmdHook {
     }
 
     if (!defined $cmd) {
-	&WARN("cstubs: cmd == NULL.");
+	&WARN('cstubs: cmd == NULL.');
 	return 0;
     }
 
@@ -74,7 +74,7 @@ sub parseCmdHook {
 	my %hash = %{ $cmdhooks{$ident} };
 
 	if (!scalar keys %hash) {
-	    &WARN("CmdHook: hash is NULL?");
+	    &WARN('CmdHook: hash is NULL?');
 	    return 1;
 	}
 
@@ -144,7 +144,7 @@ sub parseCmdHook {
 	    $cmdstats{ $hash{'Cmdstats'} }++;
 	}
 
-	&VERB("hooks: End of command.",2);
+	&VERB('hooks: End of command.',2);
 
 	$done = 1;
     }
@@ -155,7 +155,7 @@ sub parseCmdHook {
 
 sub Modules {
     if (!defined $message) {
-	&WARN("Modules: message is undefined. should never happen.");
+	&WARN('Modules: message is undefined. should never happen.');
 	return;
     }
 
@@ -176,7 +176,7 @@ sub Modules {
     }
 
     # google searching. Simon++
-    my $w3search_regex   = "google";
+    my $w3search_regex   = 'google';
     if ($message =~ /^(?:search\s+)?($w3search_regex)\s+(?:for\s+)?['"]?(.*?)["']?\s*\?*$/i) {
 	return unless (&IsChanConfOrWarn('W3Search'));
 
@@ -198,7 +198,7 @@ sub Modules {
 	return unless (&IsChanConfOrWarn('Search'));
 
 	my $thiscmd	= lc $1;
-	my $args	= $3 || "";
+	my $args	= $3 || '';
 
 	$thiscmd	=~ s/^vals$/values/;
 	return if ($thiscmd ne 'keys' && $thiscmd ne 'values');
@@ -232,7 +232,7 @@ sub Modules {
 	return unless (&IsChanConfOrWarn('Topic'));
 
 	my $chan	= $talkchannel;
-	my @args	= split / /, $2 || "";
+	my @args	= split / /, $2 || '';
 
 	if (!scalar @args) {
 	    &msg($who,"Try 'help topic'");
@@ -244,14 +244,14 @@ sub Modules {
 
 	# topic over public:
 	if ($msgType eq 'public' && $thiscmd =~ /^#/) {
-	    &msg($who, "error: channel argument is not required.");
+	    &msg($who, 'error: channel argument is not required.');
 	    &msg($who, "\002Usage\002: topic <CMD>");
 	    return;
 	}
 
 	# topic over private:
 	if ($msgType eq 'private' && $chan !~ /^#/) {
-	    &msg($who, "error: channel argument is required.");
+	    &msg($who, 'error: channel argument is required.');
 	    &msg($who, "\002Usage\002: topic #channel <CMD>");
 	    return;
 	}
@@ -283,7 +283,7 @@ sub Modules {
 	my $queue = scalar(keys %wingateToDo);
 	if ($queue) {
 	    $reply .= ".  I have \002$queue\002 hosts in the queue";
-	    $reply .= ".  Started the scan ".&Time2String(time() - $wingaterun)." ago";
+	    $reply .= '.  Started the scan '.&Time2String(time() - $wingaterun).' ago';
 	}
 
 	&performStrictReply("$reply.");
@@ -292,7 +292,7 @@ sub Modules {
     }
 
     # do nothing and let the other routines have a go
-    return "CONTINUE";
+    return 'CONTINUE';
 }
 
 # Uptime. xk++
@@ -317,11 +317,11 @@ sub seen {
     $person =~ s/\?*$//;
 
     if (!defined $person or $person =~ /^$/) {
-	&help("seen");
+	&help('seen');
 
-	my $i = &countKeys("seen");
-	&msg($who,"there ". &fixPlural("is",$i) ." \002$i\002 ".
-		"seen ". &fixPlural("entry",$i) ." that I know of.");
+	my $i = &countKeys('seen');
+	&msg($who,'there '. &fixPlural('is',$i) ." \002$i\002 ".
+		'seen '. &fixPlural('entry',$i) .' that I know of.');
 
 	return;
     }
@@ -331,11 +331,11 @@ sub seen {
     &seenFlush();	# very evil hack. oh well, better safe than sorry.
 
     # TODO: convert to &sqlSelectRowHash();
-    my $select = "nick,time,channel,host,message";
-    if ($person eq "random") {
-	@seen = &randKey("seen", $select);
+    my $select = 'nick,time,channel,host,message';
+    if ($person eq 'random') {
+	@seen = &randKey('seen', $select);
     } else {
-	@seen = &sqlSelect("seen", $select, { nick => $person } );
+	@seen = &sqlSelect('seen', $select, { nick => $person } );
     }
 
     if (scalar @seen < 2) {
@@ -356,17 +356,17 @@ sub seen {
 	$reply = "$seen[0] is currently on";
 
 	foreach (@chans) {
-	    $reply .= " ".$_;
+	    $reply .= ' '.$_;
 	    next unless (exists $userstats{lc $seen[0]}{'Join'});
-	    $reply .= " (".&Time2String(time() - $userstats{lc $seen[0]}{'Join'}).")";
+	    $reply .= ' ('.&Time2String(time() - $userstats{lc $seen[0]}{'Join'}).')';
 	}
 
-	if (&IsChanConf("seenStats") > 0) {
+	if (&IsChanConf('seenStats') > 0) {
 	    my $i;
 	    $i = $userstats{lc $seen[0]}{'Count'};
 	    $reply .= ".  Has said a total of \002$i\002 messages" if (defined $i);
 	    $i = $userstats{lc $seen[0]}{'Time'};
-	    $reply .= ".  Is idling for ".&Time2String(time() - $i) if (defined $i);
+	    $reply .= '.  Is idling for '.&Time2String(time() - $i) if (defined $i);
 	}
     } else {
 	my $howlong = &Time2String(time() - $seen[1]);
@@ -416,11 +416,11 @@ sub cookie {
     ### WILL CHEW TONS OF MEM.
     ### TODO: convert this to a Forker function!
     if ($arg) {
-	my @list = &searchTable("factoids", "factoid_key", "factoid_value", $arg);
+	my @list = &searchTable('factoids', 'factoid_key', 'factoid_value', $arg);
 	$key	= &getRandom(@list);
-	$value	= &getFactInfo($key, "factoid_value");
+	$value	= &getFactInfo($key, 'factoid_value');
     } else {
-	($key,$value) = &randKey("factoids","factoid_key,factoid_value");
+	($key,$value) = &randKey('factoids','factoid_key,factoid_value');
     }
 
     for ($cookiemsg) {
@@ -447,8 +447,8 @@ sub convert {
     ($from,$to) = ($2,$1) if ($arg =~ /^(.*?) from (.*)$/i);
 
     if (!$to or !$from) {
-	&msg($who, "Invalid format!");
-	&help("convert");
+	&msg($who, 'Invalid format!');
+	&help('convert');
 	return;
     }
 
@@ -469,8 +469,8 @@ sub lart {
 	    $target	= $2;
 	    $extra	= 1;
 	} else {
-	    &msg($who, "error: invalid format or missing arguments.");
-	    &help("lart");
+	    &msg($who, 'error: invalid format or missing arguments.');
+	    &help('lart');
 	    return;
 	}
     }
@@ -479,7 +479,7 @@ sub lart {
 	$for	= $2;
     }
 
-    my $line = &getRandomLineFromFile($bot_data_dir. "/blootbot.lart");
+    my $line = &getRandomLineFromFile($bot_data_dir. '/blootbot.lart');
     if (defined $line) {
 	if ($target =~ /^(me|you|itself|\Q$ident\E)$/i) {
 	    $line =~ s/WHO/$who/g;
@@ -491,12 +491,12 @@ sub lart {
 
 	&action($chan, $line);
     } else {
-	&status("lart: error reading file?");
+	&status('lart: error reading file?');
     }
 }
 
 sub DebianNew {
-    my $idx   = "debian/Packages-sid.idx";
+    my $idx   = 'debian/Packages-sid.idx';
     my $error = 0;
     my %pkg;
     my @new;
@@ -505,7 +505,7 @@ sub DebianNew {
     $error++ unless ( -e "$idx-old");
 
     if ($error) {
-	$error = "no sid/sid-old index file found.";
+	$error = 'no sid/sid-old index file found.';
 	&ERROR("Debian: $error");
 	&msg($who, $error);
 	return;
@@ -532,14 +532,14 @@ sub DebianNew {
     }
     close IDX1;
 
-    &::performStrictReply( &::formListReply(0, "New debian packages:", @new) );
+    &::performStrictReply( &::formListReply(0, 'New debian packages:', @new) );
 }
 
 sub do_verstats {
     my ($chan)	= @_;
 
     if (!defined $chan) {
-	&help("verstats");
+	&help('verstats');
 	return;
     }
 
@@ -549,12 +549,12 @@ sub do_verstats {
     }
 
     if (scalar @vernick > scalar(keys %{ $channels{lc $chan}{''} })/4) {
-	&msg($who, "verstats already in progress for someone else.");
+	&msg($who, 'verstats already in progress for someone else.');
 	return;
     }
 
     &msg($who, "Sending CTCP VERSION to $chan; results in 60s.");
-    $conn->ctcp("VERSION", $chan);
+    $conn->ctcp('VERSION', $chan);
     $cache{verstats}{chan}	= $chan;
     $cache{verstats}{who}	= $who;
     $cache{verstats}{msgType}	= $msgType;
@@ -588,7 +588,7 @@ sub do_verstats {
 	my $unknown	= $total - $vtotal;
 	my $perc	= sprintf("%.1f", $unknown * 100 / $total);
 	$perc		=~ s/.0$//;
-	$sorted{$perc}{"unknown/cloak"} = "$unknown ($perc%)" if ($unknown);
+	$sorted{$perc}{'unknown/cloak'} = "$unknown ($perc%)" if ($unknown);
 
 	foreach (keys %ver) {
 	    my $count	= scalar keys %{ $ver{$_} };
@@ -624,7 +624,7 @@ sub verstats_flush {
 	last unless (scalar @vernicktodo);
 
 	my $n = shift(@vernicktodo);
-	$conn->ctcp("VERSION", $n);
+	$conn->ctcp('VERSION', $n);
     }
 
     return unless (scalar @vernicktodo);
@@ -637,7 +637,7 @@ sub do_text_counters {
     $itc =~ s/([^\w\s])/\\$1/g;
     my $z = join '|', split ' ', $itc;
 
-    if ($msgType eq "privmsg" and $message =~ / ($mask{chan})$/) {
+    if ($msgType eq 'privmsg' and $message =~ / ($mask{chan})$/) {
 	&DEBUG("ircTC: privmsg detected; chan = $1");
 	$chan = $1;
     }
@@ -657,25 +657,25 @@ sub do_text_counters {
 
     # even more uglier with channel/time arguments.
     my $c	= $chan;
-#   my $c	= $chan || "PRIVATE";
-    my $where	= "type=".&sqlQuote($type);
+#   my $c	= $chan || 'PRIVATE';
+    my $where	= 'type='.&sqlQuote($type);
     if (defined $c) {
 	&DEBUG("c => $c");
-	$where	.= " AND channel=".&sqlQuote($c) if (defined $c);
+	$where	.= ' AND channel='.&sqlQuote($c) if (defined $c);
     } else {
-	&DEBUG("not using chan arg");
+	&DEBUG('not using chan arg');
     }
 
-    my $sum = (&sqlRawReturn("SELECT SUM(counter) FROM stats"
-			." WHERE ".$where ))[0];
+    my $sum = (&sqlRawReturn('SELECT SUM(counter) FROM stats'
+			.' WHERE '.$where ))[0];
 
     if (!defined $arg or $arg =~ /^\s*$/) {
 	# this is way ugly.
 
 	# TODO: convert $where to hash
-	my %hash = &sqlSelectColHash("stats", "nick,counter",
+	my %hash = &sqlSelectColHash('stats', 'nick,counter',
 			{ },
-			$where." ORDER BY counter DESC LIMIT 3", 1
+			$where.' ORDER BY counter DESC LIMIT 3', 1
 	);
 	my $i;
 	my @top;
@@ -689,9 +689,9 @@ sub do_text_counters {
 		push(@top, "\002$_\002 -- $i ($p%)");
 	    }
 	}
-	my $topstr = "";
+	my $topstr = '';
 	if (scalar @top) {
-	    $topstr = ".  Top ".scalar(@top).": ".join(', ', @top);
+	    $topstr = '.  Top '.scalar(@top).': '.join(', ', @top);
 	}
 
 	if (defined $sum) {
@@ -701,7 +701,7 @@ sub do_text_counters {
 	}
     } else {
 	# TODO: convert $where to hash and use a sqlSelect
-	my $x = (&sqlRawReturn("SELECT SUM(counter) FROM stats".
+	my $x = (&sqlRawReturn('SELECT SUM(counter) FROM stats'.
 			" WHERE $where AND nick=".&sqlQuote($arg) ))[0];
 
 	if (!defined $x) {	# !defined.
@@ -711,8 +711,8 @@ sub do_text_counters {
 
 	# defined.
 	# TODO: convert $where to hash
-	my @array = &sqlSelect("stats", "nick", undef,
-			$where." ORDER BY counter", 1
+	my @array = &sqlSelect('stats', 'nick', undef,
+			$where.' ORDER BY counter', 1
 	);
 	my $good = 0;
 	my $i = 0;
@@ -724,7 +724,7 @@ sub do_text_counters {
 	$i++;
 
 	my $total = scalar(@array);
-	my $xtra = "";
+	my $xtra = '';
 	if ($total and $good) {
 	    my $pct = sprintf("%.01f", 100*(1+$total-$i)/$total);
 	    $xtra = ", ranked $i\002/\002$total (percentile: \002$pct\002 %)";
@@ -742,20 +742,20 @@ sub textstats_main {
 
     # even more uglier with channel/time arguments.
     my $c	= $chan;
-#    my $c	= $chan || "PRIVATE";
-    &DEBUG("not using chan arg") if (!defined $c);
+#    my $c	= $chan || 'PRIVATE';
+    &DEBUG('not using chan arg') if (!defined $c);
 
     # example of converting from RawReturn to sqlSelect.
-    my $where_href = (defined $c) ? { channel => $c } : "";
-    my $sum = &sqlSelect("stats", "SUM(counter)", $where_href);
+    my $where_href = (defined $c) ? { channel => $c } : '';
+    my $sum = &sqlSelect('stats', 'SUM(counter)', $where_href);
 
     if (!defined $arg or $arg =~ /^\s*$/) {
 	# this is way ugly.
-	&DEBUG("_stats: !arg");
+	&DEBUG('_stats: !arg');
 
-	my %hash = &sqlSelectColHash("stats", "nick,counter",
+	my %hash = &sqlSelectColHash('stats', 'nick,counter',
 		$where_href,
-		" ORDER BY counter DESC LIMIT 3", 1
+		' ORDER BY counter DESC LIMIT 3', 1
 	);
 	my $i;
 	my @top;
@@ -770,9 +770,9 @@ sub textstats_main {
 	    }
 	}
 
-	my $topstr = "";
+	my $topstr = '';
 	if (scalar @top) {
-	    $topstr = ".  Top ".scalar(@top).": ".join(', ', @top);
+	    $topstr = '.  Top '.scalar(@top).': '.join(', ', @top);
 	}
 
 	if (defined $sum) {
@@ -785,8 +785,8 @@ sub textstats_main {
     }
 
     # TODO: add nick to where_href
-    my %hash = &sqlSelectColHash("stats", "type,counter",
-		$where_href, " AND nick=".&sqlQuote($arg)
+    my %hash = &sqlSelectColHash('stats', 'type,counter',
+		$where_href, ' AND nick='.&sqlQuote($arg)
     );
 
     # this is totally messed up... needs to be fixed... and cleaned up.
@@ -800,7 +800,7 @@ sub textstats_main {
 	# ranking.
 	# TODO: convert $where to hash
 	my $where = '';
-	my @array = &sqlSelect("stats", "nick", undef, $where." ORDER BY counter", 1);
+	my @array = &sqlSelect('stats', 'nick', undef, $where.' ORDER BY counter', 1);
 	$good = 0;
 	$ii = 0;
 	for(my $i=0; $i<scalar @array; $i++) {
@@ -812,7 +812,7 @@ sub textstats_main {
 
 	$total = scalar(@array);
 	&DEBUG("   i => $i, good => $good, total => $total");
-	$x .= " ".$total."blah blah";
+	$x .= ' '.$total.'blah blah';
     }
 
 #    return;
@@ -822,7 +822,7 @@ sub textstats_main {
 	return;
     }
 
-    my $xtra = "";
+    my $xtra = '';
     if ($total and $good) {
 	my $pct = sprintf("%.01f", 100*(1+$total-$ii)/$total);
 	$xtra = ", ranked $ii\002/\002$total (percentile: \002$pct\002 %)";
@@ -845,32 +845,32 @@ sub nullski {
 ###
 &addCmdHook('(babel(fish)?|x|xlate|translate)', ('CODEREF' => 'babelfish::babelfish', 'Identifier' => 'babelfish', 'Cmdstats' => 'babelfish', 'Forker' => 1, 'Help' => 'babelfish', 'Module' => 'babelfish') );
 &addCmdHook('(botmail|message)', ('CODEREF' => 'botmail::parse', 'Identifier' => 'botmail', 'Cmdstats' => 'botmail') );
-&addCmdHook('bzflist17', ('CODEREF' => 'BZFlag::list17', 'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag', 'Forker' => 1) );
-&addCmdHook('bzflist', ('CODEREF' => 'BZFlag::list', 'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag', 'Forker' => 1) );
-&addCmdHook('bzfquery', ('CODEREF' => 'BZFlag::query', 'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag', 'Forker' => 1) );
+&addCmdHook('bzflist17', ('CODEREF' => 'BZFlag::list17', 'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag', 'Forker' => 1, 'Module' => 'BZFlag') );
+&addCmdHook('bzflist', ('CODEREF' => 'BZFlag::list', 'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag', 'Forker' => 1, 'Module' => 'BZFlag') );
+&addCmdHook('bzfquery', ('CODEREF' => 'BZFlag::query', 'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag', 'Forker' => 1, 'Module' => 'BZFlag') );
 &addCmdHook('chan(stats|info)', ('CODEREF' => 'chaninfo', ) );
 &addCmdHook('cmd(stats|info)', ('CODEREF' => 'cmdstats', ) );
 &addCmdHook('convert', ('CODEREF' => 'convert', 'Forker' => 1, 'Identifier' => 'Units', 'Help' => 'convert') );
 &addCmdHook('(cookie|random)', ('CODEREF' => 'cookie', 'Forker' => 1, 'Identifier' => 'Factoids') );
 &addCmdHook('countdown', ('CODEREF' => 'countdown', 'Module' => 'countdown', 'Identifier' => 'countdown', 'Cmdstats' => 'countdown') );
 &addCmdHook('countrystats', ('CODEREF' => 'countryStats') );
-&addCmdHook('dauthor', ('CODEREF' => 'Debian::searchAuthor', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Author Search', 'Help' => "dauthor" ) );
+&addCmdHook('dauthor', ('CODEREF' => 'Debian::searchAuthor', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Author Search', 'Help' => 'dauthor' ) );
 &addCmdHook('d?bugs', ('CODEREF' => 'DebianExtra::Parse', 'Forker' => 1, 'Identifier' => 'DebianExtra', 'Cmdstats' => 'Debian Bugs') );
-&addCmdHook('d?contents', ('CODEREF' => 'Debian::searchContents', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Contents Search', 'Help' => "contents" ) );
-&addCmdHook('d?find', ('CODEREF' => 'Debian::DebianFind', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Search', 'Help' => "find" ) );
+&addCmdHook('d?contents', ('CODEREF' => 'Debian::searchContents', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Contents Search', 'Help' => 'contents' ) );
+&addCmdHook('d?find', ('CODEREF' => 'Debian::DebianFind', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Search', 'Help' => 'find' ) );
 &addCmdHook('Dict', ('CODEREF' => 'Dict::Dict', 'Identifier' => 'Dict', 'Help' => 'dict', 'Forker' => 1, 'Cmdstats' => 'Dict') );
 &addCmdHook('dincoming', ('CODEREF' => 'Debian::generateIncoming', 'Forker' => 1, 'Identifier' => 'Debian' ) );
 &addCmdHook('dnew', ('CODEREF' => 'DebianNew', 'Identifier' => 'Debian' ) );
 &addCmdHook('dns|d?nslookup', ('CODEREF' => 'dns::query', 'Identifier' => 'dns', 'Cmdstats' => 'dns', 'Forker' => 1, 'Help' => 'dns') );
-&addCmdHook('(d|search)desc', ('CODEREF' => 'Debian::searchDescFE', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Desc Search', 'Help' => "ddesc" ) );
+&addCmdHook('(d|search)desc', ('CODEREF' => 'Debian::searchDescFE', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Desc Search', 'Help' => 'ddesc' ) );
 &addCmdHook('dstats', ('CODEREF' => 'Debian::infoStats', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Statistics' ) );
 &addCmdHook('(ex)?change', ('CODEREF' => 'Exchange::query', 'Identifier' => 'Exchange', 'Cmdstats' => 'Exchange', 'Forker' => 1) );
 &addCmdHook('factinfo', ('CODEREF' => 'factinfo', 'Cmdstats' => 'Factoid Info', Module => 'Factoids', ) );
-&addCmdHook('factstats?', ('CODEREF' => 'factstats', 'Cmdstats' => 'Factoid Stats', Help => "factstats", Forker => 1, 'Identifier' => 'Factoids', ) );
+&addCmdHook('factstats?', ('CODEREF' => 'factstats', 'Cmdstats' => 'Factoid Stats', Help => 'factstats', Forker => 1, 'Identifier' => 'Factoids', ) );
 &addCmdHook('help', ('CODEREF' => 'help', 'Cmdstats' => 'Help', ) );
 &addCmdHook('HTTPDtype', ('CODEREF' => 'HTTPDtype::HTTPDtype', 'Identifier' => 'HTTPDtype', 'Cmdstats' => 'HTTPDtype', 'Forker' => 1) );
 &addCmdHook('[ia]?spell', ('CODEREF' => 'spell::query', 'Identifier' => 'spell', 'Cmdstats' => 'spell', 'Forker' => 1, 'Help' => 'spell') );
-&addCmdHook('insult', ('CODEREF' => 'Insult::Insult', 'Forker' => 1, 'Identifier' => 'insult', 'Help' => "insult" ) );
+&addCmdHook('insult', ('CODEREF' => 'Insult::Insult', 'Forker' => 1, 'Identifier' => 'insult', 'Help' => 'insult' ) );
 &addCmdHook('karma', ('CODEREF' => 'karma', ) );
 &addCmdHook('kernel', ('CODEREF' => 'Kernel::Kernel', 'Forker' => 1, 'Identifier' => 'Kernel', 'Cmdstats' => 'Kernel', 'NoArgs' => 1) );
 &addCmdHook('lart', ('CODEREF' => 'lart', 'Identifier' => 'lart', 'Help' => 'lart') );
@@ -903,5 +903,5 @@ sub nullski {
 ###
 ### END OF ADDING HOOKS.
 ###
-&status("CMD: loaded ".scalar(keys %cmdhooks)." command hooks.");
+&status('CMD: loaded '.scalar(keys %cmdhooks).' command hooks.');
 1;
