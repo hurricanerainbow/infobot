@@ -720,7 +720,7 @@ sub validChan {
     # todo: use $c instead?
     my ($chan) = @_;
 
-    if (!defined $chan or $chan =~ /^\s*$/) {
+    if (!defined $chan or $chan =~ /^\s*$/ or $chan =~ /^_default$/) {
 	return 0;
     }
 
