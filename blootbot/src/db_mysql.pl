@@ -472,7 +472,7 @@ sub searchTable {
     my $query = "SELECT $select FROM $table WHERE $key LIKE ". 
 		&dbQuote($str);
     my $sth = $dbh->prepare($query);
-    &DEBUG("query => '$query'.");
+
     &SQLDebug($query);
     if (!$sth->execute) {
 	&WARN("Search($query)");

@@ -351,7 +351,6 @@ sub findChanConf {
 	foreach (keys %{ $chanconf{$c} }) {
 	    next unless (/^$param$/);
 
-	    &DEBUG("chanconf{$c}{$_} ...");
 	    return $chanconf{$c}{$_};
 	}
     }
