@@ -623,20 +623,21 @@ sub nick {
 #	return;
     }
 
-    if ($nick =~ /^$mask{nick}$/) {
-	&rawout("NICK ".$nick);
-
-	if (defined $ident) {
-	    &status("nick: Changing nick to $nick (from $ident)");
-	    # following shouldn't be here :(
-	    $ident	= $nick;
-	} else {
-	    &DEBUG("first time nick change.");
-	    $ident	= $nick;
-	}
-
-	return 1;
-    }
+# FIXME broken for multiple nicks
+#    if ($nick =~ /^$mask{nick}$/) {
+#	&rawout("NICK ".$nick);
+#
+#	if (defined $ident) {
+#	    &status("nick: Changing nick to $nick (from $ident)");
+#	    # following shouldn't be here :(
+#	    $ident	= $nick;
+#	} else {
+#	    &DEBUG("first time nick change.");
+#	    $ident	= $nick;
+#	}
+#
+#	return 1;
+#    }
     &DEBUG("nick: failed... why oh why (nick => $nick)");
 
     return 0;
