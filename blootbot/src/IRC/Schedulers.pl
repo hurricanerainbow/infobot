@@ -1,7 +1,7 @@
 #
 # ProcessExtra.pl: Extensions to Process.pl
 #          Author: dms
-#         Version: v0.4 (20000918)
+#         Version: v0.4b (20000923)
 #         Created: 20000117
 #
 
@@ -164,9 +164,7 @@ sub logCycle {
 	}
 
 	### TODO: add how many b,kb,mb removed?
-	if ($delete) {
-	    &status("LOG: removed $delete logs.");
-	}
+	&status("LOG: removed $delete logs.") if ($delete);
     } else {
 	&WARN("could not open dir $logdir");
     }
@@ -258,11 +256,10 @@ sub netsplitCheck {
 	    delete $netsplit{$_};
 	}
 	next unless (time() - $netsplit{$_} > 60*60*2); # 2 hours.
+	next if (&IsNickInAnyChan($_));
 
-	if (!&IsNickInAnyChan($_)) {
-	    &DEBUG("netsplitC: $_ didn't come back from netsplit in 2 hours; removing from netsplit list.");
-	    delete $netsplit{$_};
-	}
+	&DEBUG("netsplitC: $_ didn't come back from netsplit in 2 hours; removing from netsplit list.");
+	delete $netsplit{$_};
     }
 
     &ScheduleThis(30, "netsplitCheck") if (@_);
@@ -317,9 +314,7 @@ sub seenFlush {
 		$stats{'new'}++;
 
 		### TODO: put bad nick into a list and don't do it again!
-		if ($retval == 0) {
-		    &ERROR("Should never happen! (nick => $nick) FIXME");
-		}
+		&FIXME("Should never happen! (nick => $nick)") if !$retval;
 	    }
 
 	    delete $seencache{$nick};
@@ -338,9 +333,7 @@ sub seenFlush {
 	    ) );
 
 	    ### TODO: put bad nick into a list and don't do it again!
-	    if ($retval == 0) {
-		&ERROR("Should never happen! (nick => $nick) FIXME");
-	    }
+	    &FIXME("Should never happen! (nick => $nick)") if !$retval;
 
 	    delete $seencache{$nick};
 	    $flushed++;
@@ -349,15 +342,15 @@ sub seenFlush {
 	&DEBUG("seenFlush: NO VALID FACTOID SUPPORT?");
     }
 
-    &DEBUG(sprintf("new seen: %03.01f%% (%d/%d)",
-			$stats{'new'}*100/$stats{'count_old'}),
-			$stats{'new'}, $stats{'count_old'} );
-    &DEBUG(sprintf("now seen: %3.1f%% (%d/%d)",
-			$stats{'old'}*100/&countKeys("seen")),
-			$stats{'old'}, &countKeys("seen") );
+    &status("Flushed $flushed seen entries.")		if ($flushed);
+    &VERB(sprintf("  new seen: %03.01f%% (%d/%d)",
+	$stats{'new'}*100/$stats{'count_old'},
+	$stats{'new'}, $stats{'count_old'} ), 2)	if ($stats{'new'});
+    &VERB(sprintf("  now seen: %3.1f%% (%d/%d)",
+	$stats{'old'}*100/&countKeys("seen"),
+	$stats{'old'}, &countKeys("seen") ), 2)		if ($stats{'old'});
 
-    &VERB("Flushed $flushed seen entries.",1); # was 2.
-    &DEBUG("seen: ".scalar(keys %seenflush)." remaining.");
+    &WARN("scalar keys seenflush != 0!")	if (scalar keys %seenflush);
 
     my $interval = $param{'seenFlushInterval'} || 60;
     &ScheduleThis($interval, "seenFlush") if (@_);
@@ -475,7 +468,7 @@ sub shmFlush {
     $shmmsg =~ s/\0//g;         # remove padded \0's.
 
     foreach (split '\|\|', $shmmsg) {
-	&status("shm: Processing '$_'.");
+	&VERB("shm: Processing '$_'.",2);
 
 	if (/^DCC SEND (\S+) (\S+)$/) {
 	    my ($nick,$file) = ($1,$2);
