@@ -10,140 +10,178 @@ if (&IsParam("useStrict")) { use strict; }
 use vars qw($message $arg $qWord $verb $lobotomized);
 use vars qw(%channels %chanstats %cmdstats);
 
-sub userCommands {
-    return '' unless ($addressed);
+###
+### Start of command hooks for UserExtra.
+###
 
-    # chaninfo. xk++.
-    if ($message =~ /^chan(stats|info)(\s+(\S+))?$/i) {
-	my $chan = lc $3;
-	my $mode;
+&addCmdHook("main", 'chan(stats|info)', ('CODEREF' => 'chaninfo', ) );
+&addCmdHook("main", 'cmd(stats|info)', ('CODEREF' => 'cmdstats', ) );
+&addCmdHook("main", 'factinfo', ('CODEREF' => 'factinfo', 
+	'Cmdstats' => 'Factoid Info', Module => 'factoids', ) );
+&addCmdHook("main", 'factstats?', ('CODEREF' => 'factstats', 
+	'Cmdstats' => 'Factoid Statistics', Help => "factstats", 
+	Forker => 1, 'Identifier' => 'factoids', ) );
+&addCmdHook("main", 'help', ('CODEREF' => 'help', 
+	'Cmdstats' => 'Help', ) );
 
-	if ($chan eq "") {		# all channels.
-	    my $count	= 0;
-	    my $i	= keys %channels;
-	    my $reply	= "i am on \002$i\002 ".&fixPlural("channel",$i);
-	    my @array;
+&status("CMD: loaded ".scalar(keys %hooks_main)." MAIN command hooks.");
 
-	    ### line 1.
-	    foreach (sort keys %channels) {
-		if (/^\s*$/ or / /) {
-		    &status("chanstats: fe channels: chan == NULL.");
-		    &ircCheck();
-		    next;
-		}
-		push(@array, "$_ (".scalar(keys %{$channels{$_}{''}}).")");
+###
+### Start of commands for hooks.
+###
+
+sub chaninfo {
+    my $chan = lc shift(@_);
+    my $mode;
+
+    if ($chan eq "") {		# all channels.
+	my $count	= 0;
+	my $i		= keys %channels;
+	my $reply	= "i am on \002$i\002 ".&fixPlural("channel",$i);
+	my @array;
+
+	### line 1.
+	foreach (sort keys %channels) {
+	    if (/^\s*$/ or / /) {
+		&status("chanstats: fe channels: chan == NULL.");
+		&ircCheck();
+		next;
 	    }
-	    &performStrictReply($reply.": ".join(' ', @array));
+	    push(@array, "$_ (".scalar(keys %{$channels{$_}{''}}).")");
+	}
+	&performStrictReply($reply.": ".join(' ', @array));
 
-	    ### line 2.
-	    foreach $chan (keys %channels) {
-		# crappy debugging...
-		# TODO: use $mask{chan} instead?
-		if ($chan =~ / /) {
-		    &ERROR("bad channel: chan => '$chan'.");
-		}
-		$count += scalar(keys %{$channels{$chan}{''}});
+	### line 2.
+	foreach $chan (keys %channels) {
+	    # crappy debugging...
+	    # TODO: use $mask{chan} instead?
+	    if ($chan =~ / /) {
+		&ERROR("bad channel: chan => '$chan'.");
 	    }
-	    &performStrictReply(
+	    $count += scalar(keys %{$channels{$chan}{''}});
+	}
+	&performStrictReply(
 		"i've cached \002$count\002 ".&fixPlural("user",$count).
 		" distributed over \002".scalar(keys %channels)."\002 ".
 		&fixPlural("channel",scalar(keys %channels))."."
-	    );
+	);
 
-	    return $noreply;
-	}
+	return $noreply;
+    }
 
-	# channel specific.
+    # channel specific.
 
-	if (&validChan($chan) == 0) {
-	    &msg($who,"error: invalid channel \002$chan\002");
-	    return $noreply;
-	}
+    if (&validChan($chan) == 0) {
+	&msg($who,"error: invalid channel \002$chan\002");
+	return $noreply;
+    }
 
-	# Step 1:
-	my @array;
-	foreach (sort keys %{$chanstats{$chan}}) {
-	    my $int = $chanstats{$chan}{$_};
-	    next unless ($int);
+    # Step 1:
+    my @array;
+    foreach (sort keys %{$chanstats{$chan}}) {
+	my $int = $chanstats{$chan}{$_};
+	next unless ($int);
 
-	    push(@array, "\002$int\002 ". &fixPlural($_,$int));
-	}
-	my $reply = "On \002$chan\002, there ".
+	push(@array, "\002$int\002 ". &fixPlural($_,$int));
+    }
+    my $reply = "On \002$chan\002, there ".
 		&fixPlural("has",scalar(@array)). " been ".
 		&IJoin(@array);
 
-	# Step 1b: check channel inconstencies.
-	$chanstats{$chan}{'Join'}	||= 0;
-	$chanstats{$chan}{'SignOff'}	||= 0;
-	$chanstats{$chan}{'Part'}	||= 0;
+    # Step 1b: check channel inconstencies.
+    $chanstats{$chan}{'Join'}		||= 0;
+    $chanstats{$chan}{'SignOff'}	||= 0;
+    $chanstats{$chan}{'Part'}		||= 0;
 
-	my $delta_stats = $chanstats{$chan}{'Join'}
+    my $delta_stats = $chanstats{$chan}{'Join'}
 		- $chanstats{$chan}{'SignOff'}
 		- $chanstats{$chan}{'Part'};
 
-	if ($delta_stats) {
-	    my $total = scalar(keys %{$channels{$chan}{''}});
-	    &status("chaninfo: join ~= signoff + part (drift of $delta_stats < $total).");
+    if ($delta_stats) {
+	my $total = scalar(keys %{$channels{$chan}{''}});
+	&status("chaninfo: join ~= signoff + part (drift of $delta_stats < $total).");
 
-	    if ($delta_stats > $total) {
-		&ERROR("chaninfo: delta_stats exceeds total users.");
-	    }
+	if ($delta_stats > $total) {
+	    &ERROR("chaninfo: delta_stats exceeds total users.");
 	}
+    }
 
-	# Step 2:
-	undef @array;
-	my $type;
-	foreach ("v","o","") {
-	    my $int = scalar(keys %{$channels{$chan}{$_}});
-	    next unless ($int);
+    # Step 2:
+    undef @array;
+    my $type;
+    foreach ("v","o","") {
+	my $int = scalar(keys %{$channels{$chan}{$_}});
+	next unless ($int);
 
-	    $type = "Voice" if ($_ eq "v");
-	    $type = "Opped" if ($_ eq "o");
-	    $type = "Total" if ($_ eq "");
+	$type = "Voice" if ($_ eq "v");
+	$type = "Opped" if ($_ eq "o");
+	$type = "Total" if ($_ eq "");
 
-	    push(@array,"\002$int\002 $type");
-	}
-	$reply .= ".  At the moment, ". &IJoin(@array);
+	push(@array,"\002$int\002 $type");
+    }
+    $reply .= ".  At the moment, ". &IJoin(@array);
 
-	# Step 3:
-	### TODO: what's wrong with the following?
-	my %new = map { $userstats{$_}{'Count'} => $_ } keys %userstats;
-	my($count) = (sort { $b <=> $a } keys %new)[0];
-	if ($count) {
-	    $reply .= ".  \002$new{$count}\002 has said the most with a total of \002$count\002 messages";
-	}
-	&performStrictReply("$reply.");
+    # Step 3:
+    ### TODO: what's wrong with the following?
+    my %new = map { $userstats{$_}{'Count'} => $_ } keys %userstats;
+    my($count) = (sort { $b <=> $a } keys %new)[0];
+    if ($count) {
+	$reply .= ".  \002$new{$count}\002 has said the most with a total of \002$count\002 messages";
+    }
+    &performStrictReply("$reply.");
+}
 
+# Command statistics.
+sub cmdstats {
+    my @array;
+
+    if (!scalar(keys %cmdstats)) {
+	&performReply("no-one has run any commands yet");
 	return $noreply;
     }
 
-    # Command statistics.
-    if ($message =~ /^cmdstats$/i) {
-	my @array;
-
-	if (!scalar(keys %cmdstats)) {
-	    &performReply("no-one has run any commands yet");
-	    return $noreply;
-	}
-
-	my %countstats;
-	foreach (keys %cmdstats) {
-	    $countstats{$cmdstats{$_}}{$_} = 1;
-	}
-
-	foreach (sort {$b <=> $a} keys %countstats) {
-	    my $int = $_;
-	    next unless ($int);
-
-	    foreach (keys %{$countstats{$int}}) {
-		push(@array, "\002$int\002 of $_");
-	    }
-	}
-	&performStrictReply("command usage include ". &IJoin(@array).".");
-
-	return $noreply;
+    my %countstats;
+    foreach (keys %cmdstats) {
+	$countstats{$cmdstats{$_}}{$_} = 1;
     }
 
+    foreach (sort {$b <=> $a} keys %countstats) {
+	my $int = $_;
+	next unless ($int);
+
+	foreach (keys %{$countstats{$int}}) {
+	    push(@array, "\002$int\002 of $_");
+	}
+    }
+    &performStrictReply("command usage include ". &IJoin(@array).".");
+}
+
+# Factoid extension info. xk++
+sub factinfo {
+    my $faqtoid = lc shift(@_);
+    my $query   = "";
+
+    if ($faqtoid =~ /^\-(\S+)(\s+(.*))$/) {
+	&msg($who,"error: individual factoid info queries not supported as yet.");
+	&msg($who,"it's possible that the factoid mistakenly begins with '-'.");
+	return $noreply;
+
+	$query   = lc $1;
+	$faqtoid = lc $3;
+    }
+
+    &CmdFactInfo($faqtoid, $query);
+}
+
+sub factstats {
+    my $type = shift(@_);
+
+    &Forker("factoids", sub {
+	&performStrictReply( &CmdFactStats($type) );
+    } );
+}
+
+sub userCommands {
     # conversion: ascii.
     if ($message =~ /^(asci*|chr) (\d+)$/) {
 	return '' unless (&IsParam("allowConv"));
@@ -210,51 +248,6 @@ sub userCommands {
 	return $noreply;
     }
 
-    # Factoid extension info. xk++
-    if ($message =~ /^(factinfo)(\s+(.*))?$/i) {
-	my $query   = "";
-	my $faqtoid = lc $3;
-
-	if ($faqtoid =~ /^\-(\S+)(\s+(.*))$/) {
-	    &msg($who,"error: individual factoid info queries not supported as yet.");
-	    &msg($who,"it's possible that the factoid mistakenly begins with '-'.");
-	    return $noreply;
-
-	    $query   = lc $1;
-	    $faqtoid = lc $3;
-	}
-
-	&loadMyModule($myModules{'factoids'});
-	&CmdFactInfo($faqtoid, $query);
-	
-	$cmdstats{'Factoid Info'}++;
-	return $noreply;
-    }
-
-    # Factoid extension statistics. xk++
-    if ($message =~ /^(factstats?)(\s+(\S+))?$/i) {
-	my $type	= $3;
-
-	if (!defined $type) {
-	    &help("factstats");
-	    return $noreply;
-	}
-
-	&Forker("factoids", sub {
-		&performStrictReply( &CmdFactStats($type) );
-	} );
-	$cmdstats{'Factoid Statistics'}++;
-	return $noreply;
-    }
-
-    # help.
-    if ($message =~ /^help(\s+(.*))?$/i) {
-	$cmdstats{'Help'}++;
-
-	&help($2);
-
-	return $noreply;
-    }
 
     # karma.
     if ($message =~ /^karma(\s+(\S+))?\??$/i) {
@@ -512,6 +505,8 @@ sub userCommands {
 		&fixPlural("question",$count{'Question'}).
 	  " and \002$count{'Dunno'}\002 ".
 		&fixPlural("dunno",$count{'Dunno'}).
+	  " and \002$count{'Moron'}\002 ".
+		&fixPlural("moron",$count{'Moron'}).
 	  ".  I have been awake for $upString this session, and ".
 	  "currently reference \002$count\002 factoids.  ".
 	  "I'm using about \002$memusage\002 ".
