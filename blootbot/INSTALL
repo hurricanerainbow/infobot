@@ -21,7 +21,7 @@ Method of installation.
 
 - Choose your database:
 	- MySQL, read INSTALL.mysql (supported)
-	- SQLite, read INSTALL.sqlite (unsupported, may work)
+	- SQLite, read INSTALL.sqlite (supported)
 	- PgSQL, read INSTALL.pgsql (unsupported, may work)
 	- Berkeley DBM, read INSTALL.dbm (unsupported, may work)
 
