@@ -663,10 +663,10 @@ sub invite {
 
 # Usage: &joinNextChan();
 sub joinNextChan {
-    my @join = getJoinChans(1);
     my $mynick = "UNDEF";
-
     $mynick = $conn->nick() if $conn;
+    my @join = getJoinChans(1);
+
     if (scalar @join) {
 	my $chan = shift @join;
 	&joinchan($chan);
@@ -674,7 +674,6 @@ sub joinNextChan {
 	if (my $i = scalar @join) {
 	    &status("joinNextChan: $mynick $i chans to join.");
 	}
-
 	return;
     }
 
@@ -686,7 +685,7 @@ sub joinNextChan {
 	my $rate	= sprintf("%.1f", $delta / 10);
 	delete $cache{joinTime};
 
-	&status("time taken to join all chans: $timestr; rate: $rate sec/join");
+	&status("time taken for $mynick to join all chans: $timestr; rate: $rate sec/join");
     }
 
     # chanserv check: global channels, in case we missed one.
