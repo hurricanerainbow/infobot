@@ -25,7 +25,9 @@ sub process {
     # check if we have our head intact.
     if ($lobotomized) {
 	if ($addressed and IsFlag("o") eq "o") {
-	    &msg($who, "give me an unlobotomy.");
+	    my $delta_time	= time() - ($cache{lobotomy}{$who} || 0);
+	    &msg($who, "give me an unlobotomy.") if ($delta_time > 60*60);
+	    $cache{lobotomy}{$who} = time();
 	}
 	return 'LOBOTOMY';
     }
@@ -160,10 +162,9 @@ sub process {
 	    $users{$who}{HOSTS}{$mask}	= 1;
 	}
 
-	my $salt = join '',('.','/',0..9,'A'..'Z','a'..'z')[rand 64, rand 64];
-	# todo: show crypt?
-	&pSReply("new pass for $who, salt $salt.");
-	$users{$who}{PASS}		= crypt($array[0], $salt);
+	$crypt			= &mkcrypt($array[0]);
+	$users{$who}{PASS}	= $crypt;
+	&pSReply("new pass for $who, crypt $crypt.");
 
 	return;
     }
