@@ -484,8 +484,12 @@ sub userDCC {
 	return unless (&hasFlag("m"));
 
 	if ($cmd eq "+chan") {
-	    &DEBUG("setting _time_added...");
+	    if (exists $chanconf{$chan}) {
+		&pSReply("chan $chan already exists.");
+		return;
+	    }
 	    $chanconf{$chan}{_time_added}	= time();
+	    $chanconf{$what}{autojoin}		= 1;
 
 	    &pSReply("Joining $chan...");
 	    &joinchan($chan);
@@ -499,7 +503,9 @@ sub userDCC {
 	}
 
 	my $update	= 0;
-	if (defined $what and $what =~ s/^\+(\S+)/$1/) {
+### FIX THIS UP.
+    if (defined $what) {
+	if ($what =~ s/^\+(\S+)/$1/) {
 	    my $was	= $chanconf{$chan}{$1};
 	    if (defined $was and $was eq "1") {
 		&pSReply("setting $what for $chan already 1.");
@@ -512,16 +518,16 @@ sub userDCC {
 	    $chanconf{$chan}{$what} = 1;
 
 	    $update++;
-	} elsif (defined $what and $what =~ s/^\-(\S+)/$1/) {
+	} elsif ($what =~ s/^\-(\S+)/$1/) {
 	    my $was	= $chanconf{$chan}{$1};
 	    # hrm...
 	    if (!defined $was) {
-		&pSReply("setting $1 for $chan is not set.");
+		&pSReply("setting $what for $chan is not set.");
 		return;
 	    }
 
 	    if ($was eq "0") {
-		&pSReply("setting $1 for $chan already 0.");
+		&pSReply("setting $what for $chan already 0.");
 		return;
 	    }
 
@@ -534,7 +540,7 @@ sub userDCC {
 	} elsif (defined $val) {
 	    my $was	= $chanconf{$chan}{$what};
 	    if (defined $was and $was eq $val) {
-		&pSReply("setting $1 for $chan already '$val'.");
+		&pSReply("setting $what for $chan already '$val'.");
 		return;
 	    }
 	    $was	= ($was) ? "; was '$was'" : "";
@@ -543,13 +549,15 @@ sub userDCC {
 	    $chanconf{$chan}{$what} = $val;
 
 	    $update++;
-	} elsif (defined $what) {
+	} else {
 	    if (exists $chanconf{$chan}{$what}) {
 		&pSReply("$what for $chan is '$chanconf{$chan}{$what}'");
 	    } else {
 		&pSReply("$what for $chan is not set.'");
 	    }
 	}
+    }
+### END OF cheap insert of if statement.
 
 	if ($update) {
 	    $utime_chanfile = time();
@@ -574,6 +582,8 @@ sub userDCC {
 		    $str = $newstr;
 		    push(@items, "$_ => $chanconf{$chan}{$_}");
 		}
+
+		&pSReply("    $str") if (@items);
 	    }
 
 	    return;
