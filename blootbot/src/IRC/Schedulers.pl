@@ -707,6 +707,7 @@ sub ircCheck {
     &DEBUG("ircstats...");
     &DEBUG("  pubsleep: $pubsleep");
     &DEBUG("  msgsleep: $msgsleep");
+    &DEBUG("  notsleep: $notsleep");
 
     ### USER FILE.
     if ($utime_userfile > $wtime_userfile and time() - $wtime_userfile > 3600) {
