@@ -257,6 +257,12 @@ sub Modules {
 
 	my $thiscmd	= lc($1);
 	my $args	= $3;
+	$args		=~ s/\s+$//g;
+	# suggested by asuffield nad \broken.
+	if ($args =~ /^["']/ and $args =~ /["']$/) {
+	    &DEBUG("list*: removed quotes.");
+	    $args	=~ s/^["']|["']$//g;
+	}
 
 	$thiscmd =~ s/^vals$/values/;
 	return if ($thiscmd ne "keys" && $thiscmd ne "values");
