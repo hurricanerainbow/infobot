@@ -45,6 +45,8 @@ if ($@) {
 	"wwwsearch"	=> "W3Search.pl",
 	"whatis"	=> "WhatIs.pl",
 	"wingate"	=> "Wingate.pl",
+	"zfi"		=> "zfi.pl",
+	"zsi"		=> "zsi.pl",
 	"insult"	=> "insult.pl",
 	"nickometer"	=> "nickometer.pl",
 	"babelfish"	=> "babel.pl",
