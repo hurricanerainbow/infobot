@@ -128,7 +128,13 @@ sub downloadIndex {
 	return;
     }
 
-    open(IN, $idx);
+    if ($idx =~ /bz2$/) {
+	open(IN, "bzcat $idx |");
+    } elsif ($idx =~ /gz$/) {
+	open(IN, "gzcat $idx |");
+    } else {
+	open(IN, $idx);
+    }
 
     # delete the table before we redo it.
     &main::deleteTable("freshmeat");
@@ -146,6 +152,7 @@ sub downloadIndex {
 
     &main::dbRaw("LOCK", "LOCK TABLES freshmeat WRITE");
     my @data;
+    my @done;
     while (my $line = <IN>) {
 	chop $line;
 	if ($line ne "%%") {
@@ -161,11 +168,18 @@ sub downloadIndex {
 	    &main::dbRaw("LOCK", "LOCK TABLES freshmeat WRITE");
 	}
 
+	if (grep /^\Q$data[0]\E$/, @done) {
+	    &main::DEBUG("dupe? $data[0]");
+	    @data = ();
+	    next;
+	}
+
 	$i++;
 	pop @data;
 	$data[1] ||= "none";
 	$data[2] ||= "none";
 	&main::dbSetRow("freshmeat", @data);
+	push(@done,$data[0]);
 	@data = ();
     }
     close IN;
