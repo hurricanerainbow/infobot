@@ -965,14 +965,14 @@ sub userDCC {
 	    return;
 	}
 
-	if ($mask !~ /^$mask{nuh}$/) {
-	    &pSReply("error: mask ($mask) is not a real hostmask.");
-	    return;
-	}
-
 	my $count = scalar keys %{ $users{$user}{HOSTS} };
 
 	if ($state) {				# add.
+	    if ($mask !~ /^$mask{nuh}$/) {
+		&pSReply("error: mask ($mask) is not a real hostmask.");
+		return;
+	    }
+
 	    if (exists $users{$user}{HOSTS}{$mask}) {
 		&pSReply("mask $mask already exists.");
 		return;
