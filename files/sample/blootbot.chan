@@ -1,4 +1,7 @@
-#v1: blootbot -- blootbot -- written Wed Oct 30 03:12:44 2002
+#v1: blootbot -- infobot -- written Tue Nov 23 04:06:13 2004
+
+#botpark
+    +autojoin
 
 #debian-bots
     factoidDeleteDelay 7
@@ -12,31 +15,29 @@
     +newsNotifyAll
     rootWarnMode aggressive
 
-#botpark
-    +autojoin
-
 _default
-    +allowTelling
-    +babelfish
+    +BZFlag
+    +Debian
+    +DebianExtra
+    +Dict
+    +Exchange
+    +Factoids
+    +HTTPDtype
     +allowConv
     +allowDNS
-    +BZFlag
+    +allowTelling
+    +babelfish
     +chanlimitcheck
     chanlimitcheckInterval 10
     chanlimitcheckPlus 10
     +cookie
     +countdown
-    +Debian
-    +DebianExtra
     debianRefreshInterval 7
-    +Dict
-    +Exchange
     +factoidArguments
     floodMessages 10:30
     floodRepeat 2:10
     +freshmeat
     freshmeatRefreshInterval 24
-    +HTTPDtype
     +insult
     +karma
     +kernel
@@ -55,8 +56,8 @@ _default
     +seen
     seenFlushInterval 60
     seenMaxDays 90
-    +seenStoreAll
     +seenStats
+    +seenStoreAll
     +slashdot
     +spell
     +tell
@@ -66,6 +67,6 @@ _default
     +weather
     +wwwsearch
     +zfi
-    -zippy
+    +zippy
     +zsi
 
