@@ -220,14 +220,23 @@ unlock: U: ## <factoid>
 unlock: E: ## abuse
 
 dollar variables: D: To be used in factoids
-dollar variables: $date        - ...
-dollar variables: $time        - ...
-dollar variables: $who         - nick of factoid requester
-dollar variables: $username    - username of factoid requester
-dollar variables: $host        - hostname of factoid requester
+dollar variables: $Fdunno      - ...
+dollar variables: $Fquestion   - ...
+dollar variables: $Fupdate     - ...
 dollar variables: $channel     - channel from which the factoid was requested
+dollar variables: $date        - current date
+dollar variables: $factoids    - factoid count
+dollar variables: $host        - hostname of factoid requester
+dollar variables: $ident       - bot nick
 dollar variables: $lastspeaker - ...
-dollar variables: $factoid     - ...
+dollar variables: $memusage    - ...
+dollar variables: $rand        - random number, also $rand100.2
+dollar variables: $randnick    - random nick
+dollar variables: $startTime   - start time
+dollar variables: $time        - current time
+dollar variables: $uptime      - ...
+dollar variables: $user        - username of factoid requester
+dollar variables: $who         - nick of factoid requester
 
 chanset: D: FIXME
 chanset: U: ## [#chan] [what] [val]
