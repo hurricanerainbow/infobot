@@ -153,6 +153,8 @@ sub dbGet {
 	return(@retval);
     }
 
+    # FIXME this should be in $select order
+    # and it's now in field order
     &DEBUG("dbGet: select=>'$select'.");
     my @array = split "$;", ${"$table"}{lc $val};
     unshift(@array,$val);
