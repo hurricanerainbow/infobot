@@ -409,16 +409,12 @@ sub userCommands {
     if ($message =~ /^(asci*|chr) (\d+)$/) {
 	return '' unless (&IsParam("allowConv"));
 
-	$arg = $2;
-	if ($arg < 32) {
-	    $arg += 64;
-	    $result = "^".chr($arg);
-	} else {
-	    $result = chr($2);
-	}
-	$result = "NULL"	if ($arg == 0);
+	$arg	= $2;
+	$result	= chr($arg);
+	$result	= "NULL"	if ($arg == 0);
 
 	&performReply( sprintf("ascii %s is '%s'", $arg, $result) );
+
 	return;
     }
 
@@ -442,6 +438,7 @@ sub userCommands {
 
     # hex.
     if ($message =~ /^hex(\s+(.*))?$/i) {
+	return '' unless (&IsParam("allowConv"));
 	my $arg = $2;
 
 	if (!defined $arg) {
@@ -533,13 +530,19 @@ sub userCommands {
 	my @redir;
 	&status("Redirect '$factoid' (". ($#list) .")...");
 	for (@list) {
+	    my $x = $_;
 	    next if (/^\Q$factoid\E$/i);
 
 	    &status("  Redirecting '$_'.");
 	    my $was = &getFactoid($_);
+	    if ($was =~ /<REPLY> see/i) {
+		&status("warn: not redirecting a redirection.");
+		next;
+	    }
+
 	    &DEBUG("  was '$was'.");
-	    push(@redir,$_);
-	    &setFactInfo($_, "factoid_value", "<REPLY> see $factoid");
+	    push(@redir,$x);
+	    &setFactInfo($x, "factoid_value", "<REPLY> see $factoid");
 	}
 	&status("Done.");
 
