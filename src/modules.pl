@@ -60,8 +60,13 @@ sub loadCoreModules {
 	next unless $file =~ /\.pl$/;
 	next unless $file =~ /^[A-Z]/;
 	my $mod = "$bot_src_dir/$file";
+
 	### TODO: use eval and exit gracefully?
-	require $mod;
+	eval "require \"$mod\"";
+	if ($@) {
+	    &WARN("lCM => $@");
+	}
+
 	$moduleAge{$mod} = (stat $mod)[9];
 	&showProc(" ($file)") if (&IsParam("DEBUG"));
     }
@@ -121,7 +126,11 @@ sub loadFactoidsModules {
 	next unless $file =~ /^[A-Z]/;
 	my $mod = "$bot_src_dir/Factoids/$file";
 	### TODO: use eval and exit gracefully?
-	require $mod;
+	eval "require \"$mod\"";
+	if ($@) {
+	    &WARN("lFM: $@");
+	}
+
 	$moduleAge{$mod} = (stat $mod)[9];
 	&showProc(" ($file)") if (&IsParam("DEBUG"));
     }
@@ -331,6 +340,8 @@ if ($@) {
 &showProc(" (Time::HiRes)");
 
 sub AUTOLOAD {
+    return if ($AUTOLOAD =~ /__/);	# internal.
+
     &ERROR("UNKNOWN FUNCTION CALLED: $AUTOLOAD");
     foreach (@_) {
 	next unless (defined $_);
