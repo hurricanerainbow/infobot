@@ -45,6 +45,7 @@ sub on_chat {
 
     if (!exists $nuh{lc $nick}) {
 	&DEBUG("chat: nuh{$nick} doesn't exist; hrm should retry.");
+	&msg($nick, "could not get whois info?");
 	return;
     } else {
 	$message	= $msg;
@@ -856,7 +857,8 @@ sub hookMsg {
 		push(@who, grep /^\Q$message\E$/i, keys %{$flood{$_}});
 	    }
 	    if (scalar @who) {
-		&msg($who, "you already said what ".join(@who)." have said.");
+		&msg($who, "you already said what ".
+				join(' ', @who)." have said.");
 	    } else {
 		&msg($who,"Someone already said that ". (time - $time) ." seconds ago" );
 	    }
