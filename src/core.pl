@@ -85,7 +85,7 @@ sub doExit {
 	&quit($param{'quitMsg'}) if (&whatInterface() =~ /IRC/);
 	&writeUserFile();
 	&writeChanFile();
-	&uptimeWriteFile()	if (&IsParam("uptime"));
+	&uptimeWriteFile()	if (&ChanConfList("uptime"));
 	&closeDB();
 	&closeSHM($shm);
 	&dumpallvars()		if (&IsParam("dumpvarsAtExit"));
@@ -364,6 +364,7 @@ sub restart {
 	    return;
 	}
 
+	&DCCBroadcast("-HUP called.","m");
 	&shutdown();
 	&loadConfig($bot_misc_dir."/blootbot.config");
 	&reloadAllModules() if (&IsParam("DEBUG"));

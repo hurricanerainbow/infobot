@@ -372,7 +372,7 @@ sub verifyUser {
     my ($user,$m);
 
     if ($userHandle = $dcc{'CHATvrfy'}{$who}) {
-	&VERB("vUser: cached auth for $who.",2);
+	&DEBUG("vUser: cached auth for $who.");
 	return $userHandle;
     }
 

@@ -52,7 +52,7 @@ sub update {
     my $also    = ($rhs =~ s/^also //i);
     my $also_or = ($also and $rhs =~ s/\s+(or|\|\|)\s+//);
 
-    if (&IsParam("freshmeatForFactoid")) {
+    if (&IsChanConf("freshmeatForFactoid")) {
 	if (&dbGet("freshmeat", "name", $lhs, "name")) {
 	    &msg($who, "permission denied. (freshmeat)");
 	    &status("alert: $who wanted to teach me something that freshmeat already has info on.");

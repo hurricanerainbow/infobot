@@ -87,7 +87,7 @@ sub switchPerson {
 		$in =~ s/(^|\W)your(\W|$)/$1$param{'ircNick'}\'s$2/ig;
 	}
 
-	$in;
+	return $in;
 }
 
 # ---
