@@ -348,6 +348,10 @@ sub performReply {
 
     $reply =~ /([\.\?\s]+)$/;
 
+    # FIXME need real throttling....
+    if (length($reply) > $maxlinelen - 30) {
+	$reply = substr($reply, 0, $maxlinelen - 33) . "...";
+    }
     &checkMsgType($reply);
 
     if ($msgType eq 'public') {
@@ -390,6 +394,10 @@ sub pSReply {
 sub performStrictReply {
     my ($reply) = @_;
 
+    # FIXME need real throttling....
+    if (length($reply) > $maxlinelen - 30) {
+	$reply = substr($reply, 0, $maxlinelen - 33) . "...";
+    }
     &checkMsgType($reply);
 
     if ($msgType eq 'private') {
