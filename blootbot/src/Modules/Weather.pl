@@ -21,12 +21,19 @@ BEGIN {
 
 sub Weather {
 	my ($args) = @_;
-	&::performStrictReply(&queryText($args));
+	&::performStrictReply(&queryText($args, 'weather'));
+	return;
+}
+
+sub Metar {
+	my ($args) = @_;
+	&::performStrictReply(&queryText($args, 'metar'));
 	return;
 }
 
 sub queryText {
     my ($station) = shift;
+    my ($wxmode) = shift;
     my $result;
 
     $station = uc($station);
@@ -96,6 +103,10 @@ sub queryText {
 	$min_temp = $1;
 
 	if ($time) {
+	    if ($wxmode eq 'metar' && defined($feat{'ob'})) {
+	        return ("METAR " . $place . ": " . $feat{'ob'});
+	    }
+
 	    $result = "$place; $id; last updated: $time";
 	    foreach (sort keys %feat) {
 		next if $_ eq 'ob';
