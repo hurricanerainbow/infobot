@@ -19,7 +19,6 @@ sub getReply {
     my($message) = @_;
     my($lhs,$mhs,$rhs);
     my($result,$reply);
-    my $literal = 0;
     $orig{message} = $message;
 
     if (!defined $message or $message =~ /^\s*$/) {
@@ -33,6 +32,8 @@ sub getReply {
 	$lhs = $message;
 	$mhs = "is";
 	$rhs = $result;
+
+	return "$lhs $mhs $rhs" if ($literal);
     } else {
 	return '';
     }
