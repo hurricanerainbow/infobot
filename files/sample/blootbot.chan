@@ -1,4 +1,4 @@
-#v1: blootbot -- infobot -- written Tue Nov 23 07:55:42 2004
+#v1: blootbot -- infobot -- written Wed Nov 24 02:47:47 2004
 
 #botpark
     +RootWarn
@@ -68,6 +68,12 @@ _default
     seenMaxDays 90
     +seenStats
     +seenStoreAll
+    sendNoticeLimitBytes 1000
+    sendNoticeLimitLines 3
+    sendPrivateLimitBytes 1000
+    sendPrivateLimitLines 3
+    sendPublicLimitBytes 1000
+    sendPublicLimitLines 3
     +slashdot
     +spell
     +tell
