@@ -29,17 +29,34 @@ sub getReply {
     $message =~ tr/A-Z/a-z/;
     $message =~ s/^cmd:/CMD:/;
 
-    my ($count, $fauthor, $result) = &sqlSelect("factoids",
-	"requested_count,created_by,factoid_value",
-	{ factoid_key => $message }
-    );
+    my ($count, $fauthor, $result, $factoid);
+
+    if (!$literal and &IsChanConf("channelFactoids")) {
+	# check for factoids specific to this channel
+	($count, $fauthor, $result) = &sqlSelect("factoids",
+	    "requested_count,created_by,factoid_value",
+	    { factoid_key => "$chan $message" }
+	);
+    }
+
+    if ($result) {
+	# got channel specific reply above
+	$factoid="$chan $message"
+    } else {
+	# no channel specific factoid was requested / found
+	($count, $fauthor, $result) = &sqlSelect("factoids",
+	    "requested_count,created_by,factoid_value",
+	    { factoid_key => $message }
+	);
+	$factoid=$message if ($result);
+    }
 
     if ($result) {
 	$lhs = $message;
 	$mhs = "is";
 	$rhs = $result;
 
-	return "$lhs $mhs $rhs" if ($literal);
+	return "\"$factoid\" $mhs \"$rhs\"" if ($literal);
     } else {
 	return '';
     }
@@ -65,7 +82,7 @@ sub getReply {
 	### FIXME: old mysql doesn't support
 	### "requested_count=requested_count+1".
 	$count++;
-	&sqlSet("factoids", {'factoid_key' => $lhs}, {
+	&sqlSet("factoids", {'factoid_key' => $factoid}, {
 		requested_by	=> $nuh,
 		requested_time	=> time(),
 		requested_count	=> $count
