@@ -241,8 +241,10 @@ sub on_dcc {
     if ($type eq 'SEND') {	# GET for us.
 	# incoming DCC SEND. we're receiving a file.
 	my $get = ($event->args)[2];
-	open(DCCGET,">$get");
-
+	# FIXME: do we want to get anything?
+	return;
+	&status("DCC: Initializing GET from $nick to '$param{tempDir}/$get'");
+	open(DCCGET,">$param{tempDir}/$get");
 	$conn->new_get($event, \*DCCGET);
 
     } elsif ($type eq 'GET') {	# SEND for us?
@@ -294,6 +296,8 @@ sub on_dcc_open {
     my $nick = lc $event->nick();
     my $sock = ($event->to)[0];
 
+    &status("on_dcc_open type=$type nick=$nick sock=$sock");
+
     $msgType = 'chat';
     $type ||= "???";
     ### BUG: who is set to bot's nick?
@@ -313,9 +317,9 @@ sub on_dcc_open {
 	}
 
     } elsif ($type eq 'SEND') {
-	&DEBUG("Starting DCC receive.");
+	&status("Starting DCC receive.");
 	foreach ($event->args) {
-	    &DEBUG("  => '$_'.");
+	    &status("  => '$_'.");
 	}
 
     } else {
