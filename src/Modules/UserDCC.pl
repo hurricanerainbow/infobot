@@ -1189,7 +1189,7 @@ sub userDCC {
 
 	if (!$state) {			# delignore.
 	    if ( &ignoreDel($mask) ) {
-		&pSReply("ok, deleted X ignores.");
+		&pSReply("ok, deleted ignores for $mask.");
 	    } else {
 		&pSReply("could not find $mask in ignore list.");
 	    }
@@ -1209,7 +1209,7 @@ sub userDCC {
 
 	# time.
 	if ($args =~ s/^(\d+)\s*//) {
-	    $time = $1*60;	# ??
+	    $time = $1;	# time is in minutes
 	} else {
 	    $time = 0;
 	}

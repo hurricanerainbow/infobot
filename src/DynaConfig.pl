@@ -505,6 +505,7 @@ sub hasFlag {
     }
 }
 
+# expire is time in minutes
 sub ignoreAdd {
     my($mask,$chan,$expire,$comment) = @_;
 
