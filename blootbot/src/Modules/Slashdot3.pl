@@ -96,18 +96,8 @@ sub slashdotAnnounce {
     }
     close OUT;
 
-    my $line	= "Slashdot: News for nerds, stuff that matters -- ".
+    return "Slashdot: News for nerds, stuff that matters -- ".
 			join(" \002::\002 ", @new);
-
-    my @chans = split(/[\s\t]+/, lc $::param{'slashdotAnnounce'});
-    @chans    = keys(%::channels) unless (scalar @chans);
-    foreach (@chans) {
-	next unless (&::validChan($_));
-
-	&::status("sending slashdot update to $_.");
-	&::notice($_, $line);
-    }
-    sleep 1;	# just in case?
 }
 
 1;

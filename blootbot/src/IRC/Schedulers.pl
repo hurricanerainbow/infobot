@@ -29,7 +29,7 @@ sub setupSchedulers {
     &ignoreCheck(1);	# mandatory
     &seenFlushOld(1);
     &ircCheck(1);	# mandatory
-    &miscCheck(1);	# mandatory
+    &miscCheck(2);	# mandatory
     &shmFlush(1);	# mandatory
     &slashdotLoop(2);
     &freshmeatLoop(2);
@@ -726,16 +726,14 @@ sub slashdotLoop {
     return unless (scalar @chans);
 
     &Forker("slashdot", sub {
-	my @data = &Slashdot::slashdotAnnounce();
+	my $line = &Slashdot::slashdotAnnounce();
+	return unless (defined $line);
 
 	foreach (@chans) {
 	    next unless (&::validChan($_));
 
 	    &::status("sending slashdot update to $_.");
-	    my $c = $_;
-	    foreach (@data) {
-		&notice($c, "Slashdot: $_");
-	    }
+	    &notice($_, "Slashdot: $line");
 	}
     } );
 }
