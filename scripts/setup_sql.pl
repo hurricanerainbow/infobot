@@ -48,13 +48,16 @@ if ($param{'DBType'} =~ /mysql/i) {
     # retrieve a list of db's from the server.
     my %db;
     foreach ($dbh->func('_ListTables')) {
+	&status("table => $_");
 	$db{$_} = 1;
     }
 
     # create database.
-    &status("Creating database $param{'DBName'}...");
-    $query = "CREATE DATABASE $param{'DBName'}";
-    &dbRaw("create(db $param{'DBName'})", $query);
+    if (!scalar keys %db) {
+	&status("Creating database $param{'DBName'}...");
+	$query = "CREATE DATABASE $param{'DBName'}";
+	&dbRaw("create(db $param{'DBName'})", $query);
+    }
 
     # Step 4.
     print "Step 4: Creating the tables.\n";
@@ -91,20 +94,14 @@ if ($param{'DBType'} =~ /mysql/i) {
 	print "  creating new table freshmeat...\n";
 
 	$query = "CREATE TABLE freshmeat (".
-		"name VARCHAR(64) NOT NULL,".
-		"stable VARCHAR(32),".
-		"devel VARCHAR(32),".
-		"section VARCHAR(40),".
+		"projectname_short VARCHAR(64) NOT NULL,".
+		"latest_version VARCHAR(32) DEFAULT 'none' NOT NULL,".
 		"license VARCHAR(32),".
-		"homepage VARCHAR(128),".
-		"download VARCHAR(128),".
-		"changelog VARCHAR(128),".
-		"deb VARCHAR(128),".
-		"rpm VARCHAR(128),".
-		"link CHAR(55),".
-		"oneliner VARCHAR(96) NOT NULL,".
+		"url_deb VARCHAR(128),".
+		"url_homepage VARCHAR(128),".
+		"desc_short VARCHAR(96) NOT NULL,".
 
-		"PRIMARY KEY (name)".
+		"PRIMARY KEY (projectname_short,latest_version)".
 	")";
 
 	&dbRaw("create(freshmeat)", $query);
