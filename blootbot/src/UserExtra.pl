@@ -859,7 +859,7 @@ if (0) {
 	}
 
 	# idea from dondelecarlo :)
-	if ($param{'nickServ_pass'}) {
+	if ($param{'ircNick'} ne $ident and $param{'nickServ_pass'}) {
 	    &status("someone is using our nick; KILLing");
 	    &msg("NickServ", "GHOST $param{'ircNick'} $param{'nickServ_pass'}");
 	    return;
