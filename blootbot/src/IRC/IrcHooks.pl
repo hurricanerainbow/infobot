@@ -1006,7 +1006,7 @@ sub on_quit {
     ###
 
     # FIXME: does this work?
-    my $mynick = conn->nick();
+    my $mynick = $conn->nick();
     if ($nick !~ /^\Q$ident\E$/ and $nick =~ /^\Q$mynick\E$/i) {
 	&status("nickchange: own nickname became free; changing.");
 	&nick($mynick);
