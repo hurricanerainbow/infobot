@@ -3,8 +3,6 @@ CREATE TABLE seen (
 	time INT NOT NULL,
 	channel VARCHAR(20) NOT NULL,
 	host VARCHAR(80) NOT NULL,
-	messagecount SMALLINT UNSIGNED,
-	hehcount SMALLINT UNSIGNED,
 	message TINYTEXT NOT NULL,
 
 	PRIMARY KEY (nick)

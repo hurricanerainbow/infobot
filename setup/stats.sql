@@ -1,0 +1,8 @@
+CREATE TABLE stats (
+	nick VARCHAR(20) NOT NULL,
+	type VARCHAR(8) NOT NULL,
+
+	counter SMALLINT UNSIGNED DEFAULT '0',
+
+	PRIMARY KEY (nick,type)
+);
