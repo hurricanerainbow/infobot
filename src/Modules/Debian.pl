@@ -834,7 +834,7 @@ sub generateIndex {
 	#	regenerate it, even if it's not stale.
 	# TODO: also, regenerate the index if the packages file is newer
 	#	than the index.
-	next unless (&::isStale($idx, $::param{'debianRefreshInterval'}));
+	next unless (&::isStale($idx, $refresh));
 	if (/^incoming$/i) {
 	    &::DEBUG("gIndex: calling generateIncoming()!");
 	    &generateIncoming();
@@ -954,7 +954,7 @@ sub searchPackage {
 	if (/^\*(.*)$/) {
 	    $file = $1;
 
-	    if (&::isStale($file, $::param{'debianRefreshInterval'})) {
+	    if (&::isStale($file, $refresh)) {
 		&::DEBUG("STALE $file! regen.");
 		&generateIndex(($dist));
 ###		@files = searchPackage("$query $dist");
