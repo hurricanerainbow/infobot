@@ -184,15 +184,32 @@ sub IsChanConf {
     ### TODO: VERBOSITY on how chanconf returned 1 or 0 or -1.
     my %chan	= &getChanConfList($param);
     if (!defined $msgType) {
+#	&DEBUG("icc: !def msgType...");
 	return $chan{_default} || 0;
     }
 
     if ($msgType eq "public") {
+	if ($chan{lc $chan}) {
+#	    &DEBUG("iCC: public: $chan/$param");
+	} elsif ($chan{_default}) {
+#	    &DEBUG("iCC: public: _default/$param")
+	} else {
+#	    &DEBUG("iCC: public: 0/$param");
+	}
+
 	return $chan{lc $chan} || $chan{_default} || 0;
     }
 
     if ($msgType eq "private") {
-	return $chan{_default} || 0;
+	if ($chan{_default}) {
+#	    &DEBUG("iCC: private: _default/$param");
+	} elsif ($chan{lc $chan}) {
+#	    &DEBUG("iCC: private: $chan/$param");
+	} else {
+#	    &DEBUG("iCC: private: 0/$param");
+	}
+
+	return $chan{lc $chan} || $chan{_default} || 0;
     }
 
 ### debug purposes only.
@@ -200,6 +217,8 @@ sub IsChanConf {
 #    foreach (keys %chan) {
 #	&DEBUG("   $_ => $chan{$_}");
 #    }
+
+    &DEBUG("icc: returning 0...");
 
     return 0;
 }

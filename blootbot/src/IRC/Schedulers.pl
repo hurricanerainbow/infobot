@@ -31,7 +31,7 @@ sub setupSchedulers {
     &seenFlushOld(2);
     &ircCheck(1);	# mandatory
     &miscCheck(1);	# mandatory
-    &miscCheck2(1);	# mandatory
+    &miscCheck2(2);	# mandatory
     &shmFlush(1);	# mandatory
     &slashdotLoop(2);
     &freshmeatLoop(2);
@@ -407,6 +407,7 @@ sub netsplitCheck {
 	if (&IsNickInAnyChan($_)) {
 	    &DEBUG("netsplitC: $_ is in some chan; removing from netsplit list.");
 	    delete $netsplit{$_};
+	    next;
 	}
 	next unless (time() - $netsplit{$_} > 60*10);
 
