@@ -1,0 +1,206 @@
+# parameter settings file for the infobot
+# kevin lenzo (lenzo@cs.cmu.edu)
+# modified by xk <xk@leguin.openprojects.net>
+###
+
+# [str] Interface: [IRC/CLI]
+set Interface		IRC
+
+# IRC.
+set ircNick		blootbot
+set ircUser		blootbot
+set ircName		blootbot experimental bot
+set ircUMode		+iw
+###set ircHost		vh.virtualhost.org
+
+set owner		xk
+
+# nickserv/chanserv support.
+###set nickServ_pass	PASSWORD
+
+# default quit message
+set quitMsg		BEE RICHT BAK
+
+# temp directory.
+set tempDir		~/Temp
+
+#####
+# logfile
+#####
+
+# [file] where to put logging info. comment out to disable.
+set logfile		log/$ircUser.log
+
+# [str] Type of logging.
+#   DAILY	-- Create a new log each day.
+#   DEFAULT	-- One continuous log file.
+set logType		DAILY
+
+# [int] Maximum log size, if logfile is defined, in bytes.
+set maxLogSize		10000000
+
+#####
+# Factoid DB Configuration
+#####
+
+# [str] Ability to remember/tell factoids
+#	none	-- disable.
+#	mysql	-- ...
+#	pgsql	-- postgresql (NOT SUPPORTED)
+#	dbm	-- berkeley dbm (SHOULD WORK 95%)
+set DBType		mysql
+
+# [str] DBM filename prefix // MYSQL/PGSQL database.
+#	eg: blootbot-factoids, blootbot-seen
+#	eg: /var/db/mysql/blootbot/factoids.*
+set DBName		blootbot
+
+# [str] Hostname of database server
+set SQLHost		localhost
+
+# [str] mysql user allowed to insert,update,delete stuff from tables.
+set SQLUser		blootbot
+
+# [str] mysql password.
+set SQLPass		bl00tb0t
+
+# [str] sql debug file.
+###set SQLDebug		SQL_debug.log
+
+#####
+# factoid-related configuration
+#####
+
+# [bool] Factoid support.
+set factoids		true
+
+# [days] After what time will deleted factoids will be deleted.
+set factoidDeleteDelay	0
+
+# [int] maximum length of factoid key.
+set maxKeySize		32
+
+# [int] maximum length of factoid value.
+set maxDataSize		450
+
+# [int] minimum length of unaddressed (message) question without question
+#	before it is answered involuntarily.
+#	This ignores the 'addressing' setting.
+#	0 to disable.
+set minVolunteerLength	0
+
+# [str] when should the bot bother learning new factoids.
+#   ADDRESSED	-- only learn when addressed.
+#   HUNGRY	-- learn irrelevent of addressing. this will catch
+#		   _everything_, use at your own risk. I tried this ages
+#		   ago and it caught quite funny responses but who knows
+#		   if my modifications will prevent this or not, perhaps
+#		   IsInvalid must be disabled?
+set learn		ADDRESSED
+
+# [str] different behaviour with URLs.
+#   REQUIRE	-- means it will need to be a url type (e.g. file:, http:)
+#   OPTIONAL	-- will take anything
+#   REJECT	-- will not accept any urls.  this makes it easy to
+#		   run 2 with different nicks and styles.
+#		   ^^^ what's the point of this???
+set acceptUrl		OPTIONAL
+
+# [bool] profanity checking.
+set profanityCheck	false
+
+# [str] other bots to ask for factoids which they may have.
+#set friendlyBots	url purl script mrapi
+
+#####
+# factoid related and unrelated features, mainly Extras.
+#####
+
+# [str] addressing is when you name the bot. FIXME
+#   REQUIRE	-- the bot only does something if addressed.
+#   OPTIONAL	-- the bot responds (does not learn) irrelevent of
+#		   addressing.
+set addressing		REQUIRE
+
+# should work. FIXME.
+set addressCharacter	~
+
+# [str] how the bot should send messages.
+#   PRIVATE	-- reply to private messages only, rejecting public msgs.
+#   DEFAULT	-- reply to public _and_ private queries.
+set talkMethod		DEFAULT
+
+# [str] how long the output string should be before it is changed from
+#	public to private.
+#	"+" before bot commands overrides this option temporarily.
+###set minLengthBeforePrivate 192
+
+# [int] maximum length of reply for Extras function before popping list to
+#	reduce number of elements.
+set maxListReplyLength	300
+
+# [int] maximum number of elements in list allowed for Extras function
+#	before popping elements to reduce total count.
+set maxListReplyCount	15
+
+# [0/1] allow people outside any channels the bot is on to use the bot
+#	for factoids and commands.
+set disallowOutsiders	1
+
+# [int] Amount of time for auto-ignore (flooding) to expire.
+set ignoreAutoExpire	5
+
+# [int] Amount of time for forced-online ignore to expire. minutes.
+set ignoreTempExpire	60
+
+#####
+# Internal (simple) bot commands
+#####
+
+# [0/1] Forking... disable for non-nix OS or to reduce mem usage.
+#	Disabling should make the bot work on Win32 and MacOS.
+set forking		1
+
+# [int] Backlog... ideal to see what happened to the bot on console.
+#	maximum number of lines to backlog.
+set backlog		24
+
+#####
+# Miscellaneous...
+#####
+
+# [int] Display a bit too much info about stuff.
+#   0	-- disable.
+#   1	-- standard.
+#   2	-- extra.
+set VERBOSITY		1
+
+# [0/1] Warn messages.
+set WARN		1
+
+# [0/1] Debugging messages.
+set DEBUG		1
+
+# [0/1] Work In Progress...
+set WIP			0
+
+# debugging...
+###set dumpvars		1
+###set dumpvarsAtExit	1
+# log to specific file or global log file.
+###set dumpvarsLogFile	dumpvars.log
+
+# [0/1] allow 'use strict', makes bot unreliable.
+set useStrict		0
+
+#####
+# Extras
+#####
+
+# [str] anything which requires LWP + http proxy.
+set httpProxy http://router.home.org:3128/
+
+####
+#### now modify blootbot.chans for per-channel specific configuration
+#### see sample.chans for info.
+####

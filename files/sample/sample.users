@@ -1,0 +1,11 @@
+#v1: sample configuration file.
+
+_default
+--FLAGS		+mrt
+--HOSTS		*!*@*
+
+xk
+--FLAGS		+mrsteon
+--PASS		AAH2sny6Y3Y7Y
+--HOSTS		*!xk@*.home.org
+--HOSTS		*!root@*.home.org
