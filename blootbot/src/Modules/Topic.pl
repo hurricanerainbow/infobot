@@ -6,9 +6,8 @@
 #
 
 use strict;
-use vars qw(%topiccmp %topic %channels %orig);
-use vars qw($who $chan $conn $uh $ident $topicUpdate);
-# use cache{topicUpdate}?
+use vars qw(%topiccmp %topic %channels %cache %orig);
+use vars qw($who $chan $conn $uh $ident);
 
 ###############################
 ##### INTERNAL FUNCTIONS
@@ -42,7 +41,7 @@ sub topicDecipher {
 	}
 
 	if (grep /^\Q$subtopic\E\|\|\Q$owner\E$/, @results) {
-	    &status("Topic: we have found a dupe in the topic, not adding.");
+	    &status("Topic: we have found a dupe ($subtopic) in the topic, not adding.");
 	    next;
 	}
 
@@ -64,7 +63,7 @@ sub topicCipher {
     foreach (@_) {
 	my ($subtopic, $setby) = split /\|\|/;
 
-	if ($setby =~ /(unknown|)$/i) {
+	if ($setby =~ /^(unknown|)$/i) {
 	    push(@topic, $subtopic);
 	} else {
 	    push(@topic, "$subtopic ($setby)");
@@ -75,9 +74,9 @@ sub topicCipher {
 }
 
 ###
-# Usage: &topicNew($chan, $topic, $updateMsg, $topicUpdate);
+# Usage: &topicNew($chan, $topic, $updateMsg);
 sub topicNew {
-    my ($chan, $topic, $updateMsg, $topicUpdate) = @_;
+    my ($chan, $topic, $updateMsg) = @_;
     my $maxlen = 470;
 
     if ($channels{$chan}{t} and !$channels{$chan}{o}{$ident}) {
@@ -99,9 +98,9 @@ sub topicNew {
 
     $topic{$chan}{'Current'} = $topic;
 
-    # notification that the topic was altered.
-    if (!$topicUpdate) {		# for cached changes with '-'.
-	&msg($who, "okay");
+    if ($cache{topicNotUpdate}{$chan}) {
+	&msg($who, "done. 'flush' to finalize changes.");
+	delete $cache{topicNotUpdate}{$chan};
 	return 1;
     }
 
@@ -114,7 +113,7 @@ sub topicNew {
     $topic{$chan}{'Time'} = time();
 
     $conn->topic($chan, $topic);
-    &topicAddHistory($chan,$topic);
+    &topicAddHistory($chan, $topic);
 
     return 1;
 }
@@ -164,10 +163,7 @@ sub do_add {
 	return;
     }
 
-    if (!&hasFlag("T")) {
-	&msg($who, "you do not have enough flags to add topics");
-	return;
-    }
+    return unless (&hasFlag("T"));
 
     my @prev = &topicDecipher($chan);
     my $new  = "$args ($orig{who})";
@@ -178,7 +174,7 @@ sub do_add {
 	$new = &topicCipher(@prev, $str);
     }
 
-    &topicNew($chan, $new, "", $topicUpdate);
+    &topicNew($chan, $new, "");
 }
 
 # cmd: delete.
@@ -256,7 +252,7 @@ sub do_delete {
 	push(@newtopics, $_);
     }
 
-    &topicNew($chan, &topicCipher(@newtopics), "", $topicUpdate);
+    &topicNew($chan, &topicCipher(@newtopics), "");
 }
 
 # cmd: list
@@ -321,7 +317,7 @@ sub do_modify {
 	) {
 
 	    $_ = "Modifying topic with sar s/$op/$np/.";
-	    &topicNew($chan, $topic, $_, $topicUpdate);
+	    &topicNew($chan, $topic, $_);
 	} else {
 	    &msg($who, "warning: regex not found in topic.");
 	}
@@ -383,7 +379,7 @@ sub do_move {
 	$subtopics[$from - 1]	= $tmp;
 
 	$_ = "Swapped #\002$from\002 with #\002$to\002.";
-	&topicNew($chan, &topicCipher(@subtopics), $_, $topicUpdate);
+	&topicNew($chan, &topicCipher(@subtopics), $_);
 	return;
     }
 
@@ -411,7 +407,7 @@ sub do_move {
     }
 
     $_ = "Moved #\002$from\002 $action #\002$to\002.";
-    &topicNew($chan, &topicCipher(@subtopics), $_, $topicUpdate);
+    &topicNew($chan, &topicCipher(@subtopics), $_);
 }
 
 # cmd: shuffle.
@@ -427,7 +423,7 @@ sub do_shuffle {
     }
 
     $_ = "Shuffling the bag of lollies.";
-    &topicNew($chan, &topicCipher(@newtopics), $_, $topicUpdate);
+    &topicNew($chan, &topicCipher(@newtopics), $_);
 }
 
 # cmd: history.
@@ -482,7 +478,7 @@ sub do_restore {
     }
 
     $_ = "Changing topic according to request.";
-    &topicNew($chan, ${ $topic{$chan}{'History'} }[$args-1], $_, $topicUpdate);
+    &topicNew($chan, ${ $topic{$chan}{'History'} }[$args-1], $_);
 }
 
 # cmd: rehash.
@@ -519,10 +515,9 @@ sub do_info {
 # Usage: &Topic($cmd, $args);
 sub Topic {
     my ($chan, $cmd, $args) = @_;
-    my $topicUpdate = 1;
 
     if ($cmd =~ /^-(\S+)/) {
-	$topicUpdate = 0;
+	$cache{topicNotUpdate}{$chan} = 1;
 	$cmd = $1;
     }
 
@@ -550,7 +545,7 @@ sub Topic {
     } elsif ($cmd =~ /^restore$/i) {
 	&do_restore($chan, $args);
 
-    } elsif ($cmd =~ /^rehash$/i) {
+    } elsif ($cmd =~ /^(flush|rehash)$/i) {
 	&do_rehash($chan);
 
     } elsif ($cmd =~ /^info$/i) {
