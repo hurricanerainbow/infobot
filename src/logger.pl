@@ -8,7 +8,7 @@
 
 use strict;
 
-use vars qw($logDate $loggingstatus $statcount $bot_pid $forkedtime
+use vars qw($logDate $statcount $bot_pid $forkedtime
 	    $statcountfix $addressed $logcount $logtime);
 use vars qw(@backlog);
 use vars qw(%param %file);
@@ -97,19 +97,16 @@ sub openLog {
     if (open(LOG, ">>$file{log}")) {
 	&status("Opened logfile $file{log}.");
 	LOG->autoflush(1);
-	$loggingstatus = 1;
     } else {
-	&status("cannot open logfile $file{log}; disabling.");
-	$loggingstatus = 0;
+	&status("cannot open logfile $file{log}; not logging.");
     }
 }
 
 sub closeLog {
     # lame fix for paramlogfile.
     return unless (&IsParam("logfile"));
-    return unless ($loggingstatus);
+    return unless (defined fileno LOG);
 
-    $loggingstatus = 0;
     &status("Closed logfile ($file{log}).");
     close LOG;
 }
@@ -189,8 +186,20 @@ sub status {
     my($input) = @_;
     my $status;
 
-    # return if input is null'ish.
-    return '' if ($input =~ /^\s*$/);
+    # if it's not a scalar, attempt to warn and fix.
+    if (ref($input) ne "") {
+	&status("status: 'input' is not scalar (".ref($input).").");
+	if (ref($input) eq "ARRAY") {
+	    foreach (@$input) {
+		&WARN("status: '$_'.");
+	    }
+	}
+    }
+
+    # Something is using this w/ NULL.
+    if (!defined $input or $input =~ /^\s*$/) {
+	$input = "Blank status call?";
+    }
     $input =~ s/\n+$//;
     $input =~ s/\002|037//g;	# bold,video,underline => remove.
 
@@ -289,7 +298,7 @@ sub status {
 
     # log the line into a file.
     return unless (&IsParam("logfile"));
-    return unless ($loggingstatus);
+    return unless (defined fileno LOG);
 
     # remove control characters from logging.
     $input =~ s/\e\[[0-9;]+m//g;
