@@ -77,12 +77,13 @@ sub nickometer ($) {
     $1
    /egx;
 
-  # Remove balanced brackets and punish for unmatched
+  # Remove balanced brackets (and punish a little bit) and punish for unmatched
   while (s/^([^()]*)   (\() (.*) (\)) ([^()]*)   $/$1$3$5/x ||
 	 s/^([^{}]*)   (\{) (.*) (\}) ([^{}]*)   $/$1$3$5/x ||
 	 s/^([^\[\]]*) (\[) (.*) (\]) ([^\[\]]*) $/$1$3$5/x)
   {
     print "Removed $2$4 outside parentheses; nick now $_\n" if $verbose;
+    &punish(15, "brackets");
   }
   my $parentheses = tr/(){}[]/(){}[]/;
   &punish(&slow_pow(10, $parentheses),
@@ -130,6 +131,9 @@ sub nickometer ($) {
   # Punish extraneous caps
   my $caps = tr/A-Z/A-Z/;
   &punish(&slow_pow(7, $caps), "$caps extraneous caps") if $caps;
+
+  # One and only one trailing underscore is OK.
+  s/\_$//;
 
   # Now punish anything that's left
   my $remains = $_;
