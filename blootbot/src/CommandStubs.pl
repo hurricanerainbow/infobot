@@ -13,8 +13,6 @@ use vars qw(%channels %cache %mask %userstats %myModules %cmdstats
 # TODO: FIX THE FOLLOWING:
 use vars qw($total $x $type $i $good %wingateToDo);
 
-my $w3search_regex   = "google";
-
 ### COMMAND HOOK IMPLEMENTATION.
 # addCmdHook('TEXT_HOOK',
 #	(CODEREF	=> 'Blah',
@@ -180,6 +178,7 @@ sub Modules {
     }
 
     # google searching. Simon++
+    my $w3search_regex   = "google";
     if ($message =~ /^(?:search\s+)?($w3search_regex)\s+(?:for\s+)?['"]?(.*?)["']?\s*\?*$/i) {
 	return unless (&IsChanConfOrWarn('W3Search'));
 
