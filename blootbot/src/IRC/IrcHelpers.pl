@@ -261,7 +261,10 @@ sub chanLimitVerify {
     my($chan)	= @_;
     my $l	= $channels{$chan}{'l'};
 
-    if (scalar keys %netsplitservers) {
+    &DEBUG("cLV: netsplitservers: ".scalar(keys %netsplitservers) );
+    &DEBUG("cLV: netsplit: ".scalar(keys %netsplit) );
+
+    if (scalar keys %netsplit) {
 	&WARN("clV: netsplit active (1); skipping.");
 	return;
     }
@@ -289,7 +292,7 @@ sub chanLimitVerify {
 
 	### todo: unify code with chanlimitcheck()
 	if ($delta > 5) {
-	    &status("clc: big change in limit; changing.");
+	    &status("clc: big change in limit; going for it.");
 	    &rawout("MODE $chan +l ".($count+$plus) );
 	    $cache{chanlimitChange}{$chan} = time();
 	}
@@ -312,7 +315,7 @@ sub chanServCheck {
 	return 0;
     }
 
-    &DEBUG("chanServCheck($chan) called.");
+    &VERB("chanServCheck($chan) called.",2);
 
     if ( &IsParam("nickServ_pass") and !$nickserv) {
 	&DEBUG("chanServ_ops($chan): nickserv enabled but not alive? (ircCheck)");

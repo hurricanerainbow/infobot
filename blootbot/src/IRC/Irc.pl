@@ -197,9 +197,11 @@ sub say {
 
 	    if ( ($pubcount % $i) == 0 and $pubcount) {
 		sleep 1;
+		$pubsleep++;
 	    } elsif ($pubsize > $j) {
 		sleep 1;
 		$pubsize -= $j;
+		$pubsleep++;
 	    }
 
 	} else {
@@ -238,9 +240,11 @@ sub msg {
 	    my $j = &getChanConfDefault("sendPrivateLimitBytes", 1000);
 	    if ( ($msgcount % $i) == 0 and $msgcount) {
 		sleep 1;
+		$msgsleep++;
 	    } elsif ($msgsize > $j) {
 		sleep 1;
 		$msgsize -= $j;
+		$msgsleep++;
 	    }
 
 	} else {
@@ -294,9 +298,11 @@ sub notice {
 
 	if ( ($notcount % $i) == 0 and $notcount) {
 	    sleep 1;
+	    $notsleep++;
 	} elsif ($notsize > $j) {
 	    sleep 1;
 	    $notsize -= $j;
+	    $notsleep++;
 	}
 
     } else {
@@ -555,11 +561,35 @@ sub quit {
 sub nick {
     my ($nick) = @_;
 
+    if (!defined $nick) {
+	&ERROR("nick: nick == NULL.");
+	return;
+    }
+
+    if (defined $ident and $nick eq $ident) {
+	&WARN("nick: nick == ident == '$ident'.");
+    }
+
+    my $bad     = 0;
+    $bad++ if (exists $nuh{ $param{'ircNick'} });
+    $bad++ if (&IsNickInAnyChan($param{'ircNick'}));
+
+    if ($bad) {
+	&WARN("Nick: not going to try and get my nick back. [".
+		scalar(localtime). "]");
+	return;
+    }
+
     if ($nick =~ /^$mask{nick}$/) {
-	&DEBUG("nick: Changing nick to $nick (from $ident)");
 	rawout("NICK ".$nick);
-	# unfortunately, on_nick doesn't catch ourself.
-	$ident	= $nick;
+
+	if (defined $ident) {
+	    &status("nick: Changing nick to $nick (from $ident)");
+	} else {
+	    &DEBUG("first time nick change.");
+	    $ident	= $nick;
+	}
+
 	return 1;
     }
     &DEBUG("nick: failed... why oh why (nick => $nick)");
@@ -579,8 +609,6 @@ sub invite {
 
 # Usage: &joinNextChan();
 sub joinNextChan {
-    &DEBUG("joinNextChan called.");
-
     if (scalar @joinchan) {
 	$chan = shift @joinchan;
 	&joinchan($chan);
@@ -589,20 +617,24 @@ sub joinNextChan {
 	    &status("joinNextChan: $i chans to join.");
 	}
 
-    } else {
-	if (exists $cache{joinTime}) {
-	    my $delta	= time() - $cache{joinTime};
-	    my $timestr = &Time2String($delta);
-	    my $rate	= sprintf("%.1f", $delta / &getJoinChans() );
-	    delete $cache{joinTime};
+	return;
 
-	    &DEBUG("time taken to join all chans: $timestr; rate: $rate sec/join");
-	}
-	# chanserv check: global channels, in case we missed one.
+    }
 
-	foreach ( &ChanConfList("chanServ_ops") ) {
-	    &chanServCheck($_);
-	}
+    # !scalar @joinchan:
+
+    if (exists $cache{joinTime}) {
+	my $delta	= time() - $cache{joinTime};
+	my $timestr = &Time2String($delta);
+	my $rate	= sprintf("%.1f", $delta / &getJoinChans() );
+	delete $cache{joinTime};
+
+	&DEBUG("time taken to join all chans: $timestr; rate: $rate sec/join");
+    }
+    # chanserv check: global channels, in case we missed one.
+
+    foreach ( &ChanConfList("chanServ_ops") ) {
+	&chanServCheck($_);
     }
 }
 

@@ -298,16 +298,14 @@ sub newsFlush {
     my $delete	= 0;
     my $oldest	= time();
     foreach $chan (keys %::news) {
-	&DEBUG("sched: chan => $chan");
+	my $i		= 0;
+	my $total	= scalar(keys %{ $::news{$chan} });
 
 	foreach $item (keys %{ $::news{$chan} }) {
 	    my $t = $::news{$chan}{$item}{Expire};
-	    &DEBUG("sched; item => $item");
 
 	    my $tadd	= $::news{$chan}{$item}{Time};
 	    $oldest	= $tadd if ($oldest > $tadd);
-
-	    &DEBUG("sched: t => $t");
 
 	    next if ($t == 0 or $t == -1);
 	    if ($t < 1000) {
@@ -317,20 +315,17 @@ sub newsFlush {
 	    }
 
 	    my $delta = $t - time();
-	    &DEBUG("news: delta: $delta");
 
 	    next unless (time() > $t);
 
 	    # todo: show how old it was.
 	    delete $::news{$chan}{$item};
-	    &VERB("NEWS: deleted '$item'", 2);
+	    &status("NEWS: deleted '$item'");
 	    $delete++;
+	    $i++;
 	}
-    }
 
-    if ($delete) {
-	&DEBUG("sched: Writing news....");
-	&News::writeNews();
+	&status("NEWS {$chan}: deleted [$i/$total] news entries.");
     }
 
     # todo: flush users aswell.
@@ -350,10 +345,12 @@ sub newsFlush {
 	}
     }
 
-#    &VERB("NEWS deleted $delete seen entries.",2);
-    &status("NEWS deleted: $delete news entries; $duser user cache.");
+    if ($delete or $duser) {
+	&DEBUG("newsF: Writing news.");
+	&News::writeNews();
+    }
 
-    &News::writeNews();
+    &status("NEWS deleted: $delete news entries; $duser user cache.");
 }
 
 sub chanlimitCheck {
@@ -366,17 +363,22 @@ sub chanlimitCheck {
 	delete $sched{"chanlimitCheck"}{RUNNING};
     }
 
-    if (scalar keys %netsplitservers) {
-	&WARN("clC: netsplit active (2); skipping. (netsplit => $netsplit)");
-	return;
-    }
-
     foreach $chan ( &ChanConfList("chanlimitcheck") ) {
 	next unless (&validChan($chan));
 
 	my $limitplus	= &getChanConfDefault("chanlimitcheckPlus", 5, $chan);
 	my $newlimit	= scalar(keys %{ $channels{$chan}{''} }) + $limitplus;
 	my $limit	= $channels{$chan}{'l'};
+
+	if (scalar keys %netsplitservers) {
+	    if (defined $limit) {
+		&DEBUG("chanlimit: removing it for $chan.");
+		&rawout("MODE $chan -l");
+		$cache{chanlimitChange}{$chan} = time();
+	    }
+
+	    next;
+	}
 
 	if (defined $limit and scalar keys %{ $channels{$chan}{''} } > $limit) {
 	    &FIXME("LIMIT: set too low!!! FIXME");
@@ -447,8 +449,11 @@ sub netsplitCheck {
 	delete $netsplit{$_};
     }
 
+    &DEBUG("nsC: netsplitservers: ".scalar(keys %netsplitservers) );
+    &DEBUG("nsC: netsplit: ".scalar(keys %netsplit) );
+
     if ($count and !scalar keys %netsplit) {
-	&DEBUG("ok, netsplit is hopefully gone. reinstating chanlimit check.");
+	&DEBUG("nsC: netsplit is hopefully gone. reinstating chanlimit check.");
 	&chanlimitCheck();
     }
 }
@@ -879,7 +884,6 @@ sub shmFlush {
 
 ### this is semi-scheduled
 sub getNickInUse {
-    &DEBUG("gNIU: ident => $ident, ircNick => $param{'ircNick'}");
     if ($ident eq $param{'ircNick'}) {
 	&status("okay, got my nick back.");
 	return;
@@ -892,7 +896,6 @@ sub getNickInUse {
 	delete $sched{"getNickInUse"}{RUNNING};
     }
 
-    &status("Trying to get my nick back.");
     &nick( $param{'ircNick'} );
 }
 
@@ -1049,7 +1052,6 @@ sub wingateWriteFile {
 	print OUT "$_\n";
     }
     close OUT;
-
 }
 
 sub factoidCheck {
@@ -1174,11 +1176,11 @@ sub getChanConfDefault {
 }
 
 sub mkBackup {
-    my($file, $time) = @_;
-    my $backup	= 0;
+    my($file, $time)	= @_;
+    my $backup		= 0;
 
     if (! -f $file) {
-	&WARN("mkB: file $file don't exist.");
+	&WARN("mkB: file '$file' does not exist.");
 	return;
     }
 
@@ -1189,7 +1191,10 @@ sub mkBackup {
     }
     return unless ($backup);
 
-    my $age = &Time2String(time() - (stat $file)[9]);
+    my $delta = time() - (stat $file)[9];
+    &DEBUG("mkb: delta => $delta");
+
+    my $age = &Time2String($delta);
 
     ### TODO: do internal copying.
     &status("Backup: $file ($age)");
