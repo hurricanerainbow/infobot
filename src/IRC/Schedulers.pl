@@ -91,10 +91,12 @@ sub ScheduleChecked {
 ####
 
 sub randomQuote {
-    my $interval = $param{'randomQuoteInterval'} || 60;
-    &ScheduleThis($interval, "randomQuote") if (@_);
-    &ScheduleChecked("randomQuote");
-    return if ($_[0] eq "2");	# defer.
+    my $interval = &getChanConfDefault("randomQuoteInterval", 60);
+    if (@_) {
+	&ScheduleThis($interval, "randomQuote");
+	&ScheduleChecked("randomQuote");
+	return if ($_[0] eq "2");	# defer.
+    }
 
     my $line = &getRandomLineFromFile($bot_misc_dir. "/blootbot.randtext");
     if (!defined $line) {
@@ -116,10 +118,12 @@ sub randomFactoid {
     my ($key,$val);
     my $error = 0;
 
-    my $interval = $param{'randomFactoidInterval'} || 60; # FIXME.
-    &ScheduleThis($interval, "randomFactoid") if (@_);
-    &ScheduleChecked("randomFactoid");
-    return if ($_[0] eq "2");	# defer.
+    my $interval = &getChanConfDefault("randomFactoidInterval", 60);
+    if (@_) {
+	&ScheduleThis($interval, "randomFactoid");
+	&ScheduleChecked("randomFactoid");
+	return if ($_[0] eq "2");	# defer.
+    }
 
     while (1) {
 	($key,$val) = &randKey("factoids","factoid_key,factoid_value");
@@ -143,10 +147,13 @@ sub randomFactoid {
 }
 
 sub randomFreshmeat {
-    my $interval = $param{'randomFresheatInterval'} || 60;
-    &ScheduleThis($interval, "randomFreshmeat") if (@_);
-    &ScheduleChecked("randomFreshmeat");
-    return if ($_[0] eq "2");	# defer.
+    my $interval = &getChanConfDefault("randomFresheatInterval", 60);
+
+    if (@_) {
+	&ScheduleThis($interval, "randomFreshmeat");
+	&ScheduleChecked("randomFreshmeat");
+	return if ($_[0] eq "2");	# defer.
+    }
 
     my @chans = &ChanConfList("randomFreshmeat");
     return unless (scalar @chans);
@@ -377,12 +384,12 @@ sub seenFlush {
     my %stats;
     my $nick;
     my $flushed 	= 0;
-    $stats{'count_old'} = &countKeys("seen");
+    $stats{'count_old'} = &countKeys("seen") || 0;
     $stats{'new'}	= 0;
     $stats{'old'}	= 0;
 
     if (@_) {
-	my $interval = $param{'seenFlushInterval'} || 60;
+	my $interval = &getChanConfDefault("seenFlushInterval", 60);
 	&ScheduleThis($interval, "seenFlush");
 	&ScheduleChecked("seenFlush");
 	return if ($_[0] eq "2");
@@ -437,10 +444,6 @@ sub seenFlush {
 	}
     } else {
 	&DEBUG("seenFlush: NO VALID FACTOID SUPPORT?");
-    }
-
-    if ($stats{'count_old'} ||= 1) {
-	&DEBUG("had to set count_old to 1.");
     }
 
     &status("Flushed $flushed seen entries.")		if ($flushed);
@@ -509,10 +512,6 @@ sub ignoreCheck {
 
 	foreach (keys %{ $ignore{$chan} }) {
 	    my @array = @{ $ignore{$chan}{$_} };
-
-	    foreach (@array) {
-		&DEBUG("ignore:  => $_");
-	    }
 
 	    next unless ($array[0] and $time > $array[0]);
 
@@ -656,9 +655,9 @@ sub getNickInUse {
     }
 
     &status("Trying to get my nick back.");
-    &nick($param{'ircNick'});
+    &nick( $param{'ircNick'} );
 
-    &ScheduleThis(5, "getNickInUse") if (@_);
+    &ScheduleThis(30, "getNickInUse") if (@_);
 }
 
 sub uptimeLoop {
@@ -762,7 +761,7 @@ sub wingateCheck {
 	&DEBUG("Already scanned $host. good.");
     }
 
-    my $interval = $param{'wingateInterval'} || 60;	# seconds.
+    my $interval = &getChanConfDefault("wingateInterval", 60); # seconds.
     return if (defined $forked{'wingate'});
     return if (time() - $wingaterun <= $interval);
     return unless (scalar(keys %wingateToDo));
@@ -805,7 +804,7 @@ sub wingateWriteFile {
 
 sub factoidCheck {
     my @list = &searchTable("factoids", "factoid_key", "factoid_key", " #DEL#");
-    my $stale = ($param{'factoidDeleteDelay'} || 7)*60*60*24;
+    my $stale = &getChanConfDefault("factoidDeleteDelay", 7)*60*60*24;
 
     foreach (@list) {
 	my $age = &getFactInfo($_, "modified_time");	
@@ -880,7 +879,7 @@ sub getChanConfDefault {
 	return $val;
     }
     $param{$what}	= $default;
-    &DEBUG("not configured; setting param{$what} = $default");
+    &status("gCCD: not configured; setting param{$what} = $default");
     ### TODO: set some vars?
     return $default;
 }
