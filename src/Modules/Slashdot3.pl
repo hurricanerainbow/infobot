@@ -33,24 +33,24 @@ sub slashdotParse {
 }
 
 sub Slashdot {
-    my @results = &main::getURL("http://www.slashdot.org/slashdot.xml");
+    my @results = &::getURL("http://www.slashdot.org/slashdot.xml");
     my $retval  = "i could not get the headlines.";
 
     if (scalar @results) {
 	my $prefix	= "Slashdot Headlines ";
 	my @list	= &slashdotParse(@results);
-	$retval		= &main::formListReply(0, $prefix, @list);
+	$retval		= &::formListReply(0, $prefix, @list);
     }
 
-    &main::performStrictReply($retval);
+    &::performStrictReply($retval);
 }
 
 sub slashdotAnnounce {
-    my $file = "$main::param{tempDir}/slashdot.xml";
+    my $file = "$::param{tempDir}/slashdot.xml";
 
-    my @Cxml = &main::getURL("http://www.slashdot.org/slashdot.xml");
+    my @Cxml = &::getURL("http://www.slashdot.org/slashdot.xml");
     if (!scalar @Cxml) {
-	&main::DEBUG("sdA: failure (Cxml == NULL).");
+	&::DEBUG("sdA: failure (Cxml == NULL).");
 	return;
     }
 
@@ -82,12 +82,12 @@ sub slashdotAnnounce {
     }
 
     if (scalar @new == 0) {
-	&main::status("Slashdot: no new headlines.");
+	&::status("Slashdot: no new headlines.");
 	return;
     }
 
     if (scalar @new == scalar @Chl) {
-	&main::DEBUG("sdA: scalar(new) == scalar(Chl). bad?");
+	&::DEBUG("sdA: scalar(new) == scalar(Chl). bad?");
     }
 
     open(OUT,">$file");
@@ -99,13 +99,13 @@ sub slashdotAnnounce {
     my $line	= "Slashdot: News for nerds, stuff that matters -- ".
 			join(" \002::\002 ", @new);
 
-    my @chans = split(/[\s\t]+/, lc $main::param{'slashdotAnnounce'});
-    @chans    = keys(%main::channels) unless (scalar @chans);
+    my @chans = split(/[\s\t]+/, lc $::param{'slashdotAnnounce'});
+    @chans    = keys(%::channels) unless (scalar @chans);
     foreach (@chans) {
-	next unless (&main::validChan($_));
+	next unless (&::validChan($_));
 
-	&main::status("sending slashdot update to $_.");
-	&main::notice($_, $line);
+	&::status("sending slashdot update to $_.");
+	&::notice($_, $line);
     }
     sleep 1;	# just in case?
 }

@@ -63,10 +63,10 @@ sub help {
 
     if (exists $help{$topic}) {
 	foreach (split /\n/, $help{$topic}) {
-	    &msg($who,$_);
+	    &performStrictReply($_);
 	}
     } else {
-	&msg($who, "no help on $topic.  Use 'help' without arguments.");
+	&pSReply("no help on $topic.  Use 'help' without arguments.");
     }
 
     return '';
@@ -164,7 +164,8 @@ sub Time2String {
     my $time = shift;
     my $retval;
 
-    return("0s")	if ($time !~ /\d+/ or $time <= 0);
+    return("0s")
+		if (!defined $time or $time !~ /\d+/ or $time <= 0);
 
     my $s = int($time) % 60;
     my $m = int($time / 60) % 60;
@@ -238,6 +239,11 @@ sub fixString {
 # Usage: &fixPlural($str,$int);
 sub fixPlural {
     my ($str,$int) = @_;
+
+    if (!defined $str) {
+	&WARN("fixPlural: str == NULL.");
+	return;
+    }
 
     if ($str eq "has") {
 	$str = "have"	if ($int > 1);
@@ -335,6 +341,11 @@ sub getRandom {
 # Usage: &getRandomInt("30-60");
 sub getRandomInt {
     my $str = $_[0];
+
+    if (!defined $str) {
+	&WARN("gRI: str == NULL.");
+	return;
+    }
 
     srand();
 
@@ -587,10 +598,12 @@ sub hasProfanity {
     return $profanity;
 }
 
+### rename to hasChanConf() ?
 sub hasParam {
     my ($param) = @_;
 
-    if (&IsParam($param)) {
+    ### TODO: specific reason why it failed.
+    if (&IsChanConf($param)) {
 	return 1;
     } else {
 	&msg($who, "unfortunately, \002$param\002 is disabled in my configuration") unless ($addrchar);
@@ -606,14 +619,15 @@ sub Forker {
     &VERB("double fork detected; not forking.",2) if ($$ != $bot_pid);
 
     if (&IsParam("forking") and $$ == $bot_pid) {
-	return $noreply unless (&addForked($label));
+	return unless &addForked($label);
 
 	$SIG{CHLD} = 'IGNORE';
 	$pid = eval { fork() };
-	return $noreply if $pid;	# parent does nothing
+	return if $pid;		# parent does nothing
 
 	select(undef, undef, undef, 0.2);
-	&status("fork starting for '$label', PID == $$.");
+#	&status("fork starting for '$label', PID == $$.");
+	&status("--- fork starting for '$label', PID == $$ ---");
 	&shmWrite($shm,"SET FORKPID $label $$");
 
 	sleep 1;

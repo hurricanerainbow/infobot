@@ -66,12 +66,12 @@ my %urlpackages = (
 # Usage: &DebianDownload(%hash);
 sub DebianDownload {
     my ($dist, %urls)	= @_;
-    my $refresh = $main::param{'debianRefreshInterval'} * 60 * 60 * 24;
+    my $refresh = $::param{'debianRefreshInterval'} * 60 * 60 * 24;
     my $bad	= 0;
     my $good	= 0;
 
     if (! -d "debian/") {
-	&main::status("Debian: creating debian dir.");
+	&::status("Debian: creating debian dir.");
 	mkdir("debian/",0755);
     }
 
@@ -94,17 +94,17 @@ sub DebianDownload {
 
 	next unless ($update);
 
-	&main::DEBUG("announce == $announce.");
+	&::DEBUG("announce == $announce.");
 	if ($good + $bad == 0 and !$announce) {
-	    &main::status("Debian: Downloading files for '$dist'.");
-	    &main::msg($main::who, "Updating debian files... please wait.");
+	    &::status("Debian: Downloading files for '$dist'.");
+	    &::msg($::who, "Updating debian files... please wait.");
 	    $announce++;
 	}
 
-	if (exists $main::debian{$url}) {
-	    &main::DEBUG("2: ".(time - $main::debian{$url})." <= $refresh");
-	    next if (time() - $main::debian{$url} <= $refresh);
-	    &main::DEBUG("stale for url $url; updating!");
+	if (exists $::debian{$url}) {
+	    &::DEBUG("2: ".(time - $::debian{$url})." <= $refresh");
+	    next if (time() - $::debian{$url} <= $refresh);
+	    &::DEBUG("stale for url $url; updating!");
 	}
 
 	if ($url =~ /^ftp:\/\/(.*?)\/(\S+)\/(\S+)$/) {
@@ -113,34 +113,34 @@ sub DebianDownload {
 	    # error internally to ftp.
 	    # hope it doesn't do anything bad.
 	    if ($file =~ /Contents-woody-i386-non-US/) {
-		&main::DEBUG("Skipping Contents-woody-i386-non-US.");
+		&::DEBUG("Skipping Contents-woody-i386-non-US.");
 #		$file =~ s/woody/potato/;
 #		$path =~ s/woody/potato/;
 ###		next;
 	    }
 
-	    if (!&main::ftpGet($host,$path,$thisfile,$file)) {
-		&main::WARN("deb: down: $file == BAD.");
+	    if (!&::ftpGet($host,$path,$thisfile,$file)) {
+		&::WARN("deb: down: $file == BAD.");
 		$bad++;
 		next;
 	    }
 
 	    if (! -f $file) {
-		&main::DEBUG("deb: down: ftpGet: !file");
+		&::DEBUG("deb: down: ftpGet: !file");
 		$bad++;
 		next;
 	    }
 
 	    if ($file =~ /Contents-potato-i386-non-US/) {
-		&main::DEBUG("hack: using potato's non-US contents for woody.");
+		&::DEBUG("hack: using potato's non-US contents for woody.");
 		system("cp debian/Contents-potato-i386-non-US.gz debian/Contents-woody-i386-non-US.gz");
 	    }
 
-	    &main::DEBUG("deb: download: good.");
+	    &::DEBUG("deb: download: good.");
 ##	    $ret{$
 	    $good++;
 	} else {
-	    &main::ERROR("Debian: invalid format of url => ($url).");
+	    &::ERROR("Debian: invalid format of url => ($url).");
 	    $bad++;
 	    next;
 	}
@@ -151,7 +151,7 @@ sub DebianDownload {
 	return 1;
     } else {
 	return -1 unless ($bad);	# no download.
-	&main::DEBUG("DD: !good and bad($bad). :(");
+	&::DEBUG("DD: !good and bad($bad). :(");
 	return 0;
     }
 }
@@ -164,7 +164,7 @@ sub DebianDownload {
 # Usage: &searchContents($query);
 sub searchContents {
     my ($dist, $query)	= &getDistroFromStr($_[0]);
-    &main::status("Debian: Contents search for '$query' on $dist.");
+    &::status("Debian: Contents search for '$query' on $dist.");
     my $dccsend	= 0;
 
     $dccsend++		if ($query =~ s/^dcc\s+//i);
@@ -174,25 +174,25 @@ sub searchContents {
     $query =~ s/\\([\^\$])/$1/g;	# hrm?
     $query =~ s/^\s+|\s+$//g;
 
-    if (!&main::validExec($query)) {
-	&main::msg($main::who, "search string looks fuzzy.");
+    if (!&::validExec($query)) {
+	&::msg($::who, "search string looks fuzzy.");
 	return;
     }
 
     if ($dist eq "incoming") {		# nothing yet.
-	&main::DEBUG("sC: dist = 'incoming'. no contents yet.");
+	&::DEBUG("sC: dist = 'incoming'. no contents yet.");
 	return;
     } else {
 	my %urls = &fixDist($dist, %urlcontents);
 	# download contents file.
-	&main::DEBUG("deb: download 1.");
+	&::DEBUG("deb: download 1.");
 	if (!&DebianDownload($dist, %urls)) {
-	    &main::WARN("Debian: could not download files.");
+	    &::WARN("Debian: could not download files.");
 	}
     }
 
     # start of search.
-    my $start_time = &main::timeget();
+    my $start_time = &::timeget();
 
     my $found = 0;
     my %contents;
@@ -200,10 +200,10 @@ sub searchContents {
     my $front = 0;
     ### TODO: search properly if /usr/bin/blah is done.
     if ($query =~ s/\$$//) {
-	&main::DEBUG("search-regex found.");
+	&::DEBUG("search-regex found.");
 	$grepRE = "$query\[ \t]";
     } elsif ($query =~ s/^\^//) {
-	&main::DEBUG("front marker regex found.");
+	&::DEBUG("front marker regex found.");
 	$front = 1;
 	$grepRE = $query;
     } else {
@@ -222,8 +222,8 @@ sub searchContents {
     }
 
     if (!scalar @files) {
-	&main::ERROR("sC: no files?");
-	&main::msg($main::who, "failed.");
+	&::ERROR("sC: no files?");
+	&::msg($::who, "failed.");
 	return;
     }
 
@@ -254,19 +254,19 @@ sub searchContents {
 
     ### send results with dcc.
     if ($dccsend) {
-	if (exists $main::dcc{'SEND'}{$main::who}) {
-	    &main::msg($main::who, "DCC already active!");
+	if (exists $::dcc{'SEND'}{$::who}) {
+	    &::msg($::who, "DCC already active!");
 	    return;
 	}
 
 	if (!scalar %contents) {
-	    &main::msg($main::who,"search returned no results.");
+	    &::msg($::who,"search returned no results.");
 	    return;
 	}
 
-	my $file = "$main::param{tempDir}/$main::who.txt";
+	my $file = "$::param{tempDir}/$::who.txt";
 	if (!open(OUT,">$file")) {
-	    &main::ERROR("Debian: cannot write file for dcc send.");
+	    &::ERROR("Debian: cannot write file for dcc send.");
 	    return;
 	}
 
@@ -278,16 +278,16 @@ sub searchContents {
 	}
 	close OUT;
 
-	&main::shmWrite($main::shm, "DCC SEND $main::who $file");
+	&::shmWrite($::shm, "DCC SEND $::who $file");
 
 	return;
     }
 
-    &main::status("Debian: $found contents results found.");
+    &::status("Debian: $found contents results found.");
 
     my @list;
     foreach $pkg (keys %contents) {
-	my @tmplist = &main::fixFileList(keys %{$contents{$pkg}});
+	my @tmplist = &::fixFileList(keys %{$contents{$pkg}});
 	my @sublist = sort { length $a <=> length $b } @tmplist;
 
 	pop @sublist while (scalar @sublist > 3);
@@ -299,14 +299,14 @@ sub searchContents {
     @list = sort { length $a <=> length $b } @list;
 
     # show how long it took.
-    my $delta_time = &main::timedelta($start_time);
-    &main::status(sprintf("Debian: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
+    my $delta_time = &::timedelta($start_time);
+    &::status(sprintf("Debian: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
 
     my $prefix = "Debian Search of '$query' ";
     if (scalar @list) {	# @list.
-	&main::performStrictReply( &main::formListReply(0, $prefix, @list) );
+	&::pSReply( &::formListReply(0, $prefix, @list) );
     } else {		# !@list.
-	&main::DEBUG("ok, !\@list, searching desc for '$query'.");
+	&::DEBUG("ok, !\@list, searching desc for '$query'.");
 	&searchDesc($query);
     }
 }
@@ -315,12 +315,12 @@ sub searchContents {
 # Usage: &searchAuthor($query);
 sub searchAuthor {
     my ($dist, $query)	= &getDistroFromStr($_[0]);
-    &main::DEBUG("searchAuthor: dist => '$dist', query => '$query'.");
+    &::DEBUG("searchAuthor: dist => '$dist', query => '$query'.");
     $query =~ s/^\s+|\s+$//g;
 
     # start of search.
-    my $start_time = &main::timeget();
-    &main::status("Debian: starting author search.");
+    my $start_time = &::timeget();
+    &::status("Debian: starting author search.");
 
     my $files;
     my ($bad,$good) = (0,0);
@@ -338,13 +338,13 @@ sub searchAuthor {
 	$files .= " ".$_;
     }
 
-    &main::DEBUG("good = $good, bad = $bad...");
+    &::DEBUG("good = $good, bad = $bad...");
 
     if ($good == 0 and $bad != 0) {
 	my %urls = &fixDist($dist, %urlpackages);
-	&main::DEBUG("deb: download 2.");
+	&::DEBUG("deb: download 2.");
 	if (!&DebianDownload($dist, %urls)) {
-	    &main::ERROR("Debian(sA): could not download files.");
+	    &::ERROR("Debian(sA): could not download files.");
 	    return;
 	}
     }
@@ -357,14 +357,14 @@ sub searchAuthor {
 	} elsif (/^Maintainer: (.*) \<(\S+)\>$/) {
 	    my($name,$email) = ($1,$2);
 	    if ($package eq "") {
-		&main::DEBUG("sA: package == NULL.");
+		&::DEBUG("sA: package == NULL.");
 		next;
 	    }
 	    $maint{$name}{$email} = 1;
 	    $pkg{$name}{$package} = 1;
 	    $package = "";
 	} else {
-	    &main::WARN("invalid line: '$_'.");
+	    &::WARN("invalid line: '$_'.");
 	}
     }
     close IN;
@@ -391,33 +391,33 @@ sub searchAuthor {
     my @list = keys %hash;
     if (scalar @list != 1) {
 	my $prefix = "Debian Author Search of '$query' ";
-	&main::performStrictReply( &main::formListReply(0, $prefix, @list) );
+	&::pSReply( &::formListReply(0, $prefix, @list) );
 	return 1;
     }
 
-    &main::DEBUG("showing all packages by '$list[0]'...");
+    &::DEBUG("showing all packages by '$list[0]'...");
 
     my @pkg = sort keys %{$pkg{$list[0]}};
 
     # show how long it took.
-    my $delta_time = &main::timedelta($start_time);
-    &main::status(sprintf("Debian: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
+    my $delta_time = &::timedelta($start_time);
+    &::status(sprintf("Debian: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
 
     my $email	= join(', ', keys %{$maint{$list[0]}});
     my $prefix	= "Debian Packages by $list[0] \002<\002$email\002>\002 ";
-    &main::performStrictReply( &main::formListReply(0, $prefix, @pkg) );
+    &::pSReply( &::formListReply(0, $prefix, @pkg) );
 }
 
 ####
 # Usage: &searchDesc($query);
 sub searchDesc {
     my ($dist, $query)	= &getDistroFromStr($_[0]);
-    &main::DEBUG("searchDesc: dist => '$dist', query => '$query'.");
+    &::DEBUG("searchDesc: dist => '$dist', query => '$query'.");
     $query =~ s/^\s+|\s+$//g;
 
     # start of search.
-    my $start_time = &main::timeget();
-    &main::status("Debian: starting desc search.");
+    my $start_time = &::timeget();
+    &::status("Debian: starting desc search.");
 
     my $files;
     my ($bad,$good) = (0,0);
@@ -435,13 +435,13 @@ sub searchDesc {
 	$files .= " ".$_;
     }
 
-    &main::DEBUG("good = $good, bad = $bad...");
+    &::DEBUG("good = $good, bad = $bad...");
 
     if ($good == 0 and $bad != 0) {
 	my %urls = &fixDist($dist, %urlpackages);
-	&main::DEBUG("deb: download 2c.");
+	&::DEBUG("deb: download 2c.");
 	if (!&DebianDownload($dist, %urls)) {
-	    &main::ERROR("Debian(sD): could not download files.");
+	    &::ERROR("Debian(sD): could not download files.");
 	    return;
 	}
     }
@@ -455,13 +455,13 @@ sub searchDesc {
 	    my $desc = $1;
 	    next unless ($desc =~ /\Q$query\E/i);
 	    if ($package eq "") {
-		&main::WARN("sD: package == NULL?");
+		&::WARN("sD: package == NULL?");
 		next;
 	    }
 	    $desc{$package} = $desc;
 	    $package = "";
 	} else {
-	    &main::WARN("invalid line: '$_'.");
+	    &::WARN("invalid line: '$_'.");
 	}
     }
     close IN;
@@ -469,41 +469,41 @@ sub searchDesc {
     my @list = keys %desc;
     if (!scalar @list) {
 	my $prefix = "Debian Desc Search of '$query' ";
-	&main::performStrictReply( &main::formListReply(0, $prefix, ) );
+	&::pSReply( &::formListReply(0, $prefix, ) );
     } elsif (scalar @list == 1) {	# list = 1.
-	&main::DEBUG("list == 1; showing package info of '$list[0]'.");
+	&::DEBUG("list == 1; showing package info of '$list[0]'.");
 	&infoPackages("info", $list[0]);
     } else {				# list > 1.
 	my $prefix = "Debian Desc Search of '$query' ";
-	&main::performStrictReply( &main::formListReply(0, $prefix, @list) );
+	&::pSReply( &::formListReply(0, $prefix, @list) );
     }
 
     # show how long it took.
-    my $delta_time = &main::timedelta($start_time);
-    &main::status(sprintf("Debian: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
+    my $delta_time = &::timedelta($start_time);
+    &::status(sprintf("Debian: %.02f sec to complete query.", $delta_time)) if ($delta_time > 0);
 }
 
 ####
 # Usage: &generateIncoming();
 sub generateIncoming {
-    my $interval = $main::param{'debianRefreshInterval'};
+    my $interval = $::param{'debianRefreshInterval'};
     my $pkgfile  = "debian/Packages-incoming";
     my $idxfile  = $pkgfile.".idx";
     my $stale	 = 0;
-    $stale++ if (&main::isStale($pkgfile.".gz", $interval));
-    $stale++ if (&main::isStale($idxfile, $interval));
-    &main::DEBUG("gI: stale => '$stale'.");
+    $stale++ if (&::isStale($pkgfile.".gz", $interval));
+    $stale++ if (&::isStale($idxfile, $interval));
+    &::DEBUG("gI: stale => '$stale'.");
     return 0 unless ($stale);
 
     ### STATIC URL.
-    my %ftp = &main::ftpList("llug.sep.bnl.gov", "/pub/debian/Incoming/");
+    my %ftp = &::ftpList("llug.sep.bnl.gov", "/pub/debian/Incoming/");
 
     if (!open(PKG,">$pkgfile")) {
-	&main::ERROR("cannot write to pkg $pkgfile.");
+	&::ERROR("cannot write to pkg $pkgfile.");
 	return 0;
     }
     if (!open(IDX,">$idxfile")) {
-	&main::ERROR("cannot write to idx $idxfile.");
+	&::ERROR("cannot write to idx $idxfile.");
 	return 0;
     }
 
@@ -527,7 +527,7 @@ sub generateIncoming {
 
     system("gzip -9fv $pkgfile");	# lame fix.
 
-    &main::status("Debian: generateIncoming() complete.");
+    &::status("Debian: generateIncoming() complete.");
 }
 
 
@@ -540,7 +540,7 @@ sub getPackageInfo {
     my ($package, $file) = @_;
 
     if (! -f $file) {
-	&main::status("gPI: file $file does not exist?");
+	&::status("gPI: file $file does not exist?");
 	return 'NULL';
     }
 
@@ -601,7 +601,7 @@ sub getPackageInfo {
 		$pkg{'conflicts'} = $1;
 	    }
 
-###	    &main::DEBUG("=> '$_'.");
+###	    &::DEBUG("=> '$_'.");
 	}
 
 	# blank line.
@@ -622,17 +622,17 @@ sub getPackageInfo {
 # Usage: &infoPackages($query,$package);
 sub infoPackages {
     my ($query,$dist,$package) = ($_[0], &getDistroFromStr($_[1]));
-    my $interval = $main::param{'debianRefreshInterval'} || 7;
+    my $interval = $::param{'debianRefreshInterval'} || 7;
 
-    &main::status("Debian: Searching for package '$package' in '$dist'.");
+    &::status("Debian: Searching for package '$package' in '$dist'.");
 
     # download packages file.
     # hrm...
     my %urls = &fixDist($dist, %urlpackages);
     if ($dist ne "incoming") {
-	&main::DEBUG("deb: download 3.");
+	&::DEBUG("deb: download 3.");
 	if (!&DebianDownload($dist, %urls)) {	# no good download.
-	    &main::WARN("Debian(iP): could not download ANY files.");
+	    &::WARN("Debian(iP): could not download ANY files.");
 	}
     }
 
@@ -640,26 +640,26 @@ sub infoPackages {
     my $incoming = 0;
     my @files = &validPackage($package, $dist);
     if (!scalar @files) {
-	&main::status("Debian: no valid package found; checking incoming.");
+	&::status("Debian: no valid package found; checking incoming.");
 	@files = &validPackage($package, "incoming");
 	if (scalar @files) {
-	    &main::status("Debian: cool, it exists in incoming.");
+	    &::status("Debian: cool, it exists in incoming.");
 	    $incoming++;
 	} else {
-	    &main::msg($main::who, "Package '$package' does not exist.");
+	    &::msg($::who, "Package '$package' does not exist.");
 	    return 0;
 	}
     }
 
     if (scalar @files > 1) {
-	&main::WARN("same package in more than one file; random.");
-	&main::DEBUG("THIS SHOULD BE FIXED SOMEHOW!!!");
-	$files[0] = &main::getRandom(@files);
+	&::WARN("same package in more than one file; random.");
+	&::DEBUG("THIS SHOULD BE FIXED SOMEHOW!!!");
+	$files[0] = &::getRandom(@files);
     }
 
     if (! -f $files[0]) {
-	&main::WARN("files[0] ($files[0]) doesn't exist.");
-	&main::msg($main::who, "WARNING: $files[0] does not exist? FIXME");
+	&::WARN("files[0] ($files[0]) doesn't exist.");
+	&::msg($::who, "WARNING: $files[0] does not exist? FIXME");
 	return 'NULL';
     }
 
@@ -673,7 +673,7 @@ sub infoPackages {
     ### TODO: use fe, dump to a hash. if only one version of the package
     ###		exists. do as normal otherwise list all versions.
     if (! -f $file) {
-	&main::ERROR("D:iP: file '$file' DOES NOT EXIST!!! should never happen.");
+	&::ERROR("D:iP: file '$file' DOES NOT EXIST!!! should never happen.");
 	return 0;
     }
     my %pkg = &getPackageInfo($package, $file);
@@ -689,21 +689,21 @@ sub infoPackages {
 	    $pkg{'info'} .= ", Installed size: \002$pkg{'installed'}\002 kB";
 
 	    if ($incoming) {
-		&main::status("iP: info requested and pkg is in incoming, too.");
+		&::status("iP: info requested and pkg is in incoming, too.");
 		my %incpkg = &getPackageInfo($query, "debian/Packages-incoming");
 
 		if (scalar keys %incpkg) {
 		   $pkg{'info'} .= ". Is in incoming ($incpkg{'file'}).";
 		} else {
-		    &main::ERROR("iP: pkg $query is in incoming but we couldn't get any info?");
+		    &::ERROR("iP: pkg $query is in incoming but we couldn't get any info?");
 		}
 	    }
 	} else {
-	    &main::DEBUG("running debianCheck() due to problems (".scalar(keys %pkg).").");
+	    &::DEBUG("running debianCheck() due to problems (".scalar(keys %pkg).").");
 	    &debianCheck();
-	    &main::DEBUG("end of debianCheck()");
+	    &::DEBUG("end of debianCheck()");
 
-	    &main::msg($main::who,"Debian: Package appears to exist but I could not retrieve info about it...");
+	    &::msg($::who,"Debian: Package appears to exist but I could not retrieve info about it...");
 	    return;
 	}
     } 
@@ -728,7 +728,7 @@ sub infoPackages {
 	}
     }
 
-    &main::performStrictReply("$package: $pkg{$query}");
+    &::pSReply("$package: $pkg{$query}");
 }
 
 # Usage: &infoStats($dist);
@@ -737,15 +737,15 @@ sub infoStats {
     $dist	= &getDistro($dist);
     return unless (defined $dist);
 
-    &main::DEBUG("infoS: dist => '$dist'.");
-    my $interval = $main::param{'debianRefreshInterval'} || 7;
+    &::DEBUG("infoS: dist => '$dist'.");
+    my $interval = $::param{'debianRefreshInterval'} || 7;
 
     # download packages file if needed.
     my %urls = &fixDist($dist, %urlpackages);
-    &main::DEBUG("deb: download 4.");
+    &::DEBUG("deb: download 4.");
     if (!&DebianDownload($dist, %urls)) {
-	&main::WARN("Debian(iS): could not download ANY files.");
-	&main::msg($main::who, "Debian(iS): internal error.");
+	&::WARN("Debian(iS): could not download ANY files.");
+	&::msg($::who, "Debian(iS): internal error.");
 	return;
     }
 
@@ -754,16 +754,16 @@ sub infoStats {
     my $file;
     foreach $file (keys %urlpackages) {
 	$file =~ s/##DIST/$dist/g;	# won't work for incoming.
-	&main::DEBUG("file => '$file'.");
+	&::DEBUG("file => '$file'.");
 	if (exists $stats{$file}{'count'}) {
-	    &main::DEBUG("hrm... duplicate open with $file???");
+	    &::DEBUG("hrm... duplicate open with $file???");
 	    next;
 	}
 
 	open(IN,"zcat $file 2>&1 |");
 
 	if (! -e $file) {
-	    &main::DEBUG("iS: $file does not exist.");
+	    &::DEBUG("iS: $file does not exist.");
 	    next;
 	}
 
@@ -786,14 +786,14 @@ sub infoStats {
 		$total{'isize'}		+= $1;
 	    }
 
-###	    &main::DEBUG("=> '$_'.");
+###	    &::DEBUG("=> '$_'.");
 	}
 	close IN;
     }
 
     ### TODO: don't count ppl with multiple email addresses.
 
-    &main::performStrictReply(
+    &::pSReply(
 	"Debian Distro Stats on $dist... ".
 	"\002$total{'count'}\002 packages, ".
 	"\002".scalar(keys %{$total{'maint'}})."\002 maintainers, ".
@@ -804,7 +804,7 @@ sub infoStats {
 ### TODO: do individual stats? if so, we need _another_ arg.
 #    foreach $file (keys %stats) {
 #	foreach (keys %{$stats{$file}}) {
-#	    &main::DEBUG("  '$file' '$_' '$stats{$file}{$_}'.");
+#	    &::DEBUG("  '$file' '$_' '$stats{$file}{$_}'.");
 #	}
 #    }
 
@@ -820,9 +820,9 @@ sub infoStats {
 # Usage: &generateIndex();
 sub generateIndex {
     my (@dists)	= @_;
-    &main::status("Debian: !!! generateIndex() called !!!");
+    &::status("Debian: !!! generateIndex() called !!!");
     if (!scalar @dists or $dists[0] eq '') {
-	&main::ERROR("gI: no dists to generate index.");
+	&::ERROR("gI: no dists to generate index.");
 	return 1;
     }
 
@@ -834,24 +834,24 @@ sub generateIndex {
 	#	regenerate it, even if it's not stale.
 	# TODO: also, regenerate the index if the packages file is newer
 	#	than the index.
-	next unless (&main::isStale($idx, $main::param{'debianRefreshInterval'}));
+	next unless (&::isStale($idx, $::param{'debianRefreshInterval'}));
 	if (/^incoming$/i) {
-	    &main::DEBUG("gIndex: calling generateIncoming()!");
+	    &::DEBUG("gIndex: calling generateIncoming()!");
 	    &generateIncoming();
 	    next;
 	}
 
 	if (/^woody$/i) {
-	    &main::DEBUG("Copying old index of woody to -old");
+	    &::DEBUG("Copying old index of woody to -old");
 	    system("cp $idx $idx-old");
 	}
 
-	&main::DEBUG("gIndeX: calling DebianDownload($dist, ...).");
+	&::DEBUG("gIndeX: calling DebianDownload($dist, ...).");
 	&DebianDownload($dist, %urlpackages);
 
-	&main::status("Debian: generating index for '$dist'.");
+	&::status("Debian: generating index for '$dist'.");
 	if (!open(OUT,">$idx")) {
-	    &main::ERROR("cannot write to $idx.");
+	    &::ERROR("cannot write to $idx.");
 	    return 0;
 	}
 
@@ -860,7 +860,7 @@ sub generateIndex {
 	    $packages =~ s/##DIST/$dist/;
 
 	    if (! -e $packages) {
-		&main::ERROR("gIndex: '$packages' does not exist?");
+		&::ERROR("gIndex: '$packages' does not exist?");
 		next;
 	    }
 
@@ -885,12 +885,12 @@ sub validPackage {
     my @files;
     my $file;
 
-    &main::DEBUG("D: validPackage($package, $dist) called.");
+    &::DEBUG("D: validPackage($package, $dist) called.");
 
     my $error = 0;
     while (!open(IN, "debian/Packages-$dist.idx")) {
 	if ($error) {
-	    &main::ERROR("Packages-$dist.idx does not exist (#1).");
+	    &::ERROR("Packages-$dist.idx does not exist (#1).");
 	    return;
 	}
 
@@ -913,7 +913,7 @@ sub validPackage {
     }
     close IN;
 
-    &main::DEBUG("vP: scanned $count items in index.");
+    &::DEBUG("vP: scanned $count items in index.");
 
     return @files;
 }
@@ -929,22 +929,22 @@ sub searchPackage {
 	$warn++;
     }
 
-    &main::status("Debian: Search package matching '$query' in '$dist'.");
+    &::status("Debian: Search package matching '$query' in '$dist'.");
     unlink $file if ( -z $file);
 
     while (!open(IN, $file)) {
 	if ($dist eq "incoming") {
-	    &main::DEBUG("sP: dist == incoming; calling gI().");
+	    &::DEBUG("sP: dist == incoming; calling gI().");
 	    &generateIncoming();
 	}
 
 	if ($error) {
-	    &main::ERROR("could not generate index!!!");
+	    &::ERROR("could not generate index!!!");
 	    return;
 	}
 
 	$error++;
-	&main::DEBUG("should we be doing this?");
+	&::DEBUG("should we be doing this?");
 	&generateIndex(($dist));
     }
 
@@ -954,11 +954,11 @@ sub searchPackage {
 	if (/^\*(.*)$/) {
 	    $file = $1;
 
-	    if (&main::isStale($file, $main::param{'debianRefreshInterval'})) {
-		&main::DEBUG("STALE $file! regen.");
+	    if (&::isStale($file, $::param{'debianRefreshInterval'})) {
+		&::DEBUG("STALE $file! regen.");
 		&generateIndex(($dist));
 ###		@files = searchPackage("$query $dist");
-		&main::DEBUG("EVIL HACK HACK HACK.");
+		&::DEBUG("EVIL HACK HACK HACK.");
 		last;
 	    }
 
@@ -972,7 +972,7 @@ sub searchPackage {
     close IN;
 
     if (scalar @files and $warn) {
-	&main::msg($main::who, "searching for package name should be fully lowercase!");
+	&::msg($::who, "searching for package name should be fully lowercase!");
     }
 
     return @files;
@@ -982,13 +982,13 @@ sub getDistro {
     my $dist = $_[0];
 
     if (!defined $dist or $dist eq "") {
-	&main::DEBUG("gD: dist == NULL; dist = defaultdist.");
+	&::DEBUG("gD: dist == NULL; dist = defaultdist.");
 	$dist = $defaultdist;
     }
 
     if ($dist =~ /^(slink|hamm|rex|bo)$/i) {
-	&main::DEBUG("Debian: deprecated version ($dist).");
-	&main::msg($main::who, "Debian: deprecated distribution version.");
+	&::DEBUG("Debian: deprecated version ($dist).");
+	&::msg($::who, "Debian: deprecated distribution version.");
 	return;
     }
 
@@ -996,7 +996,7 @@ sub getDistro {
 	return $dists{$dist};
     } else {
 	if (!grep /^\Q$dist\E$/i, %dists) {
-	    &main::msg($main::who, "invalid dist '$dist'.");
+	    &::msg($::who, "invalid dist '$dist'.");
 	    return;
 	}
 
@@ -1039,13 +1039,13 @@ sub DebianFind {
     my @results = sort &searchPackage($str);
 
     if (!scalar @results) {
-	&main::Forker("debian", sub { &searchContents($str); } );
+	&::Forker("debian", sub { &searchContents($str); } );
     } elsif (scalar @results == 1) {
-	&main::status("searchPackage returned one result; getting info of package instead!");
-	&main::Forker("debian", sub { &infoPackages("info", "$results[0] $dist"); } );
+	&::status("searchPackage returned one result; getting info of package instead!");
+	&::Forker("debian", sub { &infoPackages("info", "$results[0] $dist"); } );
     } else {
 	my $prefix = "Debian Package Listing of '$str' ";
-	&main::performStrictReply( &main::formListReply(0, $prefix, @results) );
+	&::pSReply( &::formListReply(0, $prefix, @results) );
     }
 }
 
@@ -1053,13 +1053,13 @@ sub debianCheck {
     my $dir	= "debian/";
     my $error	= 0;
 
-    &main::status("debianCheck() called.");
+    &::status("debianCheck() called.");
 
     ### TODO: remove the following loop (check if dir exists before)
     while (1) {
 	last if (opendir(DEBIAN, $dir));
 	if ($error) {
-	    &main::ERROR("dC: cannot opendir debian.");
+	    &::ERROR("dC: cannot opendir debian.");
 	    return;
 	}
 	mkdir $dir, 0755;
@@ -1073,11 +1073,11 @@ sub debianCheck {
 
 	my $exit = system("gzip -t '$dir/$file'");
 	next unless ($exit);
-	&main::DEBUG("hmr... => ".(time() - (stat($file))[8])."'.");
+	&::DEBUG("hmr... => ".(time() - (stat($file))[8])."'.");
 	next unless (time() - (stat($file))[8] > 3600);
 
-	&main::DEBUG("dC: exit => '$exit'.");
-	&main::WARN("dC: '$dir/$file' corrupted? deleting!");
+	&::DEBUG("dC: exit => '$exit'.");
+	&::WARN("dC: '$dir/$file' corrupted? deleting!");
 	unlink $dir."/".$file;
 	$retval++;
     }

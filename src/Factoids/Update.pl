@@ -16,19 +16,19 @@ sub update {
     $lhs =~ s/\s+/ /g;
 
     # locked.
-    return $noreply if (&IsLocked($lhs) == 1);
+    return if (&IsLocked($lhs) == 1);
 
     # profanity.
     if (&IsParam("profanityCheck") and &hasProfanity($rhs)) {
 	&msg($who, "please, watch your language.");
-	return $noreply;
+	return;
     }
 
     # teaching.
     if (&IsFlag("t") ne "t") {
 	&msg($who, "permission denied.");
 	&status("alert: $who wanted to teach me.");
-	return $noreply;
+	return;
     }
 
     # invalid verb.
@@ -42,7 +42,7 @@ sub update {
 	length($rhs) > $param{'maxDataSize'})
     {
 	&performAddressedReply("that's too long");
-	return $noreply;
+	return;
     }
 
     #
@@ -56,14 +56,14 @@ sub update {
 	if (&dbGet("freshmeat", "name", $lhs, "name")) {
 	    &msg($who, "permission denied. (freshmeat)");
 	    &status("alert: $who wanted to teach me something that freshmeat already has info on.");
-	    return $noreply;
+	    return;
 	}
     }
 
     if (my $exists = &getFactoid($lhs)) {	# factoid exists.
 	if ($exists eq $rhs) {
 	    &performAddressedReply("i already had it that way");
-	    return $noreply;
+	    return;
 	}
 
 	if ($also) {			# 'is also'.
@@ -107,7 +107,7 @@ sub update {
 	    if (length($rhs) > $param{'maxDataSize'}) {
 		if (length($rhs) > length($exists)) {
 		    &performAddressedReply("that's too long");
-		    return $noreply;
+		    return;
 		} else {
 		    &status("Update: new length is still longer than maxDataSize but less than before, we'll let it go.");
 		}
@@ -129,7 +129,7 @@ sub update {
 
 		if (IsFlag("m") ne "m" and $author !~ /^\Q$who\E\!/i) {
 		    &msg($who, "you can't change that factoid.");
-		    return $noreply;
+		    return;
 		}
 
 		&performAddressedReply("okay");
@@ -151,7 +151,7 @@ sub update {
 		    &performStrictReply("...but \002$lhs\002 is already something else...");
 		    &status("FAILED update: <$who> \'$lhs\' =$mhs=> \'$rhs\'");
 		}
-		return $noreply;
+		return;
 	    }
 	}
     } else {			# not exists.

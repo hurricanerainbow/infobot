@@ -12,7 +12,7 @@ use strict;
 my $select = IO::Select->new;
 
 sub Wingates {
-    my $file = "$main::blootbot_base_dir/$main::param{'ircUser'}.wingate";
+    my $file = "$::blootbot_base_dir/$::param{'ircUser'}.wingate";
     my @hosts;
 
     open(IN, $file);
@@ -26,7 +26,7 @@ sub Wingates {
     foreach (@_) {
 	next if (grep /^$_$/, @hosts);
 
-	&main::DEBUG("W: _ => '$_'.");
+	&::DEBUG("W: _ => '$_'.");
 	&Wingate($_);
     }
 }
@@ -42,7 +42,7 @@ sub Wingate {
     );
 
     if (!defined $sock) {
-	&main::status("Wingate: connection refused to $host");
+	&::status("Wingate: connection refused to $host");
 	return;
     }
 
@@ -55,7 +55,7 @@ sub Wingate {
 	my $buf;
 	my $len = 0;
 	if (!defined($len = sysread($luser, $buf, 512))) {
-	    &main::status("Wingate: connection lost to $luser/$host.");
+	    &::status("Wingate: connection lost to $luser/$host.");
 	    $select->remove($luser);
 	    close($luser);
 	    next;
@@ -70,20 +70,20 @@ sub Wingate {
 	$wingate++ if ($buf =~ /^Too many connected users - try again later$/);
 
 	if ($wingate) {
-	    &main::status("Wingate: RUNNING ON $host BY $main::who.");
+	    &::status("Wingate: RUNNING ON $host BY $::who.");
 
-	    if (&main::IsParam("wingateBan")) {
-		&main::ban("*!*\@$host", "");
+	    if (&::IsParam("wingateBan")) {
+		&::ban("*!*\@$host", "");
 	    }
 
-	    if (&main::IsParam("wingateKick")) {
-		&main::kick($main::who, "", $main::param{'wingateKick'});
+	    if (&::IsParam("wingateKick")) {
+		&::kick($::who, "", $::param{'wingateKick'});
 	    }
 
-	    push(@main::wingateBad, "$host\*");
-	    &main::wingateWriteFile();
+	    push(@::wingateBad, "$host\*");
+	    &::wingateWriteFile();
 	} else {
-###	    &main::DEBUG("no wingate.");
+###	    &::DEBUG("no wingate.");
 	}
 
 	### TODO: close telnet connection correctly!

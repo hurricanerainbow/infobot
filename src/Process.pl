@@ -99,8 +99,12 @@ sub process {
 
     # User Processing, for all users.
     if ($addressed) {
-	return '$noreply from pCH'   if &parseCmdHook("main",$message);
-	return '$noreply from userC' if &userCommands() eq $noreply;
+	my $retval;
+	return 'returned from pCH'   if &parseCmdHook("main",$message);
+
+	$retval	= &userCommands();
+	return unless (defined $retval);
+	return if ($retval eq $noreply);
     }
 
     ###
@@ -215,8 +219,8 @@ sub process {
 	}
 
 	my $er = &Modules();
-	if ($er =~ /\S/) {
-	    &performStrictReply($er) if ($er ne $noreply);
+	if (!defined $er or $er ne $noreply) {
+	    &performStrictReply($er);
 	    return 'SOMETHING 1';
 	}
 
@@ -420,7 +424,7 @@ sub FactoidStuff {
 		my $author = &getFactInfo($from, "created_by");
 		if (&IsFlag("m") and $author =~ /^\Q$who\E\!/i) {
 		    &msg($who, "It's not yours to modify.");
-		    return $noreply;
+		    return;
 		}
 
 		if ($_ = &getFactoid($to)) {
@@ -511,13 +515,14 @@ sub FactoidStuff {
     }
 
     my $result = &doQuestion($message);
-
-    return 'result is $noreply' if ($result eq $noreply);
+    if (!defined $result or $result eq $noreply) {
+	return 'result from doQ undef.';
+    }
 
     if (defined $result and $result ne "") {		# question.
 	&status("question: <$who> $message");
 	$count{'Question'}++;
-    } elsif (&IsParam("perlMath") and $addressed) {	# perl math.
+    } elsif (&IsChanConf("perlMath") > 0 and $addressed) { # perl math.
 	&loadMyModule("perlMath");
 	my $newresult = &perlMath();
 
@@ -537,7 +542,7 @@ sub FactoidStuff {
 	}
 
 	# do the statement.
-	if ($_ = &doStatement($message)) {
+	if (defined &doStatement($message)) {
 	    return;
 	}
 

@@ -176,13 +176,13 @@ sub Topic {
     ### CMD: ADD:
     if ($args eq "") {
 	&help("topic add");
-	return $noreply;
+	return;
     }
 
     # heh, joeyh. 19990819. -xk
     if ($who =~ /\|\|/) {
 	&msg($who, "error: you have an invalid nick, loser!");
-	return $noreply;
+	return;
     }
 
     my @prev = &topicDecipher($chan);
@@ -200,12 +200,12 @@ sub Topic {
 
     if ($topiccount == 0) {
 	&msg($who, "No topic set.");
-	return $noreply;
+	return;
     }
 
     if ($args eq "") {
 	&help("topic del");
-	return $noreply;
+	return;
     }
 
     $args =  ",".$args.",";
@@ -217,7 +217,7 @@ sub Topic {
 
     if ($args !~ /[\,\-\d]/) {
 	&msg($who, "error: Invalid argument ($args).");
-	return $noreply;
+	return;
     }
 
     foreach (split ",", $args) {
@@ -234,7 +234,7 @@ sub Topic {
 	    push(@delete, $1);
 	} else {
 	    &msg($who, "error: Invalid sub-argument ($_).");
-	    return $noreply;
+	    return;
 	}
 
 	$topic{$chan}{'What'} = "Deleted ".join("/",@delete);
@@ -242,7 +242,7 @@ sub Topic {
 	foreach (@delete) {
 	  if ($_ > $topiccount || $_ < 1) {
 	    &msg($who, "error: argument out of range. (max: $topiccount)");
-	    return $noreply;
+	    return;
 	  }
 	  # skip if already deleted.
 	  # only checked if x-y range is given.
@@ -268,7 +268,7 @@ sub Topic {
     my @topics	= &topicDecipher($chan);
     if (!scalar @topics) {
 	&msg($who, "No topics for \002$chan\002.");
-	return $noreply;
+	return;
     }
 
     &msg($who, "Topics for \002$chan\002:");
@@ -289,7 +289,7 @@ sub Topic {
 
     if ($args eq "") {
 	&help("topic mod");
-	return $noreply;
+	return;
     }
 
     # a warning message instead of halting. we kind of trust the user now.
@@ -301,24 +301,25 @@ sub Topic {
 
     # SAR patch. mu++
     if ($args =~ m|^\s*s([/,#])(.+?)\1(.*?)\1([a-z]*);?\s*$|) {
-	my ($delim, $op, $np, $flags) = ($1,quotemeta $2,$3,$4);
+	my ($delim, $op, $np, $flags) = ($1,$2,$3,$4);
 
 	if ($flags !~ /^(g)?$/) {
 	  &msg($who, "error: Invalid flags to regex.");
-	  return $noreply;
+	  return;
 	}
 
 	my $topic = $topic{$chan}{'Current'};
 
-	if (($flags eq "g" and $topic =~ s/$op/$np/g) ||
-	    ($flags eq ""  and $topic =~ s/$op/$np/)) {
+	### TODO: use m### to make code safe!
+	if (($flags eq "g" and $topic =~ s/\Q$op\E/$np/g) ||
+	    ($flags eq ""  and $topic =~ s/\Q$op\E/$np/)) {
 
 	  $_ = "Modifying topic with sar s/$op/$np/.";
 	  &topicNew($chan, $topic, $_, $topicUpdate);
 	} else {
 	  &msg($who, "warning: regex not found in topic.");
 	}
-	return $noreply;
+	return;
     }
 
     &msg($who, "error: Invalid regex. Try s/1/2/, s#3#4#...");
@@ -328,7 +329,7 @@ sub Topic {
 
     if ($args eq "") {
 	&help("topic mv");
-	return $noreply;
+	return;
     }
 
     if ($args =~ /^(first|last|\d+)\s+(before|after|swap)\s+(first|last|\d+)$/i) {
@@ -339,7 +340,7 @@ sub Topic {
 
 	if ($topiccount == 1) {
 	  &msg($who, "error: impossible to move the only subtopic, dumbass.");
-	  return $noreply;
+	  return;
 	}
 
 	# Is there an easier way to do this?
@@ -350,12 +351,12 @@ sub Topic {
 
 	if ($from > $topiccount || $to > $topiccount || $from < 1 || $to < 1) {
 	  &msg($who, "error: <from> or <to> is out of range.");
-	  return $noreply;
+	  return;
 	}
 
 	if ($from == $to) {
 	  &msg($who, "error: <from> and <to> are the same.");
-	  return $noreply;
+	  return;
 	}
 
 	$topic{$chan}{'What'} = "Move $from to $to";
@@ -367,7 +368,7 @@ sub Topic {
 
 	  $_ = "Swapped #\002$from\002 with #\002$to\002.";
 	  &topicNew($chan, &topicCipher(@subtopics), $_, $topicUpdate);
-	  return $noreply;
+	  return;
 	}
 
 	# action != swap:
@@ -396,7 +397,7 @@ sub Topic {
 	$_ = "Moved #\002$from\002 $action #\002$to\002.";
 	&topicNew($chan, &topicCipher(@subtopics), $_, $topicUpdate);
 
-	return $noreply;
+	return;
     }
 
     &msg($who, "Invalid arguments.");
@@ -419,7 +420,7 @@ sub Topic {
     ### CMD: HISTORY:
     if (!scalar @{$topic{$chan}{'History'}}) {
 	&msg($who, "Sorry, no topics in history list.");
-	return $noreply;
+	return;
     }
 
     &msg($who, "History of topics on \002$chan\002:");
@@ -436,7 +437,7 @@ sub Topic {
     ### CMD: RESTORE:
     if ($args eq "") {
 	&help("topic restore");
-	return $noreply;
+	return;
     }
 
     $topic{$chan}{'What'} = "Restore topic $args";
@@ -445,7 +446,7 @@ sub Topic {
     if ($args =~ /^last$/i) {
 	if (${$topic{$chan}{'History'}}[0] eq $topic{$chan}{'Current'}) {
 	    &msg($who,"error: cannot restore last topic because it's mine.");
-	    return $noreply;
+	    return;
 	}
 	$args = 1;
     }
@@ -453,13 +454,13 @@ sub Topic {
     if ($args =~ /\d+/) {
 	if ($args > $#{$topic{$chan}{'History'}} || $args < 1) {
 	    &msg($who, "error: argument is out of range.");
-	    return $noreply;
+	    return;
 	}
 
 	$_ = "Changing topic according to request.";
 	&topicNew($chan, ${$topic{$chan}{'History'}}[$args-1], $_, $topicUpdate);
 
-	return $noreply;
+	return;
     }
 
     &msg($who, "error: argument is not positive integer.");
@@ -488,13 +489,13 @@ sub Topic {
     if ($cmd ne "" and $cmd !~ /^help/i) {
 	&msg($who, "Invalid command [$cmd].");
 	&msg($who, "Try 'help topic'.");
-	return $noreply;
+	return;
     }
 
     &help("topic");
   }
 
-  return $noreply;
+  return;
 }
 
 1;

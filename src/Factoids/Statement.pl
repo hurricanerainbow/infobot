@@ -11,7 +11,6 @@
 ##
 ##	otherwise return
 ##		- null for confused.
-##		- NOREPLY not to respond.
 ##
 
 if (&IsParam("useStrict")) { use strict; }
@@ -23,7 +22,7 @@ sub doStatement {
     $in =~ s/^no([, ]+)//i;	# 'no, '.
 
     # check if we need to be addressed and if we are
-    return $noreply unless ($learnok);
+    return unless ($learnok);
 
     my($urlType) = "";
 
@@ -43,10 +42,10 @@ sub doStatement {
     # acceptUrl.
     if (&IsParam("acceptUrl")) {
 	if ($param{'acceptUrl'} eq 'REQUIRE') {		# require url type.
-	    return $noreply if ($urlType eq "");
+	    return if ($urlType eq "");
 	} elsif ($param{'acceptUrl'} eq 'REJECT') {
 	    &status("REJECTED URL entry") if (&IsParam("VERBOSITY"));
-	    return $noreply unless ($urlType eq "");
+	    return unless ($urlType eq "");
 	} else {
 	    # OPTIONAL
 	}
@@ -66,7 +65,7 @@ sub doStatement {
 
 	# break if either lhs or rhs is NULL.
 	if ($lhs eq "" or $rhs eq "") {
-	    return $noreply;
+	    return;
 	}
 
 	# lets check if it failed.
@@ -75,10 +74,10 @@ sub doStatement {
 		&status("IGNORE statement: <$who> $message");
 		&performReply( &getRandom(keys %{$lang{'confused'}}) );
 	    }
-	    return $noreply;
+	    return;
 	}
 
-	return $noreply if (!$addressed and $lhs =~ /\s+/);
+	return if (!$addressed and $lhs =~ /\s+/);
 
 	&status("statement: <$who> $message");
 
@@ -96,14 +95,14 @@ sub doStatement {
 	    if ($ord > 170 and $ord < 220) {
 		&status("statement: illegal character '$_' $ord.");
 		&performAddressedReply("i'm not going to learn illegal characters");
-		return $noreply;
+		return;
 	    }
 	}
 
 	return &update($lhs, $mhs, $rhs);
     }
 
-    return '';
+    return "CONTINUE";
 }
 
 1;

@@ -82,6 +82,8 @@ sub addForked {
 	return 0;
     }
 
+    &DEBUG("forked => ".scalar(keys %forked) );
+
     foreach (keys %forked) {
 	my $time = time() - $forked{$_}{Time};
 	next unless ($time > $forker_timeout);
@@ -92,7 +94,7 @@ sub addForked {
     }
 
     my $count = 0;
-    while (scalar keys %forked > 2) {	# 2 or more == fail.
+    while (scalar keys %forked > 1) {	# 2 or more == fail.
 	sleep 1;
 
 	if ($count > 3) {	# 3 seconds.

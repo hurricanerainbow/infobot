@@ -12,10 +12,10 @@ use strict;
 
 sub Quote {
     my $stock = shift;
-    my @results = &main::getURL("http://quote.yahoo.com/q?s=$stock&d=v1");
+    my @results = &::getURL("http://quote.yahoo.com/q?s=$stock&d=v1");
 
     if (!scalar @results) {
-	&main::msg($main::who, "i could not get a stock quote :(");
+	&::msg($::who, "i could not get a stock quote :(");
     }
 
     my $flathtml = join(" ", @results);
@@ -35,7 +35,7 @@ sub Quote {
 	$reply = "i couldn't get the quote for $stock. sorry. :(";
     }
 
-    &main::performStrictReply($reply);
+    &::performStrictReply($reply);
 }
 
 1;
