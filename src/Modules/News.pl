@@ -118,7 +118,7 @@ sub Parse {
     } elsif ($what =~ /^(un)?notify$/i) {
 	my $state = ($1) ? 0 : 1;
 
-	# TODO: don't notify even if "news" is called.
+	# TODO: don't notify even if "News" is called.
 	if (!&::IsChanConf("newsNotifyAll")) {
 	    &::DEBUG("news: chan => $chan, ::chan => $::chan.");
 	    &::notice($who, "not available for this channel or disabled altogether.");
