@@ -197,40 +197,44 @@ sub loadMyModulesNow {
 
 ### rename to moduleReloadAll?
 sub reloadAllModules {
+    my $retval = "";
+
     &VERB("Module: reloading all.",2);
 
     # obscure usage of map and regex :)
     foreach (map { s/.*?\/?src/src/; $_ } keys %moduleAge) {
-        &reloadModule($_);
+        $retval .= &reloadModule($_);
     }
 
     &VERB("Module: reloading done.",2);
+    return $retval;
 }
 
 ### rename to modulesReload?
 sub reloadModule {
     my ($mod)	= @_;
     my $file	= (grep /\/$mod/, keys %INC)[0];
+    my $retval = "";
 
     # don't reload if it's not our module.
     if ($mod =~ /::/ or $mod !~ /pl$/) {
 	&VERB("Not reloading $mod.",3);
-	return;
+	return $retval;
     }
 
     if (!defined $file) {
 	&WARN("rM: Cannot reload $mod since it was not loaded anyway.");
-	return;
+	return $retval;
     }
 
     if (! -f $file) {
 	&ERROR("rM: file '$file' does not exist?");
-	return;
+	return $retval;
     }
 
     if (grep /$mod/, @myModulesReloadNot) {
 	&DEBUG("rM: should not reload $mod");
-	return;
+	return $retval;
     }
 
     my $age = (stat $file)[9];
@@ -238,13 +242,13 @@ sub reloadModule {
     if (!exists $moduleAge{$file}) {
 	&DEBUG("Looks like $file was not loaded; fixing.");
     } else {
-	return if ($age == $moduleAge{$file});
+	return $retval if ($age == $moduleAge{$file});
 
 	if ($age < $moduleAge{$file}) {
 	    &WARN("rM: we're not gonna downgrade '$file'; use touch.");
 	    &DEBUG("age => $age");
 	    &DEBUG("mA{$file} => $moduleAge{$file}");
-	    return;
+	    return $retval;
 	}
 
 	my $dc  = &Time2String($age   - $moduleAge{$file});
@@ -259,13 +263,15 @@ sub reloadModule {
     delete $INC{$file};
     eval "require \"$file\"";	# require or use?
     if (@$) {
-	&DEBUG("rM: failure: @$");
+	&DEBUG("rM: failure: @$ ");
     } else {
 	my $basename = $file;
 	$basename =~ s/^.*\///;
 	&status("Module: reloaded $basename");
+	$retval = " $basename";
 	$moduleAge{$file} = $age;
     }
+    return $retval;
 }
 
 ###
