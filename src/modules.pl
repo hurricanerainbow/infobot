@@ -22,7 +22,6 @@ if ($@) {
 ### MODULES.
 %myModules = (
 	"countdown"	=> "Countdown.pl",
-	"allowDNS"	=> "DNS.pl",
 	"debian"	=> "Debian.pl",
 	"debianExtra"	=> "DebianExtra.pl",
 	"dict"		=> "Dict.pl",
@@ -323,15 +322,13 @@ sub loadMyModule {
     }
 }
 
-### this chews 3megs on potato, 300 kB on slink.
-#$no_syscall = 0;
-#eval "require 'sys/syscall.ph'";
-#if ($@) {
-#    &WARN("sys/syscall.ph has not been installed//generated.
-#gettimeofday will use time() instead");
-    $no_syscall = 1;
-#}
-&showProc(" (syscall)");
+$no_timehires = 0;
+eval "use Time::HiRes qw(gettimeofday tv_interval)";
+if ($@) {
+    &WARN("No Time::HiRes?");
+    $no_timehires = 1;
+}
+&showProc(" (Time::HiRes)");
 
 sub AUTOLOAD {
     &ERROR("UNKNOWN FUNCTION CALLED: $AUTOLOAD");
