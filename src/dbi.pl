@@ -515,10 +515,7 @@ sub sumKey {
 sub randKey {
     my ($table, $select) = @_;
     my $rand	= int(rand(&countKeys($table) - 1));
-    my $query	= "SELECT $select FROM $table LIMIT $rand,1";
-    if ($param{DBType} =~ /^pg/i) {
-	$query =~ s/$rand,1/1,$rand/;
-    }
+    my $query	= "SELECT $select FROM $table LIMIT 1 OFFSET $rand";
 
     my $sth	= $dbh->prepare($query);
     &SQLDebug($query);
