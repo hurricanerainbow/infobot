@@ -29,8 +29,10 @@ sub addCmdHook {
 # RUN IF ADDRESSED.
 sub parseCmdHook {
     my ($hashname, $line) = @_;
-    my @args	= split(' ', $line);
-    my $cmd	= shift(@args);
+    $line =~ /^(\S+)( (.*))?$/;
+    my @args	= split(' ', $3 || '');
+    my $flatarg	= $3;
+    my $cmd	= $1;	# command name is whitespaceless.
 
     &shmFlush();
 
@@ -47,6 +49,11 @@ sub parseCmdHook {
 
 	&DEBUG("pCH(hooks_$hashname): $cmd matched $ident");
 	my %hash = %{ ${"hooks_$hashname"}{$ident} };
+
+	if (!scalar keys %hash) {
+	    &WARN("CmdHook: hash is NULL?");
+	    return 1;
+	}
 
 	if (!exists $hash{CODEREF}) {
 	    &ERROR("CODEREF undefined for $cmd or $ident.");
@@ -69,8 +76,17 @@ sub parseCmdHook {
 	    return $noreply unless (&hasParam($hash{'Identifier'}));
 	}
 
+	### USER FLAGS.
+	if (exists $hash{'UserFlag'}) {
+	    return $noreply unless (&hasFlag($hash{'UserFlag'}));
+	}
+
 	### FORKER,IDENTIFIER,CODEREF.
 	if (exists $hash{'Forker'}) {
+	    $hash{'Identifier'} .= "-" if ($hash{'Forker'} eq "NULL");
+
+	    ### FLAT_ARG / ARRAY option.
+
 	    &Forker($hash{'Identifier'}, sub { \&{$hash{'CODEREF'}}(@args) } );
 	} else {
 	    if (exists $hash{'Module'}) {
@@ -79,9 +95,12 @@ sub parseCmdHook {
 
 	    ### TODO: check if CODEREF exists.
 
-### ANY PROBLEMS WITH THIS? if so, add option to do either.
-###	    &{$hash{'CODEREF'}}(@args);
-	    &{$hash{'CODEREF'}}(join ' ', @args);
+	    if (exists $hash{'FlatArg'} and $hash{'FlatArg'} == 0) {
+		&status("CmdHook: using args as array.");
+		&{$hash{'CODEREF'}}(@args);
+	    } else {
+		&{$hash{'CODEREF'}}($flatarg);
+	    }
 	}
 
 	### CMDSTATS.

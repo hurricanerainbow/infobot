@@ -23,6 +23,16 @@ use vars qw(%channels %chanstats %cmdstats);
 	Forker => 1, 'Identifier' => 'factoids', ) );
 &addCmdHook("main", 'help', ('CODEREF' => 'help', 
 	'Cmdstats' => 'Help', ) );
+&addCmdHook("main", 'karma', ('CODEREF' => 'karma', ) );
+&addCmdHook("main", 'ignorelist', ('CODEREF' => 'ignorelist', ) );
+&addCmdHook("main", 'i?spell', ('CODEREF' => 'ispell', 
+	Help => 'spell', Identifier => 'spell', ) );
+&addCmdHook("main", 'd?nslookup', ('CODEREF' => 'DNS', 
+	Help => 'nslookup', Identifier => 'allowDNS',
+	Forker => "NULL", ) );
+&addCmdHook("main", 'tell|explain', ('CODEREF' => 'tell', 
+	Help => 'tell', Identifier => 'allowTelling', ) );
+
 
 &status("CMD: loaded ".scalar(keys %hooks_main)." MAIN command hooks.");
 
@@ -181,6 +191,218 @@ sub factstats {
     } );
 }
 
+sub karma {
+    my $target	= lc( shift || $who );
+    my $karma	= &dbGet("karma", "nick",$target,"karma") || 0;
+
+    if ($karma != 0) {
+	&performStrictReply("$target has karma of $karma");
+    } else {
+	&performStrictReply("$target has neutral karma");
+    }
+}
+
+sub ignorelist {
+    &status("$who asked for the ignore list");
+
+    my $time	= time();
+    my $count	= scalar(keys %ignoreList);
+    my $counter	= 0;
+    my @array;
+
+    if ($count == 0) {
+	&performStrictReply("no one in the ignore list!!!");
+	return;
+    }
+
+    foreach (sort keys %ignoreList) {
+	my $str;
+
+	if ($ignoreList{$_} != 1) {	# temporary ignore.
+	    my $expire = $ignoreList{$_} - $time;
+	    if (defined $expire and $expire < 0) {
+		&status("ignorelist: deleting $_.");
+		delete $ignoreList{$_};
+	    } else {
+		$str = "$_ (". &Time2String($expire) .")";
+	    }
+	} else {
+	    $str = $_;
+	}
+
+	push(@array,$str);
+	$counter++;
+	if (scalar @array >= 8 or $counter == $count) {
+	    &msg($who, &formListReply(0, "Ignore list ", @array) );
+	    @array = ();
+	}
+    }
+}
+
+sub ispell {
+    my $query = shift;
+
+    if (! -x "/usr/bin/spell") {
+	&msg($who, "no binary found.");
+	return;
+    }
+
+    if (!&validExec($query)) {
+	&msg($who,"argument appears to be fuzzy.");
+	return;
+    }
+
+    my $reply = "I can't find alternate spellings for '$query'";
+
+    foreach (`/bin/echo '$query' | /usr/bin/ispell -a -S`) {
+	chop;
+	last if !length;		# end of query.
+
+	if (/^\@/) {		# intro line.
+	    next;
+	} elsif (/^\*/) {		# possibly correct.
+	    $reply = "'$query' may be spelled correctly";
+	    last;
+	} elsif (/^\&/) {		# possible correction(s).
+	    s/^\& (\S+) \d+ \d+: //;
+	    my @array = split(/,? /);
+
+	    $reply = "possible spellings for $query: @array";
+	    last;
+	} elsif (/^\+/) {
+	    &DEBUG("spell: '+' found => '$_'.");
+	    last;
+	} else {
+	    &DEBUG("spell: unknown: '$_'.");
+	}
+    }
+
+    &performStrictReply($reply);
+}
+
+sub nslookup {
+    my $query = shift;
+    &status("DNS Lookup: $query");
+    &DNS($query);
+}
+
+sub tell {
+    my $args = shift;
+    my ($target, $tell_obj) = ('','');
+    my $reply;
+
+    ### is this fixed elsewhere?
+    $args =~ s/\s+/ /g;		# fix up spaces.
+    $args =~ s/^\s+|\s+$//g;	# again.
+
+    # this one catches most of them
+    if ($args =~ /^(\S+) about (.*)$/i) {
+	$target		= lc $1;
+	$tell_obj	= $2;
+
+	$tell_obj	= $who	if ($tell_obj =~ /^(me|myself)$/i);
+	$query		= $tell_obj;
+    } elsif ($args =~ /^(\S+) where (\S+) can (\S+) (.*)$/i) {
+	# i'm sure this could all be nicely collapsed
+	$target		= lc $1;
+	$tell_obj	= $4;
+	$query		= $tell_obj;
+
+    } elsif ($args =~ /^(\S+) (what|where) (.*?) (is|are)[.?!]*$/i) {
+	$target		= lc $1;
+	$qWord		= $2;
+	$tell_obj	= $3;
+	$verb		= $4;
+	$query		= "$qWord $verb $tell_obj";
+
+    } elsif ($args =~ /^(.*?) to (\S+)$/i) {
+	$target		= lc $3;
+	$tell_obj	= $2;
+	$query		= $tell_obj;
+    }
+
+    # check target type. Deny channel targets.
+    if ($target !~ /^$mask{nick}$/ or $target =~ /^$mask{chan}$/) {
+	&msg($who,"No, $who, I won't. (target invalid?)");
+	return;
+    }
+
+    $target	= $talkchannel  if ($target =~ /^us$/i);
+    $target	= $who		if ($target =~ /^(me|myself)$/i);
+
+    &status("target: $target query: $query");  
+
+    # "intrusive".
+    if ($target !~ /^$mask{chan}$/ and !&IsNickInAnyChan($target)) {
+	&msg($who, "No, $target is not in any of my chans.");
+	return $noreply;
+    }
+
+    ### TODO: don't "tell" if sender is not in target's channel.
+
+    # self.
+    if ($target eq $ident) {	# lc?
+	&msg($who, "Isn't that a bit silly?");
+	return $noreply;
+    }
+
+    # ...
+    my $result = &doQuestion($tell_obj);
+    return if ($result eq $noreply);
+
+    # no such factoid.
+    if ($result eq "") {
+	&msg($who, "i dunno what is '$tell_obj'.");
+	return;
+    }
+
+    # success.
+    &status("tell: <$who> telling $target about $tell_obj.");
+    if ($who ne $target) {
+	&msg($who, "told $target about $tell_obj ($result)");
+	$reply = "$who wants you to know: $result";
+    } else {
+	$reply = "telling yourself: $result";
+    }
+
+    &msg($target, $reply);
+}
+
+sub DNS {
+    my $dns = shift;
+    my($match, $x, $y, $result);
+    my $pid;
+
+    if ($dns =~ /(\d+\.\d+\.\d+\.\d+)/) {
+	&status("DNS query by IP address: $in");
+	$match = $1;
+	$y = pack('C4', split(/\./, $match));
+	$x = (gethostbyaddr($y, &AF_INET));
+
+	if ($x !~ /^\s*$/) {
+	    $result = $match." is ".$x unless ($x =~ /^\s*$/);
+	} else {
+	    $result = "I can't seem to find that address in DNS";
+        }
+    } else {
+	&status("DNS query by name: $in");
+	$x = join('.',unpack('C4',(gethostbyname($in))[4]));
+
+	if ($x !~ /^\s*$/) {
+	    $result = $in." is ".$x;
+	} else {
+	    $result = "I can\'t find that machine name";
+	}
+    }
+
+    &performReply($result);
+}
+
+
+###
+### amalgamated commands.
+###
+
 sub userCommands {
     # conversion: ascii.
     if ($message =~ /^(asci*|chr) (\d+)$/) {
@@ -249,126 +471,6 @@ sub userCommands {
     }
 
 
-    # karma.
-    if ($message =~ /^karma(\s+(\S+))?\??$/i) {
-	return '' unless (&IsParam("karma"));
-
-	my $target = lc $2 || lc $who;
-
-	my $karma = &dbGet("karma", "nick",$target,"karma") || 0;
-	if ($karma != 0) {
-	    &performStrictReply("$target has karma of $karma");
-	} else {
-	    &performStrictReply("$target has neutral karma");
-	}
-
-	return $noreply;
-    }
-
-    # ignorelist.
-    if ($message =~ /^ignorelist$/i) {
-	&status("$who asked for the ignore list");
-
-	my $time = time();
-	my $count = scalar(keys %ignoreList);
-	my $counter = 0;
-	my @array;
-
-	if ($count == 0) {
-	    &performStrictReply("no one in the ignore list!!!");
-	    return $noreply;
-	}
-
-	foreach (sort keys %ignoreList) {
-	    my $str;
-
-	    if ($ignoreList{$_} != 1) {	# temporary ignore.
-		my $expire = $ignoreList{$_} - $time;
-		if (defined $expire and $expire < 0) {
-		    &status("ignorelist: deleting $_.");
-		    delete $ignoreList{$_};
-		} else {
-		    $str = "$_ (". &Time2String($expire) .")";
-		}
-	    } else {
-		$str = $_;
-	    }
-
-	    push(@array,$str);
-	    $counter++;
-	    if (scalar @array >= 8 or $counter == $count) {
-		&msg($who, &formListReply(0, "Ignore list ", @array) );
-		@array = ();
-	    }
-	}
-
-	return $noreply;
-    }
-
-    # ispell.
-    if ($message =~ /^spell(\s+(.*))?$/) {
-	return '' unless (&IsParam("spell"));
-	my $query = $2;
-
-	if ($query eq "") {
-	    &help("spell");
-	    return $noreply;
-	}
-
-	if (! -x "/usr/bin/spell") {
-	    &msg($who, "no binary found.");
-	    return $noreply;
-	}
-
-	if (!&validExec($query)) {
-	    &msg($who,"argument appears to be fuzzy.");
-	    return $noreply;
-	}
-
-	my $reply = "I can't find alternate spellings for '$query'";
-
-	foreach (`echo '$query' | ispell -a -S`) {
-	    chop;
-	    last if !length;		# end of query.
-
-	    if (/^\@/) {		# intro line.
-		next;
-	    } elsif (/^\*/) {		# possibly correct.
-		$reply = "'$query' may be spelled correctly";
-		last;
-	    } elsif (/^\&/) {		# possible correction(s).
-		s/^\& (\S+) \d+ \d+: //;
-		my @array = split(/,? /);
-
-		$reply = "possible spellings for $query: @array";
-		last;
-	    } elsif (/^\+/) {
-		&DEBUG("spell: '+' found => '$_'.");
-		last;
-	    } else {
-		&DEBUG("spell: unknown: '$_'.");
-	    }
-	}
-
-	&performStrictReply($reply);
-
-	return $noreply;
-    }
-
-    # nslookup.
-    if ($message =~ /^(dns|nslookup)(\s+(\S+))?$/i) {
-	return '' unless (&IsParam("allowDNS"));
-
-	if ($3 eq "") {
-	    &help("nslookup");
-	    return $noreply;
-	}
-
-	&status("DNS Lookup: $3");
-	&loadMyModule($myModules{'allowDNS'});
-	&DNS($3);
-	return $noreply;
-    }
 
     # cycle.
     if ($message =~ /^(cycle)(\s+(\S+))?$/i) {
@@ -460,6 +562,32 @@ sub userCommands {
 	return $noreply;
     }
 
+    # cpustats.
+    if ($message =~ /^cpustats$/i) {
+	if ($^O !~ /linux/) {
+	    &ERROR("cpustats: your OS is not supported yet.");
+	    return $noreply;
+	}
+
+	### poor method to get info out of file, please fix.
+	open(STAT,"/proc/$$/stat");
+	my $line = <STAT>;
+	chop $line;
+	my @data = split(/ /, $line);
+	close STAT;
+
+	# utime(13) + stime(14).
+	my $cpu_usage	= sprintf("%.01f", ($data[13]+$data[14]) / 100 );
+	my $time	= time() - $^T;
+	my $perc	= sprintf("%.01f", $cpu_usage*100/$time );
+
+	&performStrictReply("Total CPU usage: $cpu_usage s ... Percentage CPU used: $perc %");
+	&DEBUG("15 => $data[15] (cutime)");
+	&DEBUG("16 => $data[16] (cstime)");
+
+	return $noreply;
+    }
+
     # ircstats.
     if ($message =~ /^ircstats$/i) {
 	my $count	= $ircstats{'ConnectCount'};
@@ -512,97 +640,6 @@ sub userCommands {
 	  "I'm using about \002$memusage\002 ".
 	  "kB of memory."
 	);
-
-	return $noreply;
-    }
-
-    # tell.
-    if ($message =~ /^(tell|explain)(\s+(.*))?$/) {
-	return '' unless (&IsParam("allowTelling"));
-
-	my $args = $3;
-	if (!defined $args) {
-	    &help("tell");
-	    return $noreply;
-	}
-
-	my ($target, $tell_obj) = ('','');
-	my $reply;
-	### is this fixed elsewhere?
-	$args =~ s/\s+/ /g;		# fix up spaces.
-	$args =~ s/^\s+|\s+$//g;	# again.
-
-	# this one catches most of them
-	if ($args =~ /^(\S+) about (.*)$/i) {
-	    $target	= lc $1;
-	    $tell_obj	= $2;
-
-	    $tell_obj	= $who	if ($tell_obj =~ /^(me|myself)$/i);
-	    $query	= $tell_obj;
-        } elsif ($args =~ /^(\S+) where (\S+) can (\S+) (.*)$/i) {
-	    # i'm sure this could all be nicely collapsed
-	    $target	= lc $1;
-	    $tell_obj	= $4;
-	    $query	= $tell_obj;
-
-        } elsif ($args =~ /^(\S+) (what|where) (.*?) (is|are)[.?!]*$/i) {
-	    $target	= lc $1;
-	    $qWord	= $2;
-	    $tell_obj	= $3;
-	    $verb	= $4;
-	    $query	= "$qWord $verb $tell_obj";
-
-	} elsif ($args =~ /^(.*?) to (\S+)$/i) {
-	    $target	= lc $3;
-	    $tell_obj	= $2;
-	    $query	= $tell_obj;
-        }
-
-	# check target type. Deny channel targets.
-	if ($target !~ /^$mask{nick}$/ or $target =~ /^$mask{chan}$/) {
-	    &msg($who,"No, $who, I won't. (target invalid?)");
-	    return $noreply;
-	}
-
-	$target	= $talkchannel  if ($target =~ /^us$/i);
-	$target = $who		if ($target =~ /^(me|myself)$/i);
-
-	&status("target: $target query: $query");  
-
-	# "intrusive".
-	if ($target !~ /^$mask{chan}$/ and !&IsNickInAnyChan($target)) {
-	    &msg($who, "No, $target is not in any of my chans.");
-	    return $noreply;
-	}
-
-	### TODO: don't "tell" if sender is not in target's channel.
-
-	# self.
-	if ($target eq $ident) {	# lc?
-	    &msg($who, "Isn't that a bit silly?");
-	    return $noreply;
-	}
-
-	# ...
-	my $result = &doQuestion($tell_obj);
-	return $noreply if ($result eq $noreply);
-
-	# no such factoid.
-	if ($result eq "") {
-	    &msg($who, "i dunno what is '$tell_obj'.");
-	    return $noreply;
-	}
-
-	# success.
-	&status("tell: <$who> telling $target about $tell_obj.");
-	if ($who ne $target) {
-	    &msg($who, "told $target about $tell_obj ($result)");
-	    $reply = "$who wants you to know: $result";
-	} else {
-	    $reply = "telling yourself: $result";
-	}
-
-	&msg($target, $reply);
 
 	return $noreply;
     }
