@@ -77,8 +77,6 @@ sub loadCoreModules {
 }
 
 sub loadDBModules {
-    &status("Loading DB modules...");
-
     my $f = "$bot_src_dir/modules.pl";
     $moduleAge{$f} = (stat $f)[9];
 
@@ -88,13 +86,11 @@ sub loadDBModules {
 	    &ERROR("libdbd-mysql-perl is not installed!");
 	    exit 1;
 	}
-	&showProc(" (DBI // mysql)");
-
-	&status("  using MySQL support.");
+	&status("Loading MySQL support.");
 	$f = "$bot_src_dir/db_mysql.pl";
 	require $f;
 	$moduleAge{$f} = (stat $f)[9];
-
+	&showProc(" (DBI // mysql)");
     } elsif ($param{'DBType'} =~ /^pgsql$/i) {
 #	eval "use Pg";
 	eval "use DBI";
@@ -102,17 +98,16 @@ sub loadDBModules {
 	    &ERROR("libpgperl is not installed!");
 	    exit 1;
 	}
-	&showProc(" (pgsql)");
-
-	&status("  using pgsql support.");
+	&status("Loading pgsql support.");
 	require "$bot_src_dir/db_pgsql.pl";
-
+	&showProc(" (pgsql)");
     } elsif ($param{'DBType'} =~ /^dbm$/i) {
-
-	&status("  using Berkeley DBM support.");
-	require "$bot_src_dir/db_dbm.pl";
+	&status("Loading Berkeley DBM support.");
+	$f = "$bot_src_dir/db_dbm.pl";
+	require $f;
+	$moduleAge{$f} = (stat $f)[9];
+	&showProc(" $bot_src_dir/db_dbm.pl");
     } else {
-
 	&status("DB support DISABLED.");
 	return;
     }
