@@ -2,15 +2,17 @@
 # by the xk.
 ###
 
-require "src/logger.pl";
 require "src/core.pl";
+require "src/logger.pl";
+require "src/modules.pl";
 
 require "src/Misc.pl";
 require "src/Files.pl";
+&loadDBModules();
 package MYSQL;
-require "src/Factoids/db_mysql.pl";
+require "src/db_mysql.pl";
 package DBM;
-require "src/Factoids/db_dbm.pl";
+require "src/db_dbm.pl";
 package main;
 
 if (!scalar @ARGV) {
@@ -26,8 +28,8 @@ my %db;
 
 ### open all the data...
 &loadConfig("files/blootbot.config");
-$dbname = $param{'DBFile'};
-my $dbh_mysql = MYSQL::openDB();
+$dbname = $param{'DBName'};
+my $dbh_mysql = MYSQL::openDB($param{'DBName'}, $param{'SQLUser'}, $param{'SQLPass'});
 DBM::openDB();
 
 print "scalar db == '". scalar(keys %db) ."'.\n";
@@ -49,3 +51,4 @@ foreach $factoid (keys %db) {
 }
 
 print "Done.\n";
+&closeDB();

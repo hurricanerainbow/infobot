@@ -21,7 +21,7 @@ if (!defined $dbname) {
 &loadConfig("files/blootbot.config");
 &loadDBModules();
 
-&openDB();
+&openDB($param{'DBName'}, $param{'SQLUser'}, $param{'SQLPass'});
 
 # retrieve a list of db's from the server.
 my %db;

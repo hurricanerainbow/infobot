@@ -23,7 +23,7 @@ if ($dbname eq "") {
 
 if ($param{'DBType'} =~ /mysql/i) {
     use DBI;
-    &openDB();
+    &openDB($param{'DBName'}, $param{'SQLUser'}, $param{'SQLPass'});
 
     # retrieve a list of db's from the server.
     my %db;

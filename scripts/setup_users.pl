@@ -21,28 +21,6 @@ if ($dbname eq "") {
 }
 
 if ($param{'DBType'} =~ /mysql/i) {
-    if (!scalar @ARGV) {
-	print "hi there.\n\n";
-
-	print "if you're running a new version of mysql (debian potato), run\n";
-	print "this script with the '1' parameter while '0' for older versions\n";
-	print "(debian slink).\n";
-	exit 0;
-    }
-
-    my $mysqlversion;
-    if ($ARGV[0] =~ /^\d+$/) {
-	if ($ARGV[0] == 0) {
-	    $mysqlversion = 0;
-	} elsif ($ARGV[0] == 1) {
-	    $mysqlversion = 1;
-	} else {
-	    print "error: wrong integer?\n";
-	}
-    } else {
-	print "error: wrong argument?\n";
-	exit 1;
-    }
 
     print "Enter root information...\n";
     # username.
@@ -65,7 +43,7 @@ if ($param{'DBType'} =~ /mysql/i) {
     print "Step 1: Adding user information.\n";
 
     # open the db.
-    &openDB("mysql");
+    &openDB("mysql", $adminuser, $adminpass);
 
     # Step 2.
     if (!&dbGet("user","user",$param{'SQLUser'},"user")) {
@@ -75,11 +53,8 @@ if ($param{'DBType'} =~ /mysql/i) {
 		"('localhost', '$param{'SQLUser'}', ".
 		"password('$param{'SQLPass'}'), ";
 
-	if ($mysqlversion) {
-	    $query .= "'Y','Y','Y','Y','N','N','N','N','N','N','N','N','N','N')";
-	} else {
-	    $query .= "'Y','Y','Y','Y','N','N','N','N','N','N')";
-	}
+	$query .= "'Y','Y','Y','Y','N','N','N','N','N','N','N','N','N','N')";
+###	$query .= "'Y','Y','Y','Y','N','N','N','N','N','N')";
 
 	&dbRaw("create(user)", $query);
     }
@@ -92,11 +67,8 @@ if ($param{'DBType'} =~ /mysql/i) {
 		"('localhost', '$dbname', ".
 		"'$param{'SQLUser'}', ";
 
-	if ($mysqlversion) {
-	    $query .= "'Y','Y','Y','Y','Y','N','N','N','N','N')";
-	} else {
-	    $query .= "'Y','Y','Y','Y','Y','N')";
-	}
+	$query .= "'Y','Y','Y','Y','Y','N','N','N','N','N')";
+###	$query .= "'Y','Y','Y','Y','Y','N')";
 
 	&dbRaw("create(db)", $query);
     }

@@ -21,7 +21,7 @@ open(IN,$txtfile) or die "error: cannot open txtfile '$txtfile'.\n";
 # read the bot config file.
 &loadConfig("files/blootbot.config");
 &loadDBModules();
-&openDB();
+&openDB($param{'DBName'}, $param{'SQLUser'}, $param{'SQLPass'});
 
 ### now pipe all the data to the mysql server...
 my $i = 1;
