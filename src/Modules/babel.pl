@@ -42,6 +42,7 @@ BEGIN {
 		'jp' => 'ja',
 		'ko' => 'ko',
 		'kr' => 'ko',
+		'nl' => 'nl',
 		'ru' => 'ru'
 	       );
 
