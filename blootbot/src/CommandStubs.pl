@@ -256,8 +256,8 @@ sub parseCmdHook {
 &addCmdHook("extra", 'HTTPDtype', ('CODEREF' => 'HTTPDtype::HTTPDtype',
 	'Identifier' => 'HTTPDtype', 'Cmdstats' => 'HTTPDtype',
 	'Forker' => 1) );
-&addCmdHook("extra", 'rss', ('CODEREF' => 'Rss::Rss',
-	'Identifier' => 'rss', 'Cmdstats' => 'rss',
+&addCmdHook("extra", 'Rss', ('CODEREF' => 'Rss::Rss',
+	'Identifier' => 'Rss', 'Cmdstats' => 'Rss',
 	'Forker' => 1, 'Help' => 'rss') );
 &addCmdHook("extra", 'wiki(pedia)?', ('CODEREF' => 'wikipedia::wikipedia',
 	'Identifier' => 'wikipedia', 'Cmdstats' => 'wikipedia',

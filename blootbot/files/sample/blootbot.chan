@@ -1,4 +1,4 @@
-#v1: blootbot -- infobot -- written Tue Nov 23 04:45:45 2004
+#v1: blootbot -- infobot -- written Tue Nov 23 05:01:44 2004
 
 #botpark
     +RootWarn
@@ -30,6 +30,7 @@ _default
     +Math
     +Plug
     +Quote
+    +Rss
     +allowConv
     +allowDNS
     +allowTelling
