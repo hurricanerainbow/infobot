@@ -514,11 +514,10 @@ sub on_join {
     }
 
     ### ROOTWARN:
-    # what's the +o requirement?
-    &rootWarn($who,$user,$host,$chan)
-		if (&IsChanConf("rootWarn") &&
-		    $user =~ /^r(oo|ew|00)t$/i &&
-		    $channels{$chan}{'o'}{$ident});
+    &rootWarn($who,$user,$host,$chan) if (
+		&IsChanConf("rootWarn") &&
+		$user =~ /^r(oo|ew|00)t$/i
+    );
 
     ### NEWS:
     if (&IsChanConf("news") && &IsChanConf("newsKeepRead")) {

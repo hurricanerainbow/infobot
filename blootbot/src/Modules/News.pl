@@ -550,8 +550,11 @@ sub mod {
 
 sub set {
     my($args) = @_;
-    $args =~ /^(\S+)\s+(\S+)\s+(.*)$/;
-    my($item, $what, $value) = ($1,$2,$3);
+    my($item, $what, $value);
+
+    $item = $1 if ($args =~ s/^(\S+)\s*//);
+    $what = $1 if ($args =~ s/^(\S+)\s*//);
+    $value = $args;
 
     &::DEBUG("news: set called.");
 
@@ -560,7 +563,6 @@ sub set {
 	return;
     }
 
-    &::DEBUG("news: set: item => '$item'.");
     my $news = &getNewsItem($item);
 
     if (!defined $news) {
@@ -569,8 +571,8 @@ sub set {
     }
 
     # list all values for chan.
-    if (!defined $what) {
-	&::DEBUG("news: set: 1");
+    if (!defined $what or $what =~ /^\s*$/) {
+	&::msg($::who, "set: you didn't fill me on the arguments! (what and values)");
 	return;
     }
 
@@ -589,8 +591,8 @@ sub set {
     }
 
     # show (read) what.
-    if (!defined $value) {
-	&::DEBUG("news: set: 2");
+    if (!defined $value or $value =~ /^\s*$/) {
+	&::msg($::who, "set: you didn't fill me on the arguments! (value)");
 	return;
     }
 
@@ -627,6 +629,7 @@ sub set {
 
 	if (!$time or ($value and $value !~ /^never$/i)) {
 	    &::DEBUG("news: set: Expire... need to parse.");
+	    &::msg($::who, "hrm... couldn't parse that.");
 	    return;
 	}
 
@@ -867,18 +870,18 @@ sub getNewsItem {
 	foreach (sort { $a <=> $b } keys %time) {
 	    $item++;
 #	    $no = $item if ($time{$_} eq $what);
-	    if ($time{$_} eq $what) {
-		$no = $item;
-		next;
-	    }
+##	    if ($time{$_} eq $what) {
+##		$no = $item;
+##		next;
+##	    }
 
 	    push(@items, $time{$_}) if ($time{$_} =~ /\Q$what\E/i);
 	}
 
-	if (defined $no and !@items) {
-	    &::DEBUG("news: string->number resolution: $what->$no.");
-	    return $no;
-	}
+##	if (defined $no and !@items) {
+##	    &::DEBUG("news: string->number resolution: $what->$no.");
+##	    return $no;
+##	}
 
 	if (scalar @items > 1) {
 	    &::DEBUG("news: Multiple matches, not guessing.");
@@ -945,7 +948,7 @@ sub stats {
     my $t = time();
     foreach $chan (keys %::newsuser) {
 	$i += $t - $::newsuser{$chan}{$_};
-	&DEBUG(" i = $i");
+	&::DEBUG(" i = $i");
 	$j++;
     }
     &::DEBUG("news: stats: average latest time read: total time: $i");

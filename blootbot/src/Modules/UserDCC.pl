@@ -38,6 +38,19 @@ sub userDCC {
 
     ### for those users with enough flags.
 
+    if ($message =~ /^tellme(\s+(.*))?$/i) {
+	my $args = $2;
+	if ($args =~ /^\s*$/) {
+	    &help("tellme");
+	    return;
+	}
+
+	my $result = &doQuestion($args);
+	&pSReply($result);
+
+	return;
+    }
+
     # 4op.
     if ($message =~ /^4op(\s+($mask{chan}))?$/i) {
 	return unless (&hasFlag("o"));

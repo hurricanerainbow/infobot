@@ -13,11 +13,11 @@ sub rootWarn {
     my $warnmode	= &getChanConf("rootWarnMode");
 
     if ($attempt == 0) {	# first timer.
-	if (defined $warnmode and $warnmode =~ /aggressive/i) {
-	    &status("rootwarn: Detected root user; notifying nick and channel.");
-	    rawout("PRIVMSG $chan :R".("O" x int(rand 80 + 2))."T has landed!");
-	} else {
+	if (defined $warnmode and $warnmode =~ /quiet/i) {
 	    &status("rootwarn: Detected root user; notifying user");
+	} else {
+	    &status("rootwarn: Detected root user; notifying nick and channel.");
+	    rawout("PRIVMSG $chan :R".("O" x int(rand 70 + 2))."T has landed!");
 	}
 
 	if ($_ = &getFactoid("root")) {
@@ -65,6 +65,7 @@ sub rootWarn {
 }
 
 # Extras function.
+# todo: support arguments to get info on a particular nick?
 sub CmdrootWarn {
     my $reply;
     my $count = &countKeys("rootwarn");
@@ -75,7 +76,7 @@ sub CmdrootWarn {
     }
 
     # reply #1.
-    $reply = "there ".&fixPlural("has",$count) ." been \002$i\002 ".
+    $reply = "there ".&fixPlural("has",$count) ." been \002$count\002 ".
 		&fixPlural("rooter",$count) ." warned about root.";
 
     if ($param{'DBType'} !~ /^mysql$/i) {
