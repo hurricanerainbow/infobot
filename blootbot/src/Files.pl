@@ -56,7 +56,6 @@ sub loadIgnore {
 	&ERROR("FAILED loadIgnore ($file): $!");
 	return;
     }
-    &status("Loading ignore list...");
 
     my $count = 0;
     while (<FILE>) {
@@ -65,7 +64,6 @@ sub loadIgnore {
 	next unless /\S/;
 
 	if (/^(\S+)[\t\s]+(\S+)([\t\s]+.*)?$/) {
-	    &status("  $2");
 	    $ignoreList{$2} = 1;
 	    $count++;
 	}
