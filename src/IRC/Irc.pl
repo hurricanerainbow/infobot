@@ -103,6 +103,7 @@ sub irc {
 
     if (!defined $conn) {
 	&ERROR("IRC: connection failed.");
+	&ERROR("add \"set ircHost 0.0.0.0\" to your config. If that does not work");
 	&ERROR("Please check /etc/hosts to see if you have a localhost line like:");
 	&ERROR("127.0.0.1   localhost    localhost");
 	&ERROR("If this is still a problem, please contact the maintainer.");
