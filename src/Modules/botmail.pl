@@ -19,7 +19,7 @@ sub parse {
 	return;
     }
 
-    if ($what =~ /^(for|add)\s+(.*)$/i) {
+    if ($what =~ /^(to|for|add)\s+(.*)$/i) {
 	&add( split(/\s+/, $2, 2) );
 
     } elsif ($what =~ /^stats?$/i) {
