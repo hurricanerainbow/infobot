@@ -35,6 +35,11 @@ sub getReply {
 	@searches = ('_default');
     }
 
+    if ($literal and $message =~ /^_default\s+/) {
+	@searches = ('_default');
+	$message =~ s/^_default\s+//;
+    }
+
     # check for factoids with each prefix
     foreach $search (@searches) {
 	if ($search eq '_default') {
