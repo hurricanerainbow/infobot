@@ -223,6 +223,7 @@ sub fixString {
 	s/\s+/ /g;		# remove excessive whitespaces.
 
 	next unless (defined $level);
+	&DEBUG("strip control chars?");
 	s/[\cA-\c_]//ig		# remove control characters.
     }
 
@@ -512,6 +513,8 @@ sub validFactoid {
 	/\=\~/ and last;		# substituition.
 	/^\S+ to \S+ \S+/ and last;	# babelfish.
 
+	/^\=/ and last;			# botnick = heh is.
+
 	# symbols.
 	/(\"\*)/ and last;
 	/, / and last;
@@ -602,6 +605,7 @@ sub Forker {
 	$pid = eval { fork() };
 	return $noreply if $pid;	# parent does nothing
 	&status("fork starting for '$label', PID == $$.");
+	&shmWrite($shm,"SET FORKPID $name $$");
     }
 
     if (!&loadMyModule($myModules{$label})) {
