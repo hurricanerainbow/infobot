@@ -254,8 +254,8 @@ sub parseCmdHook {
 	'Forker' => 1) );
 &addCmdHook("extra", '(botmail|message)', ('CODEREF' => 'botmail::parse',
 	'Identifier' => 'botmail', 'Cmdstats' => 'botmail') );
-&addCmdHook("extra", 'httpdtype', ('CODEREF' => 'HTTPDtype::HTTPDtype',
-	'Identifier' => 'httpdtype', 'Cmdstats' => 'httpdtype',
+&addCmdHook("extra", 'HTTPDtype', ('CODEREF' => 'HTTPDtype::HTTPDtype',
+	'Identifier' => 'HTTPDtype', 'Cmdstats' => 'HTTPDtype',
 	'Forker' => 1) );
 &addCmdHook("extra", 'rss', ('CODEREF' => 'Rss::Rss',
 	'Identifier' => 'rss', 'Cmdstats' => 'rss',

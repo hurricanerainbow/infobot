@@ -37,6 +37,7 @@ _default
     floodRepeat 2:10
     +freshmeat
     freshmeatRefreshInterval 24
+    +HTTPDtype
     +insult
     +karma
     +kernel
