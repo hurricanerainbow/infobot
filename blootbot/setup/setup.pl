@@ -13,6 +13,7 @@ $bot_src_dir = "./src/";
 
 # read param stuff from blootbot.config.
 &loadConfig("files/blootbot.config");
+
 &loadDBModules();
 my $dbname = $param{'DBName'};
 my $query;
