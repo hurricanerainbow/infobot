@@ -35,47 +35,52 @@ BEGIN {
 sub babelfish {
     my ($direction, $lang, $phrase) = @_;
 
-    return unless &loadPerlModule("URI::Escape");
+    return unless &::loadPerlModule("URI::Escape");
+    return unless &::loadPerlModule("LWP::UserAgent");
 
     $lang = $lang_code{$lang};
 
     my $ua = new LWP::UserAgent;
     $ua->timeout(10);
+    $ua->proxy('http', $::param{'httpProxy'}) if &::IsParam("httpProxy");
 
-    my $url = 'http://babelfish.altavista.digital.com/cgi-bin/translate';
+    my $url = 'http://babelfish.altavista.com/raging/translate.dyn';
     my $req = HTTP::Request->new('POST',$url);
+
     $req->content_type('application/x-www-form-urlencoded');
 
     my $tolang = "en_$lang";
     my $toenglish = "${lang}_en";
 
     if ($direction eq 'to') {
-	&::performStrictReply( translate($phrase, $tolang, $req, $ua) );
+	my $xlate = translate($phrase, $tolang, $req, $ua);
+	&::pSReply($xlate) if ($xlate);
 	return;
     } elsif ($direction eq 'from') {
-	&::performStrictReply( translate($phrase, $toenglish, $req, $ua) );
+	my $xlate = translate($phrase, $toenglish, $req, $ua);
+	&::pStReply($xlate) if ($xlate);
 	return;
     }
+    &DEBUG("what's this junk?");
 
     my $last_english = $phrase;
     my $last_lang;
     my %results = ();
     my $i = 0;
     while ($i++ < 7) {
-	last if $results{$phrase}++;
+	last if $results{$phrase}++;	# REMOVE!
 	$last_lang = $phrase = translate($phrase, $tolang, $req, $ua);
-	last if $results{$phrase}++;
+	last if $results{$phrase}++;	# REMOVE!
 	$last_english = $phrase = translate($phrase, $toenglish, $req, $ua);
     }
 
-    &::performStrictReply($last_english);
+    &::pSReply($last_english);
 }
 
 sub translate {
-    return '' if $no_babel;
     my ($phrase, $languagepair, $req, $ua) = @_;
 
-    my $urltext = uri_escape($phrase);
+    my $urltext = URI::Escape::uri_escape($phrase);
     $req->content("urltext=$urltext&lp=$languagepair&doit=done");
 
     my $res = $ua->request($req);
@@ -83,24 +88,22 @@ sub translate {
     my $translated;
     if ($res->is_success) {		# success.
 	my $html = $res->content;
-	# This method subject to change with the whims of Altavista's design
-	# staff.
+	$html	=~ s/\cM//g;
+	$html	=~ s/\n\s*\n/\n/g;
+	$html	=~ s/\n/ /g;	# ...
 
-	$translated =
-	  ($html =~ m{<br>
-			  \s+
-			      <font\ face="arial,\ helvetica">
-				  \s*
-				      (?:\*\*\s+time\ out\s+\*\*)?
-					  \s*
-					      ([^<]*)
-					      }sx);
+	if ($html =~ /<textarea.*?>(.*?)<\/textarea/si) {
+	    $translated = $1;
+	    $translated =~ s/^[\n ]|[\n ]$//g;
+	} else {
+	    &::WARN("failed regex for babelfish.");
+	}
 
-	$translated =~ s/\n/ /g;
-	$translated =~ s/\s*$//;
     } else {				# failure
-	$translated = ":(";
+	$translated = "FAILURE w/ babelfish";
     }
+
+    $translated	||= "NULL reply from babelfish.";
 
     return $translated;
 }

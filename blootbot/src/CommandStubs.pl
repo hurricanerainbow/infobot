@@ -4,9 +4,9 @@
 
 if (&IsParam("useStrict")) { use strict; }
 
-$babel::lang_regex = "";	# lame fix.
+$babel_lang_regex = "fr|sp|po|pt|it|ge|de|gr|en";
 
-### PROPOSED COMMAND HOOK IMPLEMENTATION.
+### COMMAND HOOK IMPLEMENTATION.
 # addCmdHook("SECTION", 'TEXT_HOOK',
 #	(CODEREF	=> 'Blah', 
 #	Forker		=> 1,
@@ -83,12 +83,12 @@ sub parseCmdHook {
 
 	### IDENTIFIER.
 	if (exists $hash{'Identifier'}) {
-	    return unless (&hasParam($hash{'Identifier'}));
+	    return 1 unless (&hasParam($hash{'Identifier'}));
 	}
 
 	### USER FLAGS.
 	if (exists $hash{'UserFlag'}) {
-	    return unless (&hasFlag($hash{'UserFlag'}));
+	    return 1 unless (&hasFlag($hash{'UserFlag'}));
 	}
 
 	### FORKER,IDENTIFIER,CODEREF.
@@ -207,13 +207,13 @@ sub Modules {
     }
 
     # babel bot: Jonathan Feinberg++
-    if (&IsParam("babelfish") and $message =~ m{
+    if (&IsChanConf("babelfish") and $message =~ m{
 		^\s*
 		(?:babel(?:fish)?|x|xlate|translate)
 		\s+
 		(to|from)		# direction of translation (through)
 		\s+
-		($babel::lang_regex)\w*	# which language?
+		($babel_lang_regex)\w*	# which language?
 		\s*
 		(.+)			# The phrase to be translated
 	}xoi) {
@@ -224,7 +224,7 @@ sub Modules {
 	return;
     }
 
-    if (&IsParam("debian")) {
+    if (&IsChanConf("debian")) {
 	my $debiancmd	 = 'conflicts?|depends?|desc|file|info|provides?';
 	$debiancmd	.= '|recommends?|suggests?|maint|maintainer';
 	if ($message =~ /^($debiancmd)(\s+(.*))?$/i) {
@@ -241,7 +241,7 @@ sub Modules {
     }
 
     # google searching. Simon++
-    if (&IsParam("wwwsearch") and $message =~ /^(?:search\s+)?(\S+)\s+for\s+['"]?(.*?)['"]?\s*\?*$/i) {
+    if (&IsChanConf("wwwsearch") and $message =~ /^(?:search\s+)?(\S+)\s+for\s+['"]?(.*?)['"]?\s*\?*$/i) {
 	return unless (&hasParam("wwwsearch"));
 
 	&Forker("wwwsearch", sub { &W3Search::W3Search($1,$2); } );
