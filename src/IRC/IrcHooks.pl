@@ -1064,9 +1064,11 @@ sub hookMsg {
 	$flood{$floodwho}{$message} = time();
     }
 
+    my @ignore;
     if ($msgType =~ /public/i) {		    # public.
 	$talkchannel	= $chan;
 	&status("<$orig{who}/$chan> $orig{message}");
+	@ignore		= keys %{ $ignore{$chan} };
     } elsif ($msgType =~ /private/i) {		   # private.
 	&status("[$orig{who}] $orig{message}");
 	$talkchannel	= undef;
@@ -1074,6 +1076,7 @@ sub hookMsg {
     } else {
 	&DEBUG("unknown msgType => $msgType.");
     }
+    push(@ignore, keys %{ $ignore{"*"} });
 
     if ((!$skipmessage or &IsChanConf("seenStoreAll")) and
 	&IsChanConf("seen") and
@@ -1091,14 +1094,13 @@ sub hookMsg {
     return unless (&IsParam("minVolunteerLength") or $addressed);
 
     local $ignore	= 0;
-    if (exists $ignore{lc $chan}) {
-	foreach (keys %{ $ignore{lc $chan} }) {
-	    s/\*/\\S*/g;
 
-	    next unless ($nuh =~ /^\Q$_\E$/i);
-	    $ignore++;
-	    last;
-	}
+    foreach (@ignore) {
+	s/\*/\\S*/g;
+
+	next unless ($nuh =~ /^\Q$_\E$/i);
+	$ignore++;
+	last;
     }
 
     if (defined $nuh) {
