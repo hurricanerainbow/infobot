@@ -60,7 +60,7 @@ sub chaninfo {
 	foreach (sort keys %channels) {
 	    if ( /^\s*$/ or / / ) {
 		&status("chanstats: fe channels: chan == NULL.");
-		&ircCheck();
+		#&ircCheck();
 		next;
 	    }
 	    next if (/^_default$/);
@@ -69,6 +69,7 @@ sub chaninfo {
 	    push(@array, $str);
 	}
 	&pSReply($reply.": ".join(', ', @array));
+	&ircCheck();
 
 	### total user count.
 	foreach $chan (keys %channels) {

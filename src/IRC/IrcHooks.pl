@@ -196,12 +196,6 @@ sub on_endofmotd {
 	&rawout("MODE $ident $param{'ircUMode'}");
     }
 
-    &status("End of motd. Now lets join some channels...");
-    if (!scalar @joinchan) {
-	&WARN("joinchan array is empty!");
-	@joinchan = &getJoinChans(1);
-    }
-
     # ok, we're free to do whatever we want now. go for it!
     $running = 1;
 
@@ -214,6 +208,7 @@ sub on_endofmotd {
 	&rawout("PRIVMSG Q\@CServe.quakenet.org :AUTH $param{'Q_user'} $param{'Q_pass'}");
     }
 
+    &status("End of motd. Now lets join some channels...");
     &joinNextChan();
 }
 
@@ -562,7 +557,7 @@ sub on_join {
     return if ($netsplit);
 
     # who == bot.
-    if ($who eq $ident or $who =~ /^\Q$ident\E$/i) {
+    if ($who =~ /^\Q$ident\E$/i) {
 	if (defined( my $whojoin = $cache{join}{$chan} )) {
 	    &msg($chan, "Okay, I'm here. (courtesy of $whojoin)");
 	    delete $cache{join}{$chan};
