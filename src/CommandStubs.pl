@@ -674,14 +674,18 @@ sub do_verstats {
 
     &msg($who, "Sending CTCP VERSION...");
     $conn->ctcp("VERSION", $chan);
-    $cache{verstats}	= $chan;
+    $cache{verstats}{chan}	= $chan;
+    $cache{verstats}{who}	= $who;
+    $cache{verstats}{msgType}	= $msgType;
 
     $conn->schedule(60, sub {
 	my $vtotal	= 0;
-	my $c		= lc $cache{verstats};
+	my $c		= lc $cache{verstats}{chan};
 	my $total	= keys %{ $channels{$c}{''} };
-	delete $cache{verstats};
 	$chan		= $c;
+	$who		= $cache{verstats}{who};
+	$msgType	= $cache{verstats}{msgType};
+	delete $cache{verstats};	# sufficient?
 
 	foreach (keys %ver) {
 	    $vtotal	+= scalar keys %{ $ver{$_} };
