@@ -174,6 +174,7 @@ sub on_dcc {
     $self->whois($nick);
     $nuh{lc $nick}	= "GETTING-NOW";	# trying.
     $type ||= "???";
+    &DEBUG("on_dcc: nuh => GETTING-NOW.");
 
     if ($type eq 'SEND') {	# GET for us.
 	# incoming DCC SEND. we're receiving a file.
@@ -266,6 +267,7 @@ sub on_dcc_open {
 sub on_dcc_open_chat {
     my(undef, $nick,$sock) = @_;
 
+    &DEBUG("nuh{$nick} => $nuh{$nick}.");
     if ($nuh{$nick} =~ /^(\S+)(\d+)$/) {
 	my $i = $2;
 	$i++;
