@@ -444,15 +444,20 @@ sub userDCC {
 	&msg($who,"resetting...");
 	my @done;
 	foreach ( keys %channels, keys %chanconf ) {
+	    &DEBUG("reset: c => $c");
 	    next if (grep /^\Q$_\E$/i, @done);
 
+	    &DEBUG("reset: should part... c => $c");
 	    &part($_);
 
 	    push(@done, $_);
 	    sleep 1;
 	}
+	&DEBUG("before clearircvars");
 	&clearIRCVars();
+	&DEBUG("before joinnextchan");
 	&joinNextChan();
+	&DEBUG("after joinnextchan");
 
 	&status("USER reset $who");
 	&msg($who,"resetted");
