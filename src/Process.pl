@@ -411,10 +411,10 @@ sub FactoidStuff {
 		my $check = &getFactoid("$faqtoid #DEL#");
 		if (!$check) {
 		    if ($faqtoid !~ /#DEL#/) {
-			&setFactInfo($faqtoid, "factoid_key", $faqtoid." #DEL#");
-
-			&setFactInfo($faqtoid, "modified_by", $who);
-			&setFactInfo($faqtoid, "modified_time", time());
+			my $new = $faqtoid." #DEL#";
+			&setFactInfo($faqtoid, "factoid_key", $new);
+			&setFactInfo($new, "modified_by", $who);
+			&setFactInfo($new, "modified_time", time());
 		    } else {
 			&status("not backing up $faqtoid.");
 		    }
