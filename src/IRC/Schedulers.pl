@@ -8,7 +8,47 @@
 # use strict;	# TODO
 
 use POSIX qw(strftime);
-use vars qw(%sched);
+use vars qw(%sched %schedule);
+
+# format: function name = (
+#	str	chanconfdefault,
+#	int	internaldefault,
+#	bool	deferred,
+#	int	next run,		(optional)
+# )
+
+#%schedule = {
+#	uptimeLoop => ("", 60, 1),
+#};
+
+sub setupSchedulersII {
+    foreach (keys %schedule) {
+	&queueTask($_, @{ $schedule{$_} });
+    }
+}
+
+sub queueTask {
+    my($codename, $chanconfdef, $intervaldef, $defer) = @_;
+    my $t = &getChanConfDefault($chanconfdef, $intervaldef);
+    my $waittime = &getRandomInt($t);
+
+    if (!defined $waittime) {
+	&WARN("interval == waittime == UNDEF for $codename.");
+	return;
+    }
+
+    my $time = $schedule{$codename}[3];
+    if (defined $time and $time > time()) {
+	&WARN("Sched for $codename already exists.");
+	return;
+    }
+
+#    &VERB("Scheduling \&$codename() for ".&Time2String($waittime),3);
+
+    my $retval = $conn->schedule($waittime, sub {
+		\&$codename;
+    }, @args );
+}
 
 sub setupSchedulers {
     &VERB("Starting schedulers...",2);
@@ -39,6 +79,7 @@ sub setupSchedulers {
     &kernelLoop(2);
     &wingateWriteFile(2);
     &factoidCheck(2);	# takes a couple of seconds on a 486. defer it
+# todo: convert to new format... or nuke altogether.
     &newsFlush(1);
 
     # todo: squeeze this into a one-liner.
@@ -356,7 +397,6 @@ sub newsFlush {
     }
 
     if ($delete or $duser) {
-	&News::writeNews();
 	&status("NewsFlush: deleted: $delete news entries; $duser user cache.");
     }
 }
@@ -549,13 +589,14 @@ sub seenFlush {
 
     if ($param{'DBType'} =~ /^(mysql|pgsql|sqlite|dbm)$/i) {
 	foreach $nick (keys %seencache) {
-	    my $retval = &dbReplace("seen", "nick", (
-			"nick" => lc $seencache{$nick}{'nick'},
-			"time" => $seencache{$nick}{'time'},
-			"host" => $seencache{$nick}{'host'},
-			"channel" => $seencache{$nick}{'chan'},
-			"message" => $seencache{$nick}{'msg'},
-	    ) );
+	    my $retval = &sqlReplace("seen", {
+			nick	=> lc $seencache{$nick}{'nick'},
+			time	=> $seencache{$nick}{'time'},
+			host	=> $seencache{$nick}{'host'},
+			channel	=> $seencache{$nick}{'chan'},
+			message	=> $seencache{$nick}{'msg'},
+	    } );
+
 	    delete $seencache{$nick};
 	    $flushed++;
 	}
@@ -839,7 +880,8 @@ sub getNickInUse {
 }
 
 sub uptimeLoop {
-    return unless &IsChanConf("uptime");
+    return if (!defined &uptimeWriteFile);
+#    return unless &IsChanConf("uptime");
 
     if (@_) {
 	&ScheduleThis(60, "uptimeLoop");
