@@ -136,7 +136,7 @@ sub writeUserFile {
 
     my $time		= scalar(gmtime);
 
-    print OUT "#v1: blootbot -- $ident -- written $time\n\n";
+    print OUT "#v1: \$" . "Id: blootbot -- $ident -- written $time \$\n\n";
 
     ### USER LIST.
     my $cusers	= 0;
@@ -314,7 +314,7 @@ sub writeChanFile {
     }
 
     my $time		= scalar(gmtime);
-    print OUT "#v1: blootbot -- $ident -- written $time\n\n";
+    print OUT "#v1: \$" . "Id: blootbot -- $ident -- written $time \$\n\n";
 
     if ($flag_quit) {
 
