@@ -12,6 +12,9 @@ use strict;
 # format: "alias=real".
 my $announce	= 0;
 my $defaultdist	= "unstable";
+my $refresh = &::getChanConfDefault("debianRefreshInterval",
+			undef, 7) * 60 * 60 * 24;
+
 my %dists	= (
 	"unstable"	=> "sid",
 	"testing"	=> "woody",	# new since 20001219.
@@ -66,8 +69,6 @@ my %urlpackages = (
 # Usage: &DebianDownload(%hash);
 sub DebianDownload {
     my ($dist, %urls)	= @_;
-    my $refresh = &::getChanConfDefault("debianRefreshInterval",
-			undef, 7) * 60 * 60 * 24;
     my $bad	= 0;
     my $good	= 0;
 
@@ -487,12 +488,11 @@ sub searchDesc {
 ####
 # Usage: &generateIncoming();
 sub generateIncoming {
-    my $interval = $::param{'debianRefreshInterval'};
     my $pkgfile  = "debian/Packages-incoming";
     my $idxfile  = $pkgfile.".idx";
     my $stale	 = 0;
-    $stale++ if (&::isStale($pkgfile.".gz", $interval));
-    $stale++ if (&::isStale($idxfile, $interval));
+    $stale++ if (&::isStale($pkgfile.".gz", $refresh));
+    $stale++ if (&::isStale($idxfile, $refresh));
     &::DEBUG("gI: stale => '$stale'.");
     return 0 unless ($stale);
 
@@ -623,7 +623,6 @@ sub getPackageInfo {
 # Usage: &infoPackages($query,$package);
 sub infoPackages {
     my ($query,$dist,$package) = ($_[0], &getDistroFromStr($_[1]));
-    my $interval = $::param{'debianRefreshInterval'} || 7;
 
     &::status("Debian: Searching for package '$package' in '$dist'.");
 
@@ -739,7 +738,6 @@ sub infoStats {
     return unless (defined $dist);
 
     &::DEBUG("infoS: dist => '$dist'.");
-    my $interval = $::param{'debianRefreshInterval'} || 7;
 
     # download packages file if needed.
     my %urls = &fixDist($dist, %urlpackages);
