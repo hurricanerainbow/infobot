@@ -72,6 +72,7 @@ sub babelfish {
 # Accept-Charset: iso-8859-1
 #  $req->header('Accept-Charset' => 'iso-8859-1');
 #  print $req->header('Accept-Charset');
+  $req->header('Accept-Language' => 'en');
   $req->content_type('application/x-www-form-urlencoded');
 
   return translate($phrase, "${from}_${to}", $req, $ua);
