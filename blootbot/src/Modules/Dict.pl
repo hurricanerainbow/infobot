@@ -15,8 +15,7 @@ use strict;
 #use vars qw(PF_INET);
 
 # need a specific host||ip.
-#my $server	= "dict.org";
-my $server	= "127.0.0.1";
+my $server	= "dict.org";
 
 sub Dict {
     my ($query) = @_;
