@@ -11,21 +11,21 @@ use strict;
 no strict 'refs'; # FIXME: dstats aborts if set
 
 my $announce	= 0;
-my $defaultdist	= "sid";
+my $defaultdist	= 'sid';
 my $refresh = &::getChanConfDefault('debianRefreshInterval',7)
 			* 60 * 60 * 24;
 my $debug	= 0;
-my $debian_dir	= "$::bot_state_dir/debian";
-my $country	= "us"; # well .config it yourself then. ;-)
-my $protocol	= "http";
+my $debian_dir	= $::bot_state_dir . 'debian';
+my $country	= 'us'; # well .config it yourself then. ;-)
+my $protocol	= 'http';
 
 # format: "alias=real".
 my %dists	= (
-	"unstable"	=> "sid",
-	"testing"	=> "sarge",
-	"stable"	=> "woody",
-	"oldstable"	=> "potato",
-	"incoming"	=> "incoming",
+	'unstable'	=> 'sid',
+	'testing'	=> 'sarge',
+	'stable'	=> 'woody',
+	'oldstable'	=> 'potato',
+	'incoming'	=> 'incoming',
 );
 
 my %urlcontents = (
@@ -135,12 +135,12 @@ sub DebianDownload {
 	    next;
 	}
 
-	my $exit = CORE::system("/bin/gzip -t $file >/dev/null 2>&1");
-	if ($exit) {
-	    &::WARN("deb: $file is corrupted :/");
-	    unlink $file;
-	    next;
-	}
+#	my $exit = system("/bin/gzip -t $file");
+#	if ($exit) {
+#	    &::WARN("deb: $file is corrupted ($exit) :/");
+#	    unlink $file;
+#	    next;
+#	}
 
 	&::DEBUG("deb: download: good.") if ($debug);
 	$good++;
@@ -1112,12 +1112,12 @@ sub debianCheck {
 	next unless ($file =~ /(gz|bz2)$/);
 
 	# TODO: add bzip2 support (debian doesn't do .bz2 anyway)
-	my $exit = system("/bin/gzip -t '$debian_dir/$file'");
-	next unless ($exit);
+	#my $exit = system("/bin/gzip -t '$debian_dir/$file'");
+	#next unless ($exit);
 	&::DEBUG("deb: hmr... => ".(time() - (stat($file))[8])."'.");
 	next unless (time() - (stat($file))[8] > 3600);
 
-	&::DEBUG("deb: dC: exit => '$exit'.");
+	#&::DEBUG("deb: dC: exit => '$exit'.");
 	&::WARN("dC: '$debian_dir/$file' corrupted? deleting!");
 	unlink $debian_dir."/".$file;
 	$retval++;
