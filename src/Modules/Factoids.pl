@@ -316,6 +316,11 @@ sub CmdFactStats {
 	    $match++ if ($val =~ /\s{3,}/);
 	    next unless ($match);
 
+	    my $v = &getFactoid($val);
+	    if (defined $v) {
+		&DEBUG("key $key => $val => $v");
+	    }
+
 	    $key =~ s/\,/\037\,\037/g;
 	    push(@list, $key);
 	}

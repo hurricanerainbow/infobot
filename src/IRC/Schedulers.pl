@@ -324,7 +324,7 @@ sub newsFlush {
     foreach $chan (keys %::newsuser) {
 	foreach (keys %{ $::newsuser{$chan} }) {
 	    my $t = $::newsuser{$chan}{$_};
-	    if (!defined $t or $t < 1000) {
+	    if (!defined $t or ($t > 2 and $t < 1000)) {
 		&DEBUG("something wrong with newsuser{$chan}{$_} => $t");
 		next;
 	    }

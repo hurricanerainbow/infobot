@@ -63,30 +63,68 @@ sub Parse {
 
     if ($what =~ /^add(\s+(.*))?$/i) {
 	&add($2);
+
     } elsif ($what =~ /^del(\s+(.*))?$/i) {
 	&del($2);
+
     } elsif ($what =~ /^mod(\s+(.*))?$/i) {
 	&mod($2);
+
     } elsif ($what =~ /^set(\s+(.*))?$/i) {
 	&set($2);
+
     } elsif ($what =~ /^(\d)$/i) {
 	&::DEBUG("read shortcut called.");
 	&read($1);
+
     } elsif ($what =~ /^read(\s+(.*))?$/i) {
 	&read($2);
+
     } elsif ($what =~ /^(latest|new)(\s+(.*))?$/i) {
 	&::DEBUG("latest called... hrm");
 	&latest($3 || $chan, 1);
+
     } elsif ($what =~ /^list$/i) {
 	&::DEBUG("list longcut called.");
 	&list();
+
     } elsif ($what =~ /^(expire|text|desc)(\s+(.*))?$/i) {
 	# shortcut/link.
 	# nice hack.
 	my($arg1,$arg2) = split(/\s+/, $3, 2);
 	&set("$arg1 $1 $arg2");
+
     } elsif ($what =~ /^help(\s+(.*))?$/i) {
 	&::help("news$1");
+
+    } elsif ($what =~ /^(un)?notify$/i) {
+	my $state = ($1) ? 0 : 1;
+
+	# todo: don't notify even if "news" is called.
+	if (!&::IsChanConf("newsNotifyAll")) {
+	    &::msg($::who, "not available for this channel or disabled altogether.");
+	    return;
+	}
+
+	my $t = $::newsuser{$chan}{$::who};
+	if ($state) {	# state = 1
+	    if (defined $t and ($t == 0 or $t == -1)) {
+		&::msg($::who, "enabled notify.");
+		delete $::newsuser{$chan}{$::who};
+		return;
+	    }
+	    &::msg($::who, "already enabled.");
+
+	} else {		# state = 0
+	    my $x = $::newsuser{$chan}{$::who};
+	    if (defined $x and ($x == 0 or $x == -1)) {
+		&::msg($::who, "notify already disabled");
+		return;
+	    }
+	    $::newsuser{$chan}{$::who} = -1;
+	    &::msg($::who, "notify is now disabled.");
+	}
+
     } else {
 	&::DEBUG("could not parse '$what'.");
 	&::msg($::who, "unknown command: $what");
@@ -307,7 +345,13 @@ sub list {
     }
 
     if (&::IsChanConf("newsKeepRead")) {
-	$::newsuser{$chan}{$::who} = time();
+	my $x = $::newsuser{$chan}{$::who};
+
+	if (defined $x and ($x == 0 or $x == -1)) {
+	    &::DEBUG("not updating time for $::who.");
+	} else {
+	    $::newsuser{$chan}{$::who} = time();
+	}
     }
 
     &::msg($::who, "|==== News for \002$chan\002:");
@@ -610,9 +654,19 @@ sub latest {
 	return;
     }
 
+    my $t = $::newsuser{$chan}{$::who};
+    if (defined $t and ($t == 0 or $t == -1)) {
+	&::DEBUG("not displaying any new news for $::who");
+	return;
+    }
+
     my @new;
     foreach (keys %{ $::news{$chan} }) {
-	my $t = $::newsuser{$chan}{$::who};
+	if (&::IsChanConf("newsNotifyAll") and !defined $t) {
+	    &::DEBUG("setting time for $::who to 1...");
+	    $::newsuser{$chan}{$::who} = 1;
+	    $t = 1;
+	}
 	next if (!defined $t);
 	next if ($t > $::news{$chan}{$_}{Time});
 
@@ -627,7 +681,10 @@ sub latest {
     if (!$flag) {
 	my $unread	= scalar @new;
 	my $total	= scalar keys %{ $::news{$chan} };
-	&::msg($::who, "There are unread news in $chan ($unread unread, $total, total). /msg $::ident news latest");
+	return unless ($unread);
+
+	&::msg($::who, "There are unread news in $chan ($unread unread, $total total). /msg $::ident news latest.  If you don't want further news notification, /msg $::ident news unnotify");
+
 	return;
     }
 
@@ -649,7 +706,12 @@ sub latest {
 	&::msg($::who, "|= to read, do 'news read <#>' or 'news read <keyword>'");
 
 	# lame hack to prevent dupes if we just ignore it.
-	$::newsuser{$chan}{$::who} = time();
+	my $x = $::newsuser{$chan}{$::who};
+	if (defined $x and ($x == 0 or $x == -1)) {
+	    &::DEBUG("not updating time for $::who. (2)");
+	} else {
+	    $::newsuser{$chan}{$::who} = time();
+	}
     }
 }
 
