@@ -25,6 +25,7 @@ sub closeSHM {
     my ($key) = @_;
     my $IPC_RMID = 0;
 
+    &shmFlush();
     &status("Closed shared memory (shm) key: [$key]");
     return shmctl($key, $IPC_RMID, 0);
 }
