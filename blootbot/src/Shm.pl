@@ -143,9 +143,9 @@ sub addForked {
 	if ($count > 3) {	# 3 seconds.
 	    my $list = join(', ', keys %forked);
 	    if (defined $who) {
-		&msg($who, "exceeded allowed forked count: $list");
+		&msg($who, "exceeded allowed forked count (shm $shm): $list");
 	    } else {
-		&status("Fork: I ran too many forked processes :) Giving up $name.");
+		&status("Fork: I ran too many forked processes :) Giving up $name. Shm: $shm");
 	    }
 
 	    return 0;

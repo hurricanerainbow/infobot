@@ -773,8 +773,8 @@ sub miscCheck {
 	    # don't touch other bots, if they're running.
 	    next unless ($param{ircNick} =~ /^\Q$n\E$/);
 	} else {
-#	    &DEBUG("shm: $shmid is not ours or old blootbot => ($z)");
-#	    next;
+	    &DEBUG("shm: $shmid is not ours or old blootbot => ($z)");
+	    next;
 	}
 
 	&status("SHM: nuking shmid $shmid");
