@@ -11,7 +11,7 @@
 &addCmdHook("extra", 'kernel', ('CODEREF' => 'Kernel::Kernel',
 &addCmdHook("extra", 'listauth', ('CODEREF' => 'CmdListAuth',
 &addCmdHook("extra", 'quote', ('CODEREF' => 'Quote::Quote',
-&addCmdHook("extra", 'countdown', ('CODEREF' => 'Countdown',
+&addCmdHook("extra", 'countdown', ('CODEREF' => 'countdown',
 &addCmdHook("extra", 'lart', ('CODEREF' => 'lart',
 &addCmdHook("extra", 'convert', ('CODEREF' => 'convert',
 &addCmdHook("extra", '(cookie|random)', ('CODEREF' => 'cookie',

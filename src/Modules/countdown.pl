@@ -1,5 +1,5 @@
 #
-# Countdown.pl: Count down to a particular date.
+# countdown.pl: Count down to a particular date.
 #       Author: dms
 #      Version: v0.1 (20000104)
 #      Created: 20000104
@@ -9,7 +9,7 @@ use strict;
 
 #use vars qw();
 
-sub Countdown {
+sub countdown {
     my ($query) = @_;
     my $file = "$bot_base_dir/$param{'ircUser'}.countdown";
     my (%date, %desc);
@@ -56,7 +56,7 @@ sub Countdown {
 	    $monname = qw(BAD Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)[(&sqlRawReturn("SELECT extract(month from timestamp '$sqldate')"))[0]];
 
 	} else {
-	    &ERROR("Countdown: invalid DBType " . $param{'DBType'} . ".");
+	    &ERROR("countdown: invalid DBType " . $param{'DBType'} . ".");
 	    return 1;
 	}
 
@@ -84,7 +84,7 @@ sub Countdown {
 	&performStrictReply($reply .".");
 	return 1;
     } else {				# no argument.
-	my $prefix = "Countdown list ";
+	my $prefix = "countdown list ";
 
 	&performStrictReply( &formListReply(0, $prefix, sort keys %date) );
 
