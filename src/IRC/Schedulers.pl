@@ -223,6 +223,7 @@ sub chanlimitCheck {
 	if (scalar keys %netsplit and $limit) {
 	    &status("Removing limit for $_ [netsplit!!!]");
 	    &rawout("MODE $_ -l");
+	    return;
 	}
 
 	if (!exists $channels{$_}{'o'}{$ident}) {
