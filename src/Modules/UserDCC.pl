@@ -131,6 +131,31 @@ sub userDCC {
 	return $noreply;
     }
 
+    # kick.
+    if ($message =~ /^mode(\s+(.*))?$/) {
+	return $noreply unless (&hasFlag("m"));
+	my ($chan,$mode) = split /\s+/,$2,2;
+
+	if ($chan eq "") {
+	    &help("mode");
+	    return $noreply;
+	}
+
+	if (&validChan($chan) == 0) {
+	    &msg($who,"error: invalid channel \002$chan\002");
+	    return $noreply;
+	}
+
+	if (!$channels{$chan}{o}{$ident}) {
+	    &msg($who,"error: don't have ops on \002$chan\002");
+	    return $noreply;
+	}
+
+	&mode($chan, $mode);
+
+	return $noreply;
+    }
+
     # part.
     if ($message =~ /^part(\s+(\S+))?$/i) {
 	return $noreply unless (&hasFlag("o"));
