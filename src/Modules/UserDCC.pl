@@ -1084,6 +1084,7 @@ sub userDCC {
 
 	&writeUserFile();
 	&writeChanFile();
+	&News::writeNews() if (&ChanConfList("news"));
 
 	return;
     }

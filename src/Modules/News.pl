@@ -1,14 +1,14 @@
 #
 # News.pl: Advanced news management
 #   Author: dms
-#  Version: v0.2 (20010326)
+#  Version: v0.3 (20014012)
 #  Created: 20010326
 #    Notes: Testing done by greycat, kudos!
 #
 ### structure:
-# news{ channel }{ string } { items }
+# news{ channel }{ string } { item }
 # newsuser{ channel }{ user } = time()
-### where items is:
+### where item is:
 #	Time	- when it was added (used for sorting)
 #	Author	- Who by.
 #	Expire	- Time to expire.
@@ -22,16 +22,15 @@ sub Parse {
     $chan	= undef;
 
     if (!keys %::news) {
-	if (!exists $cache{newsFirst}) {
+	if (!exists $::cache{newsFirst}) {
 	    &::DEBUG("looks like we enabled news option just then; loading up news file just in case.");
-	    $cache{newsFirst} = 1;
+	    $::cache{newsFirst} = 1;
 	}
 
 	&readNews();
     }
 
-    if ($::msgType eq "private") {
-    } else {
+    if ($::msgType ne "private") {
 	$chan = $::chan;
     }
 
@@ -44,7 +43,7 @@ sub Parse {
 	my @chans = &::GetNickInChans($::who);
 
 	if (scalar @chans > 1) {
-	    &::msg($::who, "error: I dunno which channel you are referring to since you're on more than one.");
+	    &::msg($::who, "error: I dunno which channel you are referring to since you're on more than one. Try 'news #chan ...' instead");
 	    return;
 	}
 
@@ -119,6 +118,7 @@ sub readNews {
 		&::DEBUG("!defined item, never happen!");
 		next;
 	    }
+
 	    $::news{$chan}{$item}{$1} = $2;
 	    next;
 	}
@@ -353,7 +353,6 @@ sub read {
 	return;
     }
 
-#    my $item	= (exists $::news{$chan}{$str}) ? $str : &getNewsItem($str);
     my $item	= &getNewsItem($str);
     if (!defined $item or !scalar keys %{ $::news{$chan}{$item} }) {
 	&::msg($::who, "No news item called '$str'");
@@ -365,14 +364,28 @@ sub read {
 	return;
     }
 
-    # todo: show item number.
-    # todo: show ago-time aswell?
-    # todo: show request stats aswell.
-    my $t = localtime($::news{$chan}{$item}{Time});
-    my $a = $::news{$chan}{$item}{Author};
-    &::msg($::who, "+- News \002$chan\002 ##, item '\037$item\037':");
+    my $t	= localtime( $::news{$chan}{$item}{Time} );
+    my $a	= $::news{$chan}{$item}{Author};
+    my $text	= $::news{$chan}{$item}{Text};
+    my $num	= &newsS2N($item);
+    my $rwho	= $::news{$chan}{$item}{Request_By} || $::who;
+    my $rcount	= $::news{$chan}{$item}{Request_Count} || 0;
+
+    if (length $text < $::param{maxKeySize}) {
+	&::DEBUG("NEWS: Possible news->factoid redirection.");
+	my $f	= &::getFactoid($text);
+
+	if (defined $f) {
+	    &::DEBUG("NEWS: ok, $text is factoid redirection.");
+	    $f =~ s/^<REPLY>\s*//i;	# anything else?
+	    $text = $f;
+	}
+    }
+
+    &::msg($::who, "+- News \002$chan\002 #$num: \037$item\037");
     &::msg($::who, "| Added by $a at $t");
-    &::msg($::who, $::news{$chan}{$item}{Text});
+    &::msg($::who, "| Requested $rcount times, last by $rwho");
+    &::msg($::who, $text);
 
     $::news{$chan}{$item}{'Request_By'}   = $::who;
     $::news{$chan}{$item}{'Request_Time'} = time();
@@ -577,6 +590,7 @@ sub set {
 	return;
     }
 
+    # todo: clean this up.
     my $old = $::news{$chan}{$news}{$what};
     if (defined $old) {
 	&::DEBUG("old => $old.");
@@ -610,6 +624,13 @@ sub latest {
 	return;
     }
 
+    if (!$flag) {
+	my $unread	= scalar @new;
+	my $total	= scalar keys %{ $::news{$chan} };
+	&::msg($::who, "There are unread news in $chan ($unread unread, $total, total). /msg $::ident news latest");
+	return;
+    }
+
     if (scalar @new) {
 	&::msg($::who, "+==== New news for \002$chan\002 (".
 		scalar(@new)." new items):");
@@ -619,7 +640,6 @@ sub latest {
 
 	foreach (@new) {
 	    my $i   = &newsS2N($_);
-	    &::DEBUG("i = $i, _ => $_");
 	    my $age = time() - $::news{$chan}{$_}{Time};
 	    &::msg($::who, sprintf("\002[\002%2d\002]\002 %s",
 		$i, $_) );
@@ -703,6 +723,7 @@ sub getNewsItem {
 
     } else {
 	# partial string to full string resolution
+	# in some cases, string->number resolution.
 
 	my @items;
 	my $no;
@@ -717,14 +738,8 @@ sub getNewsItem {
 	    push(@items, $time{$_}) if ($time{$_} =~ /\Q$what\E/i);
 	}
 
-	# since we have so much built into this function, there is so
-	# many guesses we can make.
-	# todo: split this command in the future into:
-	#	full_string->number and number->string
-	#	partial_string->full_string
-	&::DEBUG("no => $no, items => @items.");
 	if (defined $no and !@items) {
-	    &::DEBUG("string->number resolution.");
+	    &::DEBUG("string->number resolution: $what->$no.");
 	    return $no;
 	}
 
@@ -734,7 +749,7 @@ sub getNewsItem {
 	    return;
 	}
 
-	&::DEBUG("gNI: string->number(??): $what->$items[0]");
+	&::DEBUG("gNI: part_string->full_string: $what->$items[0]");
 	if (@items) {
 	    &::DEBUG("gNI: Guessed '$items[0]'.");
 	    return $items[0];

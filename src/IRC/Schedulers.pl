@@ -31,6 +31,7 @@ sub setupSchedulers {
     &seenFlushOld(2);
     &ircCheck(1);	# mandatory
     &miscCheck(1);	# mandatory
+    &miscCheck2(1);	# mandatory
     &shmFlush(1);	# mandatory
     &slashdotLoop(2);
     &freshmeatLoop(2);
@@ -468,7 +469,8 @@ sub seenFlush {
     if ($param{'DBType'} =~ /^mysql|pg|postgres/i) {
 	foreach $nick (keys %seencache) {
 	    if (0) {
-	    my $retval = &dbReplace("seen", $nick, (
+	    #BROKEN#
+	    my $retval = &dbReplace("seen", "nick", $nick, (
 			"nick" => $seencache{$nick}{'nick'},
 			"time" => $seencache{$nick}{'time'},
 			"host" => $seencache{$nick}{'host'},
@@ -556,18 +558,31 @@ sub leakCheck {
 
     # flood.
     foreach $blah1 (keys %flood) {
-	foreach $blah2 (keys %{$flood{$blah1}}) {
-	    $count += scalar(keys %{$flood{$blah1}{$blah2}});
+	foreach $blah2 (keys %{ $flood{$blah1} }) {
+	    $count += scalar(keys %{ $flood{$blah1}{$blah2} });
 	}
     }
-    &VERB("\%flood has $count total keys.",2);
+    &DEBUG("leak: hash flood has $count total keys.",2);
+
+    # floodjoin.
+    $count = 0;
+    foreach $blah1 (keys %floodjoin) {
+	foreach $blah2 (keys %{ $floodjoin{$blah1} }) {
+	    $count += scalar(keys %{ $floodjoin{$blah1}{$blah2} });
+	}
+    }
+    &DEBUG("leak: hash flood has $count total keys.",2);
+
+    # floodwarn.
+    $count = scalar(keys %floodwarn);
+    &DEBUG("leak: hash floodwarn has $count total keys.",2);
 
     my $chan;
     foreach $chan (grep /[A-Z]/, keys %channels) {
 	&DEBUG("leak: chan => '$chan'.");
 	my ($i,$j);
-	foreach $i (keys %{$channels{$chan}}) {
-	    foreach (keys %{$channels{$chan}{$i}}) {
+	foreach $i (keys %{ $channels{$chan} }) {
+	    foreach (keys %{ $channels{$chan}{$i} }) {
 		&DEBUG("leak:   \$channels{$chan}{$i}{$_} ...");
 	    }
 	}
@@ -582,7 +597,7 @@ sub leakCheck {
 	$delete++;
     }
 
-    &status("leakC: $delete nuh{} items deleted; now have ".
+    &status("leak: $delete nuh{} items deleted; now have ".
 				scalar(keys %nuh) ) if ($delete);
 }
 
@@ -730,17 +745,6 @@ sub miscCheck {
 	CORE::system("/usr/bin/ipcrm shm $shmid >/dev/null");
     }
 
-    # debian check.
-    opendir(DEBIAN, "$bot_base_dir/debian");
-    foreach ( grep /gz$/, readdir(DEBIAN) ) {
-	my $exit = CORE::system("gzip -t $bot_base_dir/debian/$_");
-	next unless ($exit);
-
-	&status("debian: unlinking file => $_");
-	unlink "$bot_base_dir/debian/$_";
-    }
-    closedir DEBIAN;
-
     # make backup of important files.
     &mkBackup( $bot_misc_dir."/blootbot.chan", 60*60*24*1);
     &mkBackup( $bot_misc_dir."/blootbot.users", 60*60*24*1);
@@ -754,6 +758,44 @@ sub miscCheck {
 
     ### check modules if they've been modified. might be evil.
     &reloadAllModules();
+}
+
+sub miscCheck2 {
+    if (@_) {
+	&ScheduleThis(240, "miscCheck2");
+	return if ($_[0] eq "2");	# defer.
+    } else {
+	delete $sched{"miscCheck2"}{RUNNING};
+    }
+
+    &DEBUG("miscCheck2: Doing debian checking...");
+
+    # debian check.
+    opendir(DEBIAN, "$bot_base_dir/debian");
+    foreach ( grep /gz$/, readdir(DEBIAN) ) {
+	my $exit = CORE::system("gzip -t $bot_base_dir/debian/$_");
+	next unless ($exit);
+
+	&status("debian: unlinking file => $_");
+	unlink "$bot_base_dir/debian/$_";
+    }
+    closedir DEBIAN;
+
+    # compress logs that should have been compressed.
+    # todo: use strftime?
+    my ($day,$month,$year) = (localtime(time()))[3,4,5];
+    my $date = sprintf("%04d%02d%02d",$year+1900,$month+1,$day);
+
+    opendir(DIR,"$bot_base_dir/log");
+    while (my $f = readdir(DIR)) {
+	next unless ( -f "$bot_base_dir/log/$f");
+	next if ($f =~ /gz|bz2/);
+	next unless ($f =~ /(\d{8})/);
+	next if ($date eq $1);
+
+	&compress("$bot_base_dir/log/$f");
+    }
+    closedir DIR;
 }
 
 sub shmFlush {
@@ -1090,8 +1132,12 @@ sub mkBackup {
     my($file, $time) = @_;
     my $backup	= 0;
 
+    if (! -f $file) {
+	&WARN("mkB: file $file don't exist.");
+	return;
+    }
+
     if ( -e "$file~" ) {
-	$backup++ if ( -s $file > -s "$file~");
  	$backup++ if ((stat $file)[9] - (stat "$file~")[9] > $time);
     } else {
 	$backup++;
@@ -1101,7 +1147,6 @@ sub mkBackup {
     ### TODO: do internal copying.
     &status("Backup: $file to $file~");
     CORE::system("/bin/cp $file $file~");
-    CORE::system("/bin/touch $file~");	# needed!
 }
 
 1;
