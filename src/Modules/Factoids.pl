@@ -204,6 +204,7 @@ sub CmdFactStats {
 		my $redirf = lc $2;
 		my $redir = &getFactInfo($redirf, "factoid_value");
 		next if (defined $redir);
+		next if (length $val > 50);
 
 		$redir{$redirf}{$factoid} = 1;
 	    }
@@ -268,7 +269,7 @@ sub CmdFactStats {
 	my $prefix = "dupe factoid ";
 	return &formListReply(1, $prefix, @list);
 
-    } elsif ($type =~ /^lame$/i) {
+    } elsif ($type =~ /^(2|too)short$/i) {
 	# Custom select statement.
 	my $query = "SELECT factoid_key,factoid_value FROM factoids WHERE length(factoid_value) <= 40";
 	my $sth = $dbh->prepare($query);
@@ -277,8 +278,9 @@ sub CmdFactStats {
 	my @list;
 	while (my @row = $sth->fetchrow_array) {
 	    my($key,$val) = ($row[0], $row[1]);
-	    next if ($val =~ /^</);
-	    next if ($val =~ /\s{2,}/);
+	    my $match = 0;
+	    $match++ if ($val =~ /\s{3,}/);
+	    next unless ($match);
 
 	    $key =~ s/\,/\037\,\037/g;
 	    push(@list, $key);
@@ -287,6 +289,31 @@ sub CmdFactStats {
 
 	# parse the results.
 	my $prefix = "Lame factoids ";
+	return &formListReply(1, $prefix, @list);
+
+    } elsif ($type =~ /^listfix$/i) {
+	# Custom select statement.
+	my $query = "SELECT factoid_key,factoid_value FROM factoids";
+	my $sth = $dbh->prepare($query);
+	&ERROR("factstats(listfix): => '$query'.") unless $sth->execute;
+
+	my @list;
+	while (my @row = $sth->fetchrow_array) {
+	    my($key,$val) = ($row[0], $row[1]);
+	    my $match = 0;
+	    $match++ if ($val =~ /\S+,? or \S+,? or \S+,? or \S+,?/);
+	    next unless ($match);
+
+	    $key =~ s/\,/\037\,\037/g;
+	    push(@list, $key);
+	    $val =~ s/,? or /, /g;
+	    &DEBUG("fixed: => $val.");
+	    &setFactInfo($key,"factoid_value", $val);
+	}
+	$sth->finish;
+
+	# parse the results.
+	my $prefix = "Inefficient lists fixed ";
 	return &formListReply(1, $prefix, @list);
 
     } elsif ($type =~ /^locked$/i) {
@@ -481,9 +508,10 @@ sub CmdFactStats {
     } elsif ($type =~ /^seefix$/i) {
 	my @list = &searchTable("factoids", "factoid_key",
 			"factoid_value", "^see ");
-	my %redir;
-	my $f;
+	my @newlist;
 	my $fixed = 0;
+	my %loop;
+	my $f;
 
 	for (@list) {
 	    my $factoid = $_;
@@ -492,27 +520,25 @@ sub CmdFactStats {
 		my $redirf = lc $2;
 		my $redir = &getFactInfo($redirf, "factoid_value");
 
+		if ($redirf =~ /^\Q$factoid\W$/i) {
+		    &delFactoid($factoid);
+		    $loop{$factoid} = 1;
+		}
+
 		if (defined $redir) {	# good.
 		    &setFactInfo($factoid,"factoid_value","<REPLY> see $redir");
 		    $fixed++;
 		} else {
-		    $redir{$redirf}{$factoid} = 1;
+		    push(@newlist, $redirf);
 		}
 	    }
 	}
 
-	my @newlist;
-	foreach $f (keys %redir) {
-	    my @sublist = keys %{$redir{$f}};
-	    for (@sublist) {
-		s/([\,\;]+)/\037$1\037/g;
-	    }
-
-	    push(@newlist, join(', ', @sublist)." => $f");
-	}
-
 	# parse the results.
-	&performReply("Fixed $fixed factoids.");
+	&msg($who, "Fixed $fixed factoids.");
+	&msg($who, "Self looped factoids removed: ".
+		sort(keys %loop) ) if (scalar keys %loop);
+
 	my $prefix = "Loose link (dead) redirections in factoids ";
 	return &formListReply(1, $prefix, @newlist);
 
