@@ -74,6 +74,7 @@ sub DebianDownload {
     # fe dists.
     # Download the files.
     my $file;
+##    my %ret;
     foreach $file (keys %urls) {
 	my $url = $urls{$file};
 	$url  =~ s/##DIST/$dist/g;
@@ -132,6 +133,7 @@ sub DebianDownload {
 	    }
 
 	    &main::DEBUG("deb: download: good.");
+##	    $ret{$
 	    $good++;
 	} else {
 	    &main::ERROR("Debian: invalid format of url => ($url).");
@@ -233,7 +235,7 @@ sub searchContents {
 		next unless ($basename =~ /\Q$query\E/);
 	    }
 	    next if ($query !~ /\.\d\.gz/ and $file =~ /\/man\//);
-	    next unless ($front and $file =~ /^\/\Q$query\E/);
+	    next if ($front and $file !~ /^\/\Q$query\E/);
 
 	    $contents{$package}{$file} = 1;
 	    $found++;
