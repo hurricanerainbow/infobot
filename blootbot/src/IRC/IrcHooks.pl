@@ -894,6 +894,18 @@ sub hookMsg {
 	&status("[$orig{who}] $orig{message}");
     }
 
+    if ((&IsParam("seenStoreAll") or !$skipmessage) and
+	&IsParam("seen") and
+	$msgType =~ /public/ and
+    ) {
+	$seencache{$who}{'time'} = time();
+	$seencache{$who}{'nick'} = $orig{who};
+	$seencache{$who}{'host'} = $uh;
+	$seencache{$who}{'chan'} = $talkchannel;
+	$seencache{$who}{'msg'}  = $orig{message};
+	$seencache{$who}{'msgcount'}++;
+    }
+
     return if ($skipmessage);
     return unless (&IsParam("minVolunteerLength") or $addressed);
 
