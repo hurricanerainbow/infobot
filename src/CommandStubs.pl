@@ -296,23 +296,22 @@ sub Modules {
 	    # step 1.
 	    my %nickometer;
 	    foreach (keys %{ $channels{lc $term}{''} }) {
-		my $value = &nickometer($_);
-
-		if (!defined $value) {
-		    &WARN("nickometer: value is undefined.");
+		my $str   = $_;
+		if (!defined $str) {
+		    &WARN("nickometer: nick in chan $term undefined?");
 		    next;
 		}
-		&DEBUG("value => $value.");
 
+		my $value = &nickometer($str);
 		$nickometer{$value}{$_} = 1;
 	    }
 
 	    # step 2.
 	    ### TODO: compact with map?
 	    my @list;
-	    foreach (sort {$a <=> $b} keys %nickometer) {
+	    foreach (sort {$b <=> $a} keys %nickometer) {
 		my $str = join(", ", sort keys %{$nickometer{$_}});
-		push(@list, "$str ($_ %)");
+		push(@list, "$str ($_%)");
 	    }
 
 	    &pSReply( &formListReply(0, "Nickometer list for $term ", @list) );
@@ -698,12 +697,12 @@ sub do_verstats {
 		&WARN("sorted{$perc} already exists; FIXME.");
 	    }
 
-	    $sorted{$perc} = "$_ - $count ($perc %)";
+	    $sorted{$perc} = "$_ - $count ($perc%)";
 	}
 
 	### can be compressed to a map?
 	my @list;
-	foreach ( sort { $a <=> $b } keys %sorted ) {
+	foreach ( sort { $b <=> $a } keys %sorted ) {
 	    push(@list, $sorted{$_});
 	}
 
