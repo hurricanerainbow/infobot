@@ -117,9 +117,10 @@ sub BZFlag::querytext {
 
 	# quit if version isn't valid
 	return 'not a bzflag server' if ($magic ne "BZFS");
-	return 'incompatible version' if ($major < 1);
-	return 'incompatible version' if ($major == 1 && $minor < 7);
-	return 'incompatible version' if ($major == 1 && $minor == 7 && $revision eq "b");
+  # try incompatible for BZFlag:Zero etc.
+	$response = 'incompatible version: ' if ($major < 1);
+	$response = 'incompatible version: ' if ($major == 1 && $minor < 7);
+	$response = 'incompatible version: ' if ($major == 1 && $minor == 7 && $revision eq "b");
 
 	# quit if rejected
 	return 'rejected by server' if ($port == 0);
