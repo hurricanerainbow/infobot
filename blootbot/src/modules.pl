@@ -35,7 +35,7 @@ if ($@) {
 	"HTTPDtype"	=> "HTTPDtype.pl",
 	"insult"	=> "insult.pl",
 	"UserDCC"	=> "UserDCC.pl",
-	"kernel"	=> "Kernel.pl",
+	"Kernel"	=> "Kernel.pl",
 	"news"		=> "News.pl",
 	"nickometer"	=> "nickometer.pl",
 	"pager"		=> "pager.pl",

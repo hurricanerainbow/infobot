@@ -1,4 +1,4 @@
-#v1: blootbot -- infobot -- written Tue Nov 23 04:06:13 2004
+#v1: blootbot -- infobot -- written Tue Nov 23 04:10:33 2004
 
 #botpark
     +autojoin
@@ -23,6 +23,7 @@ _default
     +Exchange
     +Factoids
     +HTTPDtype
+    +Kernel
     +allowConv
     +allowDNS
     +allowTelling
@@ -40,7 +41,6 @@ _default
     freshmeatRefreshInterval 24
     +insult
     +karma
-    +kernel
     +lart
     +limitcheck
     +log

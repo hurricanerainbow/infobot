@@ -186,7 +186,7 @@ sub parseCmdHook {
 &addCmdHook("extra", 'insult', ('CODEREF' => 'Insult::Insult',
 	'Forker' => 1, 'Identifier' => 'insult', 'Help' => "insult" ) );
 &addCmdHook("extra", 'kernel', ('CODEREF' => 'Kernel::Kernel',
-	'Forker' => 1, 'Identifier' => 'kernel',
+	'Forker' => 1, 'Identifier' => 'Kernel',
 	'Cmdstats' => 'Kernel', 'NoArgs' => 1) );
 &addCmdHook("extra", 'listauth', ('CODEREF' => 'CmdListAuth',
 	'Identifier' => 'search', Module => 'Factoids',
