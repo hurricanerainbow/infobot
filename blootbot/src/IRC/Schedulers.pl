@@ -25,7 +25,7 @@ sub setupSchedulers {
     &netsplitCheck(1);	# mandatory
     &floodLoop(1);	# mandatory
     &seenFlush(1);
-    &leakCheck(1);	# mandatory
+    &leakCheck(2);	# mandatory
     &ignoreCheck(1);	# mandatory
     &seenFlushOld(1);
     &ircCheck(1);	# mandatory
@@ -461,7 +461,7 @@ sub leakCheck {
     my $count = 0;
 
     if (@_) {
-	&ScheduleThis(60, "leakCheck");
+	&ScheduleThis(240, "leakCheck");
 	return if ($_[0] eq "2");
     } else {
 	delete $sched{"leakCheck"}{RUNNING};
@@ -868,9 +868,15 @@ sub factoidCheck {
     my @list = &searchTable("factoids", "factoid_key", "factoid_key", " #DEL#");
     my $stale = &getChanConfDefault("factoidDeleteDelay", 7)*60*60*24;
 
+    my $time	= time();
     foreach (@list) {
 	my $age = &getFactInfo($_, "modified_time");	
-	next unless (time() - $age > $stale);
+	if (!defined $age or $age !~ /^\d+$/) {
+	    &WARN("age == NULL or not numeric.");
+	    next;
+	}
+
+	next unless ($time - $age > $stale);
 
 	my $fix = $_;
 	$fix =~ s/ #DEL#$//g;
