@@ -562,9 +562,16 @@ sub ircCheck {
     }
 
     if (!$conn->connected or time - $msgtime > 3600) {
-	&WARN("ircCheck: no msg for 3600 and disco'd! reconnecting!");
-	$msgtime = time();	# just in case.
-	&ircloop();
+	if (exists $cache{connect}) {
+	    &WARN("ircCheck: no msg for 3600 and disco'd! reconnecting!");
+	    $msgtime = time();	# just in case.
+	    &ircloop();
+	    delete $cache{connect};
+	} else {
+	    &DEBUG("possible lost in space; checking.");
+	    &msg($ident, "TEST");
+	    $cache{connect} = time();
+	}
     }
 
     if ($ident !~ /^\Q$param{ircNick}\E$/) {
