@@ -711,23 +711,6 @@ sub userCommands {
 	);
 
 	return;
-
-	my %hash = &sqlSelectColHash("stats", "nick,counter",
-		{ type => "cmdstats" }, 1);
-# ORDER won't be retained in a hash
-#			" ORDER BY counter DESC", 1);
-
-if (0) {
-	foreach (keys %hash) {
-	    my $i = $_;
-	    foreach (keys %{ $hash{$i} }) {
-		&DEBUG("cmdstats: $hash{$i}{$_} = $_");
-	    }
-	}
-	&DEBUG("end of cmdstats.");
-}
-
-	return;
     }
 
     # wantNick. xk++
