@@ -158,6 +158,7 @@ sub irc {
 	$conn->add_global_handler(473, \&on_inviteonly);
 	$conn->add_global_handler(474, \&on_banned);
 	$conn->add_global_handler(475, \&on_badchankey);
+	$conn->add_global_handler(443, \&on_useronchan);
 
     # end of handler stuff.
 

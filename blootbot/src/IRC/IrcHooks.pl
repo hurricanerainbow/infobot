@@ -1197,4 +1197,12 @@ sub on_badchankey {
     &joinNextChan();
 }
 
+sub on_useronchan {
+    my ($self, $event) = @_;
+    my @args	= $event->args;
+
+    &DEBUG("on_useronchan: args => @args");
+    &joinNextChan();
+}
+
 1;
