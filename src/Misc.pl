@@ -134,7 +134,11 @@ sub formListReply {
 	    push(@rand, $list[$_]);
 	    last if (scalar @rand == $maxshow);
 	}
-	@list = sort @rand;
+	if ($total > $maxshow) {
+	    @list = sort @rand;
+	} else {
+	    @list = @rand;
+	}
     } elsif ($total > $maxshow) {
 	&status("formListReply: truncating list.");
 
@@ -142,6 +146,7 @@ sub formListReply {
     }
 
     # form the reply.
+    # FIXME: should grow and exit when full, not discard any that are oversize
     while () {
 	$reply  = $prefix ."(\002". scalar(@list). "\002";
 	$reply .= " of \002$total\002" if ($total != scalar @list);
