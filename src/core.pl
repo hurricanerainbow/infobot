@@ -55,8 +55,7 @@ $utime_chanfile	= 0;
 $wtime_chanfile	= 0;
 $ucount_chanfile = 0;
 
-### CHANGE TO STATIC.
-$bot_version = "blootbot cvs (20001212) -- $^O";
+$bot_version	= "blootbot cvs (20010214) -- $^O";
 $noreply	= "NOREPLY";
 
 ##########
