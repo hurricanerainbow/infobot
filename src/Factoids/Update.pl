@@ -107,18 +107,12 @@ sub update {
 
 	&performAddressedReply("okay");
 
-	if (0) {	# old
-	    &setFactInfo($lhs, "factoid_value", $rhs);
-	    &setFactInfo($lhs, "created_by",    $nuh);
-	    &setFactInfo($lhs, "created_time",  time());
-	} else {
-	    &dbReplace("factoids", "factoid_key", (
+	&dbReplace("factoids", "factoid_key", (
 		created_by	=> $nuh,
 		created_time	=> time(),	# modified time.
 		factoid_key	=> $lhs,
 		factoid_value	=> $rhs,
-	    ) );
-	}
+	) );
 
 	if (!defined $rhs or $rhs eq "") {
 	    &ERROR("Update: rhs1 == NULL.");
