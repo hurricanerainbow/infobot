@@ -16,7 +16,7 @@ sub setupSchedulers {
     &uptimeCycle(1)	if (&IsParam("uptime"));
     &randomQuote(1)	if (&IsParam("randomQuote"));
     &randomFactoid(1)	if (&IsParam("randomFactoid"));
-    &logCycle(1)	if ($loggingstatus and &IsParam("logFile") and &IsParam("maxLogSize"));
+    &logCycle(1)	if (defined fileno LOG and &IsParam("logfile") and &IsParam("maxLogSize"));
     &limitCheck(1)	if (&IsParam("limitcheck"));
     &netsplitCheck(1);	# mandatory
     &floodCycle(1);	# mandatory
