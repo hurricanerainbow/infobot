@@ -66,16 +66,6 @@ sub verifyUser {
 	$userHandle = $userinlist;
     }
 
-    # seen.
-    if (&IsParam("seen") and $msgType =~ /public/) {
-	$seencache{$who}{'time'} = time();
-	$seencache{$who}{'nick'} = $orig{who};
-	$seencache{$who}{'host'} = $uh;
-	$seencache{$who}{'chan'} = $talkchannel;
-	$seencache{$who}{'msg'}  = $orig{message};
-	$seencache{$who}{'msgcount'}++;
-    }
-
 #    $talkWho{$talkchannel} = $orig{who};
 #    $talkWho = $orig{who};
 ### FIXME HERE.
