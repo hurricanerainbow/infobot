@@ -11,7 +11,7 @@ use strict;
 # Search(keys||vals, str);
 sub Search {
     my ($type, $str) = @_;
-    my $start_time = &main::gettimeofday();
+    my $start_time = &main::timeget();
     my @list;
 
     $type =~ s/s$//;	# nice work-around.
@@ -22,7 +22,7 @@ sub Search {
 	@list = &main::searchTable("factoids", "factoid_key", "factoid_key", $str);
     }
 
-    my $delta_time = sprintf("%.02f", &main::gettimeofday() - $start_time);
+    my $delta_time = sprintf("%.02f", &main::timedelta($start_time) );
     &main::status("search: took $delta_time sec for query.") if ($delta_time > 0);
 
     my $prefix = "Factoid search of '\002$str\002' by $type ";

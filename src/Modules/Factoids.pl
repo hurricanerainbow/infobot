@@ -165,13 +165,13 @@ sub CmdFactStats {
 
     } elsif ($type =~ /^broken$/i) {
         &status("factstats(broken): starting...");
-	my $start_time = &gettimeofday();
-	my %data = &dbGetCol("factoids", "factoid_key","factoid_value");
+	my $start_time	= &timeget();
+	my %data	= &dbGetCol("factoids", "factoid_key","factoid_value");
 	my @list;
 
-	my $delta_time = &gettimeofday() - $start_time;
+	my $delta_time	= &timedelta($start_time);
         &status(sprintf("factstats(broken): %.02f sec to retreive all factoids.", $delta_time)) if ($delta_time > 0);
-	$start_time = &gettimeofday();
+	$start_time	= &timeget();
 
 	# parse the factoids.
 	foreach (keys %data) {
@@ -181,7 +181,7 @@ sub CmdFactStats {
 	    }
 	}
 
-	$delta_time = &gettimeofday() - $start_time;
+	$delta_time	= &timedelta($start_time);
         &status(sprintf("factstats(broken): %.02f sec to complete.", $delta_time)) if ($delta_time > 0);
 
 	# bail out on no results.
@@ -227,11 +227,11 @@ sub CmdFactStats {
 	return &formListReply(1, $prefix, @newlist);
 
     } elsif ($type =~ /^dup(licate|e)$/i) {
-	my $start_time = &gettimeofday();
         &status("factstats(dupe): starting...");
-	my %hash = &dbGetCol("factoids", "factoid_key", "factoid_value", 1);
+	my $start_time	= &timeget();
+	my %hash	= &dbGetCol("factoids", "factoid_key", "factoid_value", 1);
+	my $refs	= 0;
 	my @list;
-	my $refs = 0;
 	my $v;
 
 	foreach $v (keys %hash) {
@@ -259,7 +259,7 @@ sub CmdFactStats {
 	}
 
 	&status("factstats(dupe): (good) dupe refs: $refs.");
-	my $delta_time = &gettimeofday() - $start_time;
+	my $delta_time	= &timedelta($start_time);
         &status(sprintf("factstats(dupe): %.02f sec to complete", $delta_time)) if ($delta_time > 0);
 
 	# bail out on no results.
@@ -355,7 +355,7 @@ sub CmdFactStats {
 
     } elsif ($type =~ /^part(ial)?dupe$/i) {
 	### requires "custom" select statement... oh well...
-	my $start_time = &gettimeofday();
+	my $start_time	= &timeget();
 
 	# form length|key and key=length hash list.
 	&status("factstats(partdupe): forming length hash list.");
@@ -395,7 +395,7 @@ sub CmdFactStats {
 	    push(@list, join(" ,",@sublist)) if (scalar @sublist);
 	}
 
-	my $delta_time = sprintf("%.02fs", &gettimeofday() - $start_time);
+	my $delta_time = sprintf("%.02fs", &timedelta($start_time) );
         &status("factstats(partdupe): $delta_time sec to complete.") if ($delta_time > 0);
 
 	# bail out on no results.
