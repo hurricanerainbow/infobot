@@ -151,7 +151,7 @@ sub on_endofmotd {
     $ircstats{'ConnectTime'}	= time();
     $ircstats{'ConnectCount'}++;
     if (defined $ircstats{'DisconnectTime'}) {
-	ircstats{'OffTime'}	+= time() - $ircstats{'DisconnectTime'};
+	$ircstats{'OffTime'}	+= time() - $ircstats{'DisconnectTime'};
     }
 
     # first time run.
@@ -374,9 +374,7 @@ sub on_disconnect {
     # clear any variables on reconnection.
     $nickserv = 0;
 
-    &DEBUG("on_disconnect: 1");
     &clearIRCVars();
-    &DEBUG("on_disconnect: 2");
 
     if (!defined $self) {
 	&WARN("on_disconnect: self is undefined! WTF");
