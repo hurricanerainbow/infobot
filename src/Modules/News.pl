@@ -786,7 +786,7 @@ sub latest {
     # scalar @new, !$flag
     my $unread	= scalar @new;
     my $total	= scalar keys %{ $::news{$chan} };
-    if (!$flag || &::IsChanConf("newsTellUnread")) {
+    if (!$flag && &::IsChanConf("newsTellUnread")) {
 	return unless ($unread);
 
 	# just a temporary measure not to flood ourself off the 
