@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 use strict;
-
+use DB_File;
 if (!scalar @ARGV) {
     print "Usage: dbm2txt <whatever dbm>\n";
     print "Example: dbm2txt.pl factoids\n";
@@ -15,10 +15,11 @@ if (0) {
     openDB();
 }
 
-dbmopen(%db,$dbname,0444) or die "error: cannot open db.\n";
-foreach (keys %db) {
+dbmopen(%db, $dbfile, 0644) or die "error: cannot open db. $dbfile\n";
+my ($key, $val);
+while (($key, $val) = each %db) {
   next if /=>/;		# skip the key if it contains the delimiter.
-
-  print "$_ => $db{$_}\n";
+  chomp $val;
+  print "$key => $val\n";
 }
 dbmclose %db;
