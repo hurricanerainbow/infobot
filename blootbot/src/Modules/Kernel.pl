@@ -12,7 +12,7 @@ sub kernelGetInfo {
 }
 
 sub Kernel {
-    my $return = "Linux kernel versions";
+    my $retval = "Linux kernel versions";
     my @now = &kernelGetInfo();
     if (!scalar @now) {
 	&::msg($::who, "failed.");
@@ -32,9 +32,9 @@ sub Kernel {
 	$line =~ s/ for 2.4//;
 	$line =~ s/ for 2.2//;
 	$line =~ s/ is: */: /;
-	$return .= ", " . $line;
+	$retval .= ", " . $line;
     }
-    &::msg($::who, $return);
+    &::performStrictReply($retval);
 }
 
 sub kernelAnnounce {
