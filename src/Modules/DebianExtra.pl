@@ -69,7 +69,7 @@ sub do_id {
     my($num)	= @_;
     my $url	= "http://bugs.debian.org/$num";
 
-    if (1) {
+    if (1) { # FIXME
 	&::msg($::who, "do_id not supported yet.");
 	return;
     }
@@ -84,7 +84,7 @@ sub do_email {
     my($email)	= @_;
     my $url	= "http://bugs.debian.org/$email";
 
-    if (1) {
+    if (1) { # FIXME
 	&::msg($::who, "do_email not supported yet.");
 	return;
     }
@@ -98,6 +98,11 @@ sub do_email {
 sub do_pkg {
     my($pkg)	= @_;
     my $url	= "http://bugs.debian.org/$pkg";
+
+    if (1) { # FIXME
+	&::msg($::who, "do_pkg not supported yet.");
+	return;
+    }
 
     my @results = &::getURL($url);
     foreach (@results) {
