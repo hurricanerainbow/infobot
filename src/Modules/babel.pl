@@ -58,7 +58,7 @@ sub babelfish {
 	return;
     } elsif ($direction eq 'from') {
 	my $xlate = translate($phrase, $toenglish, $req, $ua);
-	&::pStReply($xlate) if ($xlate);
+	&::pSReply($xlate) if ($xlate);
 	return;
     }
     &DEBUG("what's this junk?");
