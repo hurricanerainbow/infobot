@@ -406,6 +406,7 @@ sub writeChanFile {
 #####
 
 # TODO: support multiple flags.
+# TODO: return all flags for opers
 sub IsFlag {
     my $flags = shift;
     my ($ret, $f, $o) = "";
