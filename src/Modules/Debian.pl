@@ -25,11 +25,12 @@ my %dists	= (
 my %urlcontents = (
 	"debian/Contents-##DIST-i386.gz" =>
 		"ftp://ftp.us.debian.org".
-		"/debian/dists/##DIST/Contents-i386.gz", #woody = BROKEN
-
-	"debian/Contents-##DIST-i386-non-US.gz" =>
-		"ftp://ftp.ca.debian.org".
-		"/debian-non-US/dists/##DIST/non-US/Contents-i386.gz",
+		"/debian/dists/##DIST/Contents-i386.gz",
+### BROKEN!!!
+#	"debian/Contents-##DIST-i386-non-US.gz" =>
+#		"ftp://ftp.ca.debian.org".
+#		"/debian-non-US/dists/##DIST/non-US/Contents-i386.gz",
+###
 );
 
 my %urlpackages = (
@@ -110,8 +111,8 @@ sub DebianDownload {
 	    # hope it doesn't do anything bad.
 	    if ($file =~ /Contents-woody-i386-non-US/) {
 		&main::DEBUG("Skipping Contents-woody-i386-non-US.");
-		$file =~ s/woody/potato/;
-		$path =~ s/woody/potato/;
+#		$file =~ s/woody/potato/;
+#		$path =~ s/woody/potato/;
 ###		next;
 	    }
 
