@@ -155,9 +155,9 @@ sub loadIRCModules {
 	&showProc(" (Net::IRC)");
     } else {
 	&status("IRC support DISABLED.");
-	# disabling forking.
-	$param{forking}	= 0;
-	$param{noSHM}	= 1;
+	# disabling forking. Why?
+	#$param{forking}	= 0;
+	#$param{noSHM}	= 1;
     }
 
     foreach ( &getPerlFiles("$bot_src_dir/$interface") ) {
