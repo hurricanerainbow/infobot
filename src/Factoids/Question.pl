@@ -41,7 +41,7 @@ sub doQuestion {
 
 	# there is no flag to disable/enable asking factoids...
 	# so it was added... thanks zyxep! :)
-	if (&IsFlag("a") ne "a") {
+	if (&IsFlag("a") ne "a" && &IsFlag("o") ne "o") {
 	    &status("$who tried to ask us when not allowed.");
 	    return;
 	}
