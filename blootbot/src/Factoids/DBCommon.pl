@@ -8,7 +8,7 @@
 if (&IsParam("useStrict")) { use strict; }
 
 #####
-# Usage: &setFactInfo($faqtoid, $type, $primval, $key, $val);
+# Usage: &setFactInfo($faqtoid, $key, $val);
 sub setFactInfo {
     &dbSet("factoids", 
 	{ factoid_key => $_[0] },
@@ -18,25 +18,19 @@ sub setFactInfo {
 
 #####
 # Usage: &getFactInfo($faqtoid, [$what]);
-sub main::getFactInfo {
+sub getFactInfo {
     return &dbGet("factoids", $_[1], "factoid_key=".&dbQuote($_[0]) );
 }
 
 #####
 # Usage: &getFactoid($faqtoid);
-sub main::getFactoid {
+sub getFactoid {
     return &getFactInfo($_[0], "factoid_value");
-}
-
-#####
-# Usage: &setFactInfo($faqtoid, $type, $what);
-sub main::setFactInfo {
-    &dbSet("factoids", "factoid_key", $_[0], $_[1], $_[2]);
 }
 
 ##### 
 # Usage: &delFactoid($faqtoid);
-sub main::delFactoid {
+sub delFactoid {
     my ($faqtoid) = @_;
 
     &dbDel("factoids", "factoid_key",$faqtoid);

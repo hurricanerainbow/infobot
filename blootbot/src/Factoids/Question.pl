@@ -184,26 +184,18 @@ sub factoidArgs {
 
 	s/^CMD: //i;
 #	&DEBUG("factarg: ''$str' =~ /^$_\$/'");
-	my @vals;
 	my $arg = $_;
 
 	# todo: <greycat> ~punish apt for (Eating) (Parentheses)
-	# how the hell do I fix the above?
+	# how the hell do I fix the above? -dms.
 
-	# todo: make eval work with $$i's :(
-	# fuck this is an ugly hack. it works though.
+	# eval (evil!) code. cleaned up courtesy of lear.
+	my @vals;
 	eval {
-	    if ($str =~ /^$arg$/i) {
-		for ($i=1; $i<=5; $i++) {
-		    $val = $$i;
-		    last unless (defined $val);
-
-		    push(@vals, $val);
-		}
-	    }
+	    @vals = ($str =~ /^$arg$/i);
 	};
 
-	if ($@) {   # it failed!!!
+	if ($@) {
 	    &WARN("factargs: regex failed! '$str' =~ /^$_\$/");
 	    next;
 	}
@@ -229,7 +221,7 @@ sub factoidArgs {
 
 	# update stats.
 	my $count = &getFactInfo($q, "requested_count") || 0;
-	$count++;   
+	$count++;
 	&setFactInfo($q, "requested_by", $nuh);
 	&setFactInfo($q, "requested_time", time());
 	&setFactInfo($q, "requested_count", $count);

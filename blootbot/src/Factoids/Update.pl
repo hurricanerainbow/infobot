@@ -107,16 +107,15 @@ sub update {
 
 	&performAddressedReply("okay");
 
-	if (1) {	# old
-	    &setFactInfo($lhs,"factoid_value", $rhs);
-	    &setFactInfo($lhs,"created_by", $nuh);
-	    &setFactInfo($lhs,"created_time", time());
+	if (0) {	# old
+	    &setFactInfo($lhs, "factoid_value", $rhs);
+	    &setFactInfo($lhs, "created_by",    $nuh);
+	    &setFactInfo($lhs, "created_time",  time());
 	} else {
-	    ### BROKEN!!!
-	    # I'd prefer to use dbReplace but it don't work.
 	    &dbReplace("factoids", "factoid_key", (
+		created_by	=> $nuh,
+		created_time	=> time(),	# modified time.
 		factoid_key	=> $lhs,
-		created_by	=> time(),
 		factoid_value	=> $rhs,
 	    ) );
 	}
@@ -130,6 +129,9 @@ sub update {
 
     # factoid exists.
     if ($exists eq $rhs) {
+	# this catches the following situation: (right or wrong?)
+	#    "test is test"
+	#    "test is also test"
 	&performAddressedReply("i already had it that way");
 	return 1;
     }
@@ -221,6 +223,7 @@ sub update {
 	$count{'Update'}++;
 	&status("update: <$who> \'$lhs\' =$mhs=> \'$rhs\'; was \'$exists\'");
 
+	# should dbReplace be used here?
 	&delFactoid($lhs);
 	&setFactInfo($lhs,"created_by", $nuh);
 	&setFactInfo($lhs,"created_time", time());
