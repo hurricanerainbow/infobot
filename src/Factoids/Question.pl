@@ -195,6 +195,8 @@ sub factoidArgs {
 
 	next unless (@vals);
 
+	&DEBUG("vals => @vals");
+
 	&status("Question: factoid Arguments for '$str'");
 	# todo: use getReply() - need to modify it :(
 	my $i	= 0;
@@ -203,18 +205,29 @@ sub factoidArgs {
 
 	foreach ( split(',', $1) ) {
 	    my $val = $vals[$i];
+	    &DEBUG("val => $val");
 	    if (!defined $val) {
 		&status("factArgs: vals[$i] == undef; not SARing '$_' for '$str'");
 		next;
 	    }
 
-	    if ($result = &substVars($result)) {
-		# hrm...
-	    } else {
+	    my $done = 0;
+	    my $old = $result;
+	    while (1) {
+		$result = &substVars($result,1);
+		last if ($old eq $result);
+		$old = $result;
+		$done++;
+	    }
+
+	    # hack.
+	    $vals[$i] =~ s/^me$/$who/gi;
+
+	    if (!$done) {
 		&status("factArgs: SARing '$_' to '$vals[$i]'.");
 		$result =~ s/\Q$_\E/$vals[$i]/;
-		$i++;
 	    }
+	    $i++;
 	}
 
 	# nasty hack to get partial &getReply() functionality.

@@ -243,7 +243,7 @@ sub SARit {
 }
 
 sub substVars {
-    my($reply) = @_;
+    my($reply,$flag) = @_;
 
     # $date, $time.
     my $date	=  scalar(localtime());
@@ -253,8 +253,11 @@ sub substVars {
     $reply	=~ s/\$time/$date/gi;
 
     # dollar variables.
-    $reply	=~ s/\$nick/$who/g;
-    $reply	=~ s/\$who/$who/g;	# backward compat.
+    if ($flag) {
+	$reply	=~ s/\$nick/$who/g;
+	$reply	=~ s/\$who/$who/g;	# backward compat.
+    }
+
     if ($reply =~ /\$(user(name)?|host)/) {
 	my ($username, $hostname) = split /\@/, $uh;
 	$reply	=~ s/\$user(name)?/$username/g;
