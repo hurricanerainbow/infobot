@@ -22,8 +22,9 @@ sub ircloop {
     while (1) {
 	# JUST IN CASE. irq was complaining about this.
 	if ($lastrun == time()) {
+	    &DEBUG("hrm... lastrun == time()");
 	    $error++;
-	    sleep 1;
+	    sleep 10;
 	    next;
 	}
 
@@ -33,7 +34,6 @@ sub ircloop {
 		$lastrun = time();
 		next;
 	    }
-	    &DEBUG("ircloop: _ => '$_'.");
 	    next unless (exists $ircPort{$_});
 
 	    my $retval = &irc($_, $ircPort{$_});
@@ -61,7 +61,6 @@ sub irc {
 
     select STDOUT;
     &status("Connecting to port $port of server $server ...");
-    sleep 3;		# lame hack.
 
     # host->ip.
     if ($server =~ /\D$/) {
@@ -91,17 +90,12 @@ sub irc {
 	return 1;
     }
 
+    &clearIRCVars();
+
     # change internal timeout value for scheduler.
     $irc->{_timeout}	= 10;	# how about 60?
 
-    # clear out hashes before connecting...
-    &clearIRCVars();
-
-    $ident			= $param{'ircNick'};
-    ### IRCSTATS.
-    $ircstats{'ConnectTime'}	= time();
-    $ircstats{'ConnectCount'}++;
-    $ircstats{'Server'}		= "$server:$port";
+    $ircstats{'Server'}	= "$server:$port";
 
     # handler stuff.
 	$conn->add_handler('caction',	\&on_action);
@@ -134,7 +128,7 @@ sub irc {
 	$conn->add_global_handler(352, \&on_who);
 	$conn->add_global_handler(353, \&on_names);
 	$conn->add_global_handler(366, \&on_endofnames);
-	$conn->add_global_handler(376, \&on_endofmotd);
+	$conn->add_global_handler(376, \&on_endofmotd); # on_connect.
 	$conn->add_global_handler(433, \&on_nick_taken);
 	$conn->add_global_handler(439, \&on_targettoofast);
     # end of handler stuff.
@@ -201,10 +195,6 @@ sub msg {
 	return;
     }
     $last{msg} = $msg;
-
-    if ($msg =~ /\cB/) {
-	&status("^B hrm.");
-    }
 
     &status(">$nick< $msg");
     $conn->privmsg($nick, $msg) if (&whatInterface() =~ /IRC/);
@@ -631,6 +621,53 @@ sub closeDCC {
 	    $dcc{$type}{$_}->close();
 	}
     }
+}
+
+sub joinfloodCheck {
+    my($who,$chan,$userhost) = @_;
+
+    return unless (&IsParam("joinfloodCheck"));
+
+    if (exists $netsplit{lc $who}) {	# netsplit join.
+	&DEBUG("jfC: $who was in netsnipe; not checking.");
+    }
+
+    if (exists $floodjoin{$chan}{$who}{Time}) {
+	&WARN("floodjoin{$chan}{$who} already exists?");
+    }
+
+    $floodjoin{$chan}{$who}{Time} = time();
+    $floodjoin{$chan}{$who}{Host} = $userhost;
+
+    ### Check...
+    foreach (keys %floodjoin) {
+	my $c = $_;
+	my $count = scalar keys %{ $floodjoin{$c} };
+	next unless ($count > 5);
+	&DEBUG("count => $count");
+
+	my $time;
+	foreach (keys %{ $floodjoin{$c} }) {
+	    $time += $floodjoin{$c}{$_}{Time};
+	}
+	&DEBUG("time => $time");
+	$time /= $count;
+
+	&DEBUG("new time => $time");
+    }
+
+    ### Clean it up.
+    my $delete = 0;
+    foreach $chan (keys %floodjoin) {
+	foreach $who (keys %{ $floodjoin{$chan} }) {
+	    my $time = time() - $floodjoin{$chan}{$who}{Time};
+	    next unless ($time > 10);
+	    delete $floodjoin{$chan}{$who};
+	    $delete++;
+	}
+    }
+
+    &DEBUG("jfC: $delete deleted.") if ($delete);
 }
 
 1;
