@@ -1058,6 +1058,7 @@ sub factoidCheck {
 	}
 
 	&DEBUG("del factoid: delta => ".($time - $age) );
+	&DEBUG("del factoid:    stale => $stale");
 	next unless ($time - $age > $stale);
 
 	my $fix = $_;
