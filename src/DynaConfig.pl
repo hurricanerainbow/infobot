@@ -835,14 +835,19 @@ my @regFlagsChan = (
 );
 
 my @regFlagsUser = (
-	"m",		# modify factoid.
-	"r",		# remove factoid.
-	"t",		# teach/add factoid.
-	"a",		# ask/request factoid.
-	"n",		# bot owner
-	"o",		# master of bot (automatic +amrt)
-	"O",		# dynamic ops (as on channel). (automatic +o)
-	"A",		# bot administration over /msg (def: DCC CHAT)
+	"m",	# modify factoid. (includes renaming)
+	"r",	# remove factoid.
+	"t",	# teach/add factoid.
+	"a",	# ask/request factoid.
+	"n",	# bot owner
+			# can "reload"
+	"o",	# master of bot (automatic +amrt)
+			# can search on factoid strings shorter than 2 chars
+			# can tell bot to join new channels
+			# can [un]lock factoids
+	"O",	# dynamic ops (as on channel). (automatic +o)
+	"A",	# bot administration over /msg
+			# default is only via DCC CHAT
 );
 
 1;

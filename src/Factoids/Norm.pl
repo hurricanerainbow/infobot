@@ -4,27 +4,28 @@
 #   Version: 1997
 #
 
-# use strict;	# TODO
+# todo:
+# use strict;
 
 sub normquery {
-	my ($in) = @_;
+    my ($in) = @_;
 
-	$in = " $in ";
+    $in = " $in ";
+
+    for ($in) {
+	# where blah is -> where is blah
+	s/ (where|what|who)\s+(\S+)\s+(is|are) / $1 $3 $2 /i;
 
 	# where blah is -> where is blah
-	$in =~ s/ (where|what|who)\s+(\S+)\s+(is|are) / $1 $3 $2 /i;
+	s/ (where|what|who)\s+(.*)\s+(is|are) / $1 $3 $2 /i;
 
-	# where blah is -> where is blah
-	$in =~ s/ (where|what|who)\s+(.*)\s+(is|are) / $1 $3 $2 /i;
+	s/^\s*(.*?)\s*/$1/;
 
-	$in =~ s/^\s*(.*?)\s*/$1/;
+	s/be tellin\'?g?/tell/i;
+	s/ \'?bout/ about/i;
 
-	$in =~ s/be tellin\'?g?/tell/i;
-	$in =~ s/ \'?bout/ about/i;
-
-	$in =~ s/,? any(hoo?w?|ways?)/ /ig;
-	$in =~ s/,?\s*(pretty )*please\??\s*$/\?/i;
-
+	s/,? any(hoo?w?|ways?)/ /ig;
+	s/,?\s*(pretty )*please\??\s*$/\?/i;
 
 	# what country is ...
 	if ($in =~ 
@@ -36,61 +37,65 @@ sub normquery {
 	}
 
 	# profanity filters.  just delete it
-	$in =~ s/th(e|at|is) (((m(o|u)th(a|er) ?)?fuck(in\'?g?)?|hell|heck|(god-?)?damn?(ed)?) ?)+//ig;
-	$in =~ s/wtf/where/gi;
-	$in =~ s/this (.*) thingy?/ $1/gi;
-	$in =~ s/this thingy? (called )?//gi;
-	$in =~ s/ha(s|ve) (an?y?|some|ne) (idea|clue|guess|seen) /know /ig;
-	$in =~ s/does (any|ne|some) ?(1|one|body) know //ig;
-	$in =~ s/do you know //ig;
-	$in =~ s/can (you|u|((any|ne|some) ?(1|one|body)))( please)? tell (me|us|him|her)//ig;
-	$in =~ s/where (\S+) can \S+ (a|an|the)?//ig;
-	$in =~ s/(can|do) (i|you|one|we|he|she) (find|get)( this)?/is/i; # where can i find
-	$in =~ s/(i|one|we|he|she) can (find|get)/is/gi; # where i can find
-	$in =~ s/(the )?(address|url) (for|to) //i; # this should be more specific
-	$in =~ s/(where is )+/where is /ig;
-	$in =~ s/\s+/ /g;
-	$in =~ s/^\s+//;
+	s/th(e|at|is) (((m(o|u)th(a|er) ?)?fuck(in\'?g?)?|hell|heck|(god-?)?damn?(ed)?) ?)+//ig;
+	s/wtf/where/gi;
+	s/this (.*) thingy?/ $1/gi;
+	s/this thingy? (called )?//gi;
+	s/ha(s|ve) (an?y?|some|ne) (idea|clue|guess|seen) /know /ig;
+	s/does (any|ne|some) ?(1|one|body) know //ig;
+	s/do you know //ig;
+	s/can (you|u|((any|ne|some) ?(1|one|body)))( please)? tell (me|us|him|her)//ig;
+	s/where (\S+) can \S+ (a|an|the)?//ig;
+	s/(can|do) (i|you|one|we|he|she) (find|get)( this)?/is/i; # where can i find
+	s/(i|one|we|he|she) can (find|get)/is/gi; # where i can find
+	s/(the )?(address|url) (for|to) //i; # this should be more specific
+	s/(where is )+/where is /ig;
+	s/\s+/ /g;
+	s/^\s+//;
 	if ($in =~ s/\s*[\/?!]*\?+\s*$//) {
 	    $finalQMark = 1;
 	}
 
-	$in =~ s/\s+/ /g;
-	$in =~ s/^\s*(.*?)\s*$/$1/;
-	$in =~ s/^\s+|\s+$//g;		# why twice, see Question.pl
+	s/\s+/ /g;
+	s/^\s*(.*?)\s*$/$1/;
+	s/^\s+|\s+$//g;		# why twice, see Question.pl
+    }
 
-	$in;
+    return $in;
 }
 
 # for be-verbs
 sub switchPerson {
-	my($in) = @_;
+    my ($in) = @_;
 
-	$in =~ s/(^|\W)\Q$who\Es\s+/$1${who}\'s /ig; # fix genitives
-	$in =~ s/(^|\W)\Q$who\Es$/$1${who}\'s/ig; # fix genitives
-	$in =~ s/(^|\W)\Q$who\E\'(\s|$)/$1${who}\'s$2/ig; # fix genitives
-	$in =~ s/(^|\s)i\'m(\W|$)/$1$who is$2/ig;
-	$in =~ s/(^|\s)i\'ve(\W|$)/$1$who has$2/ig;
-	$in =~ s/(^|\s)i have(\W|$)/$1$who has$2/ig;
-	$in =~ s/(^|\s)i haven\'?t(\W|$)/$1$who has not$2/ig;
-	$in =~ s/(^|\s)i(\W|$)/$1$who$2/ig;
-	$in =~ s/ am\b/ is/i;
-	$in =~ s/\bam /is/i;
-	$in =~ s/(^|\s)(me|myself)(\W|$)/$1$who$3/ig;
-	$in =~ s/(^|\s)my(\W|$)/$1${who}\'s$2/ig; # turn 'my' into name's
-	$in =~ s/(^|\W)you\'?re(\W|$)/$1you are$2/ig;
+    for ($in) {
+	# # fix genitives
+	s/(^|\W)\Q$who\Es\s+/$1${who}\'s /ig;
+	s/(^|\W)\Q$who\Es$/$1${who}\'s/ig;
+	s/(^|\W)\Q$who\E\'(\s|$)/$1${who}\'s$2/ig;
+
+	s/(^|\s)i\'m(\W|$)/$1$who is$2/ig;
+	s/(^|\s)i\'ve(\W|$)/$1$who has$2/ig;
+	s/(^|\s)i have(\W|$)/$1$who has$2/ig;
+	s/(^|\s)i haven\'?t(\W|$)/$1$who has not$2/ig;
+	s/(^|\s)i(\W|$)/$1$who$2/ig;
+	s/ am\b/ is/i;
+	s/\bam /is/i;
+	s/(^|\s)(me|myself)(\W|$)/$1$who$3/ig;
+	s/(^|\s)my(\W|$)/$1${who}\'s$2/ig; # turn 'my' into name's
+	s/(^|\W)you\'?re(\W|$)/$1you are$2/ig;
 
 	if ($addressed) {
-		$in =~ s/yourself/$param{'ircNick'}/i;
-		$in =~ s/(^|\W)are you(\W|$)/$1is $param{'ircNick'}$2/ig;
-		$in =~ s/(^|\W)you are(\W|$)/$1$param{'ircNick'} is$2/ig;
-		$in =~ s/(^|\W)you(\W|$)/$1$param{'ircNick'}$2/ig;
-		$in =~ s/(^|\W)your(\W|$)/$1$param{'ircNick'}\'s$2/ig;
+	    # is it safe to remove $in from here, too?
+	    $in =~ s/yourself/$param{'ircNick'}/i;
+	    $in =~ s/(^|\W)are you(\W|$)/$1is $param{'ircNick'}$2/ig;
+	    $in =~ s/(^|\W)you are(\W|$)/$1$param{'ircNick'} is$2/ig;
+	    $in =~ s/(^|\W)you(\W|$)/$1$param{'ircNick'}$2/ig;
+	    $in =~ s/(^|\W)your(\W|$)/$1$param{'ircNick'}\'s$2/ig;
 	}
+    }
 
-	return $in;
+    return $in;
 }
-
-# ---
 
 1;
