@@ -91,6 +91,9 @@ sub irc {
 	return 1;
     }
 
+    # change internal timeout value for scheduler.
+    $irc->{_timeout}	= 10;	# how about 60?
+
     # clear out hashes before connecting...
     &clearIRCVars();
 
