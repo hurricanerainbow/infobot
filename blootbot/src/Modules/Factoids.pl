@@ -738,7 +738,7 @@ sub CmdFactStats {
 
 sub CmdListAuth {
     my ($query) = @_;
-    my $maxshow = &::getChanConfDefault('maxListReplyCount', 15);
+    my $maxshow = &::getChanConfDefault('maxListReplyCount', 15, $chan);
     my @list = &searchTable("factoids","factoid_key", "created_by", "^$query!");
     @list=grep(!/\#DEL\#$/,@list) if (scalar(@list) > $maxshow);
 

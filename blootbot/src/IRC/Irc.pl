@@ -233,8 +233,8 @@ sub say {
 	$pubcount++;
 	$pubsize += length $msg;
 
-	my $i = &getChanConfDefault("sendPublicLimitLines", 3);
-	my $j = &getChanConfDefault("sendPublicLimitBytes", 1000);
+	my $i = &getChanConfDefault("sendPublicLimitLines", 3, $chan);
+	my $j = &getChanConfDefault("sendPublicLimitBytes", 1000, $chan);
 
 	if ( ($pubcount % $i) == 0 and $pubcount) {
 	    sleep 1;
@@ -274,8 +274,8 @@ sub msg {
 	$msgcount++;
 	$msgsize += length $msg;
 
-	my $i = &getChanConfDefault("sendPrivateLimitLines", 3);
-	my $j = &getChanConfDefault("sendPrivateLimitBytes", 1000);
+	my $i = &getChanConfDefault("sendPrivateLimitLines", 3, $chan);
+	my $j = &getChanConfDefault("sendPrivateLimitBytes", 1000, $chan);
 	if ( ($msgcount % $i) == 0 and $msgcount) {
 	    sleep 1;
 	} elsif ($msgsize > $j) {
@@ -326,8 +326,8 @@ sub notice {
 	$notcount++;
 	$notsize += length $txt;
 
-	my $i = &getChanConfDefault("sendNoticeLimitLines", 3);
-	my $j = &getChanConfDefault("sendNoticeLimitBytes", 1000);
+	my $i = &getChanConfDefault("sendNoticeLimitLines", 3, $chan);
+	my $j = &getChanConfDefault("sendNoticeLimitBytes", 1000, $chan);
 
 	if ( ($notcount % $i) == 0 and $notcount) {
 	    sleep 1;

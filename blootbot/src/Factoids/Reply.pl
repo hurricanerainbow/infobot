@@ -28,8 +28,8 @@ sub getReply {
 
     $message =~ tr/A-Z/a-z/;
 
-    @searches = split(/\s+/, &getChanConfDefault('factoidSearch', '_default'));
-
+    @searches = split(/\s+/, &getChanConfDefault('factoidSearch', '_default', $chan));
+    &::DEBUG("factoidSearch: $chan is: " . join(':', @searches));
     # requesting the _default one, ignore factoidSearch
     if ($message =~ /^_default\s+/) {
 	@searches = ('_default');

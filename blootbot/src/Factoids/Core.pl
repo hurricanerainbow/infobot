@@ -158,11 +158,9 @@ sub FactoidStuff {
 	my $author	= &getFactInfo($faqtoid, "created_by");
 	my $count	= &getFactInfo($faqtoid, "requested_count") || 0;
 	# don't delete if requested $limit times
-	my $limit	= &getChanConfDefault(
-				"factoidPreventForgetLimit", 100, $chan);
+	my $limit	= &getChanConfDefault('factoidPreventForgetLimit', 100, $chan);
 	# don't delete if older than $limitage seconds (modified by requests below)
-	my $limitage	= &getChanConfDefault(
-				"factoidPreventForgetLimitTime", 7 * 24 * 60 * 60, $chan);
+	my $limitage	= &getChanConfDefault('factoidPreventForgetLimitTime', 7 * 24 * 60 * 60, $chan);
 	my $t		= &getFactInfo($faqtoid, "created_time") || 0;
 	my $age		= time() - $t;
 

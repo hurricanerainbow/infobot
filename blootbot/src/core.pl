@@ -339,7 +339,6 @@ sub getChanConf {
 
 sub getChanConfDefault {
     my($what, $default, $chan) = @_;
-
     $chan	||= "_default";
 
     if (exists $param{$what}) {
@@ -454,12 +453,12 @@ sub setup {
     &checkTables();
 
     &status("Setup: ". &countKeys("factoids") ." factoids.");
-    &getChanConfDefault("sendPrivateLimitLines", 3);
-    &getChanConfDefault("sendPrivateLimitBytes", 1000);
-    &getChanConfDefault("sendPublicLimitLines", 3);
-    &getChanConfDefault("sendPublicLimitBytes", 1000);
-    &getChanConfDefault("sendNoticeLimitLines", 3);
-    &getChanConfDefault("sendNoticeLimitBytes", 1000);
+    &getChanConfDefault("sendPrivateLimitLines", 3, $chan);
+    &getChanConfDefault("sendPrivateLimitBytes", 1000, $chan);
+    &getChanConfDefault("sendPublicLimitLines", 3, $chan);
+    &getChanConfDefault("sendPublicLimitBytes", 1000, $chan);
+    &getChanConfDefault("sendNoticeLimitLines", 3, $chan);
+    &getChanConfDefault("sendNoticeLimitBytes", 1000, $chan);
 
     $param{tempDir} =~ s#\~/#$ENV{HOME}/#;
 
