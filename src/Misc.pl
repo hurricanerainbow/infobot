@@ -249,6 +249,11 @@ sub fixPlural {
 	return;
     }
 
+    if (!defined $int or $int =~ /^\D+$/) {
+	&WARN("fixPlural: int != defined or int");
+	return $str;
+    }
+
     if ($str eq "has") {
 	$str = "have"	if ($int > 1);
     } elsif ($str eq "is") {
