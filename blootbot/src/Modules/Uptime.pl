@@ -5,7 +5,7 @@
 #   Created: 19990925.
 #
 
-use strict;
+# use strict;
 
 my $uptimerecords	= 3;
 
@@ -28,8 +28,6 @@ sub uptimeGetInfo {
   my ($uptime,$pid);
   my @results;
   my $file = $file{utm};
-
-  &::DEBUG("uGI: reading $file...");
 
   if (!open(IN, $file)) {
     &status("Writing uptime file for first time usage (nothing special).");
@@ -85,9 +83,11 @@ sub uptimeWriteFile {
   }
 
   close OUT;
+  &status("--- Saved uptime records.");
+
+  return unless defined $conn;
 
   $conn->schedule(&getRandomInt("1800-3600"), \&uptimeWriteFile, "");
-  return;
 }
 
 1;

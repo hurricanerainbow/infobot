@@ -113,13 +113,11 @@ sub addForked {
 	    next;
 	}
 
-	# don't kill parent!
-	if ($pid == $$) {
-	    &status("Fork: pid == \$\$ ($$)");
-	    next;
-	}
+	if ($pid == $bot_pid) {
+	    # don't kill parent, just warn.
+	    &status("Fork: pid == \$bot_pid == \$\$ ($bot_pid)");
 
-	if ( -d "/proc/$pid") {
+	} elsif ( -d "/proc/$pid") {	# pid != bot_pid.
 	    &status("Fork: killing $name ($pid)");
 	    kill 9, $pid;
 	}
@@ -134,10 +132,11 @@ sub addForked {
 	if ($count > 3) {	# 3 seconds.
 	    my $list = join(', ', keys %forked);
 	    if (defined $who) {
-		&msg($who, "already running ($list) => exceeded allowed forked processes count (1?).");
+		&msg($who, "exceeded allowed forked count: $list");
 	    } else {
 		&status("Fork: I ran too many forked processes :) Giving up $name.");
 	    }
+
 	    return 0;
 	}
 

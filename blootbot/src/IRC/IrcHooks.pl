@@ -133,6 +133,17 @@ sub on_chat {
     return 'DCC CHAT MESSAGE';
 }
 
+# is there isoff? how do we know if someone signs off?
+sub on_ison {
+    my ($self, $event) = @_;
+    my $x1 = ($event->args)[0];
+    my $x2 = ($event->args)[1];
+
+#    &nick( $param{'ircNick'} );
+
+    &DEBUG("on_ison: x1 = '$x1', x2 => '$x2'");
+}
+
 sub on_endofmotd {
     my ($self) = @_;
 
@@ -192,8 +203,8 @@ sub on_endofmotd {
     # ok, we're free to do whatever we want now. go for it!
     $running = 1;
 
-    $conn->ison($ident);
-    &DEBUG("adding self to NOTIFY/ISON.");
+    # add ourself to notify.
+    $conn->ison( $param{'ircNick'} );
 
     # Q, as on quakenet.org.
     if (&IsParam("Q_pass")) {

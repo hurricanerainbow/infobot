@@ -143,6 +143,7 @@ sub irc {
 	$conn->add_global_handler('disconnect', \&on_disconnect);
 	$conn->add_global_handler([251,252,253,254,255], \&on_init);
 ###	$conn->add_global_handler([251,252,253,254,255,302], \&on_init);
+	$conn->add_global_handler(303, \&on_ison); # notify.
 	$conn->add_global_handler(315, \&on_endofwho);
 	$conn->add_global_handler(422, \&on_endofwho); # nomotd.
 	$conn->add_global_handler(324, \&on_modeis);
