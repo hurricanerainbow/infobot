@@ -10,8 +10,9 @@ package main;
 if (&IsParam("useStrict")) { use strict; }
 
 sub openDB {
-    my $dsn = "DBI:mysql:$param{'DBName'}:$param{'SQLHost'}";
-    $dbh    = DBI->connect($dsn, $param{'SQLUser'}, $param{'SQLPass'});
+    my ($db, $user, $pass) = @_;
+    my $dsn = "DBI:mysql:$db:$param{'SQLHost'}";
+    $dbh    = DBI->connect($dsn, $user, $pass);
 
     if ($dbh) {
 	&status("Opened MySQL connection to $param{'SQLHost'}");
@@ -53,9 +54,11 @@ sub dbGet {
 	return;
     }
 
+    &SQLDebug($query);
     if (!$sth->execute) {
 	&ERROR("Get => '$query'");
 	&ERROR("Get => $DBI::errstr");
+	&SQLDebug($DBI::errstr);
 	return;
     }
 
@@ -80,7 +83,11 @@ sub dbGetCol {
     my %retval;
 
     my $sth = $dbh->prepare($query);
-    &ERROR("GetCol => '$query'") unless $sth->execute;
+    &SQLDebug($query);
+    if (!$sth->execute) {
+	&ERROR("GetCol => '$query'");
+	&SQLDebug($DBI::errstr);
+    }
 
     if (defined $type and $type == 1) {
 	while (my @row = $sth->fetchrow_array) {
@@ -194,9 +201,11 @@ sub dbRaw {
 	return 0;
     }
 
+    &SQLDebug($query);
     if (!$sth->execute) {
 	&ERROR("Raw($prefix): => '$query'");
 	&ERROR("Raw($prefix): $DBI::errstr");
+	&SQLDebug($DBI::errstr);
 	return 0;
     }
 
@@ -211,6 +220,7 @@ sub dbRawReturn {
     my @retval;
 
     my $sth = $dbh->prepare($query);
+    &SQLDebug($query);
     &ERROR("RawReturn => '$query'.") unless $sth->execute;
     while (my @row = $sth->fetchrow_array) {
 	push(@retval, $row[0]);
@@ -241,7 +251,9 @@ sub getKeys {
     my $query	= "SELECT $primkey FROM $table";
     my $sth	= $dbh->prepare($query);
 
-    $sth->execute;
+    &SQLDebug($query);
+    &WARN("ERROR: getKeys($query)") unless $sth->execute;
+
     while (my @row = $sth->fetchrow_array) {
 	push(@retval, $row[0]);
     }
@@ -258,7 +270,8 @@ sub randKey {
     my $query	= "SELECT $select FROM $table LIMIT $rand,1";
 
     my $sth	= $dbh->prepare($query);
-    $sth->execute;
+    &SQLDebug($query);
+    &WARN("randKey($query)") unless $sth->execute;
     my @retval	= $sth->fetchrow_array;
     $sth->finish;
 
@@ -294,7 +307,8 @@ sub searchTable {
     my $query = "SELECT $select FROM $table WHERE $key LIKE ". 
 		&dbQuote($str);
     my $sth = $dbh->prepare($query);
-    $sth->execute;
+    &SQLDebug($query);
+    &WARN("Search($query)") unless $sth->execute;
 
     while (my @row = $sth->fetchrow_array) {
 	push(@results, $row[0]);
@@ -329,6 +343,12 @@ sub delFactoid {
     &status("DELETED $faqtoid");
 
     return 1;
+}
+
+sub SQLDebug {
+    return unless (&IsParam("SQLDebug"));
+
+    print SQLDEBUG $_[0]."\n";
 }
 
 1;
