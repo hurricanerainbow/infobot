@@ -1301,25 +1301,25 @@ sub userDCC {
     }
 
     # adduser/deluser.
-    if ($message =~ /^(\+|\-|add|del)user(\s+(.*))?$/i) {
+    if ($message =~ /^(add|del)user(\s+(.*))?$/i) {
 	my $str		= $1;
 	my $strstr	= $1."user";
 	my @args	= split /\s+/, $3 || '';
 	my $args	= $3;
-	my $state	= ($str =~ /^(\+|add)$/) ? 1 : 0;
+	my $state	= ($str =~ /^(add)$/) ? 1 : 0;
 
 	if (!scalar @args) {
 	    &help($strstr);
 	    return;
 	}
 
-	if ($str eq "+") {
+	if ($str eq 'add') {
 	    if (scalar @args != 2) {
-		&pSReply("+user requires hostmask argument.");
+		&pSReply('adduser requires hostmask argument.');
 		return;
 	    }
 	} elsif (scalar @args != 1) {
-	    &pSReply("too many arguments.");
+	    &pSReply('too many arguments.');
 	    return;
 	}
 

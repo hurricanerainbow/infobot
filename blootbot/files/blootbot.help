@@ -49,6 +49,11 @@ redirection: If a factoid x contains simply "<reply> see y", then when asked for
 reply: There is a special tag, <reply>, that is used to override the usual response.  Usually, a response is "X is Y", but it can be made "Y" by making the entry "X is <reply> Y".
 
 # now the commands...
+
+adduser: D: Administrative command to add new user to the .users file
+adduser: U: ## <user> <mask>
+adduser: E: ## bloot bloot!bloot@example.com
+
 addressing: It is a good idea if I stay in REQUIRE mode so that I won't yell out random crap if I listen in too hard.  Currently there is no way to turn this off on-the-fly. (REQUIRE mode requires me to be addressed by name if I am to respond)
 
 babelfish: D: Frontend to babelfish translating service provided by http://babelfish.altavista.com/ Note that utf8 is used for non-ascii characters.
@@ -140,6 +145,10 @@ dauthor: E: ## Wichert potato
 
 dbugs: D: Show the current count of release critical bugs (latest versions)
 dbugs: U: ##
+
+deluser: D: Administrative command to remove a user from the .users file
+deluser: U: ## <user>
+deluser: E: ## bloot
 
 ddesc: D: Search the Description: lines in Debian packages
 ddesc: U: ## <string> [dist]
