@@ -160,7 +160,7 @@ sub on_endofmotd {
     # first time run.
     if (!exists $users{_default}) {
 	&status("!!! First time run... adding _default user.");
-	$users{_default}{FLAGS}	= "mrt";
+	$users{_default}{FLAGS}	= "amrt";
 	$users{_default}{HOSTS}{"*!*@*"} = 1;
     }
 

@@ -171,7 +171,7 @@ sub process {
 
 	if ($first) {
 	    &pSReply("First time user... adding you as Master.");
-	    $users{$who}{FLAGS} = "mrsteon";
+	    $users{$who}{FLAGS} = "aemnorst";
 	}
 
 	my $crypt = $users{$who}{PASS};

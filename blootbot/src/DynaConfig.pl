@@ -839,20 +839,20 @@ my @regFlagsChan = (
 );
 
 my @regFlagsUser = (
-	"m",	# modify factoid. (includes renaming)
-	"r",	# remove factoid.
-	"t",	# teach/add factoid.
+	# possible chars to include in FLAG
+	"A",	# bot administration over /msg
+			# default is only via DCC CHAT
+	"O",	# dynamic ops (as on channel). (automatic +o)
+	"T",	# add topics.
 	"a",	# ask/request factoid.
-	"n",	# bot owner
-			# can "reload"
+	"m",	# modify factoid. (includes renaming)
+	"n",	# bot owner, can "reload"
 	"o",	# master of bot (automatic +amrt)
 			# can search on factoid strings shorter than 2 chars
 			# can tell bot to join new channels
 			# can [un]lock factoids
-	"O",	# dynamic ops (as on channel). (automatic +o)
-	"A",	# bot administration over /msg
-			# default is only via DCC CHAT
-	"T",	# add topics.
+	"r",	# remove factoid.
+	"t",	# teach/add factoid.
 );
 
 1;
