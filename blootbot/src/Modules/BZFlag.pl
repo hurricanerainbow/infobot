@@ -13,6 +13,7 @@
 
 package BZFlag;
 use strict;
+use Fcntl qw(F_GETFL F_SETFL O_NONBLOCK);
 
 my $no_BZFlag;
 
@@ -122,7 +123,7 @@ sub BZFlag::querytext {
 	#my @teamName = ("Rogue", "Red", "Green", "Blue", "Purple");
 	my @teamName = ("X", "R", "G", "B", "P");
 	my ($message, $server, $response);
-	$port = 5155 unless $port;
+	$port = 5154 unless $port;
 
 	# socket define
 	my $sockaddr = 'S n a4 x8';
@@ -145,77 +146,131 @@ sub BZFlag::querytext {
 
 	# get hello
 	my $buffer;
-	return 'read error' unless read(S1, $buffer, 10) == 10;
+	return 'read error' unless read(S1, $buffer, 8) == 8;
 
 	# parse reply
-	my ($magic,$major,$minor,$revision);
-	($magic,$major,$minor,$revision,$port) = unpack("a4 a1 a2 a1 n", $buffer);
+	my ($magic,$major,$minor,$something,$revision) = unpack("a4 a1 a1 a1 a1", $buffer);
 
 	# quit if version isn't valid
 	return 'not a bzflag server' if ($magic ne "BZFS");
-  # try incompatible for BZFlag:Zero etc.
-	$response = 'incompatible version: ' if ($major < 1);
-	$response = 'incompatible version: ' if ($major == 1 && $minor < 7);
-	$response = 'incompatible version: ' if ($major == 1 && $minor == 7 && $revision eq "b");
+  # check version
+  if ($major == 1 && $minor == 9) {
+	  $revision = $something * 10 + $revision;
+	  $response = "version: $magic $major $minor $revision";
 
-	# quit if rejected
-	return 'rejected by server' if ($port == 0);
+		# send game request
+		print S1 pack("n2", 0, 0x7167);
 
-	# reconnect on new port
-	$server = pack($sockaddr, AF_INET, $port, $serveraddr);
-	return 'socket() error on reconnect' unless socket(S, AF_INET, SOCK_STREAM, $proto);
-	return "could not reconnect to $servername:$port" unless connect(S, $server);
-	select(S); $| = 1; select(STDOUT);
+		# FIXME the packets are wrong from here down
+		# get reply
+		return 'server read error' unless read(S1, $buffer, 40) == 40;
+		my ($infolen,$infocode,$style,$maxPlayers,$maxShots,
+			$rogueSize,$redSize,$greenSize,$blueSize,$purpleSize,
+			$rogueMax,$redMax,$greenMax,$blueMax,$purpleMax,
+			$shakeWins,$shakeTimeout,
+			$maxPlayerScore,$maxTeamScore,$maxTime) = unpack("n20", $buffer);
+		return 'bad server data' unless $infocode == 0x7167;
 
-	# close first socket
-	close(S1);
+		# send players request
+		print S1 pack("n2", 0, 0x7170);
 
-	# send game request
-	print S pack("n2", 0, 0x7167);
+		# get number of teams and players we'll be receiving
+		return 'count read error' unless read(S1, $buffer, 8) == 8;
+		my ($countlen,$countcode,$numTeams,$numPlayers) = unpack("n4", $buffer);
+		return 'bad count data' unless $countcode == 0x7170;
 
-	# get reply
-	return 'server read error' unless read(S, $buffer, 40) == 40;
-	my ($infolen,$infocode,$style,$maxPlayers,$maxShots,
-		$rogueSize,$redSize,$greenSize,$blueSize,$purpleSize,
-		$rogueMax,$redMax,$greenMax,$blueMax,$purpleMax,
-		$shakeWins,$shakeTimeout,
-		$maxPlayerScore,$maxTeamScore,$maxTime) = unpack("n20", $buffer);
-	return 'bad server data' unless $infocode == 0x7167;
-
-	# send players request
-	print S pack("n2", 0, 0x7170);
-
-	# get number of teams and players we'll be receiving
-	return 'count read error' unless read(S, $buffer, 8) == 8;
-	my ($countlen,$countcode,$numTeams,$numPlayers) = unpack("n4", $buffer);
-	return 'bad count data' unless $countcode == 0x7170;
-
-	# get the teams
-	for (1..$numTeams) {
-		return 'team read error' unless read(S, $buffer, 14) == 14;
-		my ($teamlen,$teamcode,$team,$size,$aSize,$won,$lost) = unpack("n7", $buffer);
-		return 'bad team data' unless $teamcode == 0x7475;
-		if ($size > 0) {
-			my $score = $won - $lost;
-			$response .= "$teamName[$team]:$score($won-$lost) ";
+		# get the teams
+		for (1..$numTeams) {
+			return 'team read error' unless read(S1, $buffer, 14) == 14;
+			my ($teamlen,$teamcode,$team,$size,$aSize,$won,$lost) = unpack("n7", $buffer);
+			return 'bad team data' unless $teamcode == 0x7475;
+			if ($size > 0) {
+				my $score = $won - $lost;
+				$response .= "$teamName[$team]:$score($won-$lost) ";
+			}
 		}
-	}
 
-	# get the players
-	for (1..$numPlayers) {
-		last unless read(S, $buffer, 180) == 180;
-		my ($playerlen,$playercode,$pAddr,$pPort,$pNum,$type,$team,$won,$lost,$sign,$email) =
-				unpack("n2Nn2 n4A32A128", $buffer);
-		return 'bad player data' unless $playercode == 0x6170;
-		my $score = $won - $lost;
-		$response .= " $sign($teamName[$team]";
-		$response .= ":$email" if ($email);
-		$response .= ")$score($won-$lost)";
-	}
-	$response .= "No Players" if ($numPlayers <= 1);
+		# get the players
+		for (1..$numPlayers) {
+			last unless read(S1, $buffer, 180) == 180;
+			my ($playerlen,$playercode,$pAddr,$pPort,$pNum,$type,$team,$won,$lost,$sign,$email) =
+					unpack("n2Nn2 n4A32A128", $buffer);
+			return 'bad player data' unless $playercode == 0x6170;
+			my $score = $won - $lost;
+			$response .= " $sign($teamName[$team]";
+			$response .= ":$email" if ($email);
+			$response .= ")$score($won-$lost)";
+		}
+		$response .= "No Players" if ($numPlayers <= 1);
 
-	# close socket
-	close(S);
+		# close socket
+		close(S1);
+	} elsif ($major == 1 && $minor == 0 && $something == 7) {
+	  # old servers send a reconnect port number
+	  return 'read error' unless read(S1, $buffer, 2) == 2;
+	  my ($reconnect) = unpack("n", $buffer);
+    $minor = $minor * 10 + $something;
+		# quit if rejected
+		return 'rejected by server' if ($reconnect == 0);
+
+		# reconnect on new port
+		$server = pack($sockaddr, AF_INET, $reconnect, $serveraddr);
+		return 'socket() error on reconnect' unless socket(S, AF_INET, SOCK_STREAM, $proto);
+		return "could not reconnect to $servername:$reconnect" unless connect(S, $server);
+		select(S); $| = 1; select(STDOUT);
+
+		# close first socket
+		close(S1);
+
+		# send game request
+		print S pack("n2", 0, 0x7167);
+
+		# get reply
+		return 'server read error' unless read(S, $buffer, 40) == 40;
+		my ($infolen,$infocode,$style,$maxPlayers,$maxShots,
+			$rogueSize,$redSize,$greenSize,$blueSize,$purpleSize,
+			$rogueMax,$redMax,$greenMax,$blueMax,$purpleMax,
+			$shakeWins,$shakeTimeout,
+			$maxPlayerScore,$maxTeamScore,$maxTime) = unpack("n20", $buffer);
+		return 'bad server data' unless $infocode == 0x7167;
+
+		# send players request
+		print S pack("n2", 0, 0x7170);
+
+		# get number of teams and players we'll be receiving
+		return 'count read error' unless read(S, $buffer, 8) == 8;
+		my ($countlen,$countcode,$numTeams,$numPlayers) = unpack("n4", $buffer);
+		return 'bad count data' unless $countcode == 0x7170;
+
+		# get the teams
+		for (1..$numTeams) {
+			return 'team read error' unless read(S, $buffer, 14) == 14;
+			my ($teamlen,$teamcode,$team,$size,$aSize,$won,$lost) = unpack("n7", $buffer);
+			return 'bad team data' unless $teamcode == 0x7475;
+			if ($size > 0) {
+				my $score = $won - $lost;
+				$response .= "$teamName[$team]:$score($won-$lost) ";
+			}
+		}
+
+		# get the players
+		for (1..$numPlayers) {
+			last unless read(S, $buffer, 180) == 180;
+			my ($playerlen,$playercode,$pAddr,$pPort,$pNum,$type,$team,$won,$lost,$sign,$email) =
+					unpack("n2Nn2 n4A32A128", $buffer);
+			return 'bad player data' unless $playercode == 0x6170;
+			my $score = $won - $lost;
+			$response .= " $sign($teamName[$team]";
+			$response .= ":$email" if ($email);
+			$response .= ")$score($won-$lost)";
+		}
+		$response .= "No Players" if ($numPlayers <= 1);
+
+		# close socket
+		close(S);
+  } else {
+	  $response = 'incompatible version';
+	}
 
 	return $response;
 }
