@@ -1000,7 +1000,7 @@ sub getChanConfDefault {
     }
 
     $param{$what}	= $default;
-    &status("gCCD: setting default for param{$what} = $default");
+    &status("gCCD: auto-setting param{$what} = $default");
     $cache{config}{$what} = 1;
 
     return $default;
