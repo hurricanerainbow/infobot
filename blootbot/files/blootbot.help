@@ -92,7 +92,7 @@ chanunset: U: ## <#chan> [what]
 chanunset: E: ## #c
 chanunset: E: ## #c test
 
-chattr: D: Change flags on a user
+chattr: D: Change flags on a user (see @regFlagsUser in source)
 chattr: U: ## <user> [flags]
 chattr: E: ## bloot +nmo
 chattr: E: ## bloot -ot
