@@ -57,7 +57,7 @@ sub scramble
   # been included in the original string
   $scrambled =~ s/\s+$//;
 
-  &::pSReply($scrambled||"Unknown Error Condition");
+  &::performStrictReply($scrambled||"Unknown Error Condition");
 }
 
 1;

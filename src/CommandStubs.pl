@@ -397,7 +397,7 @@ sub Modules {
 		push(@list, "$str ($_%)");
 	    }
 
-	    &pSReply( &formListReply(0, "Nickometer list for $term ", @list) );
+	    &performStrictReply( &formListReply(0, "Nickometer list for $term ", @list) );
 	    &DEBUG("test.");
 
 	    return;
@@ -482,7 +482,7 @@ sub Modules {
 	    $reply .= ".  Started the scan ".&Time2String(time() - $wingaterun)." ago";
 	}
 
-	&pSReply("$reply.");
+	&performStrictReply("$reply.");
 
 	return;
     }
@@ -571,7 +571,7 @@ sub seen {
 		 "saying\002:\002 '$seen[4]'.";
     }
 
-    &pSReply($reply);
+    &performStrictReply($reply);
     return;
 }
 
@@ -728,7 +728,7 @@ sub DebianNew {
     }
     close IDX1;
 
-    &::pSReply( &::formListReply(0, "New debian packages:", @new) );
+    &::performStrictReply( &::formListReply(0, "New debian packages:", @new) );
 }
 
 sub do_verstats {
@@ -805,7 +805,7 @@ sub do_verstats {
 
 	# hack. this is one major downside to scheduling.
 	$chan = $c;
-	&pSReply( &formListReply(0, "IRC Client versions for $c ", @list) );
+	&performStrictReply( &formListReply(0, "IRC Client versions for $c ", @list) );
 
 	# clean up not-needed data structures.
 	undef %ver;
@@ -891,9 +891,9 @@ sub do_text_counters {
 	}
 
 	if (defined $sum) {
-	    &pSReply("total count of \037$type\037 on \002$c\002: $sum$topstr");
+	    &performStrictReply("total count of \037$type\037 on \002$c\002: $sum$topstr");
 	} else {
-	    &pSReply("zero counter for \037$type\037.");
+	    &performStrictReply("zero counter for \037$type\037.");
 	}
     } else {
 	# TODO: convert $where to hash and use a sqlSelect
@@ -901,7 +901,7 @@ sub do_text_counters {
 			" WHERE $where AND nick=".&sqlQuote($arg) ))[0];
 
 	if (!defined $x) {	# !defined.
-	    &pSReply("$arg has not said $type yet.");
+	    &performStrictReply("$arg has not said $type yet.");
 	    return 1;
 	}
 
@@ -927,7 +927,7 @@ sub do_text_counters {
 	}
 
 	my $pct1 = sprintf("%.01f", 100*$x/$sum);
-	&pSReply("\002$arg\002 has said \037$type\037 \002$x\002 times (\002$pct1\002 %)$xtra");
+	&performStrictReply("\002$arg\002 has said \037$type\037 \002$x\002 times (\002$pct1\002 %)$xtra");
     }
 
     return 1;
@@ -972,9 +972,9 @@ sub textstats_main {
 	}
 
 	if (defined $sum) {
-	    &pSReply("total count of \037$type\037 on \002$c\002: $sum$topstr");
+	    &performStrictReply("total count of \037$type\037 on \002$c\002: $sum$topstr");
 	} else {
-	    &pSReply("zero counter for \037$type\037.");
+	    &performStrictReply("zero counter for \037$type\037.");
 	}
 
 	return;
@@ -1013,7 +1013,7 @@ sub textstats_main {
 #    return;
 
     if (!defined $x) {	# !defined.
-	&pSReply("$arg has not said $type yet.");
+	&performStrictReply("$arg has not said $type yet.");
 	return;
     }
 
@@ -1024,7 +1024,7 @@ sub textstats_main {
     }
 
     my $pct1 = sprintf("%.01f", 100*$x/$sum);
-    &pSReply("\002$arg\002 has said \037$type\037 \002$x\002 times (\002$pct1\002 %)$xtra");
+    &performStrictReply("\002$arg\002 has said \037$type\037 \002$x\002 times (\002$pct1\002 %)$xtra");
 }
 
 sub nullski {

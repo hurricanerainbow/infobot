@@ -399,10 +399,6 @@ sub performAddressedReply {
     &performReply(@_);
 }
 
-sub pSReply {
-    &performStrictReply(@_);
-}
-
 # Usage: &performStrictReply($reply);
 sub performStrictReply {
     my ($reply) = @_;

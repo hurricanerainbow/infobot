@@ -226,7 +226,7 @@ sub writeUserFile {
     $wtime_userfile = time();
     &status("--- Saved USERFILE ($cusers users; $cbans bans; $cignore ignore) at $time");
     if (defined $msgType and $msgType =~ /^chat$/) {
-	&pSReply("--- Writing user file...");
+	&performStrictReply("--- Writing user file...");
     }
 }
 
@@ -399,7 +399,7 @@ sub writeChanFile {
 		" chans) at $time");
 
     if (defined $msgType and $msgType =~ /^chat$/) {
-	&pSReply("--- Writing chan file...");
+	&performStrictReply("--- Writing chan file...");
     }
 }
 
@@ -503,7 +503,7 @@ sub hasFlag {
 	return 1;
     } else {
 	&status("DCC CHAT: <$who> $message -- not enough flags.");
-	&pSReply("error: you do not have enough flags for that. ($flag required)");
+	&performStrictReply("error: you do not have enough flags for that. ($flag required)");
 	return 0;
     }
 }
@@ -699,20 +699,20 @@ sub chanSet {
 
     if ($cmd eq "+chan") {
 	if (exists $chanconf{$chan}) {
-	    &pSReply("chan $chan already exists.");
+	    &performStrictReply("chan $chan already exists.");
 	    return;
 	}
 	$chanconf{$chan}{_time_added}	= time();
 	$chanconf{$chan}{autojoin}	= $conn->nick();
 
-	&pSReply("Joining $chan...");
+	&performStrictReply("Joining $chan...");
 	&joinchan($chan);
 
 	return;
     }
 
     if (!exists $chanconf{$chan}) {
-	&pSReply("no such channel $chan");
+	&performStrictReply("no such channel $chan");
 	return;
     }
 
@@ -727,7 +727,7 @@ sub chanSet {
 
 	if ($state) {			# add/set.
 	    if (defined $was and $was eq "1") {
-		&pSReply("setting $what for $chan already 1.");
+		&performStrictReply("setting $what for $chan already 1.");
 		return;
 	    }
 
@@ -735,12 +735,12 @@ sub chanSet {
 
 	} else {			# delete/unset.
 	    if (!defined $was) {
-		&pSReply("setting $what for $chan is not set.");
+		&performStrictReply("setting $what for $chan is not set.");
 		return;
 	    }
 
 	    if ($was eq "0") {
-		&pSReply("setting $what for $chan already 0.");
+		&performStrictReply("setting $what for $chan already 0.");
 		return;
 	    }
 
@@ -751,10 +751,10 @@ sub chanSet {
 	$was	= ($was) ? "; was '$was'" : "";
 
 	if ($val eq "0") {
-	    &pSReply("Unsetting $what for $chan$was.");
+	    &performStrictReply("Unsetting $what for $chan$was.");
 	    delete $chanconf{$chan}{$what};
 	} else {
-	    &pSReply("Setting $what for $chan to '$val'$was.");
+	    &performStrictReply("Setting $what for $chan to '$val'$was.");
 	    $chanconf{$chan}{$what}	= $val;
 	}
 
@@ -765,11 +765,11 @@ sub chanSet {
 
 	my $was	= $chanconf{$chan}{$what};
 	if (defined $was and $was eq $val) {
-	    &pSReply("setting $what for $chan already '$val'.");
+	    &performStrictReply("setting $what for $chan already '$val'.");
 	    return;
 	}
 	$was	= ($was) ? "; was '$was'" : "";
-	&pSReply("Setting $what for $chan to '$val'$was.");
+	&performStrictReply("Setting $what for $chan to '$val'$was.");
 
 	$chanconf{$chan}{$what} = $val;
 
@@ -785,9 +785,9 @@ sub chanSet {
 	}
 
 	if (exists $chanconf{$chan}{$what}) {
-	    &pSReply("$what for $chan is '$chanconf{$chan}{$what}'");
+	    &performStrictReply("$what for $chan is '$chanconf{$chan}{$what}'");
 	} else {
-	    &pSReply("$what for $chan is not set.");
+	    &performStrictReply("$what for $chan is not set.");
 	}
     }
 

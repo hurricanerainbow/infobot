@@ -34,11 +34,11 @@ sub userDCC {
 	my $count = scalar(keys %{ $dcc{'CHAT'} });
 	my $dccCHAT = $message;
 
-	&pSReply("Start of who ($count users).");
+	&performStrictReply("Start of who ($count users).");
 	foreach (keys %{ $dcc{'CHAT'} }) {
-	    &pSReply("=> $_");
+	    &performStrictReply("=> $_");
 	}
-	&pSReply("End of who.");
+	&performStrictReply("End of who.");
 
 	return;
     }
@@ -53,7 +53,7 @@ sub userDCC {
 	}
 
 	my $result = &doQuestion($args);
-	&pSReply($result);
+	&performStrictReply($result);
 
 	return;
     }
@@ -284,17 +284,17 @@ sub userDCC {
 	    next unless (&IsNickInChan($opee,$_));
 	    $found++;
 	    if ($channels{$_}{'o'}{$opee}) {
-		&pSReply("op: $opee already has ops on $_");
+		&performStrictReply("op: $opee already has ops on $_");
 		next;
 	    }
 	    $op++;
 
-	    &pSReply("opping $opee on $_");
+	    &performStrictReply("opping $opee on $_");
 	    &op($_, $opee);
 	}
 
 	if ($found != $op) {
-	    &pSReply("op: opped on all possible channels.");
+	    &performStrictReply("op: opped on all possible channels.");
 	} else {
 	    &DEBUG("op: found => '$found'.");
 	    &DEBUG("op:    op => '$op'.");
@@ -489,9 +489,9 @@ sub userDCC {
 	return unless (&hasFlag("n"));
 
 	&status("USER reload $who");
-	&pSReply("reloading...");
+	&performStrictReply("reloading...");
 	&reloadAllModules();
-	&pSReply("reloaded.");
+	&performStrictReply("reloaded.");
 
 	return;
     }
@@ -548,15 +548,15 @@ sub userDCC {
 	}
 
 	if (!exists $chanconf{$args[0]}) {
-	    &pSReply("no such channel $args[0]");
+	    &performStrictReply("no such channel $args[0]");
 	    return;
 	}
 
-	&pSReply("showing channel conf.");
+	&performStrictReply("showing channel conf.");
 	foreach (sort keys %{ $chanconf{$args[0]} }) {
-	    &pSReply("$chan: $_ => $chanconf{$args[0]}{$_}");
+	    &performStrictReply("$chan: $_ => $chanconf{$args[0]}{$_}");
 	}
-	&pSReply("End of chaninfo.");
+	&performStrictReply("End of chaninfo.");
 
 	return;
     }
@@ -589,7 +589,7 @@ sub userDCC {
 
 	# READ ONLY.
 	if (defined $what and $what !~ /^[-+]/ and !defined $val and $no_chan) {
-	    &pSReply("Showing $what values on all channels...");
+	    &performStrictReply("Showing $what values on all channels...");
 
 	    my %vals;
 	    foreach (keys %chanconf) {
@@ -603,10 +603,10 @@ sub userDCC {
 	    }
 
 	    foreach (keys %vals) {
-		&pSReply("  $what = $_(" . scalar(keys %{$vals{$_}}) . "): ".join(' ', sort keys %{ $vals{$_} } ) );
+		&performStrictReply("  $what = $_(" . scalar(keys %{$vals{$_}}) . "): ".join(' ', sort keys %{ $vals{$_} } ) );
 	    }
 
-	    &pSReply("End of list.");
+	    &performStrictReply("End of list.");
 
 	    return;
 	}
@@ -617,9 +617,9 @@ sub userDCC {
 
 	    foreach $chan (@chans) {
 		if ($chan eq '_default') {
-		    &pSReply("Default channel settings");
+		    &performStrictReply("Default channel settings");
 		} else {
-		    &pSReply("chan: $chan (see _default also)");
+		    &performStrictReply("chan: $chan (see _default also)");
 		}
 		my @items;
 		my $str = "";
@@ -627,13 +627,13 @@ sub userDCC {
 		    my $newstr = join(', ', @items);
 		    ### TODO: make length use channel line limit?
 		    if (length $newstr > 370) {
-			&pSReply(" $str");
+			&performStrictReply(" $str");
 			@items = ();
 		    }
 		    $str = $newstr;
 		    push(@items, "$_ => $chanconf{$chan}{$_}");
 		}
-		&pSReply(" $str") if (@items);
+		&performStrictReply(" $str") if (@items);
 	    }
 	    return;
 	}
@@ -670,21 +670,21 @@ sub userDCC {
 	}
 
 	if (!exists $chanconf{$chan}) {
-	    &pSReply("no such channel $chan");
+	    &performStrictReply("no such channel $chan");
 	    return;
 	}
 
 	if ($args ne "") {
 
 	    if (!&getChanConf($args,$chan)) {
-		&pSReply("$args does not exist for $chan");
+		&performStrictReply("$args does not exist for $chan");
 		return;
 	    }
 
 	    my @chans = &ChanConfList($args);
 	    &DEBUG("scalar chans => ".scalar(@chans) );
 	    if (scalar @chans == 1 and $chans[0] eq "_default" and !$no_chan) {
-		&psReply("ok, $args was set only for _default; unsetting for _defaul but setting for other chans.");
+		&performStrictReply("ok, $args was set only for _default; unsetting for _defaul but setting for other chans.");
 
 		my $val = $chanconf{$_}{_default};
 		foreach (keys %chanconf) {
@@ -698,7 +698,7 @@ sub userDCC {
 	    }
 
 	    if ($no_chan and !exists($chanconf{_default}{$args})) {
-		&pSReply("ok, $args for _default does not exist, removing from all chans.");
+		&performStrictReply("ok, $args for _default does not exist, removing from all chans.");
 
 		foreach (keys %chanconf) {
 		    next unless (exists $chanconf{$_}{$args});
@@ -711,23 +711,23 @@ sub userDCC {
 		return;
 	    }
 
-	    &pSReply("Unsetting channel ($chan) option $args. (was $chanconf{$chan}{$args})");
+	    &performStrictReply("Unsetting channel ($chan) option $args. (was $chanconf{$chan}{$args})");
 	    delete $chanconf{$chan}{$args};
 
 	    return;
 	}
 
 	if ($delete) {
-	    &pSReply("Deleting channel $chan for sure!");
+	    &performStrictReply("Deleting channel $chan for sure!");
 	    $utime_chanfile = time();
 	    $ucount_chanfile++;
 
 	    &part($chan);
-	    &pSReply("Leaving $chan...");
+	    &performStrictReply("Leaving $chan...");
 
 	    delete $chanconf{$chan};
 	} else {
-	    &pSReply("Prefix channel with '-' to delete for sure.");
+	    &performStrictReply("Prefix channel with '-' to delete for sure.");
 	}
 
 	return;
@@ -744,7 +744,7 @@ sub userDCC {
 	my $u = &getUser($who);
 	my $crypt = &mkcrypt($args[0]);
 
-	&pSReply("Set your passwd to '$crypt'");
+	&performStrictReply("Set your passwd to '$crypt'");
 	$users{$u}{PASS} = $crypt;
 
 	$utime_userfile = time();
@@ -762,29 +762,29 @@ sub userDCC {
 	}
 
 	if (!&IsUser($args[0])) {
-	    &pSReply("user $args[0] is not valid.");
+	    &performStrictReply("user $args[0] is not valid.");
 	    return;
 	}
 
 	my $u = &getUser($args[0]);
 	if (!defined $u) {
-	    &pSReply("Internal error, u = NULL.");
+	    &performStrictReply("Internal error, u = NULL.");
 	    return;
 	}
 
 	if (scalar @args == 1) {
 	    # del pass.
 	    if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
-		&pSReply("cannot remove passwd of others.");
+		&performStrictReply("cannot remove passwd of others.");
 		return;
 	    }
 
 	    if (!exists $users{$u}{PASS}) {
-		&pSReply("$u does not have pass set anyway.");
+		&performStrictReply("$u does not have pass set anyway.");
 		return;
 	    }
 
-	    &pSReply("Deleted pass from $u.");
+	    &performStrictReply("Deleted pass from $u.");
 
 	    $utime_userfile = time();
 	    $ucount_userfile++;
@@ -795,7 +795,7 @@ sub userDCC {
 	}
 
 	my $crypt	= &mkcrypt($args[1]);
-	&pSReply("Set $u's passwd to '$crypt'");
+	&performStrictReply("Set $u's passwd to '$crypt'");
 	$users{$u}{PASS} = $crypt;
 
 	$utime_userfile = time();
@@ -827,20 +827,20 @@ sub userDCC {
 	}
 
 	if (!defined $user) {
-	    &pSReply("user does not exist.");
+	    &performStrictReply("user does not exist.");
 	    return;
 	}
 
 	my $flags = $users{$user}{FLAGS};
 	if (!defined $chflag) {
-	    &pSReply("Flags for $user: $flags");
+	    &performStrictReply("Flags for $user: $flags");
 	    return;
 	}
 
 	&DEBUG("who => $who");
 	&DEBUG("verifyUser => $verifyUser");
 	if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
-	    &pSReply("cannto change attributes of others.");
+	    &performStrictReply("cannto change attributes of others.");
 	    return "REPLY";
 	}
 
@@ -851,7 +851,7 @@ sub userDCC {
 	    if ($_ eq "-") { $state = 0; next; }
 
 	    if (!defined $state) {
-		&pSReply("no initial + or - was found in attr.");
+		&performStrictReply("no initial + or - was found in attr.");
 		return;
 	    }
 
@@ -863,7 +863,7 @@ sub userDCC {
 			and $param{owner} =~ /^\Q$user\E$/i
 			and $flags =~ /[nmo]/
 		) {
-		    &pSReply("not removing flag $_ for $user.");
+		    &performStrictReply("not removing flag $_ for $user.");
 		    next;
 		}
 		next unless ($flags =~ s/\Q$_\E//);
@@ -875,10 +875,10 @@ sub userDCC {
 	if ($change) {
 	    $utime_userfile = time();
 	    $ucount_userfile++;
-	    &pSReply("Current flags: $flags");
+	    &performStrictReply("Current flags: $flags");
 	    $users{$user}{FLAGS} = $flags;
 	} else {
-	    &pSReply("No flags changed: $flags");
+	    &performStrictReply("No flags changed: $flags");
 	}
 
 	return;
@@ -908,22 +908,22 @@ sub userDCC {
 	}
 
 	if (!defined $user) {
-	    &pSReply("user $who or $args[0] does not exist.");
+	    &performStrictReply("user $who or $args[0] does not exist.");
 	    return;
 	}
 
 	if ($user =~ /^\Q$chnick\E$/i) {
-	    &pSReply("user == chnick. why should I do that?");
+	    &performStrictReply("user == chnick. why should I do that?");
 	    return;
 	}
 
 	if (&getUser($chnick)) {
-	    &pSReply("user $chnick is already used!");
+	    &performStrictReply("user $chnick is already used!");
 	    return;
 	}
 
 	if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
-	    &pSReply("cannto change nick of others.");
+	    &performStrictReply("cannto change nick of others.");
 	    return "REPLY" if ($who eq "_default");
 	    return;
 	}
@@ -937,7 +937,7 @@ sub userDCC {
 	$utime_userfile = time();
 	$ucount_userfile++;
 
-	&pSReply("Changed '$user' to '$chnick' successfully.");
+	&performStrictReply("Changed '$user' to '$chnick' successfully.");
 
 	return;
     }
@@ -969,17 +969,17 @@ sub userDCC {
 	}
 
 	if (!defined $user) {
-	    &pSReply("user $user does not exist.");
+	    &performStrictReply("user $user does not exist.");
 	    return;
 	}
 
 	if (!defined $mask) {
-	    &pSReply("Hostmasks for $user: " . join(" ", keys %{$users{$user}{HOSTS}}));
+	    &performStrictReply("Hostmasks for $user: " . join(" ", keys %{$users{$user}{HOSTS}}));
 	    return;
 	}
 
 	if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
-	    &pSReply("cannto change masks of others.");
+	    &performStrictReply("cannto change masks of others.");
 	    return;
 	}
 
@@ -987,24 +987,24 @@ sub userDCC {
 
 	if ($state) {				# add.
 	    if ($mask !~ /^$mask{nuh}$/) {
-		&pSReply("error: mask ($mask) is not a real hostmask.");
+		&performStrictReply("error: mask ($mask) is not a real hostmask.");
 		return;
 	    }
 
 	    if (exists $users{$user}{HOSTS}{$mask}) {
-		&pSReply("mask $mask already exists.");
+		&performStrictReply("mask $mask already exists.");
 		return;
 	    }
 
 	    ### TODO: override support.
 	    $users{$user}{HOSTS}{$mask} = 1;
 
-	    &pSReply("Added $mask to list of masks.");
+	    &performStrictReply("Added $mask to list of masks.");
 
 	} else {				# delete.
 
 	    if (!exists $users{$user}{HOSTS}{$mask}) {
-		&pSReply("mask $mask does not exist.");
+		&performStrictReply("mask $mask does not exist.");
 		return;
 	    }
 
@@ -1012,9 +1012,9 @@ sub userDCC {
 	    delete $users{$user}{HOSTS}{$mask};
 
 	    if (scalar keys %{ $users{$user}{HOSTS} } != $count) {
-		&pSReply("Removed $mask from list of masks.");
+		&performStrictReply("Removed $mask from list of masks.");
 	    } else {
-		&pSReply("error: could not find $mask in list of masks.");
+		&performStrictReply("error: could not find $mask in list of masks.");
 		return;
 	    }
 	}
@@ -1058,9 +1058,9 @@ sub userDCC {
 	    }
 
 	    if (@c) {
-		&pSReply("Removed $mask from chans: @c");
+		&performStrictReply("Removed $mask from chans: @c");
 	    } else {
-		&pSReply("$mask was not found in ban list.");
+		&performStrictReply("$mask was not found in ban list.");
 	    }
 
 	    return;
@@ -1075,7 +1075,7 @@ sub userDCC {
 	    $time = $1;
 	    &DEBUG("time = $time.");
 	    if ($time < 0) {
-		&pSReply("error: time cannot be negatime?");
+		&performStrictReply("error: time cannot be negatime?");
 		return;
 	    }
 	} else {
@@ -1087,19 +1087,19 @@ sub userDCC {
 	}
 
 	if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
-	    &pSReply("cannto change masks of others.");
+	    &performStrictReply("cannto change masks of others.");
 	    return;
 	}
 
 	if ($mask !~ /^$mask{nuh}$/) {
-	    &pSReply("error: mask ($mask) is not a real hostmask.");
+	    &performStrictReply("error: mask ($mask) is not a real hostmask.");
 	    return;
 	}
 
 	if ( &banAdd($mask,$chan,$time,$reason) == 2) {
-	    &pSReply("ban already exists; overwriting.");
+	    &performStrictReply("ban already exists; overwriting.");
 	}
-	&pSReply("Added $mask for $chan (time => $time, reason => $reason)");
+	&performStrictReply("Added $mask for $chan (time => $time, reason => $reason)");
 
 	return;
     }
@@ -1114,12 +1114,12 @@ sub userDCC {
 
 	my $user = &getUser($arg);
 	if (!defined $user) {
-	    &pSReply("whois: user $user does not exist.");
+	    &performStrictReply("whois: user $user does not exist.");
 	    return;
 	}
 
 	### TODO: better (eggdrop-like) output.
-	&pSReply("user: $user");
+	&performStrictReply("user: $user");
 	foreach (keys %{ $users{$user} }) {
 	    my $ref = ref $users{$user}{$_};
 
@@ -1127,14 +1127,14 @@ sub userDCC {
 		my $type = $_;
 		### DOES NOT WORK???
 		foreach (keys %{ $users{$user}{$type} }) {
-		    &pSReply("    $type => $_");
+		    &performStrictReply("    $type => $_");
 		}
 		next;
 	    }
 
-	    &pSReply("    $_ => $users{$user}{$_}");
+	    &performStrictReply("    $_ => $users{$user}{$_}");
 	}
-	&pSReply("End of USER whois.");
+	&performStrictReply("End of USER whois.");
 
 	return;
     }
@@ -1144,34 +1144,34 @@ sub userDCC {
 
 	if (defined $arg) {
 	    if ($arg ne "_default" and !&validChan($arg) ) {
-		&pSReply("error: chan $chan is invalid.");
+		&performStrictReply("error: chan $chan is invalid.");
 		return;
 	    }
 	}
 
 	if (!scalar keys %bans) {
-	    &pSReply("Ban list is empty.");
+	    &performStrictReply("Ban list is empty.");
 	    return;
 	}
 
 	my $c;
-	&pSReply("     mask: expire, time-added, count, who-by, reason");
+	&performStrictReply("     mask: expire, time-added, count, who-by, reason");
 	foreach $c (keys %bans) {
 	    next unless (!defined $arg or $arg =~ /^\Q$c\E$/i);
-	    &pSReply("  $c:");
+	    &performStrictReply("  $c:");
 
 	    foreach (keys %{ $bans{$c} }) {
 		my $val = $bans{$c}{$_};
 
 		if (ref $val eq "ARRAY") {
 		    my @array = @{ $val };
-		    &pSReply("    $_: @array");
+		    &performStrictReply("    $_: @array");
 		} else {
 		    &DEBUG("unknown ban: $val");
 		}
 	    }
 	}
-	&pSReply("END of bans.");
+	&performStrictReply("END of bans.");
 
 	return;
     }
@@ -1180,7 +1180,7 @@ sub userDCC {
 	my $arg	= $2;
 
 	if (defined $arg and $arg !~ /^$mask{chan}$/) {
-	    &pSReply("error: chan $chan is invalid.");
+	    &performStrictReply("error: chan $chan is invalid.");
 	    return;
 	}
 
@@ -1190,7 +1190,7 @@ sub userDCC {
 	}
 
 	&DEBUG("End of bans.");
-	&pSReply("END of bans.");
+	&performStrictReply("END of bans.");
 
 	return;
     }
@@ -1200,7 +1200,7 @@ sub userDCC {
 
 	&writeUserFile();
 	&writeChanFile();
-	&pSReply("saved user and chan files");
+	&performStrictReply("saved user and chan files");
 
 	return;
     }
@@ -1233,9 +1233,9 @@ sub userDCC {
 
 	if (!$state) {			# delignore.
 	    if ( &ignoreDel($mask) ) {
-		&pSReply("ok, deleted ignores for $mask.");
+		&performStrictReply("ok, deleted ignores for $mask.");
 	    } else {
-		&pSReply("could not find $mask in ignore list.");
+		&performStrictReply("could not find $mask in ignore list.");
 	    }
 	    return;
 	}
@@ -1266,9 +1266,9 @@ sub userDCC {
 	}
 
 	if ( &ignoreAdd($mask, $chan, $time, $comment) > 1) {
-	    &pSReply("FIXME: $mask already in ignore list; written over anyway.");
+	    &performStrictReply("FIXME: $mask already in ignore list; written over anyway.");
 	} else {
-	    &pSReply("added $mask to ignore list.");
+	    &performStrictReply("added $mask to ignore list.");
 	}
 
 	return;
@@ -1279,41 +1279,41 @@ sub userDCC {
 
 	if (defined $arg) {
 	    if ($arg !~ /^$mask{chan}$/) {
-		&pSReply("error: chan $chan is invalid.");
+		&performStrictReply("error: chan $chan is invalid.");
 		return;
 	    }
 
 	    if (!&validChan($arg)) {
-		&pSReply("error: chan $arg is invalid.");
+		&performStrictReply("error: chan $arg is invalid.");
 		return;
 	    }
 
-	    &pSReply("Showing bans for $arg only.");
+	    &performStrictReply("Showing bans for $arg only.");
 	}
 
 	if (!scalar keys %ignore) {
-	    &pSReply("Ignore list is empty.");
+	    &performStrictReply("Ignore list is empty.");
 	    return;
 	}
 
 	### TODO: proper (eggdrop-like) formatting.
 	my $c;
-	&pSReply("    mask: expire, time-added, who, comment");
+	&performStrictReply("    mask: expire, time-added, who, comment");
 	foreach $c (keys %ignore) {
 	    next unless (!defined $arg or $arg =~ /^\Q$c\E$/i);
-	    &pSReply("  $c:");
+	    &performStrictReply("  $c:");
 
 	    foreach (keys %{ $ignore{$c} }) {
 		my $ref = ref $ignore{$c}{$_};
 		if ($ref eq "ARRAY") {
 		    my @array = @{ $ignore{$c}{$_} };
-		    &pSReply("      $_: @array");
+		    &performStrictReply("      $_: @array");
 		} else {
 		    &DEBUG("unknown ignore line?");
 		}
 	    }
 	}
-	&pSReply("END of ignore.");
+	&performStrictReply("END of ignore.");
 
 	return;
     }
@@ -1333,11 +1333,11 @@ sub userDCC {
 
 	if ($str eq 'add') {
 	    if (scalar @args != 2) {
-		&pSReply('adduser requires hostmask argument.');
+		&performStrictReply('adduser requires hostmask argument.');
 		return;
 	    }
 	} elsif (scalar @args != 1) {
-	    &pSReply('too many arguments.');
+	    &performStrictReply('too many arguments.');
 	    return;
 	}
 
@@ -1345,14 +1345,14 @@ sub userDCC {
 	    # adduser.
 	    if (scalar @args == 1) {
 		$args[1]	= &getHostMask($args[0]);
-		&pSReply("Attemping to guess $args[0]'s hostmask...");
+		&performStrictReply("Attemping to guess $args[0]'s hostmask...");
 
 		# crude hack... crappy Net::IRC
 		$conn->schedule(5, sub {
 		    # hopefully this is right.
 		    my $nick = (keys %{ $cache{nuhInfo} })[0];
 		    if (!defined $nick) {
-			&pSReply("couldn't get nuhinfo... adding user without a hostmask.");
+			&performStrictReply("couldn't get nuhinfo... adding user without a hostmask.");
 			&userAdd($nick);
 			return;
 		    }
@@ -1360,9 +1360,9 @@ sub userDCC {
 
 		    if ( &userAdd($nick, $mask) ) {
 			# success.
-			&pSReply("Added $nick with flags $users{$nick}{FLAGS}");
+			&performStrictReply("Added $nick with flags $users{$nick}{FLAGS}");
 			my @hosts = keys %{ $users{$nick}{HOSTS} };
-			&pSReply("hosts: @hosts");
+			&performStrictReply("hosts: @hosts");
 		    }
 		});
 		return;
@@ -1370,21 +1370,21 @@ sub userDCC {
 
 	    &DEBUG("args => @args");
 	    if ( &userAdd(@args) ) {	# success.
-		&pSReply("Added $args[0] with flags $users{$args[0]}{FLAGS}");
+		&performStrictReply("Added $args[0] with flags $users{$args[0]}{FLAGS}");
 		my @hosts = keys %{ $users{$args[0]}{HOSTS} };
-		&pSReply("hosts: @hosts");
+		&performStrictReply("hosts: @hosts");
 
 	    } else {			# failure.
-		&pSReply("User $args[0] already exists");
+		&performStrictReply("User $args[0] already exists");
 	    }
 
 	} else {			# deluser.
 
 	    if ( &userDel($args[0]) ) {	# success.
-		&pSReply("Deleted $args[0] successfully.");
+		&performStrictReply("Deleted $args[0] successfully.");
 
 	    } else {			# failure.
-		&pSReply("User $args[0] does not exist.");
+		&performStrictReply("User $args[0] does not exist.");
 	    }
 
 	}
@@ -1412,9 +1412,9 @@ sub userDCC {
 	    push(@time, "$str (".&Time2String($_).")");
 	}
 
-	&pSReply( &formListReply(0, "Schedulers: ", @time ) );
-	&pSReply( &formListReply(0, "Scheds to run: ", sort @list ) );
-	&pSReply( &formListReply(0, "Scheds running(should not happen?) ", sort @run ) );
+	&performStrictReply( &formListReply(0, "Schedulers: ", @time ) );
+	&performStrictReply( &formListReply(0, "Scheds to run: ", sort @list ) );
+	&performStrictReply( &formListReply(0, "Scheds running(should not happen?) ", sort @run ) );
 
 	return;
     }

@@ -64,7 +64,7 @@ sub chaninfo {
 	    my $str = sprintf("%s (%d)", $_, scalar(keys %{ $channels{$_}{''} }));
 	    push(@array, $str);
 	}
-	&pSReply($reply.": ".join(', ', @array));
+	&performStrictReply($reply.": ".join(', ', @array));
 	&ircCheck();
 
 	### total user count.
@@ -87,7 +87,7 @@ sub chaninfo {
 	}
 
 	my $chans = scalar(keys %channels);
-	&pSReply(
+	&performStrictReply(
 	    "i've cached \002$tucount\002 ". &fixPlural("user",$tucount).
 	    ", \002$uucount\002 unique ". &fixPlural("user",$uucount).
 	    ", distributed over \002$chans\002 ".
@@ -166,7 +166,7 @@ sub chaninfo {
     if ($count) {
 	$reply .= ".  \002$count\002 has said the most with a total of \002$new{$count}\002 messages";
     }
-    &pSReply("$reply.");
+    &performStrictReply("$reply.");
 }
 
 # Command statistics.
@@ -191,7 +191,7 @@ sub cmdstats {
 	    push(@array, "\002$int\002 of $_");
 	}
     }
-    &pSReply("command usage include ". &IJoin(@array).".");
+    &performStrictReply("command usage include ". &IJoin(@array).".");
 }
 
 # Factoid extension info. xk++
@@ -215,7 +215,7 @@ sub factstats {
     my $type = shift(@_);
 
     &Forker("factoids", sub {
-	&pSReply( &CmdFactStats($type) );
+	&performStrictReply( &CmdFactStats($type) );
     } );
 }
 
@@ -225,9 +225,9 @@ sub karma {
 	{ nick => $target, type => "karma" }) || 0;
 
     if ($karma != 0) {
-	&pSReply("$target has karma of $karma");
+	&performStrictReply("$target has karma of $karma");
     } else {
-	&pSReply("$target has neutral karma");
+	&performStrictReply("$target has neutral karma");
     }
 }
 
@@ -396,7 +396,7 @@ sub do_countrystats {
 
     # TODO: move this into a scheduler like nickometer
     $msgType	= "private";
-    &pSReply( &formListReply(0, "Country Stats ", @list) );
+    &performStrictReply( &formListReply(0, "Country Stats ", @list) );
 
     delete $cache{countryStats};
     delete $cache{on_who_Hack};
@@ -467,7 +467,7 @@ sub userCommands {
 	    $retval .= sprintf(" %X", ord($_));
 	}
 
-	&pSReply("$arg is$retval");
+	&performStrictReply("$arg is$retval");
 
 	return;
     }
@@ -488,9 +488,9 @@ sub userCommands {
 #		return;
 #	    }
 
-	    &pSReply( crypt($args[1], $args[0]) );
+	    &performStrictReply( crypt($args[1], $args[0]) );
 	} else {
-	    &pSReply( &mkcrypt($args[0]) );
+	    &performStrictReply( &mkcrypt($args[0]) );
 	}
 
 	return;
@@ -530,9 +530,9 @@ sub userCommands {
 	return unless (&hasFlag("n"));
 
 	&status("USER reload $who");
-	&pSReply("reloading...");
+	&performStrictReply("reloading...");
 	my $modules = &reloadAllModules();
-	&pSReply("reloaded:$modules");
+	&performStrictReply("reloaded:$modules");
 	return;
     }
 
@@ -598,7 +598,7 @@ sub userCommands {
 	}
 
 	$reply =~ y/A-Za-z/N-ZA-Mn-za-m/;
-	&pSReply($reply);
+	&performStrictReply($reply);
 
 	return;
     }
@@ -644,7 +644,7 @@ sub userCommands {
 	}
 	$ratio	= sprintf("%.01f", 100*$perc/($perc+$perc2) );
 
-	&pSReply("Total CPU usage: \002$cpu_usage\002 s ... ".
+	&performStrictReply("Total CPU usage: \002$cpu_usage\002 s ... ".
 		"Total used: \002$total\002 % ".
 		"(parent/child ratio: $ratio %)"
 	);
@@ -695,7 +695,7 @@ sub userCommands {
 	    $reply .= ".  I was last disconnected for '$reason'.";
 	}
 
-	&pSReply($reply);
+	&performStrictReply($reply);
 
 	return;
     }
@@ -716,7 +716,7 @@ sub userCommands {
 	    $count{'Commands'} += $cmdstats{$_};
 	}
 
-	&pSReply(
+	&performStrictReply(
 	"Since $startString, there have been".
 	  " \002$count{'Update'}\002 ".
 		&fixPlural("modification", $count{'Update'}).

@@ -34,7 +34,7 @@ sub Insult {
     my $whois = "$insultwho is";
     $whois = "You are" if ($insultwho eq $::who or $insultwho eq "me");
 
-    &::pSReply("$whois nothing but a$n $adj $amt of $adj2 $noun");
+    &::performStrictReply("$whois nothing but a$n $adj $amt of $adj2 $noun");
 }
 
 1;

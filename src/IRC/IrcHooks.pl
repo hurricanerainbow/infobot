@@ -346,7 +346,7 @@ sub on_dcc_open_chat {
     &verifyUser($nick, $nuh{lc $nick});
 
     if (!exists $users{$userHandle}{HOSTS}) {
-	&pSReply("you have no hosts defined in my user file; rejecting.");
+	&performStrictReply("you have no hosts defined in my user file; rejecting.");
 	$sock->close();
 	return;
     }

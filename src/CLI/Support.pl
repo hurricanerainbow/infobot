@@ -86,8 +86,4 @@ sub performAddressedReply {
     &msg($who, @_);
 }
 
-sub pSReply {
-    &msg($who, @_);
-}
-
 1;
