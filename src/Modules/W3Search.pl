@@ -7,7 +7,7 @@ package W3Search;
 use strict;
 use vars qw(@W3Search_engines $W3Search_regex);
 @W3Search_engines = qw(AltaVista Dejanews Excite Gopher HotBot Infoseek
-		Lycos Magellan PLweb SFgate Simple Verity Google);
+		Lycos Magellan PLweb SFgate Simple Verity Google z);
 $W3Search_regex = join '|', @W3Search_engines;
 
 my $maxshow	= 3;
@@ -15,6 +15,7 @@ my $maxshow	= 3;
 sub W3Search {
     my ($where, $what, $type) = @_;
     my $retval = "$where can't find \002$what\002";
+    my $Search;
 
     my @matches = grep { lc($_) eq lc($where) ? $_ : undef } @W3Search_engines;
     if (@matches) {
@@ -26,7 +27,15 @@ sub W3Search {
 
     return unless &::loadPerlModule("WWW::Search");
 
-    my $Search	= new WWW::Search($where);
+    eval {
+	$Search	= new WWW::Search($where);
+    };
+
+    if (!defined $Search) {
+	&::msg($::who, "$where is invalid search.");
+	return;
+    }
+
     my $Query	= WWW::Search::escape_query($what);
     $Search->native_query($Query,
 #	{
