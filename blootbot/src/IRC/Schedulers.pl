@@ -77,10 +77,10 @@ sub setupSchedulers {
     &kernelLoop(2);
     &wingateWriteFile(2);
     &factoidCheck(2);	# takes a couple of seconds on a 486. defer it
-# todo: convert to new format... or nuke altogether.
+# TODO: convert to new format... or nuke altogether.
     &newsFlush(1);
 
-    # todo: squeeze this into a one-liner.
+    # TODO: squeeze this into a one-liner.
 #    my $count = map { exists $sched{$_}{TIME} } keys %sched;
     my $count	= 0;
     foreach (keys %sched) {
@@ -327,7 +327,7 @@ sub newsFlush {
 
 	    next unless (time() > $t);
 
-	    # todo: show how old it was.
+	    # TODO: show how old it was.
 	    delete $::news{$chan}{$item};
 	    &status("NEWS: (newsflush) deleted '$item'");
 	    $delete++;
@@ -338,7 +338,7 @@ sub newsFlush {
 	$none{$chan} = 1 if ($total == $i);
     }
 
-    # todo: flush users aswell.
+    # TODO: flush users aswell.
     my $duser	= 0;
     foreach $chan (keys %::newsuser) {
 	next if (exists $none{$chan});
@@ -683,10 +683,10 @@ sub ircCheck {
 	&joinNextChan();
     }
 
-    # todo: fix on_disconnect()
+    # TODO: fix on_disconnect()
 
     if (time() - $msgtime > 3600) {
-	# todo: shouldn't we use cache{connect} somewhere?
+	# TODO: shouldn't we use cache{connect} somewhere?
 	if (exists $cache{connect}) {
 	    &WARN("ircCheck: no msg for 3600 and disco'd! reconnecting!");
 	    $msgtime = time();	# just in case.
@@ -812,7 +812,7 @@ sub miscCheck2 {
     closedir DEBIAN;
 
     # compress logs that should have been compressed.
-    # todo: use strftime?
+    # TODO: use strftime?
     my ($day,$month,$year) = (gmtime(time()))[3,4,5];
     my $date = sprintf("%04d%02d%02d",$year+1900,$month+1,$day);
 
@@ -963,7 +963,7 @@ sub wingateCheck {
     undef @wingateNow;
 }
 
-### TODO.
+### TODO: ??
 sub wingateWriteFile {
     if (@_) {
 	&ScheduleThis(60, "wingateWriteFile");

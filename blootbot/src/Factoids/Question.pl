@@ -186,7 +186,7 @@ sub factoidArgs {
 
     # to make it eleeter, split each arg and use "blah OR blah or BLAH"
     # which will make it less than linear => quicker!
-    # todo: cache this, update cache when altered. !!! !!! !!!
+    # TODO: cache this, update cache when altered. !!! !!! !!!
 #    my $t = &timeget();
     my ($first) = split(/\s+/, $str);
     my @list = &searchTable("factoids", "factoid_key", "factoid_key", "^CMD: $first ");
@@ -205,7 +205,7 @@ sub factoidArgs {
 #	&DEBUG("factarg: '$str' =~ /^$_\$/");
 	my $arg = $_;
 
-	# todo: <greycat> ~punish apt for (Eating) (Parentheses)
+	# TODO: <greycat> ~punish apt for (Eating) (Parentheses)
 	# how the hell do I fix the above? -dms.
 
 	# eval (evil!) code. cleaned up courtesy of lear.
@@ -229,7 +229,7 @@ sub factoidArgs {
 #	&DEBUG("vals => @vals");
 
 	&status("Question: factoid Arguments for '$str'");
-	# todo: use getReply() - need to modify it :(
+	# TODO: use getReply() - need to modify it :(
 	my $i	= 0;
 	my $q	= "CMD: $_";
 	my $r	= &getFactoid($q);

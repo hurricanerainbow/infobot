@@ -70,7 +70,7 @@ sub rootWarn {
 }
 
 # Extras function.
-# todo: support arguments to get info on a particular nick?
+# TODO: support arguments to get info on a particular nick?
 sub CmdrootWarn {
     my $reply;
     my $count = &countKeys("rootwarn");

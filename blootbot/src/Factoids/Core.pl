@@ -156,7 +156,7 @@ sub FactoidStuff {
 	    return;
 	}
 
-	# todo: squeeze 3 getFactInfo calls into one?
+	# TODO: squeeze 3 getFactInfo calls into one?
 	my $author	= &getFactInfo($faqtoid, "created_by");
 	my $count	= &getFactInfo($faqtoid, "requested_count") || 0;
 	# don't delete if requested $limit times
@@ -200,7 +200,7 @@ sub FactoidStuff {
 
 	# this may eat some memory.
 	# prevent deletion if other factoids redirect to it.
-	# todo: use hash instead of array.
+	# TODO: use hash instead of array.
 	my @list;
 	if (&getChanConf("factoidPreventForgetRedirect")) {
 	    &status("Factoids/Core: forget: checking for redirect factoids");
@@ -219,7 +219,7 @@ sub FactoidStuff {
 
 	    $match++;
 	}
-	# todo: warn for op aswell, but allow force delete.
+	# TODO: warn for op aswell, but allow force delete.
 	if (!$isop and $match) {
 	    &msg($who, "uhm, other (redirection) factoids depend on this one.");
 	    return;
@@ -235,8 +235,8 @@ sub FactoidStuff {
 	    }
 
 	    # ignore.
-	    # todo: make forget limit configurable.
-	    # todo: make forget ignore time configurable.
+	    # TODO: make forget limit configurable.
+	    # TODO: make forget ignore time configurable.
 	    if ($cache{forget}{$h} > 5) {
 		&ignoreAdd(&makeHostMask($nuh), "*", 3*24*60, "abuse of forget");
 		&msg($who, "forget: Ignoring you for abuse!");
@@ -326,7 +326,7 @@ sub FactoidStuff {
 #	&setFactInfo($faqtoid, "modified_time", 0);
 
 	$check	= &getFactoid($faqtoid);
-	# todo: check if $faqtoid." #DEL#" exists?
+	# TODO: check if $faqtoid." #DEL#" exists?
 	if (defined $check) {
 	    &performReply("Successfully recovered '$faqtoid'.  Have fun now.");
 	    $count{'Undelete'}++;

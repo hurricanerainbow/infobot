@@ -56,12 +56,12 @@ babelfish: U: x <fromLang> <toLang> <words>
 babelfish: U: translate <fromLang> <toLang> <words>
 babelfish: E: x en de your cars rock
 
--ban: D: FIXME.
+-ban: D: FIXME:
 -ban: U: ## <mask|user>
 -ban: E: ## *!*@owns.org
 -ban: E: ## MoronMan
 
-+ban: D: FIXME.
++ban: D: FIXME:
 +ban: U: ## <mask|user> [chan] [time] [reason]
 +ban: E: ## *!*@owns.org #bots 60 stop flooding.
 +ban: E: ## *!*@*microsoft.com STOOPID
@@ -195,7 +195,7 @@ httpdtype: D: Get httpd server software version / configuration
 httpdtype: U: ## <hostname>
 httpdtype: E: ## example.com
 
-ignore: D: FIXME
+ignore: D: FIXME:
 ignore: E: ## [mask chan expire comment]
 
 ircstats: ircstats dumps some status information on the bot's IRC connection
@@ -390,12 +390,12 @@ uptime: U: ##
 
 wantnick: If someone's taken my nick (I hope not) and I'm using some temporary nick, I can change back to my original nick if it's not taken (again).
 
--host: D: FIXME.
+-host: D: FIXME:
 -host: U: ## [user] <mask>
 -host: E: ## *!*@owns.org
 -host: E: ## owner leet!leet@*.heh.org
 
-+host: D: FIXME.
++host: D: FIXME:
 +host: U: ## [user] <mask>
 +host: E: ## *!*@owns.org
 +host: E: ## owner leet!leet@*.heh.org

@@ -316,7 +316,7 @@ sub chanLimitVerify {
 
     &chanServCheck($chan);
 
-    ### todo: unify code with chanlimitcheck()
+    ### TODO: unify code with chanlimitcheck()
     return if ($delta > 5);
 
     &status("clc: big change in limit for $chan ($delta);".
@@ -350,7 +350,7 @@ sub chanServCheck {
     }
 
     # check for first hash then for next hash.
-    # todo: a function for &ischanop()? &isvoice()?
+    # TODO: a function for &ischanop()? &isvoice()?
     if (exists $channels{$chan} and exists $channels{$chan}{'o'}{$ident}) {
 	return 0;
     }

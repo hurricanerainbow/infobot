@@ -77,7 +77,7 @@ sub ftpGet {
     if (defined $lsize) {
 	&DEBUG("FTP: locsize => '$lsize'.");
 	if ($size != $lsize) {
-	    &WARN("FTP: downloaded file seems truncated. FIXME.");
+	    &FIXME("FTP: downloaded file seems truncated.");
 	}
     }
 
@@ -145,7 +145,7 @@ sub ftpList {
 
 ### LWP.
 # Usage: &getURL($url, [$post]);
-# todo: rename this to getHTTP
+# TODO: rename this to getHTTP
 sub getURL {
     my ($url,$post) = @_;
     my ($ua,$res,$req);

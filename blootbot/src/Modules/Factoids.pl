@@ -236,7 +236,7 @@ sub CmdFactStats {
 	push(@list, "total prepared for deletion - $str");
 
 	# total unique authors.
-	# todo: convert to sqlSelectColHash ? (or ColArray?)
+	# TODO: convert to sqlSelectColHash ? (or ColArray?)
 	foreach ( &sqlRawReturn("SELECT created_by FROM factoids WHERE created_by IS NOT NULL") ) {
 	    /^(\S+)!/;
 	    my $nick = lc $1;
@@ -728,7 +728,7 @@ sub CmdFactStats {
 	return &formListReply(1, $prefix, @list);
 
     } elsif ($type =~ /^unrequest(ed)?$/i) {
-	# todo: use sqlSelect()
+	# TODO: use sqlSelect()
 	my ($count) = &sqlRawReturn("SELECT COUNT(*) FROM factoids WHERE requested_count = '0'");
 
 	return "Unrequested factoids: $count";

@@ -164,7 +164,7 @@ sub chaninfo {
 	$new{$_} = $userstats{$_}{'Count'};
     }
 
-    # todo: show top 3 with percentages?
+    # TODO: show top 3 with percentages?
     my($count) = (sort { $new{$a} <=> $new{$b} } keys %new)[0];
     if ($count) {
 	$reply .= ".  \002$count\002 has said the most with a total of \002$new{$count}\002 messages";
@@ -486,7 +486,7 @@ sub do_countrystats {
 	push(@list, "$str ($_, $perc %)");
     }
 
-    # todo: move this into a scheduler like nickometer
+    # TODO: move this into a scheduler like nickometer
     $msgType	= "private";
     &pSReply( &formListReply(0, "Country Stats ", @list) );
 
@@ -869,7 +869,7 @@ if (0) {
 	}
 
 	# idea from dondelecarlo :)
-	# todo: use cache{nickserv}
+	# TODO: use cache{nickserv}
 	if ($param{'nickServ_pass'}) {
 	    return if ($param{'ircNick'} eq $ident or $force == 0);
 

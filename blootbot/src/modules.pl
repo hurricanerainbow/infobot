@@ -87,7 +87,7 @@ sub loadCoreModules {
 
 sub loadDBModules {
     my $f;
-    # todo: use function to load module.
+    # TODO: use function to load module.
 
     if ($param{'DBType'} =~ /^(mysql|SQLite|pgsql)$/i) {
 	eval "use DBI";

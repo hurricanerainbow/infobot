@@ -22,7 +22,7 @@ sub userDCC {
     # quit.
     if ($message =~ /^(exit|quit)$/i) {
 	# do ircII clients support remote close? if so, cool!
-	&status("userDCC: quit called. FIXME");
+	&FIXME("userDCC: quit called.");
 	&dcc_close($who);
 	&status("userDCC: after dcc_close!");
 
@@ -339,7 +339,7 @@ sub userDCC {
 
 	&DEBUG("chan => '$1', msg => '$msg'.");
 
-	# todo: add nick destination.
+	# TODO: add nick destination.
 	if (&validChan($chan)) {
 	    &msg($chan, $msg);
 	} else {
@@ -921,7 +921,7 @@ sub userDCC {
 	    $user	= &getUser($args[0]);
 	    $mask	= $args[1];
 	} else {				# <mask>
-	    # who or verifyUser. FIXME (don't remember why)
+	    # FIXME: who or verifyUser. (don't remember why)
 	    $user	= &getUser($who);
 	    $mask	= $args[0];
 	}
@@ -932,7 +932,7 @@ sub userDCC {
 	}
 
 	if (!defined $mask) {
-	    ### FIXME.
+	    ### FIXME:
 	    &pSReply("Hostmasks for $user: $users{$user}{HOSTS}");
 
 	    return;
@@ -1225,7 +1225,7 @@ sub userDCC {
 	}
 
 	if ( &ignoreAdd($mask, $chan, $time, $comment) > 1) {
-	    &pSReply("warn: $mask already in ignore list; written over anyway. FIXME");
+	    &pSReply("FIXME: $mask already in ignore list; written over anyway.");
 	} else {
 	    &pSReply("added $mask to ignore list.");
 	}

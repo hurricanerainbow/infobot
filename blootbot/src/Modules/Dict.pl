@@ -4,6 +4,8 @@
 #  Version: v0.6c (20000924).
 #  Created: 19990914.
 #
+# see http://luetzschena-stahmeln.de/dictd/
+# for a list of dict servers
 
 package Dict;
 

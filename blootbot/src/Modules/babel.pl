@@ -107,7 +107,7 @@ sub translate {
       &main::DEBUG("$translated\n===remove to first ':', optional Help\n");
 
       $translated =~ s/\n/ /g;
-      # FIXME should we do unicode->iso
+      # FIXME: should we do unicode->iso (no. use utf8!)
   } else {
       $translated = ":("; # failure
   }

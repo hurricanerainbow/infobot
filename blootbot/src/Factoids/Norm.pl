@@ -4,7 +4,7 @@
 #   Version: 1997
 #
 
-# todo:
+# TODO:
 # use strict;
 
 sub normquery {
