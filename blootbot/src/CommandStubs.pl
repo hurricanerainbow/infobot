@@ -274,6 +274,9 @@ sub parseCmdHook {
 &addCmdHook("extra", '(babel(fish)?|x|xlate|translate)', ('CODEREF' => 'babelfish::babelfish',
 	'Identifier' => 'babelfish', 'Cmdstats' => 'babelfish',
 	'Forker' => 1, 'Help' => 'babelfish') );
+&addCmdHook("extra", 'wtf', ('CODEREF' => 'wtf::query',
+	'Identifier' => 'wtf', 'Cmdstats' => 'wtf',
+	'Forker' => 1, 'Help' => 'wtf') );
 ###
 ### END OF ADDING HOOKS.
 ###

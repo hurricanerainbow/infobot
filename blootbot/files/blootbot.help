@@ -423,6 +423,10 @@ wikipedia: U: ## <topic>
 wikipedia: U: wiki <topic>
 wikipedia: E: wiki irc
 
+wtf: D: Interface to the BSD wtf command
+wtf: U: ## <abbreviation>
+wtf: E: ## iirc
+
 -host: D: admin command to remove hostmask from a user account
 -host: U: ## [user] <mask>
 -host: E: ## *!*@owns.org
