@@ -587,10 +587,7 @@ sub sqlCreateTable {
 
     foreach (@path) {
 	my $file = "$_/setup/$table.sql";
-	&DEBUG("dbCT: table => '$table', file => '$file'");
 	next unless ( -f $file );
-
-	&DEBUG("dbCT: found!!!");
 
 	open(IN, $file);
 	while (<IN>) {

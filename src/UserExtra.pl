@@ -63,9 +63,12 @@ sub chaninfo {
 		&ircCheck();
 		next;
 	    }
-	    push(@array, "$_ (".scalar(keys %{ $channels{$_}{''} }).")");
+	    next if (/^_default$/);
+
+	    my $str = sprintf("%s (%d)", $_, scalar(keys %{ $channels{$_}{''} }));
+	    push(@array, $str);
 	}
-	&pSReply($reply.": ".join(' ', @array));
+	&pSReply($reply.": ".join(', ', @array));
 
 	### total user count.
 	foreach $chan (keys %channels) {
@@ -81,7 +84,7 @@ sub chaninfo {
 		push(@nicks, $_);
 	    }
 	}
-	&DEBUG("nicks => '".scalar(@nicks)."'...");
+
 	if (scalar @nicks != $uucount) {
 	    &DEBUG("nicks != uucount...");
 	}

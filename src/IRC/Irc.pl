@@ -348,6 +348,12 @@ sub DCCBroadcast {
 # Usage: &performReply($reply);
 sub performReply {
     my ($reply) = @_;
+
+    if (!defined $reply or $reply =~ /^\s*$/) {
+	&DEBUG("performReply: reply == NULL.");
+	return;
+    }
+
     $reply =~ /([\.\?\s]+)$/;
 
     &checkMsgType($reply);
@@ -359,19 +365,20 @@ sub performReply {
 	    $reply = "$reply, ".$orig{who};
 	}
 	&say($reply);
+
     } elsif ($msgType eq 'private') {
-	if (rand() < 0.5) {
-	    $reply = $reply;
-	} else {
+	if (rand() > 0.5) {
 	    $reply = "$reply, ".$orig{who};
 	}
 	&msg($who, $reply);
+
     } elsif ($msgType eq 'chat') {
 	if (!exists $dcc{'CHAT'}{$who}) {
 	    &VERB("pSR: dcc{'CHAT'}{$who} does not exist.",2);
 	    return;
 	}
 	$conn->privmsg($dcc{'CHAT'}{$who}, $reply);
+
     } else {
 	&ERROR("PR: msgType invalid? ($msgType).");
     }
@@ -698,6 +705,11 @@ sub IsNickInChan {
     my ($nick,$chan) = @_;
 
     $chan =~ tr/A-Z/a-z/;	# not lowercase unfortunately.
+
+    if ($chan =~ /^$/) {
+	&DEBUG("INIC: chan == NULL.");
+	return 0;
+    }
 
     if (&validChan($chan) == 0) {
 	&ERROR("INIC: invalid channel $chan.");
