@@ -7,8 +7,6 @@
 
 if (&IsParam("useStrict")) { use strict; }
 
-my $nickserv	= 0;
-
 # GENERIC. TO COPY.
 sub on_generic {
     my ($self, $event) = @_;
