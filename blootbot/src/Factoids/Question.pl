@@ -65,7 +65,7 @@ sub doQuestion {
 
     # valid factoid.
     if ($query =~ s/[!.]$//) {
-	push(@query,$query);
+	push(@query, $query);
     }
 
     $x = &normquery($query);
@@ -82,15 +82,16 @@ sub doQuestion {
 
     my $qregex = join '|', keys %{ $lang{'qWord'} };
 
-    # what's whats => what is; who'?s => who is, etc
-    $query =~ s/ ($qregex)\'?s / $1 is /i;
-    if ($query =~ s/\s+($qregex)\s+//i) { # check for question word
+    # purge prefix question string.
+    if ($query =~ s/^ ($qregex)//i) {
 	$questionWord = lc($1);
     }
 
     if ($questionWord eq "" and $finalQMark and $addressed) {
 	$questionWord = "where";
     }
+    $query =~ s/^\s+|\s+$//g; # bleh. hacked.
+    push(@query, $query) if ($query ne $x);
 
     if (&IsChanConf("factoidArguments")) {
 	$result = &factoidArgs($query[0]);
