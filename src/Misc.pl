@@ -479,7 +479,7 @@ sub isFileUpdated {
 
     my $time_file = (stat $file)[9];
 
-    if ($time == $time_file) {
+    if ($time <= $time_file) {
 	return 0;
     } else {
 	return 1;
