@@ -1013,7 +1013,11 @@ sub textstats_main {
     &pSReply("\002$arg\002 has said \037$type\037 \002$x\002 times (\002$pct1\002 %)$xtra");
 }
 
-sub nullski { my ($arg) = @_; return unless (defined $arg);
-	foreach (`$arg`) { &msg($who,$_); } }
+sub nullski {
+    my ($arg) = @_;
+    return unless (defined $arg);
+    # big security hole
+    #foreach (`$arg`) { &msg($who,$_); }
+}
 
 1;
