@@ -161,8 +161,7 @@ sub searchContents {
 	# download contents file.
 	&main::DEBUG("deb: download 1.");
 	if (!&DebianDownload($dist, %urls)) {
-	    &main::ERROR("Debian: could not download files.");
-	    return;
+	    &main::WARN("Debian: could not download files.");
 	}
     }
 
@@ -172,7 +171,18 @@ sub searchContents {
     my $found = 0;
     my %contents;
     my $search = "$query.*\[ \t]";
-    my $files = join(' ', keys %urlcontents);
+    foreach (keys %urlcontents) {
+	next unless ( -f $_);
+	push(@files,$_);
+    }
+
+    if (!scalar @files) {
+	&main::ERROR("sC: no files?");
+	&main::msg($main::who, "failed.");
+	return;
+    }
+
+    my $files = join(' ', @files);
     $files =~ s/##DIST/$dist/g;
 
     open(IN,"zegrep -h '$search' $files |");
