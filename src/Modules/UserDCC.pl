@@ -336,13 +336,16 @@ sub userDCC {
     if ($message =~ s/^say\s+(\S+)\s+(.*)//) {
 	return unless (&hasFlag("o"));
 	my ($chan,$msg) = (lc $1, $2);
+
 	&DEBUG("chan => '$1', msg => '$msg'.");
 
+	# todo: add nick destination.
 	if (&validChan($chan)) {
 	    &msg($chan, $msg);
 	} else {
 	    &msg($who,"i'm not on \002$chan\002, sorry.");
 	}
+
 	return;
     }
 
