@@ -5,7 +5,7 @@
 
 #use strict;
 
-$babel_lang_regex = "fr|sp|po|pt|it|ge|de|gr|en";
+$babel_lang_regex = "fr|sp|es|po|pt|it|ge|de|gr|en|zh|ja|jp|ko|kr|ru";
 
 ### COMMAND HOOK IMPLEMENTATION.
 # addCmdHook("SECTION", 'TEXT_HOOK',
@@ -235,9 +235,9 @@ sub Modules {
 		^\s*
 		(?:babel(?:fish)?|x|xlate|translate)
 		\s+
-		(to|from)		# direction of translation (through)
+		($babel_lang_regex)\w*	# from language?
 		\s+
-		($babel_lang_regex)\w*	# which language?
+		($babel_lang_regex)\w*	# to language?
 		\s*
 		(.+)			# The phrase to be translated
     }xoi) {
