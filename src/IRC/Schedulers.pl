@@ -429,6 +429,11 @@ sub ircCheck {
 	&WARN("ircCheck: ident($ident) != param{ircNick}($param{IrcNick}).");
     }
 
+    if (scalar @joinchan) {
+	&WARN("We have some channels to join, doing so.");
+	&joinNextChan();
+    }
+
     &ScheduleThis(240, "ircCheck") if (@_);
 }
 
