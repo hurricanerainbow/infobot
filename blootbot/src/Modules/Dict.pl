@@ -57,7 +57,7 @@ sub Dict {
 
 	my $total = scalar @results;
 
-	if (defined $num and ($num > $total or $num < 0)) {
+	if (defined $num and ($num > $total or $num < 1)) {
 	    &msg($::who, "error: choice in definition is out of range.");
 	    return;
 	}
@@ -65,7 +65,7 @@ sub Dict {
 	# parse the results.
 	if ($total > 1) {
 	    if (defined $num) {
-		$retval = sprintf("[%d/%d] %s", $num, $total, $results[$num]);
+		$retval = sprintf("[%d/%d] %s", $num, $total, $results[$num-1]);
 	    } else {
 		# suggested by larne and others.
 		my $prefix = "Dictionary '$query' ";
