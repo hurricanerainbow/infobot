@@ -4,6 +4,9 @@
 #        Version: v0.1 (20021028)
 #        Created: 20021028
 #
+use strict;
+
+my $postprocess;
 
 sub cliloop {
     &status("Using CLI...");
@@ -21,8 +24,8 @@ sub cliloop {
 
     # install libterm-readline-gnu-perl to get history support
     use Term::ReadLine;
-    $term = new Term::ReadLine 'blootbot';
-    $prompt = "$who> ";
+    my $term = new Term::ReadLine 'blootbot';
+    my $prompt = "$who> ";
     #$OUT = $term->OUT || STDOUT;
     while ( defined ($_ = $term->readline($prompt)) ) {
 	$orig{message} = $_;
@@ -44,6 +47,16 @@ sub msg {
     if (!defined $msg) {
 	$msg ||= "NULL";
 	&WARN("msg: msg == $msg.");
+	return;
+    }
+
+    if ( $postprocess ) {
+	undef $postprocess;
+    } elsif ($postprocess = &getChanConf('postprocess', $talkchannel)) {
+	&DEBUG("say: $postprocess $msg");
+	&parseCmdHook("main", $postprocess . ' ' . $msg);
+	&parseCmdHook("extra", $postprocess . ' ' . $msg);
+	undef $postprocess;
 	return;
     }
 
