@@ -22,7 +22,7 @@
 _default
     +allowConv
     +allowDNS
-    +bzflag
+    +BZFlag
     +chanlimitcheck
     chanlimitcheckInterval 10
     chanlimitcheckPlus 10

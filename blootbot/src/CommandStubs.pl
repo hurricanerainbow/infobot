@@ -232,14 +232,14 @@ sub parseCmdHook {
 	'Identifier' => 'weather', 'Help' => 'weather',
 	'Cmdstats' => 'weather', 'Forker' => 1) );
 &addCmdHook("extra", 'bzflist', ('CODEREF' => 'BZFlag::list',
-	'Identifier' => 'bzflag', 'Cmdstats' => 'BZFlag',
+	'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag',
 	'Forker' => 1) );
 &addCmdHook("extra", 'bzflist17', ('CODEREF' => 'BZFlag::list17',
-	'Identifier' => 'bzflag', 'Cmdstats' => 'BZFlag',
+	'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag',
 	'Forker' => 1) );
 &addCmdHook("extra", 'bzfquery', ('CODEREF' => 'BZFlag::query',
-	'Identifier' => 'bzflag', 'Cmdstats' => 'BZFlag',
-	'Forker' => 1, 'Help' => 'bzflag') );
+	'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag',
+	'Forker' => 1) );
 &addCmdHook("extra", 'zfi', ('CODEREF' => 'zfi::query',
 	'Identifier' => 'zfi', 'Cmdstats' => 'zfi',
 	'Forker' => 1) );

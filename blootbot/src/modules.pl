@@ -24,7 +24,7 @@ if ($@) {
 %myModules = (
 	"babelfish"	=> "babel.pl",
 	"botmail"	=> "botmail.pl",
-	"bzflag"	=> "BZFlag.pl",
+	"BZFlag"	=> "BZFlag.pl",
 	"countdown"	=> "Countdown.pl",
 	"debian"	=> "Debian.pl",
 	"debianExtra"	=> "DebianExtra.pl",
