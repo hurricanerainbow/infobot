@@ -388,7 +388,7 @@ sub getPerlFiles {
     my($dir) = @_;
 
     if (!opendir(DIR, $dir)) {
-        &ERROR("cannot open source directory $dir: $!");
+        &ERROR("Cannot open source directory ($dir): $!");
         exit 1;
     }
 

@@ -30,7 +30,7 @@ sub readUserFile {
     }
 
     if (!open IN, $f) {
-	&ERROR("cannot read userfile.");
+	&ERROR("Cannot read userfile ($f): $!");
 	&closeLog();
 	exit 1;
     }
@@ -123,7 +123,7 @@ sub writeUserFile {
     }
 
     if (!open OUT,">$bot_state_dir/blootbot.users") {
-	&ERROR("cannot write to userfile.");
+	&ERROR("Cannot write userfile ($bot_state_dir/blootbot.users): $!");
 	return;
     }
 
@@ -237,7 +237,7 @@ sub readChanFile {
     }
 
     if (!open IN, $f) {
-	&ERROR("cannot erad chanfile.");
+	&ERROR("Cannot read chanfile ($f): $!");
 	return;
     }
 
@@ -298,7 +298,7 @@ sub writeChanFile {
     }
 
     if (!open OUT,">$bot_state_dir/blootbot.chan") {
-	&ERROR("cannot write chanfile.");
+	&ERROR("Cannot write chanfile ($bot_state_dir/blootbot.chan): $!");
 	return;
     }
 
