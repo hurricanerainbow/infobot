@@ -66,7 +66,8 @@ my %urlpackages = (
 # Usage: &DebianDownload(%hash);
 sub DebianDownload {
     my ($dist, %urls)	= @_;
-    my $refresh = $::param{'debianRefreshInterval'} * 60 * 60 * 24;
+    my $refresh = &::getChanConfDefault("debianRefreshInterval",
+			undef, 7) * 60 * 60 * 24;
     my $bad	= 0;
     my $good	= 0;
 
