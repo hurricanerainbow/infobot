@@ -72,20 +72,19 @@ sub chaninfo {
 	}
 
 	### unique user count.
-	my @nicks;
+	# %seen = ();
+	# foreach $item (@list) {
+	#  $seen{$item}++;
+	# }
+	# @uniq = keys %seen;
+	my %nicks = ();
 	foreach $chan (keys %channels) {
-	    my $nick = '';
+	    my $nick;
 	    foreach $nick (keys %{ $channels{$chan}{''} }) {
-		next if (grep /^\Q$nick\E$/, @nicks);
-		$uucount++;
-		push(@nicks, $nick);
+		$nicks{$nick}++;
 	    }
 	}
-	#&::DEBUG(join ":", @nicks);
-
-	if (scalar @nicks != $uucount) {
-	    &DEBUG("nicks != uucount...");
-	}
+	$uucount = scalar(keys %nicks);
 
 	my $chans = scalar(keys %channels);
 	&performStrictReply(
