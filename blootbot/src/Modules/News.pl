@@ -79,7 +79,7 @@ sub Parse {
     } elsif ($what =~ /^set(\s+(.*))?$/i) {
 	&set($2);
 
-    } elsif ($what =~ /^(\d)$/i) {
+    } elsif ($what =~ /^(\d+)$/i) {
 	&::DEBUG("read shortcut called.");
 	&read($1);
 
