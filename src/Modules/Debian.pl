@@ -809,6 +809,15 @@ sub searchPackage {
 
 	if (/^\*(.*)$/) {
 	    &main::DEBUG("sP: hrm => '$1'.");
+
+	    if (&main::isStale($file, $main::param{'debianRefreshInterval'})) {
+		&main::DEBUG("STALE $file! regen.");
+		&generateIndex(($dist));
+		@files = searchPackage("$query $dist");
+		&main::DEBUG("EVIL HACK HACK HACK.");
+		last;
+	    }
+
 	    $file = $1;
 	    next;
 	}
@@ -848,12 +857,9 @@ sub getDistroFromStr {
     my $dist	= $defaultdist;
 
     if ($str =~ s/\s+($dists)$//i) {
-	&main::status("Debian(gDFS): found dist argument!");
 	$dist = &getDistro(lc $1);
 	$str =~ s/\\+$//;
     }
-    &main::DEBUG("gDFS: str => '$str', dist => '$dist'.");
-
     $str =~ s/\\([\$\^])/$1/g;
 
     return($dist,$str);
