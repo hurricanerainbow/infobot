@@ -339,6 +339,59 @@ sub userDCC {
 	exit 0;
     }
 
+    # global factoid substitution.
+    if ($message =~ m|^s([/,#])(.+?)\2(.*?)\2;?\s*$|) {
+	&DEBUG("global factoid subst called!");
+	my ($delim,$op,$np) = ($1, $2, $3);
+	return $noreply unless (&hasFlag("n"));
+
+	# incorrect format.
+	if ($np =~ /$delim/) {
+	    &msg($who,"looks like you used the delimiter too many times. You may want to use a different delimiter, like ':' or '#'.");
+	    return $noreply;
+	}
+
+	### TODO: fix up $op to support mysql/pgsql/dbm(perl)
+	### TODO: => add db/sql specific function to fix this.
+	my @list = &searchTable("factoids", "factoid_key",
+			"factoid_value", $op);
+
+	if (!scalar @list) {
+	    &performStrictReply("Expression didn't match anything.");
+	    return $noreply;
+	}
+
+	my $error = 0;
+	foreach (@list) {
+	    my $faqtoid = $_;
+
+	    next if (&IsLocked($faqtoid) == 1);
+	    my $result = &getFactoid($faqtoid);
+	    my $was = $result;
+	    &DEBUG("was($faqtoid) => '$was'.");
+
+	    # global global
+	    # we could support global local (once off).
+	    if ($result =~ s/\Q$op/$np/gi) {
+		if (length $result > $param{'maxDataSize'}) {
+		    &performReply("that's too long (or was long)");
+		    return $noreply;
+		}
+###		&setFactInfo($faqtoid, "factoid_value", $result);
+		&status("update: '$faqtoid' =is=> '$result'; was '$was'");
+	    } else {
+		&WARN("subst: that's weird... thought we found the string ($op) in '$faqtoid'.");
+		$error++;
+	    }
+	}
+
+	if ($error) {
+	    &ERROR("Something happened...");
+	}
+
+	return $noreply;
+    }
+
     # jump.
     if ($message =~ /^jump(\s+(\S+))?$/i) {
 	return $noreply unless (&hasFlag("n"));
