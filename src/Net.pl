@@ -54,7 +54,7 @@ sub ftpGet {
 		&status("FTP: local size is $lsize; downloading.") if ($verbose_ftp);
 	    } else {
 		&status("FTP: same size; skipping.");
-		&system("touch $thisfile");	# lame hack.
+		system("touch $thisfile");	# lame hack.
 		$ftp->quit();
 		return 1;
 	    }
