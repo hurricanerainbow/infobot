@@ -30,7 +30,6 @@ sub Quote {
 
     my ($reply);
     foreach my $result (@results) {
-	chomp $result;
 	# get rid of the quotes
 	$result =~ s/\"//g;
 
@@ -38,7 +37,8 @@ sub Quote {
 	    $high, $low, $volume) = split(',',$result);
 
         # add some commas
-	my $newvol = commify($volume);
+        # "+ 0" removes trailing cr/lf/etc.
+	my $newvol = commify($volume + 0);
 
 	$reply .= ' ;; ' if $reply;
 	$reply .= "$ticker: $recent ($high/$low), $date $time, " .
