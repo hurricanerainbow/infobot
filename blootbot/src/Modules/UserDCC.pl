@@ -1369,8 +1369,7 @@ sub userDCC {
     }
 
     # quite a cool hack: reply in DCC CHAT.
-    # FIXME broken for +A
-    #$msgType = "chat";
+    $msgType = "chat" if (exists $dcc{'CHAT'}{$who});
 
     my $done = 0;
     $done++ if &parseCmdHook("main", $message);
