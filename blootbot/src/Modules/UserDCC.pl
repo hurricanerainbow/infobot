@@ -936,9 +936,7 @@ sub userDCC {
 	}
 
 	if (!defined $mask) {
-	    ### FIXME:
-	    &pSReply("Hostmasks for $user: $users{$user}{HOSTS}");
-
+	    &pSReply("Hostmasks for $user: " . join(" ", keys %{$users{$user}{HOSTS}}));
 	    return;
 	}
 
@@ -1164,6 +1162,7 @@ sub userDCC {
 
 	&writeUserFile();
 	&writeChanFile();
+	&pSReply("saved user and chan files");
 
 	return;
     }
