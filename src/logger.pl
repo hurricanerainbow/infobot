@@ -187,26 +187,21 @@ sub status {
     my($input) = @_;
     my $status;
 
-    # a way to hook onto status without looping.
-    # todo: find why $channels{} is created.
-    if (0 and $running and !$cache{statusSafe}) {
-	&ircCheck();
+    if ($input =~ /PERL: Use of uninitialized/) {
+	&debug_perl($input);
+	return;
     }
 
     if ($input eq $logold) {
-	# allow perl flooding
-	if ($input !~ /PERL: Use of uninitialized/) {
-	    $logrepeat++;
-	    return;
-	}
-    } else {
-	$logold = $input;
+	$logrepeat++;
+	return;
+    }
 
-	# if only I had followed how sysklogd does it, heh. lame me. -xk
-	if ($logrepeat >= 3) {
-	    &status("LOG: last message repeated $logrepeat times");
-	    $logrepeat = 0;
-	}
+    $logold = $input;
+    # if only I had followed how sysklogd does it, heh. lame me. -xk
+    if ($logrepeat >= 3) {
+	&status("LOG: last message repeated $logrepeat times");
+	$logrepeat = 0;
     }
 
     # if it's not a scalar, attempt to warn and fix.
@@ -369,6 +364,46 @@ sub status {
     }
 
     printf LOG "%s %s\n", $date, $input;
+}
+
+sub debug_perl {
+    my ($str) = @_;
+
+    return unless ($str =~ /^WARN: Use of uninitialized value .* at (\S+) line (\d+)/);
+    my ($file,$line) = ($1,$2);
+    if (!open(IN,$file)) {
+	&status("WARN: cannot open $file: $!");
+	return;
+    }
+
+    # todo: better filename.
+    open(OUT, ">>debug.log");
+    print OUT "DEBUG: $str\n";
+
+    # note: cannot call external functions because SIG{} does not allow us to.
+    my $i;
+    while (<IN>) {
+	chop;
+	$i++;
+	# bleh. this tries to duplicate status().
+	# todo: statcountfix
+	# todo: rename to log_*someshit*
+	if ($i == $line) {
+	    my $msg = "$file: $i:!$_";
+	    printf "%s[%6d]%s %s\n", $_green, $statcount, $ob, $msg;
+	    print OUT "DEBUG: $msg\n";
+	    $statcount++;
+	    next;
+	}
+	if ($i+3 > $line && $i-3 < $line) {
+	    my $msg = "$file: $i: $_";
+	    printf "%s[%6d]%s %s\n", $_green, $statcount, $ob, $msg;
+	    print OUT "DEBUG: $msg\n";
+	    $statcount++;
+	}
+    }
+    close IN;
+    close OUT;
 }
 
 sub openSQLDebug {
