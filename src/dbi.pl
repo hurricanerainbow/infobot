@@ -88,10 +88,10 @@ sub sqlSelectMany {
 	return;
     }
 
-    $query .= " WHERE " if (($where_href) || ($other));
+    $query .= " WHERE" if (($where_href) || ($other));
     if ($where_href) {
 	my $where = &hashref2where($where_href);
-	$query .= "$where" if ($where);
+	$query .= " $where" if ($where);
     }
     $query .= " $other"		if $other;
 
