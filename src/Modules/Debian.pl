@@ -170,7 +170,12 @@ sub searchContents {
 
     $query =~ s/\\([\^\$])/$1/g;	# hrm?
     $query =~ s/^\s+|\s+$//g;
-    $query =~ s/\*/\\S*/g;		# does it even work?
+    ### EGREP DOES NOT SUPPORT THIS TYPE OF EXPRESSION!!!
+###    $query =~ s/\*/\\S*/g;
+    if ($query =~ /\*/) {
+	&main::msg($main::who, "We don't support * yet.");
+	return;
+    }
 
     if (!&main::validExec($query)) {
 	&main::msg($main::who, "search string looks fuzzy.");
