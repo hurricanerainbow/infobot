@@ -42,21 +42,21 @@ sub symdumpRecur {
 }
 
 sub symdumpAllFile {
-    &DEBUG("before open");
-    if (&IsParam("symdumpLogFile")) {
+    &DEBUG('before open');
+    if (&IsParam('symdumpLogFile')) {
 	my $file = $param{'symdumpLogFile'};
 	&status("opening fh to symdump ($file)");
 	if (!open(SYMDUMP,">$file")) {
-	    &ERROR("cannot open dumpvars.");
+	    &ERROR('cannot open dumpvars.');
 	    return;
 	}
     }
-    &DEBUG("after open");
+    &DEBUG('after open');
 
     symdumpAll();
 
     if (fileno SYMDUMP) {
-	&status("closing fh to symdump");
+	&status('closing fh to symdump');
 	close SYMDUMP;
     }
 
