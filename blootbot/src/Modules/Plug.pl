@@ -50,7 +50,7 @@ sub Plug {
 sub plugAnnounce {
     my $file = "$::param{tempDir}/plug.xml";
 
-    my @Cxml = &::getURL("http://www.plug.org/plug.xml");
+    my @Cxml = &::getURL("http://www.plug.org/index.xml");
     if (!scalar @Cxml) {
 	&::DEBUG("sdA: failure (Cxml == NULL).");
 	return;
