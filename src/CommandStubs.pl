@@ -189,11 +189,12 @@ sub parseCmdHook {
 &addCmdHook("extra", 'uptime', ('CODEREF' => 'uptime', 'Identifier' => 'uptime',
 	'Cmdstats' => 'Uptime') );
 &addCmdHook("extra", 'nullski', ('CODEREF' => 'nullski', ) );
-&addCmdHook("extra", 'crash', ('CODEREF' => 'crash' ) );
 sub nullski { my ($arg) = @_; foreach (`$arg`) { &msg($who,$_); } }
 &addCmdHook("extra", '(fm|freshmeat)', ('CODEREF' => 'Freshmeat::Freshmeat',
 	'Identifier' => 'freshmeat', 'Cmdstats' => 'Freshmeat',
 	'Forker' => 1, 'Help' => 'freshmeat') );
+&addCmdHook("extra", 'verstats', ('CODEREF' => 'do_verstats' ) );
+
 ###
 ### END OF ADDING HOOKS.
 ###
@@ -648,6 +649,56 @@ sub DebianNew {
     close IDX1;
 
     &::performStrictReply( &::formListReply(0, "New debian packages:", @new) );
+}
+
+sub do_verstats {
+    my ($chan)	= @_;
+
+    if (!defined $chan) {
+	&help("verstats");
+	return;
+    }
+
+    if (!&validChan($chan)) {
+	&pSReply("chan $chan is invalid.");
+	return;
+    }
+
+    if (scalar keys %ver) {
+	&DEBUG("keys ver exists... stopping.");
+	return;
+    }
+
+    &msg($who, "Sending CTCP VERSION...");
+    $conn->ctcp("VERSION", $chan);
+    $conn->schedule(60, sub {
+	my $total = 0;
+
+	foreach (keys %ver) {
+	    $total += scalar keys %{ $ver{$_} };
+	}
+
+	my %sorted;
+	foreach (keys %ver) {
+	    my $count = scalar keys %{ $ver{$_} };
+	    my $perc  = sprintf("%.01f", $count * 100 / $total);
+	    $perc =~ s/.0$//;	# lame compression.
+
+	    $sorted{$perc} = "$_ - $count ($perc %)";
+	}
+
+	### can be compressed to a map?
+	my @list;
+	foreach ( sort { $a <=> $b } keys %sorted ) {
+	    push(@list, $sorted{$_});
+	}
+
+	&pSReply( &formListReply(0, "IRC Client versions for $chan ", @list) );
+
+	undef %ver;	# clean it up.
+    } );
+
+    return;
 }
 
 1;
