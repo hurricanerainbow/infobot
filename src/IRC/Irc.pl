@@ -202,6 +202,10 @@ sub msg {
     }
     $last{msg} = $msg;
 
+    if ($msg =~ /\cB/) {
+	&status("^B hrm.");
+    }
+
     &status(">$nick< $msg");
     $conn->privmsg($nick, $msg) if (&whatInterface() =~ /IRC/);
 }
@@ -301,16 +305,34 @@ sub performStrictReply {
     } elsif ($msgType eq 'public') {
 	&say($reply);
     } elsif ($msgType eq 'chat') {
-	if (!exists $dcc{'CHAT'}{$who}) {
-	    &WARN("pSR: dcc{'CHAT'}{$who} does not exist.");
-	    return;
-	}
-	$conn->privmsg($dcc{'CHAT'}{$who}, $reply);
+	&dccsay($who,$reply);
     } else {
 	&ERROR("pSR: msgType invalid? ($msgType).");
     }
 
     return '';
+}
+
+sub dccsay {
+    my ($who, $reply) = @_;
+    if (!exists $dcc{'CHAT'}{$who}) {
+	&WARN("pSR: dcc{'CHAT'}{$who} does not exist.");
+	return '';
+    }
+
+    $conn->privmsg($dcc{'CHAT'}{$who}, $reply);
+}
+
+sub dcc_close {
+    my($who) = @_;
+    my $type;
+
+    foreach $type (keys %dcc) {
+	&FIXME("dcc_close: $who");
+	my @who = grep /^\Q$who\E$/i, keys %{$dcc{$type}};
+	next unless (scalar @who);
+	$who = $who[0];
+    }
 }
 
 sub joinchan {
@@ -599,10 +621,14 @@ sub makeChanList {
 }
 
 sub closeDCC {
+    &DEBUG("closeDCC called.");
+
     foreach $type (keys %dcc) {
+	next if ($type ne uc($type));
+ 
 	foreach (keys %{$dcc{$type}}) {
 	    &DEBUG("closing DCC $type to $_ (FIXME).");
-###	    $irc->removeconn($dcc{$type}{$_});
+	    $dcc{$type}{$_}->close();
 	}
     }
 }
