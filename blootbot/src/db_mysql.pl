@@ -58,7 +58,8 @@ sub dbGet {
     if (!$sth->execute) {
 	&ERROR("Get => '$query'");
 	&ERROR("Get => $DBI::errstr");
-	return;
+	$sth->finish;
+	return 0;
     }
 
     my @retval = $sth->fetchrow_array;
@@ -86,6 +87,7 @@ sub dbGetCol {
     if (!$sth->execute) {
 	&ERROR("GetCol => '$query'");
 	&ERROR("GetCol => $DBI::errstr");
+	$sth->finish;
 	return;
     }
 
@@ -118,6 +120,8 @@ sub dbGetRowInfo {
     if (!$sth->execute) {
 	&ERROR("GRI => '$query'");
 	&ERROR("GRI => $DBI::errstr");
+	$sth->finish;
+	return;
     }
 
     my @cols;
@@ -223,6 +227,7 @@ sub dbRaw {
     if (!$sth->execute) {
 	&ERROR("Raw($prefix): => '$query'");
 	&ERROR("Raw($prefix): $DBI::errstr");
+	$sth->finish;
 	return 0;
     }
 
