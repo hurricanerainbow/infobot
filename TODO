@@ -1,6 +1,7 @@
 DONE:
 	- add handling for channel specific factoids:
 	  "#botpark logs" -> http://ibot.rikers.org/botpark
+	  factoidSearch is a space delimited list of prefixes to try
 TODO:
 	- let's get a release out!
 	- kill SHM and and move to a pipe
