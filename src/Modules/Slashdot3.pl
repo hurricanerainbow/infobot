@@ -47,10 +47,6 @@ sub Slashdot {
 
 sub slashdotAnnounce {
     my $file = "Temp/slashdot.xml";
-    if (! -d "Temp/") {
-	&main::DEBUG("sdA: mking dir.");
-	mkdir "Temp", 0755;
-    }
 
     my @Cxml = &main::getURL("http://www.slashdot.org/slashdot.xml");
     if (!scalar @Cxml) {
