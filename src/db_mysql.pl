@@ -457,7 +457,7 @@ sub searchTable {
 
 sub dbCreateTable {
     my($table)	= @_;
-    my(@path)	= (".","..","../..");
+    my(@path)	= ($bot_data_dir, ".","..","../..");
     my $found	= 0;
     my $data;
 

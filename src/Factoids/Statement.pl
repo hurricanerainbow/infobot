@@ -55,6 +55,9 @@ sub doStatement {
     if ($in =~ /(^|\s)(is|are)(\s|$)/i) {
 	my($lhs, $mhs, $rhs) = ($`, $&, $');
 
+	# allows factoid arguments to be updated. -lear.
+	$lhs =~ s/^(CMD: )?(.*)/$1 . lc $2/e;
+
 	$lhs =~ tr/A-Z/a-z/;
 	$lhs =~ s/^(the|da|an?)\s+//i; # discard article
 
