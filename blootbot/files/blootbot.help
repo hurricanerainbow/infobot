@@ -132,6 +132,7 @@ cpustats: cpustats dumps the bot's cpu usage this session
 crypt: It's good that you thought about encryption. I can do it for you.
 crypt: U: ## <salt> <string>
 crypt: E: ## 69 changeme
+crypt: E: ## $1$abcde changeme
 
 cycle: D: Causes me to cycle in the channel it's said, or in the named channel
 cycle: U: ## [channel]
