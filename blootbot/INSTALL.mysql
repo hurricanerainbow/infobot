@@ -5,7 +5,7 @@ INSTALL.mysql
 - Debian: (apt-get install libdbd-mysql-perl)
 
 - run 'mysqladmin -u root -p create <DB NAME>'
-- run 'scripts/setup_user.pl'
+- run 'scripts/setup_users.pl'
 = Possible problems
 	- if connection to localhost is (short) refused, run
 		'/etc/init.d/mysql stop'.

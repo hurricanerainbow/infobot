@@ -13,7 +13,7 @@ Method of installation.
 	- LWP
 		- Debian: (apt-get install libwww-perl)
 	- HTML::Parser
-		- Debian: (apt-get install libhtml-parse-perl)
+		- Debian: (apt-get install libhtml-parser-perl)
 
 - Choice of database
 	- MySQL (see INSTALL.mysql)
