@@ -25,7 +25,7 @@ if ($@) {
 	"babelfish"	=> "babelfish.pl",
 	"botmail"	=> "botmail.pl",
 	"BZFlag"	=> "BZFlag.pl",
-	"countdown"	=> "Countdown.pl",
+	"countdown"	=> "countdown.pl",
 	"debian"	=> "Debian.pl",
 	"debianExtra"	=> "DebianExtra.pl",
 	"dict"		=> "Dict.pl",

@@ -195,9 +195,9 @@ sub parseCmdHook {
 &addCmdHook("extra", 'quote', ('CODEREF' => 'Quote::Quote',
 	'Forker' => 1, 'Identifier' => 'quote',
 	'Help' => 'quote', 'Cmdstats' => 'Quote') );
-&addCmdHook("extra", 'countdown', ('CODEREF' => 'Countdown',
+&addCmdHook("extra", 'countdown', ('CODEREF' => 'countdown',
 	'Module' => 'countdown', 'Identifier' => 'countdown',
-	'Cmdstats' => 'Countdown') );
+	'Cmdstats' => 'countdown') );
 &addCmdHook("extra", 'lart', ('CODEREF' => 'lart',
 	'Identifier' => 'lart', 'Help' => 'lart') );
 &addCmdHook("extra", 'convert', ('CODEREF' => 'convert',
