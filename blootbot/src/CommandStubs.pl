@@ -48,6 +48,7 @@ sub parseCmdHook {
     }
 
     foreach (keys %{"hooks_$hashname"}) {
+	# rename to something else!
 	my $ident = $_;
 
 	next unless ($cmd =~ /^$ident$/i);
@@ -114,6 +115,10 @@ sub parseCmdHook {
 	    # check if CODEREF exists.
 	    if (!defined &{ $hash{'CODEREF'} }) {
 		&WARN("coderef $hash{'CODEREF'} don't exist.");
+		if (defined $who) {
+		    &msg($who, "coderef does not exist for $ident.");
+		}
+
 		return 1;
 	    }
 

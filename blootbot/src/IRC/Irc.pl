@@ -179,7 +179,25 @@ sub say {
 
     &status("</$talkchannel> $msg");
     if (&whatInterface() =~ /IRC/) {
-	$msg = "zero" if ($msg =~ /^0+$/);
+	$msg	= "zero" if ($msg =~ /^0+$/);
+	my $t	= time();
+
+	if ($t == $pubtime) {
+	    $pubcount++;
+	    $pubsize += length $msg;
+
+	    if ($pubcount % 4 and $pubcount) {
+		sleep 1;
+	    } elsif ($pubsize > 1500) {
+		sleep 1;
+		$pubsize -= 1500;
+	    }
+
+	} else {
+	    $pubcount	= 0;
+	    $pubtime	= $t;
+	    $pubsize	= length $msg;
+	}
 
 	$conn->privmsg($talkchannel, $msg);
     }
@@ -199,7 +217,29 @@ sub msg {
     }
 
     &status(">$nick< $msg");
-    $conn->privmsg($nick, $msg) if (&whatInterface() =~ /IRC/);
+
+    if (&whatInterface() =~ /IRC/) {
+	my $t = time();
+
+	if ($t == $msgtime) {
+	    $msgcount++;
+	    $msgsize += length $msg;
+
+	    if ($msgcount % 4 and $msgcount) {
+		sleep 1;
+	    } elsif ($msgsize > 1000) {
+		sleep 1;
+		$msgsize -= 1000;
+	    }
+
+	} else {
+	    $msgcount	= 0;
+	    $msgtime	= $t;
+	    $msgsize	= length $msg;
+	}
+
+	$conn->privmsg($nick, $msg);
+    }
 }
 
 # Usage: &action(nick || chan, txt);

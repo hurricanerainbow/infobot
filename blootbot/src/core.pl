@@ -182,19 +182,34 @@ sub IsChanConf {
 	return 0;
     }
 
+    my $old = $chan;
     if ($chan =~ tr/A-Z/a-z/) {
-	&WARN("IsChanConf: lowercased chan.");
+	&WARN("IsChanConf: lowercased chan. ($old)");
     }
 
     ### TODO: VERBOSITY on how chanconf returned 1 or 0 or -1.
     my %chan	= &getChanConfList($param);
-    if (!defined $msgType or $msgType eq "") {
+    my $nomatch = 0;
+    if (!defined $msgType) {
+	$nomatch++;
+    } else {
+	$nomatch++ if ($msgType eq "");
+	$nomatch++ unless ($msgType =~ /^(public|private)$/i);
+    }
+
+### debug purposes only.
+#    &DEBUG("param => $param, msgType => $msgType.");
+#    foreach (keys %chan) {
+#	&DEBUG("   $_ => $chan{$_}");
+#    }
+
+    if ($nomatch) {
 	if ($chan{$chan}) {
-	    &DEBUG("ICC: !msgType: $chan{$chan} (_default/$param)") if ($debug);
+	    &DEBUG("ICC: other: $chan{$chan} (_default/$param)") if ($debug);
 	} elsif ($chan{_default}) {
-	    &DEBUG("ICC: !msgType: $chan{_default} (_default/$param)") if ($debug);
+	    &DEBUG("ICC: other: $chan{_default} (_default/$param)") if ($debug);
 	} else {
-	    &DEBUG("ICC: !msgType: 0 ($param)") if ($debug);
+	    &DEBUG("ICC: other: 0 ($param)") if ($debug);
 	}
 
 	return $chan{$chan} || $chan{_default} || 0;
@@ -224,12 +239,6 @@ sub IsChanConf {
 	return $chan{$chan} || $chan{_default} || 0;
     }
 
-### debug purposes only.
-#    &DEBUG("param => $param, msgType => $msgType.");
-#    foreach (keys %chan) {
-#	&DEBUG("   $_ => $chan{$_}");
-#    }
-
     &DEBUG("ICC: no-match: 0/$param (msgType = $msgType)");
 
     return 0;
@@ -254,7 +263,7 @@ sub getChanConf {
 	&WARN("c ne chan ($c[0] ne $chan)");
     }
 
-    return $chanconf{$c[0] || "_default"}{$param};
+    return $chanconf{$c[0]}{$param} || $chanconf{"_default"}{$param};
 }
 
 sub showProc {

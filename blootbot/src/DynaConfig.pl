@@ -712,8 +712,14 @@ sub chanSet {
 	    $val	= 0;
 	}
 
-	$chanconf{$chan}{$what}	= $val;
-	&pSReply("Setting $what for $chan to '$val'$was.");
+	if ($val eq "0") {
+	    &pSReply("Unsetting $what for $chan$was.");
+	    delete $chanconf{$chan}{$what};
+	} else {
+	    &pSReply("Setting $what for $chan to '$val'$was.");
+	    $chanconf{$chan}{$what}	= $val;
+	}
+
 	$update++;
 
     ### ".chanset blah testing"
