@@ -250,6 +250,19 @@ sub SARit {
     }
     &status("Reply.pl: $done SARs done.") if ($done);
 
+    # <URL></URL> type
+    #
+    while ($txt =~ /<URL>(.*)<\/URL>/){
+       &status("we have to norm this <URL></URL> stuff, SARing");
+       my $foobar = $1;
+       if ($foobar =~ m/(http:\/\/[^?]+)\?(.*)/){
+           my ($pig1,$pig2) = ($1,$2);
+           &status("SARing using URLencode");
+           $pig2=~s/([^\w])/sprintf("%%%02x",ord($1))/gie;
+           $foobar=$pig1."?".$pig2;
+       }
+       $txt =~ s/<URL>(.*)<\/URL>/$foobar/;
+    }
     return $txt;
 }
 
