@@ -190,7 +190,7 @@ sub factoidArgs {
 	next if (/#DEL#/);	# deleted.
 
 	s/^CMD: //i;
-#	&DEBUG("factarg: ''$str' =~ /^$_\$/'");
+	&DEBUG("factarg: ''$str' =~ /^$_\$/'");
 	my $arg = $_;
 
 	# todo: <greycat> ~punish apt for (Eating) (Parentheses)
