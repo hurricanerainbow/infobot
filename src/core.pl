@@ -483,6 +483,7 @@ sub restart {
 	if (!$conn->connected and time - $msgtime > 900) {
 	    &status("reconnecting because of uncaught disconnect \@ ".scalar(localtime) );
 ###	    $irc->start;
+	    &clearIRCVars();
 	    $conn->connect();
 ###	    return;
 	}

@@ -50,17 +50,14 @@ sub rootWarn {
     $attempt++;
     ### TODO: OPTIMIZE THIS.
     # ok... don't record the attempt if nick==root.
-    if (1 and $nick ne "root") {	# old
-	&dbSet("rootwarn", { nick => lc($nick) }, { attempt => $attempt });
-	&dbSet("rootwarn", { nick => lc($nick) }, { time => time() });
-	&dbSet("rootwarn", { nick => lc($nick) }, { host => $user."\@".$host });
-	&dbSet("rootwarn", { nick => lc($nick) }, { channel => $chan });
-    } else {	# new. replace. TODO
-	&dbSet("rootwarn", "nick", lc($nick), "attempt", $attempt);
-	&dbSet("rootwarn", "nick", lc($nick), "time", time());
-	&dbSet("rootwarn", "nick", lc($nick), "host", $user."\@".$host);
-	&dbSet("rootwarn", "nick", lc($nick), "channel", $chan);
-    }
+    return if ($nick eq "root");
+
+    &dbSet("rootwarn", { nick => lc($nick) }, {
+	attempt	=> $attempt,
+	time	=> time(),
+	host	=> $user."\@".$host,
+	channel	=> $chan,
+    } );
 
     return;
 }
@@ -80,8 +77,8 @@ sub CmdrootWarn {
     $reply = "there ".&fixPlural("has",$count) ." been \002$count\002 ".
 		&fixPlural("rooter",$count) ." warned about root.";
 
-    if ($param{'DBType'} !~ /^mysql$/i) {
-	&FIXME("rootwarn does not yet support non-mysql.");
+    if ($param{'DBType'} !~ /^(pg|my)sql$/i) {
+	&FIXME("rootwarn does not yet support non-{my,pg}sql.");
 	return;
     }
 

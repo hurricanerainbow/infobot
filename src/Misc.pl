@@ -288,8 +288,6 @@ sub fixPlural {
     return $str;
 }
 
-
-
 ##########
 ### get commands.
 ###
@@ -541,88 +539,6 @@ sub validExec {
     } else {			# valid.
 	return 1;
     }
-}
-
-# Usage: &validFactoid($lhs,$rhs);
-sub validFactoid {
-    my ($lhs,$rhs) = @_;
-    my $valid = 0;
-
-    for (lc $lhs) {
-	# allow the following only if they have been made on purpose.
-	if ($rhs ne "" and $rhs !~ /^</) {
-	    / \Q$ident$/i and last;	# someone said i'm something.
-	    /^i('m)? / and last;
-	    /^(it|that|there|what)('s)?(\s+|$)/ and last;
-	    /^you('re)?(\s+|$)/ and last;
-
-	    /^(where|who|why|when|how)(\s+|$)/ and last;
-	    /^(this|that|these|those|they)(\s+|$)/ and last;
-	    /^(every(one|body)|we) / and last;
-
-	    /^say / and last;
-	}
-
-	# uncaught commands.
-	/^add topic / and last;		# topic management.
-	/( add$| add |^add )/ and last;	# borked teach statement.
-	/^learn / and last;		# teach. damn morons.
-	/^tell (\S+) about / and last;	# tell.
-	/\=\~/ and last;		# substituition.
-	/^\S+ to \S+ \S+/ and last;	# babelfish.
-
-	/^\=/ and last;			# botnick = heh is.
-	/wants you to know/ and last;
-
-	# symbols.
-	/(\"\*)/ and last;
-	/, / and last;
-	(/^'/ and /'$/) and last;
-	(/^"/ and /"$/) and last;
-
-	# delimiters.
-	/\=\>/ and last;		# '=>'.
-	/\;\;/ and last;		# ';;'.
-	/\|\|/ and last;		# '||'.
-
-	/^\Q$ident\E[\'\,\: ]/ and last;# dupe addressed.
-	/^[\-\, ]/ and last;
-	/\\$/ and last;			# forgot shift for '?'.
-	/^all / and last;
-	/^also / and last;
-	/ also$/ and last;
-	/ and$/ and last;
-	/^because / and last;
-	/^but / and last;
-	/^gives / and last;
-	/^h(is|er) / and last;
-	/^if / and last;
-	/ is,/ and last;
-	/ it$/ and last;
-	/^or / and last;
-	/ says$/ and last;
-	/^should / and last;
-	/^so / and last;
-	/^supposedly/ and last;
-	/^to / and last;
-	/^was / and last;
-	/ which$/ and last;
-
-	# nasty bug I introduced _somehow_, probably by fixMySQLBug().
-	/\\\%/ and last;
-	/\\\_/ and last;
-
-	# weird/special stuff. also old blootbot or stock infobot bugs.
-	$rhs =~ /( \Q$ident\E's|\Q$ident\E's )/i and last; # ownership.
-
-	# duplication.
-	$rhs =~ /^\Q$lhs /i and last;
-	last if ($rhs =~ /^is /i and / is$/);
-
-	$valid++;
-    }
-
-    return $valid;
 }
 
 # Usage: &hasProfanity($string);

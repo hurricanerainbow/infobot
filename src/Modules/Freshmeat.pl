@@ -85,7 +85,7 @@ sub Freshmeat {
 sub showPackage {
     my ($pkg)	= @_;
     my @fm	= &::dbGet("freshmeat", "*",
-			"projectname_short=".&dbQuote($pkg) );
+			"projectname_short=".&::dbQuote($pkg) );
 
     if (scalar @fm) {		#1: perfect match of name.
 	my $retval;
@@ -185,8 +185,9 @@ sub downloadIndex {
     ### lets get on with business.
     # set the last refresh time. fixes multiple spawn bug.
     &::dbSet("freshmeat", 
-	{ "projectname_short" => "_" },
-	{ "latest_version" => time() }
+	{ "projectname_short"	=> "_" },
+	{ "latest_version"	=> time()
+	  "desc_short"		=> "" }
     );
 
 #    &::dbRaw("LOCK", "LOCK TABLES freshmeat WRITE");

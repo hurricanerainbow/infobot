@@ -46,7 +46,7 @@ sub dbQuote {
 # Usage: &dbGet($table, $select, $where);
 sub dbGet {
     my ($table, $select, $where) = @_;
-    my $query	 = "SELECT $select FROM $table";
+    my $query	= "SELECT $select FROM $table";
     $query	.= " WHERE $where" if ($where);
 
     if (!defined $select) {
@@ -463,7 +463,7 @@ sub searchTable {
 #####
 
 #####
-# Usage: &getFactInfo($faqtoid, type);
+# Usage: &getFactInfo($faqtoid, $type);
 #  Note: getFactInfo does dbQuote
 sub getFactInfo {
     return &dbGet("factoids", $_[1], "factoid_key=".&dbQuote($_[0]) );
@@ -484,14 +484,6 @@ sub delFactoid {
     &status("DELETED '$faqtoid'");
 
     return 1;
-}
-
-sub SQLDebug {
-    return unless (&IsParam("SQLDebug"));
-
-    return unless (fileno SQLDEBUG);
-
-    print SQLDEBUG $_[0]."\n";
 }
 
 sub dbCreateTable {

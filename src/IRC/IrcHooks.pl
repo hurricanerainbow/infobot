@@ -361,6 +361,7 @@ sub on_disconnect {
     &clearIRCVars();
     if (!$self->connect()) {
 	&WARN("not connected? help me. gonna call ircCheck() in 60s");
+	&clearIRCVars();
 	&ScheduleThis(1, "ircCheck");
 #	&ScheduleThis(10, "ircCheck");
 #	&ScheduleThis(30, "ircCheck");
@@ -440,9 +441,12 @@ sub on_join {
     $chan		= lc( ($event->to)[0] ); # CASING!!!!
     $who		= $event->nick();
     $msgType		= "public";
+    my $i		= scalar(keys %{ $channels{$chan} });
+    my $j		= $cache{maxpeeps}{$chan} || 0;
 
     $chanstats{$chan}{'Join'}++;
     $userstats{lc $who}{'Join'} = time() if (&IsChanConf("seenStats"));
+    $cache{maxpeeps}{$chan}	= $i if ($i > $j);
 
     &joinfloodCheck($who, $chan, $event->userhost);
 
