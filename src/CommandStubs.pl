@@ -655,7 +655,7 @@ sub convert {
 
 sub lart {
     my ($target) = &fixString($_[0]);
-    my $extra 	= 0;
+    my $extra	= 0;
     my $chan	= $talkchannel;
     my ($for);
 
