@@ -851,9 +851,22 @@ sub on_targettoofast {
 
     ### TODO: incomplete.
     if ($why =~ /.* wait (\d+) second/) {
-	my $sleep = $1;
-	&status("targettoofast: going to sleep for $sleep...");
-	sleep $sleep;
+	my $sleep	= $1;
+	my $max		= 10;
+
+	if ($sleep > $max) {
+	    &status("targettoofast: going to sleep for $max ($sleep)...");
+	    $sleep = $max;
+	} else {
+	    &status("targettoofast: going to sleep for $sleep");
+	}
+
+	my $delta = time() - ($cache{sleepTime} || 0);
+	if ($delta > $max+2) {
+	    sleep $sleep;
+	    $cache{sleepTime} = time();
+	}
+
     } else {
 	if (!exists $cache{TargetTooFast}) {
 	    &DEBUG("on_ttf: failed: $why");
