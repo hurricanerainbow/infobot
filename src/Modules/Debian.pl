@@ -218,8 +218,8 @@ sub searchContents {
     foreach (keys %urlcontents) {
 	s/##DIST/$dist/g;
 
-	next unless ( -f $_);
-	push(@files,$_);
+	next unless ( -f "$debian_dir/$_" );
+	push(@files, "$debian_dir/$_" );
     }
 
     if (!scalar @files) {
@@ -352,7 +352,7 @@ sub searchAuthor {
     foreach (keys %urlpackages) {
 	s/##DIST/$dist/g;
 
-	if (! -f $_) {
+	if (! -f "$debian_dir/$_" ) {
 	    $bad++;
 	    next;
 	}
@@ -454,13 +454,13 @@ sub searchDesc {
     foreach (keys %urlpackages) {
 	s/##DIST/$dist/g;
 
-	if (! -f $_) {
+	if (! -f "$debian_bot/$_" ) {
 	    $bad++;
 	    next;
 	}
 
 	$good++;
-	$files .= " ".$_;
+	$files .= " $debian_dir/$_";
     }
 
     &::DEBUG("deb(2): good = $good, bad = $bad...") if ($debug);
@@ -882,6 +882,7 @@ sub generateIndex {
 	my $packages;
 	foreach $packages (keys %urlpackages) {
 	    $packages =~ s/##DIST/$dist/;
+	    $packages =  "$debian_dir/$packages";
 
 	    if (! -e $packages) {
 		&::ERROR("gIndex: '$packages' does not exist?");
