@@ -850,8 +850,8 @@ sub getJoinChans {
     }
 
     my $str;
-    $str .= ' in:' . join(',', sort @in) if scalar @in;
-    $str .= ' skip:' . join(',', sort @skip) if scalar @skip;
+    #$str .= ' in:' . join(',', sort @in) if scalar @in;
+    #$str .= ' skip:' . join(',', sort @skip) if scalar @skip;
     $str .= ' join:' . join(',', sort @join) if scalar @join;
 
     &status("Chans: ($nick)$str") if ($show);
