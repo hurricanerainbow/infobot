@@ -104,6 +104,7 @@ sub perlMath {
 	&& ($locMsg !~ /^\s*[( )]+\s*$/)
 	&& ($locMsg =~ /\d+/)
     ) {
+	$locMsg =~ s/([0-9]+\.[0-9]+(\.[0-9]+)+)/"$1"/g;
 	$locMsg = eval($locMsg);
 
 	if (defined $locMsg and $locMsg =~ /^[-+\de\.]+$/) {
