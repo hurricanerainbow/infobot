@@ -82,7 +82,7 @@ sub doQuestion {
     }
 
     my @link;
-    for (my$i=0; $i<scalar(@query); $i++) {
+    for (my$i=0; $i<scalar @query; $i++) {
 	$query	= $query[$i];
 	$result = &getReply($query);
 	next if (!defined $result or $result eq "");
@@ -104,7 +104,8 @@ sub doQuestion {
 
 	    push(@link, $link);
 	    my $newr = &getReply($link);
-	    $result  = $newr	if ($newr ne "");
+	    last if (!defined $newr or $newr eq "");
+	    $result  = $newr;
 	}
 
 	if (@link) {
