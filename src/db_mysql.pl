@@ -497,6 +497,17 @@ sub dbCreateTable {
 }
 
 sub checkTables {
+    my $database_exists = 0;
+    foreach (&dbRawReturn("SHOW DATABASES")) {
+	$database_exists++ if ($_ eq $param{'DBName'});
+    }
+
+    unless ($database_exists) {
+	&status("Creating database $param{DBName}...");
+	$query = "CREATE DATABASE $param{DBName}";
+	&dbRaw("create(db $param{DBName})", $query);
+    }
+
     # retrieve a list of db's from the server.
     my %db;
     foreach ($dbh->func('_ListTables')) {
@@ -505,9 +516,9 @@ sub checkTables {
 
     # create database.
     if (!scalar keys %db) {
-	&status("Creating database $param{'DBName'}...");
-	$query = "CREATE DATABASE $param{'DBName'}";
-	&dbRaw("create(db $param{'DBName'})", $query);
+#	&status("Creating database $param{'DBName'}...");
+#	$query = "CREATE DATABASE $param{'DBName'}";
+#	&dbRaw("create(db $param{'DBName'})", $query);
     }
 
     foreach ("factoids", "freshmeat", "rootwarn", "seen", "stats",

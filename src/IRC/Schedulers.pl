@@ -371,7 +371,7 @@ sub chanlimitCheck {
 
 	if (scalar keys %netsplitservers) {
 	    if (defined $limit) {
-		&DEBUG("chanlimit: removing it for $chan.");
+		&status("chanlimit: netsplit; removing it for $chan.");
 		&rawout("MODE $chan -l");
 		$cache{chanlimitChange}{$chan} = time();
 	    }
@@ -1173,16 +1173,16 @@ sub mkBackup {
 	return;
     }
 
+    my $age	= "New";
     if ( -e "$file~" ) {
- 	$backup++ if ((stat $file)[9] - (stat "$file~")[9] > $time);
+ 	$backup++	if ((stat $file)[9] - (stat "$file~")[9] > $time);
+	my $delta	= time() - (stat "$file~")[9];
+	$age		= &Time2String($delta);
     } else {
 	$backup++;
     }
-    return unless ($backup);
 
-    # should delta be time(file) - time(file~)?
-    my $delta	= time() - (stat "$file~")[9];
-    my $age	= &Time2String($delta);
+    return unless ($backup);
 
     ### TODO: do internal copying.
     &status("Backup: $file ($age)");

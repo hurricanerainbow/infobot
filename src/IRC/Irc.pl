@@ -260,12 +260,7 @@ sub msg {
 	    $msgsize	= length $msg;
 	}
 
-	if ($msgType =~ /private/i) {	# hack.
-	    $conn->privmsg($nick, $msg);
-
-	} else {
-	    &DEBUG("msg: msgType is unknown!");
-	}
+	$conn->privmsg($nick, $msg);
     }
 }
 

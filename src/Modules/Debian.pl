@@ -200,10 +200,10 @@ sub searchContents {
     my $grepRE;
     ### TODO: search properly if /usr/bin/blah is done.
     if ($query =~ s/\$$//) {
-	&::DEBUG("deb: search-regex found.");
+	&::DEBUG("deb: search-regex found.") if ($debug);
 	$grepRE = "$query\[ \t]";
     } elsif ($query =~ s/^\^//) {
-	&::DEBUG("deb: front marker regex found.");
+	&::DEBUG("deb: front marker regex found.") if ($debug);
 	$front = 1;
 	$grepRE = $query;
     } else {
