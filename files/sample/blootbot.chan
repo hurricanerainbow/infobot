@@ -27,7 +27,7 @@ _default
     +cookie
     +countdown
     +Debian
-    +debianExtra
+    +DebianExtra
     debianRefreshInterval 7
     +Dict
     +factoidArguments

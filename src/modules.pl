@@ -27,7 +27,7 @@ if ($@) {
 	"BZFlag"	=> "BZFlag.pl",
 	"countdown"	=> "countdown.pl",
 	"Debian"	=> "Debian.pl",
-	"debianExtra"	=> "DebianExtra.pl",
+	"DebianExtra"	=> "DebianExtra.pl",
 	"Dict"		=> "Dict.pl",
 	"DumpVars"	=> "DumpVars.pl",
 	"exchange"	=> "Exchange.pl",
