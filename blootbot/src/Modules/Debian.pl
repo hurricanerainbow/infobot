@@ -28,8 +28,9 @@ my $debian_dir	= "$::bot_state_dir/debian";
 ### new... the right way.
 my %dists	= (
 	"unstable"	=> "sid",
-	"testing"	=> "woody",	# new since 20001219.
-	"stable"	=> "potato",
+	"testing"	=> "sarge",	# new since 20020719.
+	"stable"	=> "woody",
+	"old-stable"	=> "potato",
 	"incoming"	=> "incoming",
 );
 
