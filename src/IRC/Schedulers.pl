@@ -843,7 +843,7 @@ sub getNickInUse {
 
 sub uptimeLoop {
     return if (!defined &uptimeWriteFile);
-#    return unless &IsChanConf('Uptime');
+#    return unless &IsParam('Uptime');
 
     if (@_) {
 	&ScheduleThis(60, 'uptimeLoop');
