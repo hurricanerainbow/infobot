@@ -796,7 +796,7 @@ sub infoStats {
 sub generateIndex {
     my (@dists)	= @_;
     &main::status("Debian: !!! generateIndex() called !!!");
-    if (!scalar @dists) {
+    if (!scalar @dists or $dists[0] eq '') {
 	&main::ERROR("gI: no dists to generate index.");
 	return 1;
     }
