@@ -359,6 +359,9 @@ sub on_endofnames {
 
     if (scalar @joinchan) {	# remaining channels to join.
 	&joinNextChan();
+    } else {
+	&DEBUG("running ircCheck to get chanserv ops.");
+	&ircCheck();
     }
 
     return unless (&IsChanConf("chanServ_ops") > 0);
@@ -1222,8 +1225,8 @@ sub chanLimitVerify {
 	### todo: check if we have ops.
 	### todo: if not, check if nickserv/chanserv is avail.
 	### todo: unify code with chanlimitcheck()
-	if ($delta > 3) {
-	    &WARN("clc: nowl($nowl) > l($l) - 3");
+	if ($delta > 5) {
+	    &status("clc: big change in limit; changing.");
 	    &rawout("MODE $chan +l ".($nowl+$plus) );
 	}
     }

@@ -59,8 +59,6 @@ sub loadCoreModules {
 	exit 1;
     }
 
-    &status("Loading CORE modules...");
-
     my @mods;
     while (defined(my $file = readdir DIR)) {
 	next unless $file =~ /\.pl$/;
@@ -68,12 +66,11 @@ sub loadCoreModules {
 	push(@mods, $file);
     }
     closedir DIR;
-    &DEBUG("mods: ".scalar(@mods)." to be loaded...");
+    &status("Loading ".scalar(@mods)." CORE modules...");
 
     foreach (sort @mods) {
 	my $mod = "$bot_src_dir/$_";
 
-	### TODO: use eval and exit gracefully?
 	eval "require \"$mod\"";
 	if ($@) {
 	    &ERROR("lCM => $@");

@@ -11,7 +11,7 @@
 ### where items is:
 #	Time	- when it was added (used for sorting)
 #	Author	- Who by.
-#	Expire	- Time to expire
+#	Expire	- Time to expire.
 #	Text	- Actual text.
 ###
 
@@ -140,6 +140,7 @@ sub writeNews {
     # todo: add commands to output file.
     my $c = 0;
     my($cc,$ci,$cu) = (0,0,0);
+
     open(NEWS, ">$file");
     foreach $chan (sort keys %::news) {
 	$c = scalar keys %{ $::news{$chan} };
@@ -163,11 +164,10 @@ sub writeNews {
     if (&::getChanConfList("newsKeepRead")) {
 	# old users are removed in newsFlush(), perhaps it should be
 	# done here.
-	&::DEBUG("newsuser cache...");
+
 	foreach $chan (sort keys %::newsuser) {
-	    &::DEBUG("newsuser cache: chan => $chan");
+
 	    foreach (sort keys %{ $::newsuser{$chan} }) {
-		&::DEBUG("newsuser cache: user => $_");
 		print NEWS "U $chan $_ $::newsuser{$chan}{$_}\n";
 		$cu++;
 	    }
@@ -204,11 +204,14 @@ sub add {
 
     my $agestr	= &::Time2String($::news{$chan}{$str}{Expire} - time() );
     my $item	= &getNewsItem($str);
+    if ($item eq $str) {
+	&::DEBUG("item eq str ($item): should never happen.");
+    }
     &::msg($::who, "Added '\037$str\037' at [".localtime(time).
 		"] by \002$::who\002 for item #\002$item\002.");
     &::msg($::who, "Now do 'news text $item <your_description>'");
     &::msg($::who, "This item will expire at \002".
-	localtime($::news{$chan}{$str}{Expire})."\002 [$agestr] "
+	localtime($::news{$chan}{$str}{Expire})."\002 [$agestr from now] "
     );
 }
 
@@ -297,8 +300,8 @@ sub list {
 	my $t	= $::news{$chan}{$_}{Time};
 	$newest = $t if ($t > $newest);
     }
-    &::msg($::who, "|= Last updated ".
-		&::Time2String(time() - $newest). " ago.");
+    my $timestr = &::Time2String(time() - $newest);
+    &::msg($::who, "|= Last updated $timestr ago.");
     &::msg($::who, " \037No\037  \037Item ".(" "x40)." \037");
 
     my $i = 1;
@@ -316,10 +319,9 @@ sub list {
 				$i, $subtopic));
 	$i++;
     }
+
     &::msg($::who, "|= End of News.");
     &::msg($::who, "use 'news read <#>' or 'news read <keyword>'");
-
-    &::DEBUG("news cache => ".scalar(keys %::newsuser) );
 }
 
 sub read {

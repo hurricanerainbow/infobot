@@ -310,8 +310,8 @@ sub newsFlush {
 
 	    next unless (time() > $t);
 	    # todo: show how old it was.
-	    &DEBUG("delete $chan/'$item'.");
 	    delete $::news{$chan}{$item};
+	    &VERB("NEWS: deleted '$item'", 2);
 	    $delete++;
 	}
     }
@@ -333,10 +333,10 @@ sub newsFlush {
 	}
     }
 
-    &News::writeNews();
-
 #    &VERB("NEWS deleted $delete seen entries.",2);
-    &status("NEWS deleted $delete news entries; $duser user cache.");
+    &status("NEWS deleted: $delete news entries; $duser user cache.");
+
+    &News::writeNews();
 }
 
 sub chanlimitCheck {
@@ -364,7 +364,7 @@ sub chanlimitCheck {
 	next unless (!defined $limit or $limit != $newlimit);
 
 	if (!exists $channels{$chan}{'o'}{$ident}) {
-	    &ERROR("chanlimitcheck: dont have ops on $chan.") unless (exists $cache{warn}{chanlimit}{$chan});
+	    &status("ChanLimit: dont have ops on $chan.") unless (exists $cache{warn}{chanlimit}{$chan});
 	    $cache{warn}{chanlimit}{$chan} = 1;
 	    ### TODO: check chanserv?
 	    next;
@@ -372,7 +372,7 @@ sub chanlimitCheck {
 	delete $cache{warn}{chanlimit}{$chan};
 
 	if (!defined $limit) {
-	    &DEBUG("setting limit for first time or from netsplit for $chan");
+	    &status("ChanLimit: setting for first time or from netsplit, for $chan");
 	}
 
 	&rawout("MODE $chan +l $newlimit");
