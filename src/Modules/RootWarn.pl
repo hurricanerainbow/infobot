@@ -46,10 +46,17 @@ sub rootWarn {
 
     $attempt++;
     ### TODO: OPTIMIZE THIS.
-    &dbSet("rootwarn", "nick", lc($nick), "attempt", $attempt);
-    &dbSet("rootwarn", "nick", lc($nick), "time", time());
-    &dbSet("rootwarn", "nick", lc($nick), "host", $user."\@".$host);
-    &dbSet("rootwarn", "nick", lc($nick), "channel", $chan);
+    if (1) {	# old
+	&dbSet("rootwarn", { nick => lc($nick) }, { attempt => $attempt });
+	&dbSet("rootwarn", { nick => lc($nick) }, { time => time() });
+	&dbSet("rootwarn", { nick => lc($nick) }, { host => $user."\@".$host });
+	&dbSet("rootwarn", { nick => lc($nick) }, { channel => $chan });
+    } else {	# new. replace.
+	&dbSet("rootwarn", "nick", lc($nick), "attempt", $attempt);
+	&dbSet("rootwarn", "nick", lc($nick), "time", time());
+	&dbSet("rootwarn", "nick", lc($nick), "host", $user."\@".$host);
+	&dbSet("rootwarn", "nick", lc($nick), "channel", $chan);
+    }
 
     return;
 }

@@ -183,7 +183,10 @@ sub downloadIndex {
 
     ### lets get on with business.
     # set the last refresh time. fixes multiple spawn bug.
-    &::dbSet("freshmeat", "projectname_short", "_", "latest_version", time());
+    &::dbSet("freshmeat", 
+	{ "projectname_short" => "_" },
+	{ "latest_version" => time() }
+    );
 
     &::dbRaw("LOCK", "LOCK TABLES freshmeat WRITE");
     @cols	= &::dbGetColInfo("freshmeat");
@@ -235,7 +238,7 @@ sub downloadIndex {
 		s/&middot;//g;
 	}
 
-	if ($str =~ s/\&(\S+);//g) {
+	if (0 and $str =~ s/\&(\S+?);//g) {
 	    &::DEBUG("fm: sarred $1 to ''.");
 	}
 
