@@ -20,6 +20,8 @@ $logcount	= 0;
 $logrepeat	= 0;
 $logold		= "";
 
+$param{VEBOSITY} ||= 1;		# lame fix for preload
+
 my %attributes = (
 	'clear'      => 0,
 	'reset'      => 0,
