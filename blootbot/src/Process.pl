@@ -399,25 +399,33 @@ sub FactoidStuff {
 	    return 'locked factoid' if (&IsLocked($faqtoid) == 1);
 
 	    if (&IsParam("factoidDeleteDelay")) {
-		if ($faqtoid =~ /#DEL#/ and !&IsFlag("o")) {
+		if ($faqtoid =~ / #DEL#$/ and !&IsFlag("o")) {
 		    &msg($who, "cannot delete it ($faqtoid).");
 		    return;
 		}
+
 		&status("forgot (safe delete): <$who> '$faqtoid' =is=> '$result'");
 		### TODO: check if the "backup" exists and overwrite it
 		my $check = &getFactoid("$faqtoid #DEL#");
+		&DEBUG("Process: check => '$check'.");
+
 		if (!$check) {
-		    if ($faqtoid !~ /#DEL#/) {
+		    if ($faqtoid !~ / #DEL#$/) {
+			&DEBUG("Process: backing up $faqtoid to '$new'.");
 			my $new = $faqtoid." #DEL#";
+			# this looks weird but does it work?
 			&setFactInfo($faqtoid, "factoid_key", $new);
 			&setFactInfo($new, "modified_by", $who);
 			&setFactInfo($new, "modified_time", time());
+
 		    } else {
 			&status("not backing up $faqtoid.");
 		    }
+
 		} else {
 		    &status("forget: not overwriting backup!");
 		}
+
 	    } else {
 		&status("forget: <$who> '$faqtoid' =is=> '$result'");
 	    }

@@ -14,7 +14,7 @@ my $announce	= 0;
 my $defaultdist	= "sid";
 my $refresh = &::getChanConfDefault("debianRefreshInterval",7)
 			* 60 * 60 * 24;
-my $debug	= 1;
+my $debug	= 0;
 
 ### ... old
 #my %dists	= (
@@ -185,7 +185,7 @@ sub searchContents {
     } else {
 	my %urls = &fixDist($dist, %urlcontents);
 	# download contents file.
-	&::DEBUG("deb: download 1.");
+	&::DEBUG("deb: download 1.") if ($debug);
 	if (!&DebianDownload($dist, %urls)) {
 	    &::WARN("Debian: could not download files.");
 	}
@@ -200,10 +200,10 @@ sub searchContents {
     my $grepRE;
     ### TODO: search properly if /usr/bin/blah is done.
     if ($query =~ s/\$$//) {
-	&::DEBUG("search-regex found.");
+	&::DEBUG("deb: search-regex found.");
 	$grepRE = "$query\[ \t]";
     } elsif ($query =~ s/^\^//) {
-	&::DEBUG("front marker regex found.");
+	&::DEBUG("deb: front marker regex found.");
 	$front = 1;
 	$grepRE = $query;
     } else {
@@ -315,7 +315,7 @@ sub searchContents {
 	&::pSReply( &::formListReply(0, $prefix, @list) );
 
     } else {		# !@list.
-	&::DEBUG("ok, !\@list, searching desc for '$query'.");
+	&::DEBUG("deb: ok, !\@list, searching desc for '$query'.");
 	my @list = &searchDesc($query);
 
 	if (!scalar @list) {
@@ -323,7 +323,7 @@ sub searchContents {
 	    &::pSReply( &::formListReply(0, $prefix, ) );
 
 	} elsif (scalar @list == 1) {	# list = 1.
-	    &::DEBUG("list == 1; showing package info of '$list[0]'.");
+	    &::DEBUG("deb: list == 1; showing package info of '$list[0]'.");
 	    &infoPackages("info", $list[0]);
 
 	} else {				# list > 1.
@@ -337,7 +337,7 @@ sub searchContents {
 # Usage: &searchAuthor($query);
 sub searchAuthor {
     my ($dist, $query)	= &getDistroFromStr($_[0]);
-    &::DEBUG("searchAuthor: dist => '$dist', query => '$query'.");
+    &::DEBUG("deb: searchAuthor: dist => '$dist', query => '$query'.") if ($debug);
     $query =~ s/^\s+|\s+$//g;
 
     # start of search.
@@ -360,7 +360,7 @@ sub searchAuthor {
 	$files .= " ".$_;
     }
 
-    &::DEBUG("good = $good, bad = $bad...");
+    &::DEBUG("deb: good = $good, bad = $bad...");
 
     if ($good == 0 and $bad != 0) {
 	my %urls = &fixDist($dist, %urlpackages);
@@ -381,7 +381,7 @@ sub searchAuthor {
 	} elsif (/^Maintainer: (.*) \<(\S+)\>$/) {
 	    my($name,$email) = ($1,$2);
 	    if ($package eq "") {
-		&::DEBUG("sA: package == NULL.");
+		&::DEBUG("deb: sA: package == NULL.");
 		next;
 	    }
 	    $maint{$name}{$email} = 1;
@@ -422,7 +422,7 @@ sub searchAuthor {
 	return 1;
     }
 
-    &::DEBUG("showing all packages by '$list[0]'...");
+    &::DEBUG("deb: showing all packages by '$list[0]'...");
 
     my @pkg = sort keys %{ $pkg{$list[0]} };
 
@@ -439,7 +439,7 @@ sub searchAuthor {
 # Usage: &searchDesc($query);
 sub searchDesc {
     my ($dist, $query)	= &getDistroFromStr($_[0]);
-    &::DEBUG("searchDesc: dist => '$dist', query => '$query'.");
+    &::DEBUG("deb: searchDesc: dist => '$dist', query => '$query'.");
     $query =~ s/^\s+|\s+$//g;
 
     # start of search.
@@ -462,14 +462,14 @@ sub searchDesc {
 	$files .= " ".$_;
     }
 
-    &::DEBUG("good = $good, bad = $bad...");
+    &::DEBUG("deb(2): good = $good, bad = $bad...");
 
     if ($good == 0 and $bad != 0) {
 	my %urls = &fixDist($dist, %urlpackages);
-	&::DEBUG("deb: download 2c.");
+	&::DEBUG("deb: download 2c.") if ($debug);
 
 	if (!&DebianDownload($dist, %urls)) {
-	    &::ERROR("Debian(sD): could not download files.");
+	    &::ERROR("deb: sD: could not download files.");
 	    return;
 	}
     }
@@ -516,7 +516,7 @@ sub generateIncoming {
     my $stale	 = 0;
     $stale++ if (&::isStale($pkgfile.".gz", $refresh));
     $stale++ if (&::isStale($idxfile, $refresh));
-    &::DEBUG("gI: stale => '$stale'.");
+    &::DEBUG("deb: gI: stale => '$stale'.");
     return 0 unless ($stale);
 
     ### STATIC URL.
@@ -724,9 +724,9 @@ sub infoPackages {
 		}
 	    }
 	} else {
-	    &::DEBUG("running debianCheck() due to problems (".scalar(keys %pkg).").");
+	    &::DEBUG("deb: running debianCheck() due to problems (".scalar(keys %pkg).").");
 	    &debianCheck();
-	    &::DEBUG("end of debianCheck()");
+	    &::DEBUG("deb: end of debianCheck()");
 
 	    &::msg($::who,"Debian: Package appears to exist but I could not retrieve info about it...");
 	    return;
@@ -762,7 +762,7 @@ sub infoStats {
     $dist	= &getDistro($dist);
     return unless (defined $dist);
 
-    &::DEBUG("infoS: dist => '$dist'.");
+    &::DEBUG("deb: infoS: dist => '$dist'.");
 
     # download packages file if needed.
     my %urls = &fixDist($dist, %urlpackages);
@@ -778,16 +778,16 @@ sub infoStats {
     my $file;
     foreach $file (keys %urlpackages) {
 	$file =~ s/##DIST/$dist/g;	# won't work for incoming.
-	&::DEBUG("file => '$file'.");
+	&::DEBUG("deb: file => '$file'.");
 	if (exists $stats{$file}{'count'}) {
-	    &::DEBUG("hrm... duplicate open with $file???");
+	    &::DEBUG("deb: hrm... duplicate open with $file???");
 	    next;
 	}
 
 	open(IN,"zcat $file 2>&1 |");
 
 	if (! -e $file) {
-	    &::DEBUG("iS: $file does not exist.");
+	    &::DEBUG("deb: iS: $file does not exist.");
 	    next;
 	}
 
@@ -835,8 +835,6 @@ sub infoStats {
     return;
 }
 
-
-
 ###
 # HELPER FUNCTIONS FOR INFOPACKAGES...
 ###
@@ -853,9 +851,9 @@ sub generateIndex {
     foreach (@dists) {
 	my $dist = &getDistro($_); # incase the alias is returned, possible?
 	my $idx  = "debian/Packages-$dist.idx";
-	&::DEBUG("gI: dist => $dist.");
-	&::DEBUG("gI: idx  => $idx.");
-	&::DEBUG("gI: r    => $refresh.");
+	&::DEBUG("deb: gI: dist => $dist.");
+	&::DEBUG("deb: gI: idx  => $idx.");
+	&::DEBUG("deb: gI: r    => $refresh.");
 
 	# TODO: check if any of the Packages file have been updated then
 	#	regenerate it, even if it's not stale.
@@ -864,17 +862,17 @@ sub generateIndex {
 	next unless (&::isStale($idx, $refresh));
 
 	if (/^incoming$/i) {
-	    &::DEBUG("gIndex: calling generateIncoming()!");
+	    &::DEBUG("deb: gIndex: calling generateIncoming()!");
 	    &generateIncoming();
 	    next;
 	}
 
 	if (/^woody$/i) {
-	    &::DEBUG("Copying old index of woody to -old");
+	    &::DEBUG("deb: Copying old index of woody to -old");
 	    system("cp $idx $idx-old");
 	}
 
-	&::DEBUG("gIndeX: calling DebianDownload($dist, ...).");
+	&::DEBUG("deb: gIndex: calling DebianDownload($dist, ...).");
 	&DebianDownload($dist, %urlpackages);
 
 	&::status("Debian: generating index for '$dist'.");
@@ -918,7 +916,7 @@ sub validPackage {
     my $olddist	= $dist;
     $dist = &getDistro($dist);
 
-    &::DEBUG("D: validPackage($package, $dist) called.") if ($debug);
+    &::DEBUG("deb: validPackage($package, $dist) called.") if ($debug);
 
     my $error = 0;
     while (!open(IN, "debian/Packages-$dist.idx")) {
@@ -967,7 +965,7 @@ sub searchPackage {
 
     while (!open(IN, $file)) {
 	if ($dist eq "incoming") {
-	    &::DEBUG("sP: dist == incoming; calling gI().");
+	    &::DEBUG("deb: sP: dist == incoming; calling gI().");
 	    &generateIncoming();
 	}
 
@@ -977,7 +975,7 @@ sub searchPackage {
 	}
 
 	$error++;
-	&::DEBUG("should we be doing this?");
+	&::DEBUG("deb: should we be doing this?");
 	&generateIndex(($dist));
     }
 
@@ -988,10 +986,10 @@ sub searchPackage {
 	    $file = $1;
 
 	    if (&::isStale($file, $refresh)) {
-		&::DEBUG("STALE $file! regen.");
+		&::DEBUG("deb: STALE $file! regen.");
 		&generateIndex(($dist));
 ###		@files = searchPackage("$query $dist");
-		&::DEBUG("EVIL HACK HACK HACK.");
+		&::DEBUG("deb: EVIL HACK HACK HACK.");
 		last;
 	    }
 
@@ -1015,12 +1013,12 @@ sub getDistro {
     my $dist = $_[0];
 
     if (!defined $dist or $dist eq "") {
-	&::DEBUG("gD: dist == NULL; dist = defaultdist.");
+	&::DEBUG("deb: gD: dist == NULL; dist = defaultdist.");
 	$dist = $defaultdist;
     }
 
     if ($dist =~ /^(slink|hamm|rex|bo)$/i) {
-	&::DEBUG("Debian: deprecated version ($dist).");
+	&::DEBUG("deb: deprecated version ($dist).");
 	&::msg($::who, "Debian: deprecated distribution version.");
 	return;
     }
@@ -1109,10 +1107,10 @@ sub debianCheck {
 
 	my $exit = system("gzip -t '$dir/$file'");
 	next unless ($exit);
-	&::DEBUG("hmr... => ".(time() - (stat($file))[8])."'.");
+	&::DEBUG("deb: hmr... => ".(time() - (stat($file))[8])."'.");
 	next unless (time() - (stat($file))[8] > 3600);
 
-	&::DEBUG("dC: exit => '$exit'.");
+	&::DEBUG("deb: dC: exit => '$exit'.");
 	&::WARN("dC: '$dir/$file' corrupted? deleting!");
 	unlink $dir."/".$file;
 	$retval++;
@@ -1133,7 +1131,7 @@ sub checkEval {
 }
 
 sub searchDescFE {
-    &::DEBUG("FE called for searchDesc");
+    &::DEBUG("deb: FE called for searchDesc");
     my ($query)	= @_;
     my @list = &searchDesc($query);
 
@@ -1141,7 +1139,7 @@ sub searchDescFE {
 	my $prefix = "Debian Desc Search of '$query' ";
 	&::pSReply( &::formListReply(0, $prefix, ) );
     } elsif (scalar @list == 1) {	# list = 1.
-	&::DEBUG("list == 1; showing package info of '$list[0]'.");
+	&::DEBUG("deb: list == 1; showing package info of '$list[0]'.");
 	&infoPackages("info", $list[0]);
     } else {				# list > 1.
 	my $prefix = "Debian Desc Search of '$query' ";
