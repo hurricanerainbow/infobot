@@ -508,14 +508,13 @@ sub ignoreCheck {
 	my $chan = $_;
 
 	foreach (keys %{ $ignore{$chan} }) {
-	    my @array = \@{ $ignore{$chan}{$_} };
+	    my @array = @{ $ignore{$chan}{$_} };
 
 	    foreach (@array) {
 		&DEBUG("ignore:  => $_");
 	    }
 
-	    next;
-	    next unless ($time > $ignore{$_});
+	    next unless ($array[0] and $time > $array[0]);
 
 	    delete $ignore{$chan}{$_};
 	    &status("ignore: $_/$chan has expired.");
