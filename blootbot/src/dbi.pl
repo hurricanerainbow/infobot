@@ -88,12 +88,11 @@ sub sqlSelectMany {
 	return;
     }
 
-    $query .= " WHERE" if (($where_href) || ($other));
     if ($where_href) {
 	my $where = &hashref2where($where_href);
-	$query .= " $where" if ($where);
+	$query .= " WHERE $where" if ($where);
     }
-    $query .= " $other"		if $other;
+    $query .= " $other"	if ($other);
 
     if (!($sth = $dbh->prepare($query))) {
 	&ERROR("sqlSelectMany: prepare: $DBI::errstr");
@@ -101,10 +100,8 @@ sub sqlSelectMany {
     }
 
     &SQLDebug($query);
-    if (!$sth->execute) {
-	&ERROR("sqlSelectMany: execute: '$query'");
-	return;
-    }
+
+    return if (!$sth->execute);
 
     return $sth;
 }
@@ -265,7 +262,7 @@ sub sqlUpdate {
 
     if (!defined $data_href or ref($data_href) ne "HASH") {
 	&WARN("sqlSet: data_href == NULL.");
-	return;
+	return 0;
     }
 
     my $where  = &hashref2where($where_href) if ($where_href);
@@ -644,9 +641,15 @@ sub checkTables {
 	}
     }
 
-    foreach ( qw(factoids rootwarn seen stats botmail) ) {
-	next if (exists $db{$_});
+    foreach ( qw(factoids factoidsmisc rootwarn seen stats botmail) ) {
+	if (exists $db{$_}) {
+	    $cache{has_table}{$_} = 1;
+	    next;
+	}
+
 	&status("checkTables: creating new table $_...");
+
+	$cache{create_table}{$_} = 1;
 
 	&sqlCreateTable($_);
     }
