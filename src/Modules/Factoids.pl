@@ -265,7 +265,7 @@ sub CmdFactStats {
 	}
 
 	# parse the results.
-	my $prefix = "General factoid stiatistics ";
+	my $prefix = "General factoid statistics ";
 	return &formListReply(1, $prefix, @list);
 
     } elsif ($type =~ /^deadredir$/i) {
