@@ -46,9 +46,9 @@ sub check {
     my($recipient, $always) = @_;
     $recipient ||= $::who;
 
-    # todo: simplify this select (use a diff function)
-    my %from = &::dbGetCol("botmail", "srcwho",
-	"dstwho=".&::dbQuote(lc $recipient),2);
+    my %from = &::sqlSelectColHash("botmail", "srcwho,time", {
+	dstwho => lc $recipient
+    } );
     my $t	= keys %from;
     my $from	= join(", ", keys %from);
 
@@ -64,17 +64,18 @@ sub check {
 sub next {
     my($recipient) = @_;
 
-    my %hash = &::dbGetColNiceHash("botmail", "*",
-	"dstwho=".&::dbQuote(lc $recipient)
-    );
+    my %hash = &::sqlSelectRowHash("botmail", "*", {
+	dstwho => lc $recipient
+    } );
 
     if (scalar (keys %hash) <= 1) {
 	&::msg($recipient, "You have no botmail.");
     } else {
+	my $date = scalar(gmtime $hash{'time'});
 	my $ago = &::Time2String(time() - $hash{'time'});
-	&::msg($recipient, "From $hash{srcwho} ($hash{srcuh}) on $hash{time} [$ago]:");
+	&::msg($recipient, "From $hash{srcwho} ($hash{srcuh}) on $date ($ago ago):");
 	&::msg($recipient, $hash{'msg'});
-	&::dbDel("botmail", { 'dstwho'=>$hash{dstwho}, 'srcwho'=>$hash{srcwho}});
+	&::sqlDelete("botmail", { 'dstwho'=>$hash{dstwho}, 'srcwho'=>$hash{srcwho}});
     }
 }
 
@@ -84,30 +85,24 @@ sub add {
     my($recipient, $msg) = @_;
     &::DEBUG("botmail::add(@_)");
 
-    if (lc $recipient eq $::who) {
-	&::msg($::who, "well... a botmail to oneself is stupid!");
-	return;
-    }
-
     # only support 1 botmail with unique dstwho/srcwho to have same
     # functionality as botmail from infobot.
-    my %hash = &::dbGetColNiceHash("botmail", "*",
-	"srcwho=".&::dbQuote(lc $::who)." AND ".
-	"dstwho=".&::dbQuote(lc $recipient)
-    );
+    my %hash = &::sqlSelectRowHash("botmail", "*", {
+	srcwho => &::sqlQuote(lc $::who),
+	dstwho => &::sqlQuote(lc $recipient)
+    } );
 
     if (scalar (keys %hash) > 1) {
 	&::msg($::who, "$recipient already has a message queued from you");
 	return;
     }
 
-    &::dbSet("botmail", {
+    &::sqlReplace("botmail", {
 	'dstwho'	=> lc $recipient,
 	'srcwho'	=> lc $::who,
-    }, {
-	'srcuh'	=> $::nuh,	# will this work?
-	'time'	=> time(),
-	'msg'	=> $msg,
+	'srcuh'		=> $::nuh,
+	'time'		=> time(),
+	'msg'		=> $msg,
     } );
 
     &::msg($::who, "OK, $::who, I'll let $recipient know.");

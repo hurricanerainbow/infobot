@@ -348,7 +348,6 @@ sub Modules {
 		my @top;
 
 		# unfortunately we have to sort it again!
-		# todo: make dbGetCol return hash and array? too much effort.
 		my $tp = 0;
 		foreach $i (sort { $b <=> $a } keys %hash) {
 		    foreach (keys %{ $hash{$i} }) {
@@ -941,7 +940,6 @@ sub textstats_main {
 	my @top;
 
 	# unfortunately we have to sort it again!
-	# todo: make dbGetCol return hash and array? too much effort.
 	my $tp = 0;
 	foreach $i (sort { $b <=> $a } keys %hash) {
 	    foreach (keys %{ $hash{$i} }) {

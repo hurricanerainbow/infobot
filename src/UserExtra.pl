@@ -819,7 +819,6 @@ sub userCommands {
 
 	return;
 
-	# todo: use dbGetColNiceHash().
 	my %hash = &sqlSelectColHash("stats", "nick,counter",
 		{ type => "cmdstats" }, 1);
 # ORDER won't be retained in a hash

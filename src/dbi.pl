@@ -167,11 +167,11 @@ sub sqlSelectColHash {
     my %retval;
 
     if (defined $type and $type == 2) {
-	&DEBUG("dbgetcol: type 2!");
+	&DEBUG("sqlSelectColHash: type 2!");
 	while (my @row = $sth->fetchrow_array) {
 	    $retval{$row[0]} = join(':', $row[1..$#row]);
 	}
-	&DEBUG("dbgetcol: count => ".scalar(keys %retval) );
+	&DEBUG("sqlSelectColHash: count => ".scalar(keys %retval) );
 
     } elsif (defined $type and $type == 1) {
 	while (my @row = $sth->fetchrow_array) {
@@ -540,7 +540,7 @@ sub deleteTable {
 
 #####
 # Usage: &searchTable($table, $select, $key, $str);
-#  Note: searchTable does dbQuote.
+#  Note: searchTable does sqlQuote.
 sub searchTable {
     my($table, $select, $key, $str) = @_;
     my $origStr = $str;
@@ -548,7 +548,7 @@ sub searchTable {
 
     # allow two types of wildcards.
     if ($str =~ /^\^(.*)\$$/) {
-	&DEBUG("searchTable: should use dbGet(), heh.");
+	&FIXME("searchTable: can't do \"$str\"");
 	$str = $1;
     } else {
 	$str .= "%"	if ($str =~ s/^\^//);
