@@ -17,6 +17,7 @@ use vars qw(%channels %chanstats %cmdstats %count %ircstats %param
 
 &addCmdHook("main", 'chan(stats|info)', ('CODEREF' => 'chaninfo', ) );
 &addCmdHook("main", 'cmd(stats|info)', ('CODEREF' => 'cmdstats', ) );
+&addCmdHook("main", 'sched(stats|info)', ('CODEREF' => 'scheduleList', ) );
 &addCmdHook("main", 'factinfo', ('CODEREF' => 'factinfo',
 	'Cmdstats' => 'Factoid Info', Module => 'factoids', ) );
 &addCmdHook("main", 'factstats?', ('CODEREF' => 'factstats',
