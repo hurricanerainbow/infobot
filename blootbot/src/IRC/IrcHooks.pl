@@ -46,7 +46,9 @@ sub on_chat {
     # who is set to bot's name, why?
 
     if (!exists $nuh{$who}) {
-	&DEBUG("chat: nuh{$who} doesn't exist; hrm should retry.");
+	&DEBUG("chat: nuh{$who} (nick => $nick) doesn't exist; trying WHOIS .");
+	$self->whois($who);
+	$self->whois($nick);
 	return;
     } else {
 	$message	= $msg;
@@ -346,17 +348,14 @@ sub on_endofnames {
 
     if (scalar @joinchan) {	# remaining channels to join.
 	&joinNextChan();
-    } else {
-	### chanserv support.
-	### TODO: what if we rejoin a channel.. need to set a var that
-	###	  we've done the request-for-ops-on-join.
-	return unless (&IsChanConf("chanServ_ops") > 0);
-	return unless ($nickserv);
+    }
 
-	if (!exists $channels{$chan}{'o'}{$ident}) {
-	    &status("ChanServ ==> Requesting ops for $chan.");
-	    &rawout("PRIVMSG ChanServ :OP $chan $ident");
-	}
+    return unless (&IsChanConf("chanServ_ops") > 0);
+    return unless ($nickserv);
+
+    if (!exists $channels{$chan}{'o'}{$ident}) {
+	&status("ChanServ ==> Requesting ops for $chan.");
+	&rawout("PRIVMSG ChanServ :OP $chan $ident");
     }
 }
 
@@ -775,7 +774,7 @@ sub on_topic {
 	#	this may be fixed at a later date with topic queueing.
 	###
 
-	$topic{$chan}{'Current'} = $topic if (1 and &IsChanConf("topic") == 1);
+	$topic{$chan}{'Current'} = $topic if (1);
 	$chanstats{$chan}{'Topic'}++;
 
 	&status(">>> topic/$b_blue$chan$ob by $b_cyan$nick$ob -> $topic");
