@@ -193,7 +193,7 @@ sub reloadModule {
     my $file	= (grep /\/$mod/, keys %INC)[0];
 
     if (!defined $file) {
-	&WARN("rM: Cannot reload $mod ($file) since it was not loaded anyway.");
+	&WARN("rM: Cannot reload $mod since it was not loaded anyway.");
 	return;
     }
 
@@ -205,12 +205,23 @@ sub reloadModule {
     my $age = (stat $file)[9];
     return if ($age == $moduleAge{$file});
 
+    if ($age < $moduleAge{$file}) {
+	&WARN("rM: we're not gonna downgrade the file. use 'touch'.");
+	return;
+    }
+
     if (grep /$mod/, @myModulesReloadNot) {
 	&DEBUG("rM: SHOULD NOT RELOAD $mod!!!");
 	return;
     }
 
+    my $dc  = &Time2String($age   - $moduleAge{$file});
+    my $ago = &Time2String(time() - $moduleAge{$file});
+
     &status("Module: Loading $mod...");
+    &VERB("Module:  delta change: $dc",2);
+    &VERB("Module:           ago: $ago",2);
+
     delete $INC{$file};
     eval "require \"$file\"";	# require or use?
     if (@$) {
