@@ -41,7 +41,7 @@ sub ScheduleThis {
 }
 
 sub randomQuote {
-    my $line = &getRandomLineFromFile($infobot_misc_dir. "/infobot.randtext");
+    my $line = &getRandomLineFromFile($bot_misc_dir. "/blootbot.randtext");
     if (!defined $line) {
 	&ERROR("random Quote: weird error?");
 	return;
@@ -106,6 +106,7 @@ sub randomFactoid {
 }
 
 sub logCycle {
+    # check if current size is too large.
     if ( -s $file{log} > $param{'maxLogSize'}) {
 	my $date = sprintf("%04d%02d%02d", (localtime)[5,4,3]);
 	$file{log} = $param{'logfile'} ."-". $date;
@@ -127,6 +128,45 @@ sub logCycle {
 	&compress($file{log});
 	&openLog();
 	&status("cycling log file.");
+    }
+
+    # check if all the logs exceed size.
+    my $logdir = "$bot_base_dir/log/";
+    if (opendir(LOGS, $logdir)) {
+	my $tsize = 0;
+	my (%age, %size);
+
+	while (defined($_ = readdir LOGS)) {
+	    my $logfile = "$logdir/$_";
+
+	    next unless ( -f $logfile);
+	    my $size = -s $logfile;
+	    my $age = (stat $logfile)[9]; ### or 8 ?
+
+	    $age{$age}		= $logfile;
+	    $size{$logfile}	= $size;
+
+	    $tsize		+= $size;
+	}
+	closedir LOGS;
+
+	my $delete = 0;
+	while ($tsize > $param{'maxLogSize'}) {
+	    &status("LOG: current size > max ($tsize > $param{'maxLogSize'})");
+	    my $oldest = (sort {$a <=> $b} keys %age)[0];
+	    &status("LOG: unlinking $age{$oldest}.");
+	    ### NOT YET.
+	    # unlink $age{$oldest};
+	    $tsize -= $oldest;
+	    $delete++;
+	}
+
+	### TODO: add how many b,kb,mb removed?
+	if ($delete) {
+	    &status("LOG: removed $delete logs.");
+	}
+    } else {
+	&WARN("could not open dir $logdir");
     }
 
     &ScheduleThis(60, "logCycle") if (@_);
@@ -462,8 +502,8 @@ sub wingateCheck {
 sub wingateWriteFile {
     return unless (scalar @wingateCache);
 
-    my $file = "$infobot_base_dir/$param{'ircUser'}.wingate";
-    if ($infobot_pid != $$) {
+    my $file = "$bot_base_dir/$param{'ircUser'}.wingate";
+    if ($bot_pid != $$) {
 	&DEBUG("wingateWriteFile: Reorganising!");
 
 	open(IN, $file);

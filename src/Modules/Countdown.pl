@@ -11,7 +11,7 @@ use strict;
 
 sub Countdown {
     my ($query) = @_;
-    my $file = "$infobot_base_dir/$param{'ircUser'}.countdown";
+    my $file = "$bot_base_dir/$param{'ircUser'}.countdown";
     my (%date, %desc);
     my $reply;
 

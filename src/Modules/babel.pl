@@ -1,5 +1,4 @@
 # This program is copyright Jonathan Feinberg 1999.
-
 # This program is distributed under the same terms as infobot.
 
 # Jonathan Feinberg

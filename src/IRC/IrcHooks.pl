@@ -96,7 +96,7 @@ sub on_chat {
     if ($message =~ s/^\.//) {	# dcc chat commands.
 	### TODO: make use of &Forker(); here?
 	&loadMyModule($myModules{'ircdcc'});
-	return 'NOREPLY from userD' if (&userDCC() eq 'NOREPLY');
+	return '$noreply from userD' if (&userDCC() eq $noreply);
 	$conn->privmsg($dcc{'CHAT'}{$who}, "Invalid command.");
 
     } else {			# dcc chat arena.
@@ -112,7 +112,7 @@ sub on_endofmotd {
     my ($self) = @_;
 
     if (&IsParam("wingate")) {
-	my $file = "$infobot_base_dir/$param{'ircUser'}.wingate";
+	my $file = "$bot_base_dir/$param{'ircUser'}.wingate";
 	open(IN, $file);
 	while (<IN>) {
 	    chop;
@@ -692,7 +692,7 @@ sub on_version {
     my $nick = $event->nick;
 
     &status(">>> ${b_green}CTCP VERSION$ob request from $b_cyan$nick$ob");
-    $self->ctcp_reply($nick, "VERSION $infobot_version");
+    $self->ctcp_reply($nick, "VERSION $bot_version");
 }
 
 sub on_who {

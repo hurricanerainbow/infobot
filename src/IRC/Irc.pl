@@ -160,7 +160,7 @@ sub rawout {
 
 sub say {
     my ($msg) = @_;
-    if (!defined $msg or $msg eq "NOREPLY") {
+    if (!defined $msg or $msg eq $noreply) {
 	$msg ||= "NULL";
 	&DEBUG("say: msg == $msg.");
 	return;
@@ -187,7 +187,7 @@ sub msg {
 	return;
     }
 
-    if (!defined $msg or $msg eq "NOREPLY") {
+    if (!defined $msg or $msg eq $noreply) {
 	$msg ||= "NULL";
 	&DEBUG("msg: msg == $msg.");
 	return;
