@@ -92,16 +92,17 @@ sub addForked {
     }
 
     foreach (keys %forked) {
-	my $time = time() - $forked{$_}{Time};
+	my $n = $_;
+	my $time = time() - $forked{$n}{Time};
 	next unless ($time > $forker_timeout);
 
 	### TODO: use &time2string()?
-	&WARN("Fork: looks like we lost '$_', executed $time ago");
+	&WARN("Fork: looks like we lost '$n', executed $time ago");
 
-	my $pid = $forked{$name}{PID};
+	my $pid = $forked{$n}{PID};
 	if (!defined $pid) {
-	    &WARN("Fork: no pid for $name.");
-	    delete $forked{$name};
+	    &WARN("Fork: no pid for $n.");
+	    delete $forked{$n};
 	    next;
 	}
 
@@ -116,7 +117,7 @@ sub addForked {
 	    kill 9, $pid;
 	}
 
-	delete $forked{$name};
+	delete $forked{$n};
     }
 
     my $count = 0;
