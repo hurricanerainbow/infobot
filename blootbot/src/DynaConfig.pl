@@ -160,6 +160,8 @@ sub writeUserFile {
 		    print OUT "--$what\t\t$_\n";
 		}
 
+	    } elsif ($_ eq 'FLAGS') {
+		print OUT "--$_\t\t" . join('', sort split('', $val)) . "\n";
 	    } else {
 		print OUT "--$_\t\t$val\n";
 	    }
