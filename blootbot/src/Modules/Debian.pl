@@ -314,7 +314,7 @@ sub searchContents {
 
     my $prefix = "Debian Search of '$query' ";
     if (scalar @list) {	# @list.
-	&::pSReply( &::formListReply(0, $prefix, @list) );
+	&::performStrictReply( &::formListReply(0, $prefix, @list) );
 	return;
     }
 
@@ -324,7 +324,7 @@ sub searchContents {
 
     if (!scalar @list) {
 	my $prefix = "Debian Package/File/Desc Search of '$query' ";
-	&::pSReply( &::formListReply(0, $prefix, ) );
+	&::performStrictReply( &::formListReply(0, $prefix, ) );
 
     } elsif (scalar @list == 1) {	# list = 1.
 	&::DEBUG("deb: list == 1; showing package info of '$list[0]'.");
@@ -332,7 +332,7 @@ sub searchContents {
 
     } else {				# list > 1.
 	my $prefix = "Debian Desc Search of '$query' ";
-	&::pSReply( &::formListReply(0, $prefix, @list) );
+	&::performStrictReply( &::formListReply(0, $prefix, @list) );
     }
 }
 
@@ -422,7 +422,7 @@ sub searchAuthor {
     my @list = keys %hash;
     if (scalar @list != 1) {
 	my $prefix = "Debian Author Search of '$query' ";
-	&::pSReply( &::formListReply(0, $prefix, @list) );
+	&::performStrictReply( &::formListReply(0, $prefix, @list) );
 	return 1;
     }
 
@@ -436,7 +436,7 @@ sub searchAuthor {
 
     my $email	= join(', ', keys %{ $maint{$list[0]} });
     my $prefix	= "Debian Packages by $list[0] \002<\002$email\002>\002 ";
-    &::pSReply( &::formListReply(0, $prefix, @pkg) );
+    &::performStrictReply( &::formListReply(0, $prefix, @pkg) );
 }
 
 ####
@@ -763,7 +763,7 @@ sub infoPackages {
 	}
     }
 
-    &::pSReply("$package: $pkg{$query}");
+    &::performStrictReply("$package: $pkg{$query}");
 }
 
 # Usage: &infoStats($dist);
@@ -827,7 +827,7 @@ sub infoStats {
 
     ### TODO: don't count ppl with multiple email addresses.
 
-    &::pSReply(
+    &::performStrictReply(
 	"Debian Distro Stats on $dist... ".
 	"\002$total{'count'}\002 packages, ".
 	"\002".scalar(keys %{ $total{'maint'} })."\002 maintainers, ".
@@ -1084,7 +1084,7 @@ sub DebianFind {
 	&::Forker("debian", sub { &infoPackages("info", "$results[0] $dist"); } );
     } else {
 	my $prefix = "Debian Package Listing of '$query' ";
-	&::pSReply( &::formListReply(0, $prefix, @results) );
+	&::performStrictReply( &::formListReply(0, $prefix, @results) );
     }
 }
 
@@ -1144,13 +1144,13 @@ sub searchDescFE {
 
     if (!scalar @list) {
 	my $prefix = "Debian Desc Search of '$query' ";
-	&::pSReply( &::formListReply(0, $prefix, ) );
+	&::performStrictReply( &::formListReply(0, $prefix, ) );
     } elsif (scalar @list == 1) {	# list = 1.
 	&::DEBUG("deb: list == 1; showing package info of '$list[0]'.");
 	&infoPackages("info", $list[0]);
     } else {				# list > 1.
 	my $prefix = "Debian Desc Search of '$query' ";
-	&::pSReply( &::formListReply(0, $prefix, @list) );
+	&::performStrictReply( &::formListReply(0, $prefix, @list) );
     }
 }
 

@@ -129,7 +129,7 @@ sub CmdFactInfo {
 	return;
     }
 
-    &pSReply("$factinfo{'factoid_key'} -- ". join("; ", @array) .".");
+    &performStrictReply("$factinfo{'factoid_key'} -- ". join("; ", @array) .".");
     return;
 }
 

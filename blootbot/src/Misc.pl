@@ -16,7 +16,7 @@ sub help {
     my $file  = $bot_data_dir."/blootbot.help";
     my %help  = ();
 
-    # crude hack for pSReply() to work as expected.
+    # crude hack for performStrictReply() to work as expected.
     $msgType = "private" if ($msgType eq "public");
 
     if (!open(FILE, $file)) {
@@ -70,10 +70,10 @@ sub help {
 
     if (exists $help{$topic}) {
 	foreach (split /\n/, $help{$topic}) {
-	    &pSReply($_);
+	    &performStrictReply($_);
 	}
     } else {
-	&pSReply("no help on $topic.  Use 'help' without arguments.");
+	&performStrictReply("no help on $topic.  Use 'help' without arguments.");
     }
 
     return '';

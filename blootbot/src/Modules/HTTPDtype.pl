@@ -27,7 +27,7 @@ sub HTTPDtype {
 	$line = (length($h{Server}) > 0) ? $h{Server} :
 	  "Couldn't fetch headers from $HOST";
 
-    &::pSReply($line||"Unknown Error Condition");
+    &::performStrictReply($line||"Unknown Error Condition");
 }
 
 1;

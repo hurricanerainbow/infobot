@@ -104,7 +104,7 @@ sub process {
 	my @array = split / /, $message;
 
 	if ($who =~ /^_default$/i) {
-	    &pSReply("you are too eleet.");
+	    &performStrictReply("you are too eleet.");
 	    return;
 	}
 
@@ -116,25 +116,25 @@ sub process {
 	my $do_nick = $array[1] || $who;
 
 	if (!exists $users{$do_nick}) {
-	    &pSReply("nick $do_nick is not in user list.");
+	    &performStrictReply("nick $do_nick is not in user list.");
 	    return;
 	}
 
 	my $crypt = $users{$do_nick}{PASS};
 	if (!defined $crypt) {
-	    &pSReply("user $do_nick has no passwd set.");
+	    &performStrictReply("user $do_nick has no passwd set.");
 	    return;
 	}
 
 	if (!&ckpasswd($array[0], $crypt)) {
-	    &pSReply("invalid passwd for $do_nick.");
+	    &performStrictReply("invalid passwd for $do_nick.");
 	    return;
 	}
 
 	my $mask = "$who!$user@".&makeHostMask($host);
 	### TODO: prevent adding multiple dupe masks?
 	### TODO: make &addHostMask() CMD?
-	&pSReply("Added $mask for $do_nick...");
+	&performStrictReply("Added $mask for $do_nick...");
 	$users{$do_nick}{HOSTS}{$mask} = 1;
 
 	return;
@@ -146,7 +146,7 @@ sub process {
 	my @array = split ' ', $message;
 
 	if ($who =~ /^_default$/i) {
-	    &pSReply("you are too eleet.");
+	    &performStrictReply("you are too eleet.");
 	    return;
 	}
 
@@ -165,18 +165,18 @@ sub process {
 	}
 
 	if (!exists $users{$who} and !$first) {
-	    &pSReply("nick $who is not in user list.");
+	    &performStrictReply("nick $who is not in user list.");
 	    return;
 	}
 
 	if ($first) {
-	    &pSReply("First time user... adding you as Master.");
+	    &performStrictReply("First time user... adding you as Master.");
 	    $users{$who}{FLAGS} = "aemnorst";
 	}
 
 	my $crypt = $users{$who}{PASS};
 	if (defined $crypt) {
-	    &pSReply("user $who already has pass set.");
+	    &performStrictReply("user $who already has pass set.");
 	    return;
 	}
 
@@ -187,13 +187,13 @@ sub process {
 
 	if (!scalar keys %{ $users{$who}{HOSTS} }) {
 	    my $mask = "*!$user@".&makeHostMask($host);
-	    &pSReply("Added hostmask '\002$mask\002' to $who");
+	    &performStrictReply("Added hostmask '\002$mask\002' to $who");
 	    $users{$who}{HOSTS}{$mask}	= 1;
 	}
 
 	$crypt			= &mkcrypt($array[0]);
 	$users{$who}{PASS}	= $crypt;
-	&pSReply("new pass for $who, crypt $crypt.");
+	&performStrictReply("new pass for $who, crypt $crypt.");
 
 	return;
     }
@@ -263,7 +263,7 @@ sub process {
 
 	# customized random message.
 	my $tmp = (rand() < 0.5) ? ", $who" : "";
-	&pSReply( &getRandom(keys %{ $lang{'hello'} }) . $tmp );
+	&performStrictReply( &getRandom(keys %{ $lang{'hello'} }) . $tmp );
 	return;
     }
 
