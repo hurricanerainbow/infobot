@@ -27,23 +27,25 @@ BEGIN {
   # expects.
     use vars qw!%lang_code $lang_regex!;
     %lang_code = (
-		'fr' => 'fr',
+		'de' => 'de',
+		'ge' => 'de',
+		'gr' => 'el',
+		'el' => 'el',
 		'sp' => 'es',
 		'es' => 'es',
-		'po' => 'pt',
-		'pt' => 'pt',
-		'it' => 'it',
-		'ge' => 'de',
-		'de' => 'de',
-		'gr' => 'de',
 		'en' => 'en',
-		'zh' => 'zh',
+		'fr' => 'fr',
+		'it' => 'it',
 		'ja' => 'ja',
 		'jp' => 'ja',
 		'ko' => 'ko',
 		'kr' => 'ko',
 		'nl' => 'nl',
-		'ru' => 'ru'
+		'po' => 'pt',
+		'pt' => 'pt',
+		'ru' => 'ru',
+		'zh' => 'zh',
+		'zt' => 'zt'
 	       );
 
   # Here's how we recognize the language you're asking for.  It looks

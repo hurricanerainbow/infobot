@@ -14,7 +14,7 @@ use vars qw(%channels %cache %mask %userstats %myModules %cmdstats
 # FIX THE FOLLOWING:
 use vars qw($total $x $type $i $good);
 
-$babel_lang_regex = "fr|sp|es|po|pt|it|ge|de|gr|en|zh|ja|jp|ko|kr|nl|ru";
+$babel_lang_regex = "de|ge|gr|el|sp|es|en|fr|it|ja|jp|ko|kr|nl|po|pt|ru|zh|zt";
 $w3search_regex   = "google";
 
 ### COMMAND HOOK IMPLEMENTATION.
