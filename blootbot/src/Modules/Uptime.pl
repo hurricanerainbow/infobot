@@ -67,6 +67,11 @@ sub uptimeWriteFile {
   my @results = &uptimeGetInfo();
   my $file = $file{utm};
 
+  if ($$ != $bot_pid) {
+    &WARN("uptime: forked process doing weird things! FIXME");
+    exit 0;
+  }
+
   if (!open(OUT,">$file")) {
     &status("error: cannot write to $file.");
     return;
