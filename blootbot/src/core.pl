@@ -329,7 +329,7 @@ sub getChanConfDefault {
 
     if (exists $param{$what}) {
 	if (!exists $cache{config}{$what}) {
-	    &status("config ($chan): backward-compatible option: found param{$what} ($param{$what}) instead");
+	    &status("config ($chan): backward-compatible option: found param{$what} ($param{$what}) instead of chan option");
 	    $cache{config}{$what} = 1;
 	}
 
