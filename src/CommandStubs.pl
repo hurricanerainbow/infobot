@@ -4,10 +4,6 @@
 
 if (&IsParam("useStrict")) { use strict; }
 
-use vars qw(@W3Search_engines $W3Search_regex);
-@W3Search_engines = qw(AltaVista Dejanews Excite Gopher HotBot Infoseek
-			Lycos Magellan PLweb SFgate Simple Verity Google);
-$W3Search_regex = join '|', @W3Search_engines;
 $babel::lang_regex = "";	# lame fix.
 
 ### PROPOSED COMMAND HOOK IMPLEMENTATION.
@@ -197,10 +193,14 @@ sub Modules {
     }
 
     # google searching. Simon++
-    if (&IsParam("wwwsearch") and $message =~ /^(?:search\s+)?($W3Search_regex)\s+for\s+['"]?(.*?)['"]?\s*\?*$/i) {
+    if (&IsParam("wwwsearch") and $message =~ /^(?:search\s+)?(\S+)\s+for\s+['"]?(.*?)['"]?\s*\?*$/i) {
 	return $noreply unless (&hasParam("wwwsearch"));
 
-	&Forker("wwwsearch", sub { &W3Search::W3Search($1,$2,$param{'wwwsearch'}); } );
+	&DEBUG("wwwsearch: 1 => $1");
+	&DEBUG("wwwsearch: 2 => $2");
+	&DEBUG("wwwsearch: 3 => $3");
+
+	&Forker("wwwsearch", sub { &W3Search::W3Search($1,$2,$3); } );
 
 	$cmdstats{'WWWSearch'}++;
 	return $noreply;
