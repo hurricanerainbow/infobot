@@ -22,7 +22,7 @@ if ($@) {
 
 ### MODULES.
 %myModules = (
-	"babelfish"	=> "babel.pl",
+	"babelfish"	=> "babelfish.pl",
 	"botmail"	=> "botmail.pl",
 	"BZFlag"	=> "BZFlag.pl",
 	"countdown"	=> "Countdown.pl",
