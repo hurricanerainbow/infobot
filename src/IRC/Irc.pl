@@ -177,12 +177,6 @@ sub say {
 	return;
     }
 
-    if ($msg eq $last{say} and length($msg) > 256) {
-	&status("say: detected repeated message; skipping.");
-	return;
-    }
-    $last{say} = $msg;
-
     &status("</$talkchannel> $msg");
     if (&whatInterface() =~ /IRC/) {
 	$msg = "zero" if ($msg =~ /^0+$/);
@@ -203,12 +197,6 @@ sub msg {
 	&DEBUG("msg: msg == $msg.");
 	return;
     }
-
-    if ($msg eq $last{msg} and length($msg) > 256) {
-	&status("msg: detected repeated message; skipping.");
-	return;
-    }
-    $last{msg} = $msg;
 
     &status(">$nick< $msg");
     $conn->privmsg($nick, $msg) if (&whatInterface() =~ /IRC/);
