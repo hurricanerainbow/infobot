@@ -5,10 +5,10 @@
 #     Created: 20021101
 #
 
-package main;
+#package main;
 eval "use DBI";
 
-if (&IsParam("useStrict")) { use strict; }
+if (&::IsParam("useStrict")) { use strict; }
 
 #####
 # &openDB($dbname, $sqluser, $sqlpass, $nofail);
@@ -18,10 +18,10 @@ sub openDB {
     $dbh = DBI->connect($dsn,$user,$pass);
 
     if ($dbh) {
-	&status("Opened SQLite connection $dsn");
+	&::status("Opened SQLite connection $dsn");
     } else {
-	&ERROR("cannot connect $dsn.");
-	&ERROR("since SQLite is not available, shutting down bot!");
+	&::ERROR("cannot connect $dsn.");
+	&::ERROR("since SQLite is not available, shutting down bot!");
 	&closePID();
 	&closeSHM($shm);
 	&closeLog();
@@ -38,7 +38,7 @@ sub closeDB {
     my $hoststr = "";
     $hoststr = " to $param{'SQLHost'}" if (exists $param{'SQLHost'});
 
-    &status("Closed SQLite connection$hoststr.");
+    &::status("Closed SQLite connection$hoststr.");
     $dbh->disconnect();
 
     return 1;
@@ -58,24 +58,24 @@ sub dbGet {
     $query	.= " WHERE $where" if ($where);
 
     if (!defined $select or $select =~ /^\s*$/) {
-	&WARN("dbGet: select == NULL.");
+	&::WARN("dbGet: select == NULL.");
 	return;
     }
 
     if (!defined $table or $table =~ /^\s*$/) {
-	&WARN("dbGet: table == NULL.");
+	&::WARN("dbGet: table == NULL.");
 	return;
     }
 
     my $sth;
     if (!($sth = $dbh->prepare($query))) {
-	&ERROR("Get: prepare: $DBI::errstr");
+	&::ERROR("Get: prepare: $DBI::errstr");
 	return;
     }
 
-    &SQLDebug($query);
+    &::SQLDebug($query);
     if (!$sth->execute) {
-	&ERROR("Get: execute: '$query'");
+	&::ERROR("Get: execute: '$query'");
 	$sth->finish;
 	return 0;
     }
@@ -102,9 +102,9 @@ sub dbGetCol {
     my %retval;
 
     my $sth = $dbh->prepare($query);
-    &SQLDebug($query);
+    &::SQLDebug($query);
     if (!$sth->execute) {
-	&ERROR("GetCol: execute: '$query'");
+	&::ERROR("GetCol: execute: '$query'");
 	$sth->finish;
 	return;
     }
@@ -148,10 +148,10 @@ sub dbGetColNiceHash {
     my %retval;
 
     my $sth = $dbh->prepare($query);
-    &SQLDebug($query);
+    &::SQLDebug($query);
     if (!$sth->execute) {
-	&ERROR("GetColNiceHash: execute: '$query'");
-#	&ERROR("GetCol => $DBI::errstr");
+	&::ERROR("GetColNiceHash: execute: '$query'");
+#	&::ERROR("GetCol => $DBI::errstr");
 	$sth->finish;
 	return;
     }
@@ -172,10 +172,10 @@ sub dbGetColInfo {
     my %retval;
 
     my $sth = $dbh->prepare($query);
-    &SQLDebug($query);
+    &::SQLDebug($query);
     if (!$sth->execute) {
-	&ERROR("GRI => '$query'");
-	&ERROR("GRI => $DBI::errstr");
+	&::ERROR("GRI => '$query'");
+	&::ERROR("GRI => $DBI::errstr");
 	$sth->finish;
 	return;
     }
@@ -200,17 +200,17 @@ sub dbSet {
     );
 
     if (!defined $phref) {
-	&WARN("dbset: phref == NULL.");
+	&::WARN("dbset: phref == NULL.");
 	return;
     }
 
     if (!defined $href) {
-	&WARN("dbset: href == NULL.");
+	&::WARN("dbset: href == NULL.");
 	return;
     }
 
     if (!defined $table) {
-	&WARN("dbset: table == NULL.");
+	&::WARN("dbset: table == NULL.");
 	return;
     }
 
@@ -223,7 +223,7 @@ sub dbSet {
     }
 
     if (!@keys or !@vals) {
-	&WARN("dbset: keys or vals is NULL.");
+	&::WARN("dbset: keys or vals is NULL.");
 	return;
     }
 
@@ -233,10 +233,9 @@ sub dbSet {
 	for(my$i=0; $i<scalar @keys; $i++) {
 	    push(@keyval, $keys[$i]."=".$vals[$i] );
 	}
+	$query = "UPDATE $table SET " . join(', ', @keyval) . " WHERE ".$where;
+	&dbRaw("Update", $query);
 
-	$query = "UPDATE $table SET ".
-		join(' AND ', @keyval).
-		" WHERE ".$where;
     } else {
 	foreach (keys %{$phref}) {
 	    push(@keys, $_);
@@ -245,9 +244,8 @@ sub dbSet {
 
 	$query = sprintf("INSERT INTO $table (%s) VALUES (%s)",
 		join(',',@keys), join(',',@vals) );
+	&dbRaw("Set", $query);
     }
-
-    &dbRaw("Set", $query);
 
     return 1;
 }
@@ -257,13 +255,13 @@ sub dbSet {
 #  Note: dbUpdate does dbQuote.
 sub dbUpdate {
     my ($table, $primkey, $primval, %hash) = @_;
-    my (@array);
+    my (@keyval);
 
     foreach (keys %hash) {
-	push(@array, "$_=".&dbQuote($hash{$_}) );
+	push(@keyval, "$_=".&dbQuote($hash{$_}) );
     }
 
-    &dbRaw("Update", "UPDATE $table SET ".join(', ', @array).
+    &dbRaw("Update", "UPDATE $table SET ".join(', ', @keyval).
 		" WHERE $primkey=".&dbQuote($primval)
     );
 
@@ -338,7 +336,7 @@ sub dbSetRow ($@$) {
     }
 
     if (!scalar @values) {
-	&WARN("dbSetRow: values array == NULL.");
+	&::WARN("dbSetRow: values array == NULL.");
 	return;
     }
 
@@ -365,13 +363,13 @@ sub dbRaw {
     my $sth;
 
     if (!($sth = $dbh->prepare($query))) {
-	&ERROR("Raw($prefix): $DBI::errstr");
+	&::ERROR("Raw($prefix): $DBI::errstr");
 	return 0;
     }
 
-    &SQLDebug($query);
+    &::SQLDebug($query);
     if (!$sth->execute) {
-	&ERROR("Raw($prefix): => '$query'");
+	&::ERROR("Raw($prefix): => '$query'");
 	# $DBI::errstr is printed as warning automatically.
 	$sth->finish;
 	return 0;
@@ -388,8 +386,8 @@ sub dbRawReturn {
     my @retval;
 
     my $sth = $dbh->prepare($query);
-    &SQLDebug($query);
-    &ERROR("RawReturn => '$query'.") unless $sth->execute;
+    &::SQLDebug($query);
+    &::ERROR("RawReturn => '$query'.") unless $sth->execute;
     while (my @row = $sth->fetchrow_array) {
 	push(@retval, $row[0]);
     }
@@ -427,8 +425,8 @@ sub randKey {
     my $query	= "SELECT $select FROM $table LIMIT $rand,1";
 
     my $sth	= $dbh->prepare($query);
-    &SQLDebug($query);
-    &WARN("randKey($query)") unless $sth->execute;
+    &::SQLDebug($query);
+    &::WARN("randKey($query)") unless $sth->execute;
     my @retval	= $sth->fetchrow_array;
     $sth->finish;
 
@@ -467,9 +465,9 @@ sub searchTable {
     my $query = "SELECT $select FROM $table WHERE $key LIKE ". 
 		&dbQuote($str);
     my $sth = $dbh->prepare($query);
-    &SQLDebug($query);
+    &::SQLDebug($query);
     if (!$sth->execute) {
-	&WARN("Search($query)");
+	&::WARN("Search($query)");
 	return;
     }
 
@@ -522,7 +520,7 @@ sub checkTables {
 
     foreach ("factoids", "freshmeat", "rootwarn", "seen", "stats") {
 	next if (exists $db{$_});
-	&status("checkTables: creating $_...");
+	&::status("checkTables: creating $_...");
 
 	&dbCreateTable($_);
     }
