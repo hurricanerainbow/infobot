@@ -1,15 +1,15 @@
 #
 # logger.pl: logger functions!
 #    Author: dms
-#   Version: v0.3 (20000731)
+#   Version: v0.4 (20000923)
 #  FVersion: 19991205
 #      NOTE: Based on code by Kevin Lenzo & Patrick Cole  (c) 1997
 #
 
 use strict;
 
-use vars qw($logDate $statcount $bot_pid $forkedtime
-	    $statcountfix $addressed $logcount $logtime);
+use vars qw($statcount $bot_pid $forkedtime $statcountfix $addressed);
+use vars qw($logDate $logold $logcount $logtime $logrepeat);
 use vars qw(@backlog);
 use vars qw(%param %file);
 
@@ -17,6 +17,8 @@ require 5.001;
 
 $logtime	= time();
 $logcount	= 0;
+$logrepeat	= 0;
+$logold		= "";
 
 my %attributes = (
 	'clear'      => 0,
@@ -185,6 +187,17 @@ sub VERB {
 sub status {
     my($input) = @_;
     my $status;
+
+    if ($input eq $logold) {
+	$logrepeat++;
+
+	if ($logrepeat >= 3) {
+	    &status("LOG: repeat throttle.");
+	    sleep 1;
+	    $logrepeat = 0;
+	}
+    }
+    $logold = $input;
 
     # if it's not a scalar, attempt to warn and fix.
     if (ref($input) ne "") {
