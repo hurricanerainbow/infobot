@@ -52,6 +52,7 @@ if ($@) {
 	"userinfo"	=> "UserInfo.pl",
 	"weather"	=> "Weather.pl",
 	"whatis"	=> "WhatIs.pl",
+	"wikipedia"	=> "wikipedia.pl",
 	"wingate"	=> "Wingate.pl",
 	"wwwsearch"	=> "W3Search.pl",
 	"zfi"		=> "zfi.pl",
