@@ -212,8 +212,6 @@ sub on_dcc_close {
 	&delForked($forker);
     }
 
-    &DEBUG("dcc_close: nick => '$nick'.");
-
     if (exists $dcc{'SEND'}{$nick} and -f "$param{tempDir}/$nick.txt") {
 	&status("${b_green}DCC SEND$ob close from $b_cyan$nick$ob");
 
@@ -224,6 +222,7 @@ sub on_dcc_close {
     } elsif (exists $dcc{'CHAT'}{$nick} and $dcc{'CHAT'}{$nick} eq $sock) {
 	&status("${b_green}DCC CHAT$ob close from $b_cyan$nick$ob");
 	delete $dcc{'CHAT'}{$nick};
+	delete $dcc{'CHATvrfy'}{$nick};
     } else {
 	&status("${b_green}DCC$ob UNKNOWN close from $b_cyan$nick$ob (2)");
     }
@@ -242,7 +241,7 @@ sub on_dcc_open {
 	&status("${b_green}DCC lGET$ob established with $b_cyan$nick$ob");
     } elsif ($type eq 'CHAT') {
 	&status("${b_green}DCC CHAT$ob established with $b_cyan$nick$ob $b_yellow($ob$nuh{$nick}$b_yellow)$ob");
-	$userHandle     = &verifyUser($nick, $nuh{lc $nick});
+	&verifyUser($nick, $nuh{lc $nick});
 	my $crypto	= $users{$userHandle}{PASS};
 	$dcc{'CHAT'}{$nick} = $sock;
 
