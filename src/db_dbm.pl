@@ -259,7 +259,7 @@ sub dbDel {
     &DEBUG("dbDel($table, $primkey, $primval);");
 
     if (!defined ${$table}{lc $primval}) {
-	&WARN("dbDel: lc $primval does not exist in $table.");
+	&DEBUG("dbDel: lc $primval does not exist in $table.");
     } else {
 	delete ${$table}{lc $primval};
     }
