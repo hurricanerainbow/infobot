@@ -41,9 +41,12 @@ sub on_chat {
     my $sock = ($event->to)[0];
     my $nick = $event->nick();
 
-    if (!exists $nuh{lc $nick}) {
-	&DEBUG("chat: nuh{$nick} doesn't exist; hrm should retry.");
-	&msg($nick, "could not get whois info?");
+    $userHandle		= "";	# reset.
+
+    # who is set to bot's name, why?
+
+    if (!exists $nuh{$who}) {
+	&DEBUG("chat: nuh{$who} doesn't exist; hrm should retry.");
 	return;
     } else {
 	$message	= $msg;
@@ -61,6 +64,7 @@ sub on_chat {
 	my $crypto	= $users{$userHandle}{PASS};
 	my $success	= 0;
 
+	### TODO: prevent users without CRYPT chatting.
 	if (!defined $crypto) {
 	    &DEBUG("chat: no pass required.");
 	    $success++;
@@ -86,28 +90,27 @@ sub on_chat {
 
 	if ($success) {
 	    &status("DCC CHAT: user $nick is here!");
-#	    &DCCBroadcast("$nick ($uh) has joined the chat arena.");
 	    &DCCBroadcast("*** $nick ($uh) joined the party line.");
 
-	    $dcc{'CHATvrfy'}{$nick} = 1;
-	    if ($userHandle ne "_default") {
-		&dccsay($nick,"Flags: $users{$userHandle}{FLAGS}");
-	    }
+	    $dcc{'CHATvrfy'}{$nick} = $userHandle;
+
+	    return if ($userHandle eq "_default");
+
+	    &dccsay($nick,"Flags: $users{$userHandle}{FLAGS}");
 	}
 
 	return;
     }
 
-    if (defined $userHandle) {
-	&DEBUG("IrcHooks.pl: line 104: remove vUser");
-    }
+### REMOVE IF OK.
+#    &DEBUG("IrcHooks.pl: line 104: userHandle => $userHandle");
+#    $userHandle = &verifyUser($who, $nuh);
 
-    $userHandle = &verifyUser($who, $nuh);
     &status("$b_red=$b_cyan$who$b_red=$ob $message");
 
     if ($message =~ s/^\.//) {	# dcc chat commands.
 	### TODO: make use of &Forker(); here?
-	&loadMyModule($myModules{'ircdcc'});
+	&loadMyModule( $myModules{'ircdcc'} );
 
 	&DCCBroadcast("#$who# $message","m");
 
@@ -416,7 +419,7 @@ sub on_join {
 
     ### ROOTWARN:
     &rootWarn($who,$user,$host,$chan)
-		if (&IsParam("rootWarn") &&
+		if (&IsChanConf("rootWarn") &&
 		    $user =~ /^r(oo|ew|00)t$/i &&
 		    $channels{$chan}{'o'}{$ident});
 
@@ -600,9 +603,7 @@ sub on_part {
     my $nick = $event->nick;
     my $userhost = $event->userhost;
 
-    if (!exists $floodjoin{$chan}{$nick}{Time}) {
-	&WARN("on_part: $nick/$chan not in floodjoin hash?");
-    } else {
+    if (exists $floodjoin{$chan}{$nick}{Time}) {
 	delete $floodjoin{$chan}{$nick};
     }
 
