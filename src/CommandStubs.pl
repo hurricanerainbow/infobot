@@ -255,7 +255,9 @@ sub parseCmdHook {
 &addCmdHook("extra", 'httpdtype', ('CODEREF' => 'HTTPDtype::HTTPDtype',
 	'Identifier' => 'httpdtype', 'Cmdstats' => 'httpdtype',
 	'Forker' => 1) );
-
+&addCmdHook("extra", 'rss', ('CODEREF' => 'Rss::Rss',
+	'Identifier' => 'rss', 'Cmdstats' => 'rss',
+	'Forker' => 1, 'Help' => 'rss') );
 ###
 ### END OF ADDING HOOKS.
 ###
