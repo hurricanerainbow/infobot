@@ -16,9 +16,9 @@ my $refresh = &::getChanConfDefault("debianRefreshInterval",7)
 			* 60 * 60 * 24;
 
 my %dists	= (
-	"unstable"	=> "sid",
-	"testing"	=> "woody",	# new since 20001219.
-	"stable"	=> "potato",
+	"sid"		=> "unstable",
+	"woody"		=> "testing",	# new since 20001219.
+	"potato"	=> "stable",
 	"incoming"	=> "incoming",
 );
 
@@ -812,7 +812,7 @@ sub infoStats {
 # Usage: &generateIndex();
 sub generateIndex {
     my (@dists)	= @_;
-    &::status("Debian: !!! generateIndex() called !!!");
+    &::status("Debian: !!! generateIndex($dists[0]) called !!!");
     if (!scalar @dists or $dists[0] eq '') {
 	&::ERROR("gI: no dists to generate index.");
 	return 1;
