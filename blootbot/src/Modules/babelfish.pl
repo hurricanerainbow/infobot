@@ -14,6 +14,7 @@ package babelfish;
 use strict;
 
 my $no_babelfish;
+my $url = 'http://babelfish.av.com/tr';
 
 BEGIN {
     eval "use URI::Escape";    # utility functions for encoding the
@@ -67,9 +68,7 @@ sub babelfishParam {
   $ua->agent("Mozilla/5.0 " . $ua->agent);
   $ua->timeout(5);
 
-  my $req =
-    #HTTP::Request->new('POST', 'http://babelfish.altavista.com/raging/translate.dyn');
-    HTTP::Request->new('POST', 'http://babelfish.altavista.com/babelfish/tr');
+  my $req = HTTP::Request->new('POST', $url);
 
 # babelfish ignored this, but it SHOULD work
 # Accept-Charset: iso-8859-1
@@ -86,9 +85,9 @@ sub translate {
   my ($phrase, $languagepair, $req, $ua) = @_;
   &::DEBUG("translate($phrase, $languagepair, $req, $ua)");
 
-  my $urltext = uri_escape($phrase);
-  $req->content("urltext=$urltext&lp=$languagepair");
-  &::DEBUG("http://babelfish.altavista.com/babelfish/tr??urltext=$urltext&lp=$languagepair");
+  my $trtext = uri_escape($phrase);
+  $req->content("trtext=$trtext&lp=$languagepair");
+  &::DEBUG("$url??trtext=$trtext&lp=$languagepair");
 
   my $res = $ua->request($req);
   my $translated;
