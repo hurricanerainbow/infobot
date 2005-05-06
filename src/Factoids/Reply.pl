@@ -80,7 +80,7 @@ sub getReply {
 	### FLOOD REPETION AND PROTECTION. -20000124
 
 	# stats code.
-	### FIXME: old mysql doesn't support
+	### FIXME: old mysql/sqlite doesn't support
 	### "requested_count=requested_count+1".
 	$count++;
 	&sqlSet("factoids", {'factoid_key' => $factoid}, {
