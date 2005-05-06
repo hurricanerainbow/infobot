@@ -168,7 +168,7 @@ sub FactoidStuff {
 	$limitage	= $limitage*($count+1)/$limit if ($count < $limit);
 	# isauthor and isop.
 	my $isau	= (defined $author and &IsHostMatch($author) == 2) ? 1 : 0;
-	my $isop 	= (&IsFlag("o") eq "o") ? 1 : 0;
+	my $isop	= (&IsFlag("o") eq "o") ? 1 : 0;
 
 	if (IsFlag("r") ne "r" && !$isop) {
 	    &msg($who, "you don't have access to remove factoids");
