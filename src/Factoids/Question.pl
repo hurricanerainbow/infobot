@@ -238,7 +238,7 @@ sub factoidArgs {
 	}
 
 	# update stats. old mysql/sqlite don't do +1
-	my ($count) = &sqlSelect("factoids", "requested_count", { factoid_key => $factoid });
+	my ($count) = &sqlSelect("factoids", "requested_count", { factoid_key => $q });
 	$count++;
 	&sqlSet("factoids", {'factoid_key' => $q}, {
 		requested_by	=> $nuh,
