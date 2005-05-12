@@ -79,6 +79,7 @@ sub dice::roll ($) {
 	$retval .= " best $offset";
     } else {
         @result = @throws;
+        $retval .= " $sign $offset" if $sign;
     }
 
     my($sum) = 0;
@@ -87,7 +88,6 @@ sub dice::roll ($) {
     $sum -= $offset if  $sign eq '-';
     $sum *= $offset if ($sign eq '*' || $sign eq 'x');
     do { $sum /= $offset; $sum = int $sum; } if $sign eq '/';
-    $retval .= " $sign $offset" if $sign;
 
     return "$retval = $sum";
 }
