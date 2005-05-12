@@ -858,6 +858,7 @@ sub nullski {
 &addCmdHook('d?bugs', ('CODEREF' => 'DebianExtra::Parse', 'Forker' => 1, 'Identifier' => 'DebianExtra', 'Cmdstats' => 'Debian Bugs') );
 &addCmdHook('d?contents', ('CODEREF' => 'Debian::searchContents', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Contents Search', 'Help' => 'contents' ) );
 &addCmdHook('d?find', ('CODEREF' => 'Debian::DebianFind', 'Forker' => 1, 'Identifier' => 'Debian', 'Cmdstats' => 'Debian Search', 'Help' => 'find' ) );
+&addCmdHook('dice', ('CODEREF' => 'dice::dice', 'Identifier' => 'dice', 'Cmdstats' => 'dice', 'Forker' => 1, 'Module' => 'dice') );
 &addCmdHook('Dict', ('CODEREF' => 'Dict::Dict', 'Identifier' => 'Dict', 'Help' => 'dict', 'Forker' => 1, 'Cmdstats' => 'Dict') );
 &addCmdHook('dincoming', ('CODEREF' => 'Debian::generateIncoming', 'Forker' => 1, 'Identifier' => 'Debian' ) );
 &addCmdHook('dnew', ('CODEREF' => 'DebianNew', 'Identifier' => 'Debian' ) );
