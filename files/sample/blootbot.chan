@@ -1,4 +1,4 @@
-#v1: blootbot -- blootbot -- written Thu Feb 24 22:25:12 2005
+#v1: blootbot -- infobot -- written Thu May 19 06:34:46 2005
 
 #botpark
     +RootWarn
@@ -49,6 +49,7 @@ _default
     +cookie
     +countdown
     debianRefreshInterval 7
+    +dice
     +dns
     +factoidArguments
     floodMessages 10:30
