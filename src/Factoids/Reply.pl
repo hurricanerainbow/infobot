@@ -149,11 +149,11 @@ sub getReply {
     ###
 
     # don't evaluate if it has factoid arguments.
-    if ($message =~ /^cmd:/i) {
-	&status("Reply: not doing substVars (eval dollar vars)");
-    } else {
+#    if ($message =~ /^cmd:/i) {
+#	&status("Reply: not doing substVars (eval dollar vars)");
+#    } else {
 	$reply = &substVars($reply,1);
-    }
+#    }
 
     $reply;
 }
