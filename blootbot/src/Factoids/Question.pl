@@ -264,7 +264,7 @@ sub factoidArgs {
 	    my $old = $result;
 	    while (1) {
 #		&DEBUG("Q: result => $result (1before)");
-		$result = &substVars($result);
+		$result = &substVars($result,1);
 #		&DEBUG("Q: result => $result (1after)");
 
 		last if ($old eq $result);
@@ -275,17 +275,17 @@ sub factoidArgs {
 	    # hack.
 	    $vals[$i] =~ s/^me$/$who/gi;
 
-	    if (!$done) {
+#	    if (!$done) {
 		&status("factArgs: SARing '$_' to '$vals[$i]'.");
 		$result =~ s/\Q$_\E/$vals[$i]/g;
-	    }
+#	    }
 	    $i++;
 	}
 
 	# nasty hack to get partial &getReply() functionality.
+	$result = &SARit($result);
 	$result =~ s/^\s*<action>\s*(.*)/\cAACTION $1\cA/i;
 	$result =~ s/^\s*<reply>\s*//i;
-	$result = &SARit($result);
 
 # well... lets go through all of them. not advisable if we have like
 # 1000 commands, heh.
