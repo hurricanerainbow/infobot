@@ -188,6 +188,9 @@ sub factoidArgs {
     # TODO: cache this, update cache when altered. !!! !!! !!!
 #    my $t = &timeget();
     my ($first) = split(/\s+/, $str);
+
+    # ignore split to commands [dumb commands vs. factoids] (editing commands?)
+    return undef if $str =~ /\s+\=\~\s+s[\#\/\:]/;
     my @list = &searchTable("factoids", "factoid_key", "factoid_key", "^cmd: $first ");
 #    my $delta_time = &timedelta($t);
 #    &DEBUG("factArgs: delta_time = $delta_time s");
