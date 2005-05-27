@@ -427,6 +427,11 @@ sub FactoidStuff {
 		    &performReply("that's too long");
 		    return;
 		}
+		# empty
+		if (length $result == 0) {
+		    &performReply("factoid would be empty. use forget?");
+		    return;
+		}
 		# min length.
 		my $faqauth = &getFactInfo($faqtoid, "created_by");
 		if ((length $result)*2 < length $was and
