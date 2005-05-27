@@ -436,7 +436,7 @@ sub FactoidStuff {
 		my $faqauth = &getFactInfo($faqtoid, "created_by");
 		if ((length $result)*2 < length $was and
 			&IsFlag("o") ne "o" and
-			&IsHostMask($faqauth) != 2
+			&IsHostMatch($faqauth) != 2
 		) {
 		    &performReply("too drastic change of factoid.");
 		}
