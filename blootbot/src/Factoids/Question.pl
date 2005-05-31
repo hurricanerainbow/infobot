@@ -207,9 +207,6 @@ sub factoidArgs {
 #	&DEBUG("factarg: '$str' =~ /^$_\$/");
 	my $arg = $_;
 
-	# TODO: <greycat> ~punish apt for (Eating) (Parentheses)
-	# how the hell do I fix the above? -dms.
-
 	# eval (evil!) code. cleaned up courtesy of lear.
 	my @vals;
 	eval {
