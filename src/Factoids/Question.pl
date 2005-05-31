@@ -252,9 +252,14 @@ sub factoidArgs {
 	# end of update stats.
 
 	$result	= $r;
-	$result	=~ s/^\((.*?)\): //;
 
-	foreach ( split(',', $1) ) {
+	$result	=~ s/^\((.*?)\): //;
+	my $vars = $1;
+
+	# start nasty hack to get partial &getReply() functionality.
+	$result = &SARit($result);
+
+	foreach ( split(',', $vars) ) {
 	    my $val = $vals[$i];
 #	    &DEBUG("val => $val");
 
@@ -285,8 +290,7 @@ sub factoidArgs {
 	    $i++;
 	}
 
-	# nasty hack to get partial &getReply() functionality.
-	$result = &SARit($result);
+	# rest of nasty hack to get partial &getReply() functionality.
 	$result =~ s/^\s*<action>\s*(.*)/\cAACTION $1\cA/i;
 	$result =~ s/^\s*<reply>\s*//i;
 
