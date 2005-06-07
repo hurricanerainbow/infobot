@@ -184,7 +184,7 @@ sub factinfo {
 sub factstats {
     my $type = shift(@_);
 
-    &Forker("factoids", sub {
+    &Forker("Factoids", sub {
 	&performStrictReply( &CmdFactStats($type) );
     } );
 }
