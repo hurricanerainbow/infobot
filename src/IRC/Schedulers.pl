@@ -908,7 +908,7 @@ sub kernelLoop {
     my @chans = &ChanConfList("kernelAnnounce");
     return unless (scalar @chans);
 
-    &Forker("kernel", sub {
+    &Forker("Kernel", sub {
 	my @data = &Kernel::kernelAnnounce();
 
 	foreach (@chans) {
