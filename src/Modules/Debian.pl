@@ -12,7 +12,7 @@ no strict 'refs'; # FIXME: dstats aborts if set
 
 my $announce	= 0;
 my $defaultdist	= 'sid';
-my $refresh = &::getChanConfDefault('debianRefreshInterval', 7, $::chan) * 60 * 60 * 24;
+my $refresh = &::getChanConfDefault('debianRefreshInterval',7, $chan) * 60 * 60 * 24;
 my $debug	= 0;
 my $debian_dir	= $::bot_state_dir . 'debian';
 my $country	= 'us'; # well .config it yourself then. ;-)
@@ -21,41 +21,41 @@ my $protocol	= 'http';
 # format: "alias=real".
 my %dists	= (
 	'unstable'	=> 'sid',
-	'testing'	=> 'sarge',
-	'stable'	=> 'woody',
-	'oldstable'	=> 'potato',
+	'testing'	=> 'etch',
+	'stable'	=> 'sarge',
+	'oldstable'	=> 'woody',
 	'incoming'	=> 'incoming',
 );
 
 my %urlcontents = (
-	"Contents-##DIST-i386.gz" =>
+	"Contents-##DIST-powerpc.gz" =>
 		"$protocol://ftp.$country.debian.org".
-		"/debian/dists/##DIST/Contents-i386.gz",
-	"Contents-##DIST-i386-non-US.gz" =>
+		"/debian/dists/##DIST/Contents-powerpc.gz",
+	"Contents-##DIST-powerpc-non-US.gz" =>
 		"$protocol://non-us.debian.org".
-		"/debian-non-US/dists/##DIST/non-US/Contents-i386.gz",
+		"/debian-non-US/dists/##DIST/non-US/Contents-powerpc.gz",
 );
 
 my %urlpackages = (
-	"Packages-##DIST-main-i386.gz" =>
+	"Packages-##DIST-main-powerpc.gz" =>
 		"$protocol://ftp.$country.debian.org".
-		"/debian/dists/##DIST/main/binary-i386/Packages.gz",
-	"Packages-##DIST-contrib-i386.gz" =>
+		"/debian/dists/##DIST/main/binary-powerpc/Packages.gz",
+	"Packages-##DIST-contrib-powerpc.gz" =>
 		"$protocol://ftp.$country.debian.org".
-		"/debian/dists/##DIST/contrib/binary-i386/Packages.gz",
-	"Packages-##DIST-non-free-i386.gz" =>
+		"/debian/dists/##DIST/contrib/binary-powerpc/Packages.gz",
+	"Packages-##DIST-non-free-powerpc.gz" =>
 		"$protocol://ftp.$country.debian.org".
-		"/debian/dists/##DIST/non-free/binary-i386/Packages.gz",
+		"/debian/dists/##DIST/non-free/binary-powerpc/Packages.gz",
 
-	"Packages-##DIST-non-US-main-i386.gz" =>
+	"Packages-##DIST-non-US-main-powerpc.gz" =>
 		"$protocol://non-us.debian.org".
-		"/debian-non-US/dists/##DIST/non-US/main/binary-i386/Packages.gz",
-	"Packages-##DIST-non-US-contrib-i386.gz" =>
+		"/debian-non-US/dists/##DIST/non-US/main/binary-powerpc/Packages.gz",
+	"Packages-##DIST-non-US-contrib-powerpc.gz" =>
 		"$protocol://non-us.debian.org".
-		"/debian-non-US/dists/##DIST/non-US/contrib/binary-i386/Packages.gz",
-	"Packages-##DIST-non-US-non-free-i386.gz" =>
+		"/debian-non-US/dists/##DIST/non-US/contrib/binary-powerpc/Packages.gz",
+	"Packages-##DIST-non-US-non-free-powerpc.gz" =>
 		"$protocol://non-us.debian.org".
-		"/debian-non-US/dists/##DIST/non-US/non-free/binary-i386/Packages.gz",
+		"/debian-non-US/dists/##DIST/non-US/non-free/binary-powerpc/Packages.gz",
 );
 
 #####################
@@ -1077,10 +1077,10 @@ sub DebianFind {
     my @results = sort &searchPackage($str);
 
     if (!scalar @results) {
-	&::Forker("Debian", sub { &searchContents($str); } );
+	&::Forker("debian", sub { &searchContents($str); } );
     } elsif (scalar @results == 1) {
 	&::status("searchPackage returned one result; getting info of package instead!");
-	&::Forker("Debian", sub { &infoPackages("info", "$results[0] $dist"); } );
+	&::Forker("debian", sub { &infoPackages("info", "$results[0] $dist"); } );
     } else {
 	my $prefix = "Debian Package Listing of '$query' ";
 	&::performStrictReply( &::formListReply(0, $prefix, @results) );
