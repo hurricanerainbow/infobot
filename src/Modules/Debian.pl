@@ -12,7 +12,7 @@ no strict 'refs'; # FIXME: dstats aborts if set
 
 my $announce	= 0;
 my $defaultdist	= 'sid';
-my $refresh = &::getChanConfDefault('debianRefreshInterval',7, $chan) * 60 * 60 * 24;
+my $refresh = &::getChanConfDefault('debianRefreshInterval', 7, $::chan) * 60 * 60 * 24;
 my $debug	= 0;
 my $debian_dir	= $::bot_state_dir . 'debian';
 my $country	= 'us'; # well .config it yourself then. ;-)
@@ -28,34 +28,34 @@ my %dists	= (
 );
 
 my %urlcontents = (
-	"Contents-##DIST-powerpc.gz" =>
+	"Contents-##DIST-i386.gz" =>
 		"$protocol://ftp.$country.debian.org".
-		"/debian/dists/##DIST/Contents-powerpc.gz",
-	"Contents-##DIST-powerpc-non-US.gz" =>
+		"/debian/dists/##DIST/Contents-i386.gz",
+	"Contents-##DIST-i386-non-US.gz" =>
 		"$protocol://non-us.debian.org".
-		"/debian-non-US/dists/##DIST/non-US/Contents-powerpc.gz",
+		"/debian-non-US/dists/##DIST/non-US/Contents-i386.gz",
 );
 
 my %urlpackages = (
-	"Packages-##DIST-main-powerpc.gz" =>
+	"Packages-##DIST-main-i386.gz" =>
 		"$protocol://ftp.$country.debian.org".
-		"/debian/dists/##DIST/main/binary-powerpc/Packages.gz",
-	"Packages-##DIST-contrib-powerpc.gz" =>
+		"/debian/dists/##DIST/main/binary-i386/Packages.gz",
+	"Packages-##DIST-contrib-i386.gz" =>
 		"$protocol://ftp.$country.debian.org".
-		"/debian/dists/##DIST/contrib/binary-powerpc/Packages.gz",
-	"Packages-##DIST-non-free-powerpc.gz" =>
+		"/debian/dists/##DIST/contrib/binary-i386/Packages.gz",
+	"Packages-##DIST-non-free-i386.gz" =>
 		"$protocol://ftp.$country.debian.org".
-		"/debian/dists/##DIST/non-free/binary-powerpc/Packages.gz",
+		"/debian/dists/##DIST/non-free/binary-i386/Packages.gz",
 
-	"Packages-##DIST-non-US-main-powerpc.gz" =>
+	"Packages-##DIST-non-US-main-i386.gz" =>
 		"$protocol://non-us.debian.org".
-		"/debian-non-US/dists/##DIST/non-US/main/binary-powerpc/Packages.gz",
-	"Packages-##DIST-non-US-contrib-powerpc.gz" =>
+		"/debian-non-US/dists/##DIST/non-US/main/binary-i386/Packages.gz",
+	"Packages-##DIST-non-US-contrib-i386.gz" =>
 		"$protocol://non-us.debian.org".
-		"/debian-non-US/dists/##DIST/non-US/contrib/binary-powerpc/Packages.gz",
-	"Packages-##DIST-non-US-non-free-powerpc.gz" =>
+		"/debian-non-US/dists/##DIST/non-US/contrib/binary-i386/Packages.gz",
+	"Packages-##DIST-non-US-non-free-i386.gz" =>
 		"$protocol://non-us.debian.org".
-		"/debian-non-US/dists/##DIST/non-US/non-free/binary-powerpc/Packages.gz",
+		"/debian-non-US/dists/##DIST/non-US/non-free/binary-i386/Packages.gz",
 );
 
 #####################
