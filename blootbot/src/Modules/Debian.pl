@@ -1077,10 +1077,10 @@ sub DebianFind {
     my @results = sort &searchPackage($str);
 
     if (!scalar @results) {
-	&::Forker("debian", sub { &searchContents($str); } );
+	&::Forker("Debian", sub { &searchContents($str); } );
     } elsif (scalar @results == 1) {
 	&::status("searchPackage returned one result; getting info of package instead!");
-	&::Forker("debian", sub { &infoPackages("info", "$results[0] $dist"); } );
+	&::Forker("Debian", sub { &infoPackages("info", "$results[0] $dist"); } );
     } else {
 	my $prefix = "Debian Package Listing of '$query' ";
 	&::performStrictReply( &::formListReply(0, $prefix, @results) );
