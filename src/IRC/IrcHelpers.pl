@@ -94,7 +94,7 @@ sub hookMsg {
 	if (&IsChanConf('addressCharacter')) {
 	    $addressCharacter = getChanConf('addressCharacter');
 	    if ($message =~ s/^\Q$addressCharacter\E//) {
-	        &msg($who, "please don't use the the addressCharacter when private messaging");
+	        &msg($who, "please don't use the the addressCharacter \"$addressCharacter\" when private messaging");
 	    }
 	}
     } else {
