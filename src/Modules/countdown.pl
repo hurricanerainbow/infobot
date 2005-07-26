@@ -44,7 +44,7 @@ sub countdown {
 	### SQL SPECIFIC.
 	my ($to_days,$dayname,$monname);
 
-	if ($param{'DBType'} =~ /^mysql|sqlite$/i) {
+	if ($param{'DBType'} =~ /^(mysql|sqlite(2)?)$/i) {
 	    $to_days = (&sqlRawReturn("SELECT TO_DAYS(NOW()) - TO_DAYS('$sqldate')"))[0];
 	    $dayname = (&sqlRawReturn("SELECT DAYNAME('$sqldate')"))[0];
 	    $monname = (&sqlRawReturn("SELECT MONTHNAME('$sqldate')"))[0];
