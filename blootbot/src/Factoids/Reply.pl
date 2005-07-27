@@ -276,6 +276,9 @@ sub substVars {
     $date	=~ s/\w+\s+\w+\s+\d+\s+//;
     $reply	=~ s/\$time/$date/gi;
 
+    # support $ident when I have multiple nicks
+    my $mynick = $conn->nick();
+
     # dollar variables.
     if ($flag) {
 	$reply	=~ s/\$nick/$who/g;
@@ -319,7 +322,7 @@ sub substVars {
 	}
     }
 
-    $reply	=~ s/\$ident/$ident/g;
+    $reply	=~ s/\$ident/$mynick/g;
 
     if ($reply =~ /\$startTime/) {
 	my $time = scalar(gmtime $^T);
