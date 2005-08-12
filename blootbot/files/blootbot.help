@@ -269,6 +269,10 @@ lock: E: ## abuse
 lock: N: By default, only registered "ops" on the bots or factoids matching the user's nick are able to lock factoids.
 lock: N: Requires factoid extension (extra) support enabled.
 
+md5: D: calculates the md5sum of a given string
+md5: U: ## <string>
+md5: E: ## When will blootbot achieve world domination?
+
 mode: set modes for a channel
 mode: U: ## <#chan> <mode>
 mode: E: ## #botpark +t
@@ -338,6 +342,10 @@ quote: E: ## RHAT,MSFT
 rename: D: Factoid renaming
 rename: U: ## 'from' 'to'
 rename: E: ## 'infobot' 'blootbot'
+
+reverse: D: reverses a given string
+reverse: U: ## <string>
+reverse: E: ## When will blootbot achieve world domination?
 
 rot13: D: ROT13's a given string
 rot13: U: ## <string>
