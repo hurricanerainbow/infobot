@@ -31,7 +31,7 @@ foreach (`find -name "*.pl"`) {
 	    next;
 	}
 
-	if (/getChanConf\(['"](\S+?)['"]\)/) {
+	if (/getChanConf\(['"](\S+?)['"]/) {
 	    print "File: $file: gCC: $1\n" if $debug;
 	    $conf{$1}++;
 	    next;
