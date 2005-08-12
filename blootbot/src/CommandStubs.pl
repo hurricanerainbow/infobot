@@ -885,6 +885,7 @@ sub nullski {
 &addCmdHook('piglatin', ('CODEREF' => 'piglatin::piglatin', 'Identifier' => 'piglatin', 'Cmdstats' => 'piglatin', 'Forker' => 1) );
 &addCmdHook('Plug', ('CODEREF' => 'Plug::Plug', 'Identifier' => 'Plug', 'Forker' => 1, 'Cmdstats' => 'Plug') );
 &addCmdHook('quote', ('CODEREF' => 'Quote::Quote', 'Forker' => 1, 'Identifier' => 'Quote', 'Help' => 'quote', 'Cmdstats' => 'Quote') );
+&addCmdHook('reverse', ('CODEREF' => 'reverse::reverse', 'Identifier' => 'reverse', 'Cmdstats' => 'reverse', 'Forker' => 1, 'Module' => 'reverse') );
 &addCmdHook('RootWarn', ('CODEREF' => 'CmdrootWarn', 'Identifier' => 'RootWarn', 'Module' => 'RootWarn') );
 &addCmdHook('Rss', ('CODEREF' => 'Rss::Rss', 'Identifier' => 'Rss', 'Cmdstats' => 'Rss', 'Forker' => 1, 'Help' => 'rss') );
 &addCmdHook('sched(stats|info)', ('CODEREF' => 'scheduleList', ) );

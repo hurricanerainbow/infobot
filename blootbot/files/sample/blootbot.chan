@@ -1,9 +1,9 @@
-#v1: blootbot -- infobot -- written Thu May 19 06:34:46 2005
+#v1: blootbot -- blootbot -- written Fri Aug 12 22:01:53 2005
 
 #botpark
     +RootWarn
     _time_added 1108710504
-    +autojoin
+    autojoin
 
 #debian-bots
     +News
@@ -52,6 +52,7 @@ _default
     +dice
     +dns
     +factoidArguments
+    factoidSearch $chan _default
     floodMessages 10:30
     floodRepeat 2:10
     +freshmeat
@@ -70,6 +71,7 @@ _default
     +piglatin
     randomFactoidInterval 60
     randomQuoteInterval 60
+    +reverse
     +scramble
     +seen
     seenFlushInterval 60
