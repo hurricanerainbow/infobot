@@ -62,7 +62,7 @@ sub list {
 		my $playerSize = hex($rogueSize) + hex($redSize) + hex($greenSize)
 				+ hex($blueSize) + hex($purpleSize) + hex($observerSize);
 		$servers{$serverport} = $playerSize;
-	  $servers{$version} += $playerSize;
+		$servers{$version} += $playerSize;
 		$servers{'PLAYERS'} += $playerSize;
 		$totalServers += 1;
 	}
@@ -130,7 +130,7 @@ sub querytext {
 
 	# port to port number
 	my ($name,$aliases,$proto) = getprotobyname('tcp');
-	($name,$aliases,$port)  = getservbyname($port,'tcp') unless $port =~ /^\d+$/;
+	($name,$aliases,$port) = getservbyname($port,'tcp') unless $port =~ /^\d+$/;
 
 	# get server address
 	my ($type,$len,$serveraddr);
@@ -151,7 +151,7 @@ sub querytext {
 
 	# parse reply
 	my ($magic,$major,$minor,$something,$revision) = unpack("a4 a1 a1 a1 a1", $buffer);
-  my ($version) = $magic . $major . $minor . $something . $revision;
+	my ($version) = $magic . $major . $minor . $something . $revision;
 
 	# quit if version isn't valid
 	return 'not a bzflag server' if ($magic ne "BZFS");
@@ -161,14 +161,26 @@ sub querytext {
 		# 1.11.x handled here
 		return 'read error' unless read(S1, $buffer, 1) == 1;
 		my ($id) = unpack("C", $buffer);
-    return "rejected by server" if ($id == 255);
+		return "rejected by server" if ($id == 255);
 
 		# send game request
 		print S1 pack("n2", 0, 0x7167);
 
 		# get reply
-		return 'server read error' unless read(S1, $buffer, 46) == 46;
-    my ($infolen,$infocode,$style,$maxPlayers,$maxShots,
+		my $nbytes = read(S1, $buffer, 4);
+		my ($infolen, $infocode) = unpack("n2", $buffer);
+		if ($infocode == 0x6774) {
+			# read and ignore MsgGameTime from new servers
+			$nbytes = read(S1, $buffer, 8);
+			$nbytes = read(S1, $buffer, 4);
+		  ($infolen, $infocode) = unpack("n2", $buffer);
+		}
+		$nbytes = read(S1, $buffer, 42);
+		if ($nbytes != 42) {
+			return "Error: read $nbytes bytes, expecting 46: $^E\n";
+		}
+
+		my ($style,$maxPlayers,$maxShots,
 			$rogueSize,$redSize,$greenSize,$blueSize,$purpleSize,$observerSize,
 			$rogueMax,$redMax,$greenMax,$blueMax,$purpleMax,$observerMax,
 			$shakeWins,$shakeTimeout,
@@ -268,7 +280,7 @@ sub querytext {
 		# close socket
 		close(S1);
 	} elsif ($major == 1 && $minor == 0 && $something == 7) {
-    # 1.7* versions handled here
+		# 1.7* versions handled here
 		# old servers send a reconnect port number
 		return 'read error' unless read(S1, $buffer, 2) == 2;
 		my ($reconnect) = unpack("n", $buffer);
