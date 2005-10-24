@@ -719,9 +719,10 @@ sub on_nick {
     $nuh{lc $newnick} = $nuh{lc $nick};
     delete $nuh{lc $nick};
 
-    if ($nick eq $ident) {
+    if ($nick eq $conn->nick()) {
 	&status(">>> I materialized into $b_green$newnick$ob from $nick");
-	$ident	= $newnick;
+	$ident = $newnick;
+	$conn->nick($newnick);
     } else {
 	&status(">>> $b_cyan$nick$ob materializes into $b_green$newnick$ob");
 	my $mynick=$conn->nick();
