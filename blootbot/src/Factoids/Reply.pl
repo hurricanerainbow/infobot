@@ -11,6 +11,7 @@
 ##
 
 # use strict;	# TODO
+use POSIX qw(strftime);
 
 use vars qw($msgType $uh $lastWho $ident);
 use vars qw(%lang %lastWho);
@@ -268,16 +269,17 @@ sub SARit {
 sub substVars {
     my($reply,$flag) = @_;
 
-    # $date, $time.
+    # $date, $time, $day.
     # TODO: support localtime.
-    my $date	=  scalar(gmtime());
-    $date	=~ s/\:\d+(\s+\w+)\s+\d+$/$1/;
+    my $date	=  strftime("%Y.%m.%d", gmtime());
     $reply	=~ s/\$date/$date/gi;
-    $date	=~ s/\w+\s+\w+\s+\d+\s+//;
-    $reply	=~ s/\$time/$date/gi;
+    my $time	=  strftime("%k:%M:%S", gmtime());
+    $reply	=~ s/\$time/$time/gi;
+    my $day	=  strftime("%A", gmtime());
+    $reply	=~ s/\$day/$day/gi;
 
     # support $ident when I have multiple nicks
-    my $mynick = $conn->nick();
+    my $mynick = $conn->nick() if $conn;
 
     # dollar variables.
     if ($flag) {
