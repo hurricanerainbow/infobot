@@ -887,6 +887,7 @@ sub nullski {
 &addCmdHook('quote', ('CODEREF' => 'Quote::Quote', 'Forker' => 1, 'Identifier' => 'Quote', 'Help' => 'quote', 'Cmdstats' => 'Quote') );
 &addCmdHook('reverse', ('CODEREF' => 'reverse::reverse', 'Identifier' => 'reverse', 'Cmdstats' => 'reverse', 'Forker' => 1, 'Module' => 'reverse') );
 &addCmdHook('RootWarn', ('CODEREF' => 'CmdrootWarn', 'Identifier' => 'RootWarn', 'Module' => 'RootWarn') );
+&addCmdHook('OnJoin', ('CODEREF' => 'Cmdonjoin', 'Identifier' => 'OnJoin', 'Module' => 'OnJoin') );
 &addCmdHook('Rss', ('CODEREF' => 'Rss::Rss', 'Identifier' => 'Rss', 'Cmdstats' => 'Rss', 'Forker' => 1, 'Help' => 'rss') );
 &addCmdHook('sched(stats|info)', ('CODEREF' => 'scheduleList', ) );
 &addCmdHook('scramble', ('CODEREF' => 'scramble::scramble', 'Identifier' => 'scramble', 'Cmdstats' => 'scramble', 'Forker' => 1, 'Module' => 'scramble') );

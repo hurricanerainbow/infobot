@@ -584,6 +584,9 @@ sub on_join {
 		$user =~ /^~?r(oo|ew|00)t$/i
     );
 
+    ### emit a message based on who just joined
+	 &onjoin($who,$user,$host,$chan) if (&IsChanConf('OnJoin'));
+
     ### NEWS:
     if (&IsChanConf('News') && &IsChanConf('newsKeepRead')) {
 	if (!&loadMyModule('News')) {	# just in case.

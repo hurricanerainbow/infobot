@@ -1,9 +1,8 @@
-#v1: blootbot -- blootbot -- written Fri Aug 12 22:01:53 2005
+#v1: blootbot -- blootbot -- written Sun Jan  1 22:59:37 2006
 
 #botpark
     +RootWarn
-    _time_added 1108710504
-    autojoin
+    +autojoin
 
 #debian-bots
     +News
@@ -31,6 +30,7 @@ _default
     +HTTPDtype
     +Kernel
     +Math
+    +OnJoin
     +Plug
     +Quote
     +Rss

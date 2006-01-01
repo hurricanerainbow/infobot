@@ -24,7 +24,7 @@ if ($@) {
 my @myModulesLoadNow;
 my @myModulesReloadNot;
 BEGIN {
-    @myModulesLoadNow	= ('Topic', 'Uptime', 'News', 'RootWarn', 'DumpVars2', 'botmail');
+    @myModulesLoadNow	= ('Topic', 'Uptime', 'News', 'RootWarn', 'DumpVars2', 'botmail', 'OnJoin');
     @myModulesReloadNot	= ('IRC/Irc.pl','IRC/Schedulers.pl');
 }
 

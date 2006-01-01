@@ -821,6 +821,11 @@ sub rehashConfVars {
 	    &loadMyModule('RootWarn');
 	    delete $cache{confvars}{$_};
 	}
+
+	if (/^onjoin$/i and $i) {
+	    &loadMyModule('OnJoin');
+	    delete $cache{confvars}{$_};
+	}
     }
 
     &DEBUG("end of rehashConfVars");
