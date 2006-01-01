@@ -639,7 +639,7 @@ sub checkTables {
 	# create database not needed for SQLite
     }
 
-    foreach ( qw(botmail connections factoids rootwarn seen stats) ) {
+    foreach ( qw(botmail connections factoids rootwarn seen stats onjoin) ) {
 	if (exists $db{$_}) {
 	    $cache{has_table}{$_} = 1;
 	    next;

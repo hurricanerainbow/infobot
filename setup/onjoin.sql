@@ -1,0 +1,5 @@
+CREATE TABLE onjoin (
+	nick VARCHAR(20) NOT NULL,
+	channel VARCHAR(16) NOT NULL,
+	message VARCHAR(255) NOT NULL
+);
