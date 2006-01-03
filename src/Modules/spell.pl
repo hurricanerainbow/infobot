@@ -14,6 +14,10 @@ use strict;
 
 sub spell::spell {
 	my $query = shift;
+	if ($query =~ m/[^[:alpha:]]/) {
+		return("only one word of alphabetic characters supported");
+	}
+
 	my $binary;
 	my @binaries = (
 		'/usr/bin/aspell',
