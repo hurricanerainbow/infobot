@@ -1,9 +1,9 @@
 #
 # OnJoin.pl: emit a message when a user enters the channel
-#    Author: tensai
-#   Version: v0.1
+#    Author: Corey Edwards <tensai@zmonkey.org>
+#   Version: v0.2
 #   Created: 20051222
-#   Updated: 20051230
+#   Updated: 20060102
 
 use strict;
 
@@ -12,12 +12,19 @@ use vars qw($dbh $who $chan);
 
 sub onjoin {
 	my ($nick, $user, $host, $chan) = @_;
-	my $n	= lc $nick;
-	my $message = &sqlSelect('onjoin', 'message', { nick => $n, channel => $chan } ) || 0;
+	$nick = lc $nick;
+
+	# look for a channel specific message
+	my $message = &sqlSelect('onjoin', 'message', { nick => $nick, channel => $chan } ) || 0;
+
+	# look for a default message
+	if (!$message){
+		$message = &sqlSelect('onjoin', 'message', { nick => $nick, channel => '_default' } ) || 0;
+	}
 
 	# print the message, if there was one
 	if ($message){
-		&status("OnJoin: $nick arrived");
+		&status("OnJoin: $nick arrived, printing message");
 		&msg($chan, $message);
 	}
 
@@ -26,24 +33,54 @@ sub onjoin {
 
 # set and get messages
 sub Cmdonjoin {
-	my $msg = shift;
-	$msg =~ m/(.*?)( (.*))/;
-	my $nick = $1;
-	$msg = $3;
+	$_ = shift;
+	m/(\S*)( (\S*)( (.*)|)|)/;
+	my $ch = $1;
+	my $nick = $3;
+	my $msg = $5;
+
+	# get options 
+	my $strict = &getChanConf('onjoinStrict');
+	my $ops = &getChanConf('onjoinOpsOnly');
+
+	# see if they specified a channel
+	if ($ch !~ m/^\#/ && $ch ne '_default'){
+		$msg = $nick;
+		$nick = $ch;
+		$ch = $chan;
+	}
+
+	$nick = lc $nick;
+
+	if ($nick =~ m/^-(.*)/){
+		$nick = $1;
+		if ($ops){
+			if (!$channels{$chan}{o}{$who}){
+				&performReply("sorry, you're not an operator");
+			}
+		}
+		elsif ($strict){
+			# regardless of strict mode, ops can always change
+			if (!$channels{$chan}{o}{$who} and $nick ne $who){
+				&performReply("I can't alter a message for another user (strict mode)");
+			}
+		}
+		else{
+			&sqlDelete('onjoin', { nick => $nick, channel => $ch });
+			&performReply('ok');
+		}
+		return;
+	}
 
 	# if msg not set, show what the message would be
 	if (!$msg){
 		$nick = $who if (!$nick);
-		$msg = &sqlSelect('onjoin', 'message', { nick => $nick, channel => $chan } ) || '';
+		$msg = &sqlSelect('onjoin', 'message', { nick => $nick, channel => $ch } ) || '';
 		if ($msg){
 			&performReply($msg);
 		}
 		return;
 	}
-
-	# get params
-	my $strict = &getChanConf('onjoinStrict');
-	my $ops = &getChanConf('onjoinOpsOnly');
 
 	# only allow changes by ops
 	if ($ops){
@@ -61,8 +98,9 @@ sub Cmdonjoin {
 		}
 	}
 
-	&sqlDelete('onjoin', { nick => $nick, channel => $chan});
-	&sqlInsert('onjoin', { nick => $nick, channel => $chan, message => $msg});
+	# remove old one (if exists) and add new message
+	&sqlDelete('onjoin', { nick => $nick, channel => $ch });
+	&sqlInsert('onjoin', { nick => $nick, channel => $ch, message => $msg });
 	&performReply("ok");
 	return;
 }

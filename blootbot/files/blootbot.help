@@ -319,7 +319,7 @@ nickometer: E: ## unknown_lamer
 nickometer: E: ## #botpark
 
 onjoin: D: get/set OnJoin message (needs chan option +OnJoin)
-onjoin: U: ## <nick> [message]
+onjoin: U: ## [chan] [-]<nick> [message]
 onjoin: E: ## blootbot Hey! It's another blootbot!
 
 ord: D: Convert ascii to decimal
