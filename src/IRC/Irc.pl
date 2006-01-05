@@ -840,10 +840,10 @@ sub getJoinChans {
 	    $skip++ if ($val eq "0");
 	    if ($val eq "1") {
 		# convert old +autojoin to autojoin <nick>
-		$val = $nick;
+		$val = lc $nick;
 		$chanconf{$_}{autojoin} = $val;
 	    }
-	    $skip++ if ($val ne $nick);
+	    $skip++ if (lc $val ne lc $nick);
 	} else {
 	    $skip++;
 	}
