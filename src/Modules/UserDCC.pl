@@ -633,7 +633,10 @@ sub userDCC {
 		    $str = $newstr;
 		    push(@items, "$_ => $chanconf{$chan}{$_}");
 		}
-		&performStrictReply(" $str") if (@items);
+		if (@items) {
+		    my $str = join(', ', @items);
+		    &performStrictReply(" $str");
+		}
 	    }
 	    return;
 	}
