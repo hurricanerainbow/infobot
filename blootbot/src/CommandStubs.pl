@@ -364,9 +364,9 @@ sub seen {
 	if (&IsChanConf('seenStats') > 0) {
 	    my $i;
 	    $i = $userstats{lc $seen[0]}{'Count'};
-	    $reply .= ".  Has said a total of \002$i\002 messages" if (defined $i);
+	    $reply .= ". Has said a total of \002$i\002 messages" if (defined $i);
 	    $i = $userstats{lc $seen[0]}{'Time'};
-	    $reply .= '.  Is idling for '.&Time2String(time() - $i) if (defined $i);
+	    $reply .= '. Is idling for '.&Time2String(time() - $i) if (defined $i);
 	}
 	$reply .= ", last said\002:\002 '$seen[4]'.";
     } else {
