@@ -368,6 +368,7 @@ sub seen {
 	    $i = $userstats{lc $seen[0]}{'Time'};
 	    $reply .= '.  Is idling for '.&Time2String(time() - $i) if (defined $i);
 	}
+	$reply .= "last said\002:\002 '$seen[4]'.";
     } else {
 	my $howlong = &Time2String(time() - $seen[1]);
 	$reply = "$seen[0] <$seen[3]> was last seen on IRC ".
