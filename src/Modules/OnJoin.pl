@@ -1,9 +1,9 @@
 #
 # OnJoin.pl: emit a message when a user enters the channel
 #    Author: Corey Edwards <tensai@zmonkey.org>
-#   Version: v0.2
+#   Version: v0.2.1
 #   Created: 20051222
-#   Updated: 20060102
+#   Updated: 20060105
 
 use strict;
 
@@ -34,7 +34,7 @@ sub onjoin {
 # set and get messages
 sub Cmdonjoin {
 	$_ = shift;
-	m/(\S*)( (\S*)( (.*)|)|)/;
+	m/(\S*)(\s*(\S*)(\s*(.*)|)|)/;
 	my $ch = $1;
 	my $nick = $3;
 	my $msg = $5;
@@ -45,7 +45,7 @@ sub Cmdonjoin {
 
 	# see if they specified a channel
 	if ($ch !~ m/^\#/ && $ch ne '_default'){
-		$msg = $nick;
+		$msg = $nick . ($msg ? " $msg" : '');
 		$nick = $ch;
 		$ch = $chan;
 	}
