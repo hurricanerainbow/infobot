@@ -718,10 +718,10 @@ sub chanSet {
 	### ".chanset +blah"
 	### ".chanset +blah 10"		-- error.
 
-	my $state	= ($1 eq "+") ? 1 : 0;
+	my $set	= ($1 eq "+") ? 1 : 0;
 	my $was		= $chanconf{$chan}{$what};
 
-	if ($state) {			# add/set.
+	if ($set) {			# add/set.
 	    if (defined $was and $was eq "1") {
 		&performStrictReply("setting $what for $chan already 1.");
 		return;
@@ -735,16 +735,11 @@ sub chanSet {
 		return;
 	    }
 
-	    if ($was eq "0") {
-		&performStrictReply("setting $what for $chan already 0.");
-		return;
-	    }
-
 	    $val	= 0;
 	}
 
 	# alter for cosmetic (print out) reasons only.
-	$was	= ($was) ? "; was '$was'" : "";
+	$was	= (defined $was) ? "; was '$was'" : "";
 
 	if ($val eq "0") {
 	    &performStrictReply("Unsetting $what for $chan$was.");
