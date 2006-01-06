@@ -224,7 +224,7 @@ sub IsChanConf {
     my($param)	= shift;
 
     # knocked tons of bugs with this! :)
-    my $debug	= 0 # 1 if ($param eq "whatever");
+    my $debug	= 0; # 1 if ($param eq "whatever");
 
     if (!defined $param) {
 	&WARN("IsChanConf: param == NULL.");
