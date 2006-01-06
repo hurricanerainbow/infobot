@@ -171,7 +171,7 @@ sub on_endofmotd {
     }
     # end of first time run.
 
-    if (&IsChanConf('Wingate')) {
+    if (&IsChanConf('Wingate') > 0) {
 	my $file = "$bot_base_dir/$param{'ircUser'}.wingate";
 	open(IN, $file);
 	while (<IN>) {
@@ -580,15 +580,15 @@ sub on_join {
 
     ### ROOTWARN:
     &rootWarn($who,$user,$host,$chan) if (
-		&IsChanConf('RootWarn') &&
+		&IsChanConf('RootWarn') > 0 &&
 		$user =~ /^~?r(oo|ew|00)t$/i
     );
 
     ### emit a message based on who just joined
-	 &onjoin($who,$user,$host,$chan) if (&IsChanConf('OnJoin'));
+	 &onjoin($who,$user,$host,$chan) if (&IsChanConf('OnJoin') > 0);
 
     ### NEWS:
-    if (&IsChanConf('News') && &IsChanConf('newsKeepRead')) {
+    if (&IsChanConf('News') > 0 && &IsChanConf('newsKeepRead') > 0) {
 	if (!&loadMyModule('News')) {	# just in case.
 	    &DEBUG('could not load news.');
 	} else {
@@ -597,7 +597,7 @@ sub on_join {
     }
 
     ### botmail:
-    if (&IsChanConf('botmail')) {
+    if (&IsChanConf('botmail') > 0) {
 	&botmail::check(lc $who);
     }
 
@@ -974,7 +974,7 @@ sub on_quit {
 
 	# chanlimit code.
 	foreach $chan ( &getNickInChans($nick) ) {
-	    next unless ( &IsChanConf("chanlimitcheck") );
+	    next unless ( &IsChanConf("chanlimitcheck") > 0);
 	    next unless ( exists $channels{$_}{'l'} );
 
 	    &DEBUG("on_quit: netsplit detected on $_; disabling chan limit.");
@@ -1070,7 +1070,7 @@ sub on_topic {
 	&status(">>> topic/$b_blue$chan$ob by $b_cyan$nick$ob -> $topic");
     } else {						# join.
 	my ($nick, $chan, $topic) = $event->args;
-	if (&IsChanConf('Topic')) {
+	if (&IsChanConf('Topic') > 0) {
 	    $topic{$chan}{'Current'}	= $topic;
 	    &topicAddHistory($chan,$topic);
 	}

@@ -924,12 +924,12 @@ sub kernelLoop {
 }
 
 sub wingateCheck {
-    return unless &IsChanConf('Wingate');
+    return unless &IsChanConf('Wingate') > 0;
 
     ### FILE CACHE OF OFFENDING WINGATES.
     foreach (grep /^$host$/, @wingateBad) {
 	&status("Wingate: RUNNING ON $host BY $who");
-	&ban("*!*\@$host", "") if &IsChanConf('wingateBan');
+	&ban("*!*\@$host", "") if &IsChanConf('wingateBan') > 0;
 
 	my $reason	= &getChanConf('wingateKick');
 

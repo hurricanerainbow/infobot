@@ -91,7 +91,7 @@ sub hookMsg {
     if ($msgType =~ /private/) {
 	# private messages.
 	$addressed = 1;
-	if (&IsChanConf('addressCharacter')) {
+	if (&IsChanConf('addressCharacter') > 0) {
 	    $addressCharacter = getChanConf('addressCharacter');
 	    if ($message =~ s/^\Q$addressCharacter\E//) {
 	        &msg($who, "The addressCharacter \"$addressCharacter\" is to get my attention in a normal channel. Please leave it off when messaging me directly.");
@@ -101,7 +101,7 @@ sub hookMsg {
 	# public messages.
 	# addressing revamped by the xk.
 	### below needs to be fixed...
-	if (&IsChanConf('addressCharacter')) {
+	if (&IsChanConf('addressCharacter') > 0) {
 	    $addressCharacter = getChanConf('addressCharacter');
 	    if ($message =~ s/^\Q$addressCharacter\E//) {
 		$addrchar  = 1;
@@ -141,7 +141,7 @@ sub hookMsg {
     if ($addressed) {
 	my $time = $flood{$floodwho}{$message} || 0;
 
-	if ($msgType eq "public" and (time() - $time < $interval)) {
+	if (!&hasFlag("o") and $msgType eq "public" and (time() - $time < $interval)) {
 	    ### public != personal who so the below is kind of pointless.
 	    my @who;
 	    foreach (keys %flood) {
@@ -183,7 +183,7 @@ sub hookMsg {
 	}
 
 	$flood{$floodwho}{$message} = time();
-    } elsif ($msgType eq "public" and &IsChanConf("kickOnRepeat")) {
+    } elsif ($msgType eq "public" and &IsChanConf("kickOnRepeat") > 0) {
 	# unaddressed, public only.
 
 	### TODO: use a separate "short-time" hash.
@@ -241,7 +241,7 @@ sub hookMsg {
 	$seencache{$who}{'msg'}  = $orig{message};
 	$seencache{$who}{'msgcount'}++;
     }
-    if (&IsChanConf("minVolunteerLength")) {
+    if (&IsChanConf("minVolunteerLength") > 0) {
 	# FIXME hack to treat unaddressed as if using addrchar
 	$addrchar = 1;
     }
@@ -294,7 +294,7 @@ sub chanLimitVerify {
     $chan	= $c;
     my $l	= $channels{$chan}{'l'};
 
-    return unless (&IsChanConf("chanlimitcheck"));
+    return unless (&IsChanConf("chanlimitcheck") > 0);
 
     if (scalar keys %netsplit) {
 	&WARN("clV: netsplit active (1, chan = $chan); skipping.");
@@ -349,7 +349,7 @@ sub chanServCheck {
 	&DEBUG("chanServCheck: lowercased chan ($chan)");
     }
 
-    if (! &IsChanConf("chanServ_ops") ) {
+    if (! &IsChanConf("chanServ_ops") > 0) {
 	return 0;
     }
 

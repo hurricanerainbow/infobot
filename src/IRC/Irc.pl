@@ -895,7 +895,7 @@ sub closeDCC {
 sub joinfloodCheck {
     my($who,$chan,$userhost) = @_;
 
-    return unless (&IsChanConf("joinfloodCheck"));
+    return unless (&IsChanConf("joinfloodCheck") > 0);
 
     if (exists $netsplit{lc $who}) {	# netsplit join.
 	&DEBUG("joinfloodCheck: $who was in netsplit; not checking.");

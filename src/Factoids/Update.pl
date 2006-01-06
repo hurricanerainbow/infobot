@@ -54,7 +54,7 @@ sub update {
 
     # factoid arguments handler.
     # must start with a non-variable
-    if (&IsChanConf("factoidArguments") and $lhs =~ /^[^\$]+.*\$/) {
+    if (&IsChanConf("factoidArguments") > 0 and $lhs =~ /^[^\$]+.*\$/) {
 	&status("Update: Factoid Arguments found.");
 	&status("Update: orig lhs => '$lhs'.");
 	&status("Update: orig rhs => '$rhs'.");

@@ -241,7 +241,7 @@ sub FactoidStuff {
 
 	# lets do it!
 
-	if (&IsParam("factoidDeleteDelay") or &IsChanConf("factoidDeleteDelay")) {
+	if (&IsParam("factoidDeleteDelay") or &IsChanConf("factoidDeleteDelay") > 0) {
 	    if (!($isop or $isau) and $faqtoid =~ / #DEL#$/) {
 		&msg($who, "cannot delete it ($faqtoid).");
 		return;
@@ -290,7 +290,7 @@ sub FactoidStuff {
 
 	my $i = 0;
 	$i++ if (&IsParam("factoidDeleteDelay"));
-	$i++ if (&IsChanConf("factoidDeleteDelay"));
+	$i++ if (&IsChanConf("factoidDeleteDelay") > 0);
 	if (!$i) {
 	    &performReply("safe delete has been disable so what is there to undelete?");
 	    return;

@@ -119,7 +119,7 @@ sub Parse {
 	my $state = ($1) ? 0 : 1;
 
 	# TODO: don't notify even if "News" is called.
-	if (!&::IsChanConf("newsNotifyAll")) {
+	if (&::IsChanConf("newsNotifyAll") <= 0) {
 	    &::DEBUG("news: chan => $chan, ::chan => $::chan.");
 	    &::notice($who, "not available for this channel or disabled altogether.");
 	    return;
@@ -371,7 +371,7 @@ sub list {
 	return;
     }
 
-    if (&::IsChanConf("newsKeepRead")) {
+    if (&::IsChanConf("newsKeepRead") > 0) {
 	my $x = $::newsuser{$chan}{$who};
 
 	if (defined $x and ($x == 0 or $x == -1)) {
@@ -751,8 +751,7 @@ sub latest {
     }
 
     $::chan	= $chan;
-    my $x = &::IsChanConf("newsNotifyAll");
-    return if (!$x);
+    return if (&::IsChanConf("newsNotifyAll") <= 0);
 
     # I don't understand this code ;)
     $t = 1 if (!defined $t);
@@ -792,7 +791,7 @@ sub latest {
     # scalar @new, !$flag
     my $unread	= scalar @new;
     my $total	= scalar keys %{ $::news{$chan} };
-    if (!$flag && !&::IsChanConf("newsTellUnread")) {
+    if (!$flag && &::IsChanConf("newsTellUnread") <= 0) {
 	return;
     }
 

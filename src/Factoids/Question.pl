@@ -33,7 +33,7 @@ sub doQuestion {
 
     if (!$addressed) {
 	return '' unless ($finalQMark);
-	return '' unless &IsChanConf("minVolunteerLength");
+	return '' unless &IsChanConf("minVolunteerLength") > 0;
 	return '' if (length $query < &::getChanConf('minVolunteerLength'));
     } else {
 	### TODO: this should be caught in Process.pl?
@@ -93,7 +93,7 @@ sub doQuestion {
     $query =~ s/^\s+|\s+$//g; # bleh. hacked.
     push(@query, $query) if ($query ne $x);
 
-    if (&IsChanConf("factoidArguments")) {
+    if (&IsChanConf("factoidArguments") > 0) {
 	$result = &factoidArgs($query[0]);
 
 	return $result if (defined $result);
@@ -154,7 +154,7 @@ sub doQuestion {
     }
 
     ### TODO: Use &Forker(); move function to Debian.pl
-    if (&IsChanConf('debianForFactoid')) {
+    if (&IsChanConf('debianForFactoid') > 0) {
 	&loadMyModule('Debian');
 	$result = &Debian::DebianFind($query);	# ???
 	### TODO: debian module should tell, through shm, that it went
