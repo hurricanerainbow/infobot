@@ -271,10 +271,8 @@ sub readChanFile {
 	    $chanconf{$chan}{$1} = 1;
 
 	} elsif (/^[\s\t]+\-(\S+)$/) {		# bool, false.
-	    &DEBUG("deprecated support of negative options.") unless ($cache{negative});
 	    # although this is supported in run-time configuration.
-	    $cache{negative} = 1;
-#	    $chanconf{$chan}{$1} = 0;
+	    $chanconf{$chan}{$1} = 0;
 
 	} elsif (/^[\s\t]+(\S+)[\s\t]+(.*)$/) {# what = val.
 	    $chanconf{$chan}{$1} = $2;
@@ -296,8 +294,6 @@ sub readChanFile {
 	    undef $chanconf{$chan}{$_};
 	}
     }
-
-    delete $cache{negative};
 
     &status("CHANFILE: Loaded: ".(scalar(keys %chanconf)-1)." chans");
 }

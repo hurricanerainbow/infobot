@@ -10,8 +10,6 @@ TODO:
 	- move channel flags to sql table, include initial state
 	- move praise from blootbot.lang to "praise:<something>" in factoids?
 	- move lart from blootbot.lang to "lart:<something>" in factoids?
-	- all IsChanConf tests MUST check for >0 as -1 is possible there are a
-	  lot of incorrect "if(IsChanConf("foo")) instances now
 	- debian BTS frontend "bugs"
 	- !country
 	- !dinstall

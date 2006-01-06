@@ -140,7 +140,7 @@ sub loadMyModulesNow {
 	    next;
 	}
 
-	if (!&IsParam($_) and !&IsChanConf($_) and !&getChanConfList($_)) {
+	if (!&IsParam($_) and &IsChanConf($_) <= 0 and !&getChanConfList($_)) {
 	    &DEBUG("loadMyModuleNow: $_ (2) not loaded.");
 	    next;
 	}

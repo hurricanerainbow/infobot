@@ -1,6 +1,7 @@
-#v1: blootbot -- blootbot -- written Sun Jan  1 22:59:37 2006
+#v1: blootbot -- InfoBot -- written Fri Jan  6 08:29:25 2006
 
 #botpark
+    -OnJoin
     +RootWarn
     +autojoin
 

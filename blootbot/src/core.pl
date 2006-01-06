@@ -197,8 +197,8 @@ sub getChanConfList {
 
     foreach (keys %chanconf) {
 	my $chan	= $_;
-#	&DEBUG("chan => $chan");
 	my @array	= grep /^$param$/, keys %{ $chanconf{$chan} };
+	#&DEBUG("gCCL param => $param, chan => $chan, keys => " . join(':',keys %{ $chanconf{$chan} }) . " array => " . join(':', @array)) if ($param eq 'whatever');
 
 	next unless (scalar @array);
 
@@ -206,7 +206,7 @@ sub getChanConfList {
 	    &WARN("multiple items found?");
 	}
 
-	if ($array[0] eq "0") {
+	if ($chanconf{$chan}{$param} eq "0") {
 	    $chan{$chan}	= -1;
 	} else {
 	    $chan{$chan}	=  1;
@@ -222,7 +222,9 @@ sub getChanConfList {
 # Return: 1 for enabled, 0 for passive disable, -1 for active disable.
 sub IsChanConf {
     my($param)	= shift;
-    my $debug	= 0;	# knocked tons of bugs with this! :)
+
+    # knocked tons of bugs with this! :)
+    my $debug	= 0 # 1 if ($param eq "whatever");
 
     if (!defined $param) {
 	&WARN("IsChanConf: param == NULL.");
@@ -236,7 +238,7 @@ sub IsChanConf {
 	return 1;
     }
 
-    $chan	||= "_default";
+    $chan ||= "_default";
 
     my $old = $chan;
     if ($chan =~ tr/A-Z/a-z/) {
@@ -254,9 +256,11 @@ sub IsChanConf {
     }
 
 ### debug purposes only.
-#    &DEBUG("param => $param, msgType => $msgType.");
-#    foreach (keys %chan) {
-#	&DEBUG("   $_ => $chan{$_}");
+#    if ($debug) {
+#	&DEBUG("param => $param, msgType => $msgType.");
+#	foreach (keys %chan) {
+#	    &DEBUG("   $_ => $chan{$_}");
+#	}
 #    }
 
     if ($nomatch) {
@@ -267,31 +271,15 @@ sub IsChanConf {
 	} else {
 	    &DEBUG("ICC: other: 0 ($param)") if ($debug);
 	}
-
 	return $chan{$chan} || $chan{_default} || 0;
-    }
-
-    if ($msgType eq "public") {
+    } elsif ($msgType =~ /^(public|private)$/i) {
 	if ($chan{$chan}) {
-	    &DEBUG("ICC: public: $chan{$chan} ($chan/$param)") if ($debug);
+	    &DEBUG("ICC: $msgType: $chan{$chan} ($chan/$param)") if ($debug);
 	} elsif ($chan{_default}) {
-	    &DEBUG("ICC: public: $chan{_default} (_default/$param)") if ($debug);
+	    &DEBUG("ICC: $msgType: $chan{_default} (_default/$param)") if ($debug);
 	} else {
-	    &DEBUG("ICC: public: 0 ($param)") if ($debug);
+	    &DEBUG("ICC: $msgType: 0 ($param)") if ($debug);
 	}
-
-	return $chan{$chan} || $chan{_default} || 0;
-    }
-
-    if ($msgType eq "private") {
-	if ($chan{_default}) {
-	    &DEBUG("ICC: private: $chan{_default} (_default/$param)") if ($debug);
-	} elsif ($chan{$chan}) {
-	    &DEBUG("ICC: private: $chan{$chan} ($chan/$param) (hack)") if ($debug);
-	} else {
-	    &DEBUG("ICC: private: 0 ($param)") if ($debug);
-	}
-
 	return $chan{$chan} || $chan{_default} || 0;
     }
 

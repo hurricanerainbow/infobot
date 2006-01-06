@@ -593,7 +593,7 @@ sub hasProfanity {
 sub IsChanConfOrWarn {
     my ($param) = @_;
 
-    if (&IsChanConf($param)) {
+    if (&IsChanConf($param) > 0) {
 	return 1;
     } else {
 	### TODO: specific reason why it failed.
