@@ -98,6 +98,7 @@ chanset: U: ## [#chan] [what] [val]
 chanset: E: ## #c +test
 chanset: E: ## #c -test
 chanset: E: ## #c test
+chanset: E: ## #c test 0
 chanset: E: ## #c test testing123
 
 chanunset: D: remove a variable from a channel
