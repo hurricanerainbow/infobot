@@ -1,7 +1,7 @@
 #
 # OnJoin.pl: emit a message when a user enters the channel
 #    Author: Corey Edwards <tensai@zmonkey.org>
-#   Version: v0.2.1
+#   Version: v0.2.2
 #   Created: 20051222
 #   Updated: 20060105
 
@@ -24,8 +24,16 @@ sub onjoin {
 
 	# print the message, if there was one
 	if ($message){
-		&status("OnJoin: $nick arrived, printing message");
-		&msg($chan, $message);
+		$message = substVars($message);
+		if ($message =~ m/^<action>\s*(.*)/){
+			&status("OnJoin: $nick arrived, performing action");
+			&action($chan, $1);
+		}
+		else{
+			$message =~ s/^<reply>\s*//;
+			&status("OnJoin: $nick arrived, printing message");
+			&msg($chan, $message);
+		}
 	}
 
 	return;
