@@ -141,7 +141,7 @@ sub hookMsg {
     if ($addressed) {
 	my $time = $flood{$floodwho}{$message} || 0;
 
-	if (!&hasFlag("o") and $msgType eq "public" and (time() - $time < $interval)) {
+	if ($msgType eq "public" and (time() - $time < $interval)) {
 	    ### public != personal who so the below is kind of pointless.
 	    my @who;
 	    foreach (keys %flood) {
