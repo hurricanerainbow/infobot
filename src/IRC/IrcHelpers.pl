@@ -224,16 +224,22 @@ sub hookMsg {
     } elsif ($msgType =~ /private/i) {		   # private.
 	&status("[$orig{who}] $orig{message}");
 	$talkchannel	= undef;
-	$chan		= "_default";
+	$chan		= '_default';
     } else {
 	&DEBUG("unknown msgType => $msgType.");
     }
-    push(@ignore, keys %{ $ignore{"*"} }) if (exists $ignore{"*"});
+    push(@ignore, keys %{ $ignore{'*'} }) if (exists $ignore{'*'});
 
-    if ((!$skipmessage or &IsChanConf("seenStoreAll") > 0) and
-	&IsChanConf("seen") > 0 and
-	$msgType =~ /public/
-    ) {
+    if ((!$skipmessage or &IsChanConf('seenStoreAll') > 0) and
+	    &IsChanConf('sed') > 0 and &IsChanConf('seen') > 0 and
+	    $msgType =~ /public/ and
+            $orig{message} =~ /^s\/([^;\/]*)\/([^;\/]*)\/([g]*)$/) {
+	my $sedmsg = $seencache{$who}{'msg'};
+	eval "\$sedmsg =~ s/$1/$2/$3;"
+	&DEBUG("sed \"$orig{message}\" \"$sedmsg\"");
+	&msg($talkchannel, "$orig{who} meant: $sedmsg");
+    } elsif ((!$skipmessage or &IsChanConf('seenStoreAll') > 0) and
+	    &IsChanConf('seen') > 0 and $msgType =~ /public/) {
 	$seencache{$who}{'time'} = time();
 	$seencache{$who}{'nick'} = $orig{who};
 	$seencache{$who}{'host'} = $uh;
