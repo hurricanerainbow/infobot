@@ -235,7 +235,7 @@ sub hookMsg {
 	    $msgType =~ /public/ and
             $orig{message} =~ /^s\/([^;\/]*)\/([^;\/]*)\/([g]*)$/) {
 	my $sedmsg = $seencache{$who}{'msg'};
-	eval "\$sedmsg =~ s/$1/$2/$3;"
+	eval "\$sedmsg =~ s/\Q$1\E/\Q$2\E/$3;"
 	&DEBUG("sed \"$orig{message}\" \"$sedmsg\"");
 	&msg($talkchannel, "$orig{who} meant: $sedmsg");
     } elsif ((!$skipmessage or &IsChanConf('seenStoreAll') > 0) and
