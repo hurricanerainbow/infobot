@@ -1,4 +1,4 @@
-#v1: blootbot -- InfoBot -- written Fri Jan  6 08:29:25 2006
+#v1: blootbot -- InfoBot -- written Sat Jan  7 05:46:31 2006
 
 #botpark
     -OnJoin
@@ -74,6 +74,7 @@ _default
     randomQuoteInterval 60
     +reverse
     +scramble
+    +sed
     +seen
     seenFlushInterval 60
     seenMaxDays 90
