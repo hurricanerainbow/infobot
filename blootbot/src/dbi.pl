@@ -293,12 +293,10 @@ sub sqlInsert {
 	return;
     }
 
-    &sqlRaw("Insert($table)", sprintf(
+    return &sqlRaw("Insert($table)", sprintf(
 	"INSERT %s INTO %s (%s) VALUES (%s)",
 	($other || ""), $table, join(',',@k), join(',',@v)
     ) );
-
-    return 1;
 }
 
 #####
