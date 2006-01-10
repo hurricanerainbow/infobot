@@ -1,9 +1,10 @@
+#!/usr/bin/perl
 #
 # OnJoin.pl: emit a message when a user enters the channel
 #    Author: Corey Edwards <tensai@zmonkey.org>
-#   Version: v0.2.2
+#   Version: v0.3.0
 #   Created: 20051222
-#   Updated: 20060105
+#   Updated: 20060109
 
 use strict;
 
@@ -24,7 +25,7 @@ sub onjoin {
 
 	# print the message, if there was one
 	if ($message){
-		$message = substVars($message);
+		$message = substVars($message, 1);
 		if ($message =~ m/^<action>\s*(.*)/){
 			&status("OnJoin: $nick arrived, performing action");
 			&action($chan, $1);
@@ -83,9 +84,9 @@ sub Cmdonjoin {
 	# if msg not set, show what the message would be
 	if (!$msg){
 		$nick = $who if (!$nick);
-		$msg = &sqlSelect('onjoin', 'message', { nick => $nick, channel => $ch } ) || '';
-		if ($msg){
-			&performReply($msg);
+		my %row = &sqlSelectRowHash('onjoin', 'message, modified_by, modified_time', { nick => $nick, channel => $ch } );
+		if ($row{'message'}){
+			&msg($chan, "onjoin for $nick set by $row{modified_by} on " . localtime($row{modified_time}) . ": $row{message}");
 		}
 		return;
 	}
@@ -108,8 +109,13 @@ sub Cmdonjoin {
 
 	# remove old one (if exists) and add new message
 	&sqlDelete('onjoin', { nick => $nick, channel => $ch });
-	&sqlInsert('onjoin', { nick => $nick, channel => $ch, message => $msg });
-	&performReply("ok");
+	my $insert = &sqlInsert('onjoin', { nick => $nick, channel => $ch, message => $msg, modified_by => $who, modified_time => time() });
+	if ($insert){
+		&performReply("ok");
+	}
+	else{
+		&performReply('whoops. database error');
+	}
 	return;
 }
 
