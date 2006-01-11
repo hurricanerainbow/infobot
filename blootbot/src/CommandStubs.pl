@@ -463,6 +463,7 @@ sub lart {
     my $extra	= 0;
     my $chan	= $talkchannel;
     my ($for);
+    my $mynick = $conn->nick();
 
     if ($msgType eq 'private') {
 	if ($target =~ /^($mask{chan})\s+(.*)$/) {
@@ -482,7 +483,7 @@ sub lart {
 
     my $line = &getRandomLineFromFile($bot_data_dir. '/blootbot.lart');
     if (defined $line) {
-	if ($target =~ /^(me|you|itself|\Q$ident\E)$/i) {
+	if ($target =~ /^(me|you|itself|\Q$mynick\E)$/i) {
 	    $line =~ s/WHO/$who/g;
 	} else {
 	    $line =~ s/WHO/$target/g;
