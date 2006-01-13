@@ -2,9 +2,9 @@
 #
 # OnJoin.pl: emit a message when a user enters the channel
 #    Author: Corey Edwards <tensai@zmonkey.org>
-#   Version: v0.3.0
+#   Version: v0.3.1
 #   Created: 20051222
-#   Updated: 20060109
+#   Updated: 20060112
 
 use strict;
 
@@ -86,7 +86,7 @@ sub Cmdonjoin {
 		$nick = $who if (!$nick);
 		my %row = &sqlSelectRowHash('onjoin', 'message, modified_by, modified_time', { nick => $nick, channel => $ch } );
 		if ($row{'message'}){
-			&msg($chan, "onjoin for $nick set by $row{modified_by} on " . localtime($row{modified_time}) . ": $row{message}");
+			&performStrictReply("onjoin for $nick set by $row{modified_by} on " . localtime($row{modified_time}) . ": $row{message}");
 		}
 		return;
 	}
