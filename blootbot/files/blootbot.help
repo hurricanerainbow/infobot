@@ -247,6 +247,10 @@ lart: U: ## [#chan] <who>
 lart: E: ## lenzo infobot's bugginess
 lart: E: ## #perl everyone perl \=\= lamerville
 
+lc: D: lower case a given string
+lc: U: ## <string>
+lc: E: ## When will blootbot achieve world domination?
+
 listauth: D: Search the factoid extension db by creator
 listauth: U: ## <search>
 listauth: E: ## xk
@@ -427,6 +431,10 @@ topic:   help           - This screen.
 topic: NOTE: #chan arg is only required if command is sent over private message to nick, otherwise it is not needed if sent to the channel.
 topic: NOTE: commands can be preceeded? with '-' in order not to enforce changes to topic.
 topic: End of help.
+
+uc: D: upper case a given string
+uc: U: ## <string>
+uc: E: ## When will blootbot achieve world domination?
 
 unforget: If a factoid has been forgotten, "unforget x" will cause me to unerase it.
 

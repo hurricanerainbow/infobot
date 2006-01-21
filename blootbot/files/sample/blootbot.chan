@@ -1,4 +1,4 @@
-#v1: blootbot -- InfoBot -- written Sat Jan  7 05:46:31 2006
+#v1: blootbot -- infobot -- written Sat Jan 21 06:17:24 2006
 
 #botpark
     -OnJoin
@@ -47,6 +47,7 @@ _default
     +allowTelling
     +babelfish
     +botmail
+    +case
     +cookie
     +countdown
     debianRefreshInterval 7
