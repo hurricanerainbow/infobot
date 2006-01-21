@@ -877,6 +877,7 @@ sub nullski {
 &addCmdHook('karma', ('CODEREF' => 'karma', ) );
 &addCmdHook('kernel', ('CODEREF' => 'Kernel::Kernel', 'Forker' => 1, 'Identifier' => 'Kernel', 'Cmdstats' => 'Kernel', 'NoArgs' => 1) );
 &addCmdHook('lart', ('CODEREF' => 'lart', 'Identifier' => 'lart', 'Help' => 'lart') );
+&addCmdHook('lc', ('CODEREF' => 'case::lower', 'Identifier' => 'case', 'Cmdstats' => 'case', 'Forker' => 1, 'Module' => 'case') );
 &addCmdHook('listauth', ('CODEREF' => 'CmdListAuth', 'Identifier' => 'Search', Module => 'Factoids', 'Help' => 'listauth') );
 &addCmdHook('md5(sum)?', ('CODEREF' => 'md5::md5', 'Identifier' => 'md5', 'Cmdstats' => 'md5', 'Forker' => 1, 'Module' => 'md5') );
 &addCmdHook('metar', ('CODEREF' => 'Weather::Metar', 'Identifier' => 'Weather', 'Help' => 'weather', 'Cmdstats' => 'Weather', 'Forker' => 1) );
@@ -896,6 +897,7 @@ sub nullski {
 &addCmdHook('seen', ('CODEREF' => 'seen', 'Identifier' => 'seen') );
 &addCmdHook('slashdot', ('CODEREF' => 'Slashdot::Slashdot', 'Identifier' => 'slashdot', 'Forker' => 1, 'Cmdstats' => 'slashdot') );
 &addCmdHook('tell|explain', ('CODEREF' => 'tell', Help => 'tell', Identifier => 'allowTelling', Cmdstats => 'Tell') );
+&addCmdHook('uc', ('CODEREF' => 'case::upper', 'Identifier' => 'case', 'Cmdstats' => 'case', 'Forker' => 1, 'Module' => 'case') );
 &addCmdHook('Uptime', ('CODEREF' => 'uptime', 'Identifier' => 'Uptime', 'Cmdstats' => 'Uptime') );
 &addCmdHook('u(ser)?info', ('CODEREF' => 'userinfo', 'Identifier' => 'UserInfo', 'Help' => 'userinfo', 'Module' => 'UserInfo') );
 &addCmdHook('verstats', ('CODEREF' => 'do_verstats' ) );
