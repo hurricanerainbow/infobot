@@ -107,7 +107,8 @@ sub add_footers {
 	foreach $filename (@files) {
 		chomp $filename;
 		if (!open(OUTPUT, ">>$filename")) {
-			die "Cannot open $filename for writing!\n\n";
+			print "Cannot open $filename for writing!\n\n";
+			return;
 		}
 		print OUTPUT footer();
 		close OUTPUT;
@@ -126,7 +127,8 @@ sub output_line {
 
 	mkdir($channel,oct('755')) if ($channel && ! -d $channel);
 	if (!open(OUTPUT, ">>$filename")) {
-		die "Cannot open $filename for writing!\n\n";
+		#print "Cannot open $filename for writing!\n\n";
+		return;
 	}
 	# Begin output #
   print OUTPUT header($channel, $date) if -z $filename;
