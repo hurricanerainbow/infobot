@@ -395,7 +395,7 @@ sub userDCC {
     }
 
     # global factoid substitution.
-    if ($message =~ m|^s([/,#])(.+?)\1(.*?)\1;?\s*$|) {
+    if ($message =~ m|^\* =~ s([/,#])(.+?)\1(.*?)\1;?\s*$|) {
 	my ($delim,$op,$np) = ($1, $2, $3);
 	return unless (&hasFlag("n"));
 	### TODO: support flags to do full-on global.
