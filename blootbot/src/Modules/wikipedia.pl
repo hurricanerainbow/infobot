@@ -176,7 +176,7 @@ sub wikipedia_get_text {
 	  $redirect =~ tr/ /_/;
 	  &::DEBUG("wiki redirect to " . $redirect);
 	  last;
-	} elsif (/<text>(.*)/) {
+	} elsif (/<text[^>]*>(.*)/) {
 	  $text = '"' . $1;
 	} elsif (/(.*)<\/text>/) {
 	  $text = $text . " " . $1 . '"';
