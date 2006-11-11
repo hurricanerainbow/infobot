@@ -9,7 +9,8 @@ package case;
 
 sub upper {
     my($message) = @_;
-    &::performStrictReply(uc $message);
+    # make it green like an old terminal
+    &::performStrictReply("\00303" . uc $message);
 }
 
 sub lower {
