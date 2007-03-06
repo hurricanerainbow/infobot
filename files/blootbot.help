@@ -106,7 +106,7 @@ chanunset: U: ## <#chan> [what]
 chanunset: E: ## #c
 chanunset: E: ## #c test
 
-chattr: D: Change flags on a user (see @regFlagsUser in source)
+chattr: D: Change flags on a user (see "help flags")
 chattr: U: ## <user> [flags]
 chattr: E: ## bloot +nmo
 chattr: E: ## bloot -ot
@@ -468,3 +468,18 @@ wtf: E: ## iirc
 +host: E: ## owner
 +host: E: ## *!*@owns.org
 +host: E: ## owner leet!leet@*.heh.org
+
+flags: D: Flags for chattr command
+flags: D: "A" - bot administration over /msg (default is only via DCC CHAT)
+flags: D: "O" - dynamic ops (as on channel). (automatic +o)
+flags: D: "T" - add topics.
+flags: D: "a" - ask/request factoid.
+flags: D: "m" - modify factoid. (includes renaming)
+flags: D: "n" - bot owner, can "reload"
+flags: D: "o" - master of bot (automatic +amrt)
+flags: D:        - can search on factoid strings shorter than 2 chars
+flags: D:        - can tell bot to join new channels
+flags: D:        - can [un]lock factoids
+flags: D: "r" - remove factoid.
+flags: D: "t" - teach/add factoid.
+
