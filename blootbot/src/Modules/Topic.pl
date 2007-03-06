@@ -62,8 +62,11 @@ sub topicCipher {
 
 	if ($setby =~ /^(unknown|)$/i) {
 	    push(@topic, $subtopic);
-	} else {
+	# If topicAuthor is on then show it in topic, otherwise just topic -- troubled
+	} elsif ($param{'topicAuthor'} eq "1") {
 	    push(@topic, "$subtopic ($setby)");
+	} else {
+	    push(@topic, "$subtopic");
 	}
     }
 
