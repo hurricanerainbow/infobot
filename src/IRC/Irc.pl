@@ -212,6 +212,11 @@ sub say {
 	return;
     }
 
+    if (&getChanConf('silent', $talkchannel)) {
+	&DEBUG("say: silent in $talkchannel, not saying $msg");
+	return;
+    }
+
     if ( $postprocess ) {
 	undef $postprocess;
     } elsif ($postprocess = &getChanConf('postprocess', $talkchannel)) {
