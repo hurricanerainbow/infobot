@@ -270,6 +270,12 @@ sub msg {
 	return;
     }
 
+    # some say() end up here (eg +help)
+    if (&getChanConf('silent', $nick)) {
+	&DEBUG("say: silent in $nick, not saying $msg");
+	return;
+    }
+
     &status(">$nick< $msg");
 
     return unless (&whatInterface() =~ /IRC/);
