@@ -443,22 +443,29 @@ sub userCommands {
 
     # crypt.
     if ($message =~ /^crypt(\s+(.*))?$/i) {
+	# Sorry, its messy, but it seems to work now. Added $salt and $ciphertext -- troubled
+	my $salt;
+	my $ciphertext;
+	($salt, $ciphertext) = split /\s+(.*)$/, $2;
 	my @args	= split /\s+/, $2;
 
-	if (!scalar @args or scalar @args > 2) {
+	# Original was > 2 and thus only allowed 1 word to be passed to crypt.
+	# Although now it will crypt to random salt if only 1 param -- troubled
+	if (!scalar @args or scalar @args < 1) {
 	    &help("crypt");
 	    return;
 	}
 
-	if (scalar @args == 2) {
+	if (scalar @args >= 2) {
 # disable cause $1$ will use md5
 #	    if (length $args[0] != 2) {
 #		&msg($who, "invalid format...");
 #		return;
 #	    }
 
-	    &performStrictReply( crypt($args[1], $args[0]) );
+	    &performStrictReply( crypt($ciphertext, $salt) );
 	} else {
+	# When does this get called now since above commented out? -- troubled
 	    &performStrictReply( &mkcrypt($args[0]) );
 	}
 
