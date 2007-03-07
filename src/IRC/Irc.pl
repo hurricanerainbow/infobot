@@ -272,7 +272,7 @@ sub msg {
 
     # some say() end up here (eg +help)
     if (&getChanConf('silent', $nick)) {
-	&DEBUG("say: silent in $nick, not saying $msg");
+	&DEBUG("msg: silent in $nick, not saying $msg");
 	return;
     }
 
@@ -309,6 +309,11 @@ sub action {
     my ($target, $txt) = @_;
     if (!defined $txt) {
 	&WARN("action: txt == NULL.");
+	return;
+    }
+
+    if (&getChanConf('silent', $target)) {
+	&DEBUG("action: silent in $target, not doing $txt");
 	return;
     }
 
