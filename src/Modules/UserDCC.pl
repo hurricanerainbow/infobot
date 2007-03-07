@@ -357,12 +357,7 @@ sub userDCC {
 
 	&DEBUG("chan => '$1', msg => '$msg'.");
 
-	# TODO: add nick destination.
-	if (&validChan($chan)) {
-	    &msg($chan, $msg);
-	} else {
-	    &msg($who,"i'm not on \002$chan\002, sorry.");
-	}
+	&msg($chan, $msg);
 
 	return;
     }
@@ -374,12 +369,7 @@ sub userDCC {
 
 	&DEBUG("chan => '$1', msg => '$msg'.");
 
-	# TODO: add nick destination.
-	if (&validChan($chan)) {
-	    &action($chan, $msg);
-	} else {
-	    &msg($who,"i'm not on \002$chan\002, sorry.");
-	}
+	&action($chan, $msg);
 
 	return;
     }
