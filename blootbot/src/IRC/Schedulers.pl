@@ -557,8 +557,7 @@ sub seenFlush {
 
     if ($param{'DBType'} =~ /^(mysql|pgsql|sqlite(2)?)$/i) {
 	foreach $nick (keys %seencache) {
-	    my $retval = &sqlReplace("seen", {
-			nick	=> lc $seencache{$nick}{'nick'},
+	    my $retval = &sqlSet("seen", {'nick' => lc $seencache{$nick}{'nick'}}, {
 			time	=> $seencache{$nick}{'time'},
 			host	=> $seencache{$nick}{'host'},
 			channel	=> $seencache{$nick}{'chan'},

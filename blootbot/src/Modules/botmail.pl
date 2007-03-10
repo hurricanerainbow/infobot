@@ -90,9 +90,10 @@ sub add {
 
     # only support 1 botmail with unique dstwho/srcwho to have same
     # functionality as botmail from infobot.
+    # Note: I removed the &::sqlQuote reference. Seems to be working and inserting fine without it here. -- troubled
     my %hash = &::sqlSelectRowHash("botmail", "*", {
-	srcwho => &::sqlQuote(lc $::who),
-	dstwho => &::sqlQuote(lc $recipient)
+	srcwho => lc $::who,
+	dstwho => lc $recipient
     } );
 
     if (scalar (keys %hash) > 1) {
@@ -100,7 +101,7 @@ sub add {
 	return;
     }
 
-    &::sqlReplace("botmail", {
+    &::sqlInsert("botmail", {
 	'dstwho'	=> lc $recipient,
 	'srcwho'	=> lc $::who,
 	'srcuh'		=> $::nuh,

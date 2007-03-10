@@ -669,8 +669,7 @@ sub closeStats {
 	$i	+= $cmdstats{$type};
 
 
-	&sqlReplace("stats", {
-	    nick	=> $type,
+	&sqlSet("stats", {'nick' => $type}, {
 	    type	=> "cmdstats",
 	    'time'	=> time(),
 	    counter	=> $i,

@@ -96,7 +96,7 @@ sub update {
 
 	&performAddressedReply("okay");
 
-	&sqlReplace("factoids", {
+	&sqlInsert("factoids", {
 		created_by	=> $nuh,
 		created_time	=> time(),	# modified time.
 		factoid_key	=> $lhs,
@@ -178,8 +178,7 @@ sub update {
 
 	$count{'Update'}++;
 	&status("update: <$who> \'$lhs\' =$mhs=> \'$rhs\'; was \'$exists\'");
-	&sqlReplace("factoids", {
-		factoid_key	=> $lhs,
+	&sqlSet("factoids", {'factoid_key' => $lhs}, {
 		modified_by	=> $nuh,
 		modified_time	=> time(),
 		factoid_value	=> $rhs,
@@ -212,8 +211,7 @@ sub update {
 	$count{'Update'}++;
 	&status("update: <$who> \'$lhs\' =$mhs=> \'$rhs\'; was \'$exists\'");
 
-	&sqlReplace("factoids", {
-		factoid_key	=> $lhs,
+	&sqlSet("factoids", {'factoid_key' => $lhs}, {
 		modified_by	=> $nuh,
 		modified_time	=> time(),
 		factoid_value	=> $rhs,

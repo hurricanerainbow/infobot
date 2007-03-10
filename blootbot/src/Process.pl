@@ -316,7 +316,7 @@ sub process {
 	    $karma--;
 	}
 
-	&sqlReplace("stats", {
+	&sqlSet("stats", {'nick' => $term}, {
 	    nick	=> $term,
 	    type	=> "karma",
 	    'time'	=> time(),
