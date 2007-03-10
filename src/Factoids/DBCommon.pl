@@ -143,7 +143,7 @@ sub CmdUnLock {
 
     &performReply("unlocking factoid \002$faqtoid\002");
     &setFactInfo($faqtoid,"locked_by",   "");
-    &setFactInfo($faqtoid,"locked_time", "");
+    &setFactInfo($faqtoid,"locked_time", "0");	# pgsql complains if NOT NULL set. So set 0 which is the default
 
     return 1;
 }

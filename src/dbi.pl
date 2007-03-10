@@ -30,7 +30,12 @@ sub sqlOpenDB {
     my $hoststr = "";
     # SQLHost should be unset for SQLite
     if (exists $param{'SQLHost'} and $param{'SQLHost'}) {
-	$dsn    .= ":$param{SQLHost}";
+	# PostgreSQL requires ";" and keyword "host". See perldoc Pg -- troubled
+	if ($type eq "Pg") {
+		$dsn	.= ";host=$param{SQLHost}";
+	} else {
+		$dsn    .= ":$param{SQLHost}";
+	}
 	$hoststr = " to $param{'SQLHost'}";
     }
     # SQLite ignores $user and $pass
@@ -278,6 +283,7 @@ sub sqlUpdate {
 sub sqlInsert {
     my ($table, $data_href, $other) = @_;
     # note: if $other == 1, add "DELAYED" to function instead.
+    # note: ^^^ doesnt actually do anything lol. Need code to s/1/DELAYED/ below -- troubled
 
     if (!defined $data_href or ref($data_href) ne "HASH") {
 	&WARN("sqlInsert: data_href == NULL.");
@@ -300,9 +306,9 @@ sub sqlInsert {
 }
 
 #####
-# Usage: &sqlReplace($table, $data_href);
+# Usage: &sqlReplace($table, $data_href, [$pkey]);
 sub sqlReplace {
-    my ($table, $data_href) = @_;
+    my ($table, $data_href, $pkey) = @_;
 
     if (!defined $data_href or ref($data_href) ne "HASH") {
 	&WARN("sqlReplace: data_href == NULL.");
@@ -318,10 +324,29 @@ sub sqlReplace {
 	return;
     }
 
-    &sqlRaw("Replace($table)", sprintf(
-	"REPLACE INTO %s (%s) VALUES (%s)",
-	$table, join(',',@k), join(',',@v)
-    ) );
+
+    if ($param{'DBType'} =~ /^pgsql$/i) {
+	# OK, heres the scoop. There is currently no REPLACE INTO in Pgsql.
+	# However, the bot already seems to search for factoids before insert
+	# anyways. Perhaps we could change this to a generic INSERT INTO so
+	# we can skip the seperate sql? -- troubled to: TimRiker
+	# PGSql syntax: UPDATE table SET key = 'value', key2 = 'value2' WHERE key = 'value'
+
+#	&sqlRaw("Replace($table)", sprintf(
+#		"INSERT INTO %s (%s) VALUES (%s)",
+#		$table, join(',',@k), join(',',@v)
+#	));
+	&WARN("DEBUG: ($pkey = ) " . sprintf(
+                "REPLACE INTO %s (%s) VALUES (%s)",
+                $table, join(',',@k), join(',',@v)
+        )); 
+
+    } else {
+	&sqlRaw("Replace($table)", sprintf(
+		"REPLACE INTO %s (%s) VALUES (%s)",
+		$table, join(',',@k), join(',',@v)
+	));
+    }
 
     return 1;
 }
@@ -635,6 +660,35 @@ sub checkTables {
 	}
 
 	# create database not needed for SQLite
+
+    } elsif ($param{DBType} =~ /^pgsql$/i) {
+	# $sql_showDB = SQL to select the DB list
+	# $sql_showTBL = SQL to select all tables for the current connection
+
+	my $sql_showDB = "SELECT datname FROM pg_database";
+	my $sql_showTBL = "SELECT c.relname FROM pg_catalog.pg_class c \
+		LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace \
+		WHERE c.relkind IN ('r','') AND n.nspname NOT IN ('pg_catalog','pg_toast') and 
+		pg_catalog.pg_table_is_visible(c.oid)";
+
+	foreach ( &sqlRawReturn($sql_showDB) ) {
+		$database_exists++ if ($_ eq $param{'DBName'});
+	}
+
+	unless ($database_exists) {
+		&status("Creating PostgreSQL database $param{'DBName'}");
+		&status("(actually, not really, please read the INSTALL file)");
+	}
+
+        # retrieve a list of db's from the server. This code is from mysql above, please check -- troubled
+        my @tables = map {s/^\`//; s/\`$//; $_;} &sqlRawReturn($sql_showTBL);
+        if ($#tables == -1){
+            @tables = $dbh->tables;
+        }
+        &status("Tables: ".join(',',@tables));
+        @db{@tables} = (1) x @tables;
+ 
+
     }
 
     foreach ( qw(botmail connections factoids rootwarn seen stats onjoin) ) {

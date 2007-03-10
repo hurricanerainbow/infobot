@@ -926,8 +926,7 @@ sub on_public {
 
 	# don't allow ppl to cheat the stats :-)
 	if (defined $t && $time - $t > 60) {
-	    &sqlReplace("stats", {
-		nick	=> $who,
+	    &sqlSet("stats", {'nick' => $who}, {
 		type	=> $x,
 		channel => $c,
 		time	=> $time,

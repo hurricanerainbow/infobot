@@ -1,3 +1,24 @@
+2007-03-07 14:06  troubled
+
+	* setup/pgsql/: Added pgsql specific dir. To be completed later
+	* setup/pgsql/pgsql-schema.sql: Import this file into an precreated
+	  database as per blootbot.config and pgsql should be good to go
+	* INSTALL.pgsql: Changes to reflect semi-function pgsql progress
+
+2007-03-06 00:00  troubled
+
+	* src/Process.pl: sqlReplace switched to sqlSet to fix pgsql.
+	  sqlReplace should be removed since its not pg friendly. 
+	  There is no matching REPLACE INTO in pgsql.
+	* src/Factoids/DBCommon.pl: &setFactInfo during ~unlock set
+	  time to NULL which Pgsql wants "0" since NOT NULL
+	* src/Factoids/Update.pl: see Process.pl change
+	* src/Misc.pl: see Process.pl change
+	* src/dbi.pl: Added working PostgreSQL support! yay! ;)
+	* src/Modules/botmail.pl: &sqlReplace -> &sqlSet; removed 
+	  &sqlQuote (data already quoted and broke 1 msg only)
+	* src/IRC/IrcHooks.pl: see Process.pl change
+	* src/IRC/Schedulers.pl: see Process.pl change
 
 2005-02-18 00:00  timriker
 
