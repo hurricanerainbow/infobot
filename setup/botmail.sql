@@ -1,8 +1,0 @@
-CREATE TABLE botmail (
- srcwho VARCHAR(20) NOT NULL,
- dstwho VARCHAR(20) NOT NULL,
- srcuh VARCHAR(80) NOT NULL,
- time INT UNSIGNED DEFAULT 'UNIX_TIMESTAMP()',
- msg TEXT NOT NULL,
- PRIMARY KEY (srcwho,dstwho)
-);

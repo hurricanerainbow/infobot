@@ -60,10 +60,7 @@ sub topicCipher {
     foreach (@_) {
 	my ($subtopic, $setby) = split /\|\|/;
 
-	if ($setby =~ /^(unknown|)$/i) {
-	    push(@topic, $subtopic);
-	# If topicAuthor is on then show it in topic, otherwise just topic -- troubled
-	} elsif ($param{'topicAuthor'} eq "1") {
+	if ($param{'topicAuthor'} eq "1" and (!$setby =~ /^(unknown|)$/i)) {
 	    push(@topic, "$subtopic ($setby)");
 	} else {
 	    push(@topic, "$subtopic");
@@ -170,7 +167,13 @@ sub do_add {
     return if ($channels{$chan}{t} and !&hasFlag("T"));
 
     my @prev = &topicDecipher($chan);
-    my $new  = "$args ($orig{who})";
+    my $new;
+    # If bot new to chan and topic is blank, it still got a (owner). This is fix
+    if ($param{'topicAuthor'} eq "1") {
+    	$new  = "$args ($orig{who})";
+    } else {
+	$new  = "$args";
+    }
     $topic{$chan}{'What'} = "Added '$args'.";
 
     if (scalar @prev) {
