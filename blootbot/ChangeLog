@@ -1,3 +1,20 @@
+2007-03-08 00:00  troubled
+
+	* files/sample/blootbot.config: set tempDir changed to /tmp and
+	  changed pgsql to SUPPORTED!
+	* src/dbi.pl: Fixed SQL comments (--) bug that prevented tables
+	  from being created during startup.
+	* src/Modules/Factoids.pl: Typo for "factstats locked in selColHash
+	  was preventing it from finding the func. Also addressed a !WARN!
+	  issue about sorting a scalar.
+	* src/dbi.pl: Altered checkTables() to pass $dbtype when creating
+	  tables. Table sql now called from setup/<$dbtype>/$table.sql
+	* src/Modules/Topic.pl: Fixed topicAuthor when no topic existed
+	  and cleaned up original if statement to remove redundancy
+	* Reorganized the setup/ dir. Put schema SQL for each db type
+	  into its own dir to allow customization. See the README file
+	* src/dbi.pl: Simplified the pgsql "SHOW TABLES" SQL
+
 2007-03-07 14:06  troubled
 
 	* setup/pgsql/: Added pgsql specific dir. To be completed later

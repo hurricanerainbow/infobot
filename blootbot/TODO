@@ -1,9 +1,12 @@
 TODO:
-	- let's get a release out!
+	- Add PostgreSQL setup scripts instead of including a schema.sql
+	- Normalize the SQL tables a little better to reduce size and increase speed
+	- Keep the Changelog, TODO and BUGS files up to date. Clean things up a bit
+	- DONE: let's get a release out!
 	- rename ^[+-] commands
 	- remind - like this and others: http://jibble.org/reminderbot/
 	- kill SHM and and move to a pipe
-	- add CIA like support - http://cia.navi.cx/
+	- DONE: add CIA like support - http://cia.navi.cx/
 	- add pastebot like support - http://sial.org/pbot/
 	- move nicks/server into sql table
 	- make channel flags be server/channel flags

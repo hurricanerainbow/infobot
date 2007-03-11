@@ -1,1 +1,10 @@
-allows adding a "cmd:foo (.*)" factoid but not removing it
+Known bugs that should be dealt with soon as possible:
+
+	* allows adding a "cmd:foo (.*)" factoid but not removing it (not sure if this still applies)
+	* Older CMD: foo's cannot be used or removed. Must be removed manually from the database with SQL
+	* !+topic list gives and incorrect error Failed. "You (#botpark) are not in #botpark, hey?"
+	* Bot tries to ask chanserv for OP's on any channel. Should be a chanset setting on a per channel basis
+	* News is currently stored in a file rather than the SQL table created for it
+	* bot doesnt seem to keep track of stat counters for "heh :) ...etc". Might be settings though and not a bug
+	* !help has size issues. Add's extra lines with only 1 or 2 help commands instead of one maximum size IRC msg
+	* FIXME: !WARN! ircCheck: we have a NULL chan in hash channels? removing!

@@ -423,7 +423,7 @@ sub CmdFactStats {
 	return &formListReply(1, $prefix, @list);
 
     } elsif ($type =~ /^locked$/i) {
-	my %hash = &sqlSelectColhash("factoids",
+	my %hash = &sqlSelectColHash("factoids",
 		"factoid_key,locked_by", undef,
 		"WHERE locked_by IS NOT NULL"
 	);
@@ -690,8 +690,7 @@ sub CmdFactStats {
 
 	# parse the results.
 	&msg($who, "Fixed $fixed factoids.");
-	&msg($who, "Self looped factoids removed: ".
-		sort(keys %loop) ) if (scalar keys %loop);
+	&msg($who, "Self looped factoids removed: ". keys %loop ) if (scalar keys %loop);
 
 	my $prefix = "Loose link (dead) redirections in factoids ";
 	return &formListReply(1, $prefix, @newlist);

@@ -601,18 +601,20 @@ sub searchTable {
 }
 
 sub sqlCreateTable {
-    my($table)	= @_;
+    my($table, $dbtype)	= @_;
     my(@path)	= ($bot_data_dir, ".","..","../..");
     my $found	= 0;
     my $data;
+    $dbtype = lc $dbtype;
 
     foreach (@path) {
-	my $file = "$_/setup/$table.sql";
+	my $file = "$_/setup/$dbtype/$table.sql";
 	next unless ( -f $file );
 
 	open(IN, $file);
 	while (<IN>) {
 	    chop;
+	    next if $_ =~ /^--/;
 	    $data .= $_;
 	}
 
@@ -666,10 +668,8 @@ sub checkTables {
 	# $sql_showTBL = SQL to select all tables for the current connection
 
 	my $sql_showDB = "SELECT datname FROM pg_database";
-	my $sql_showTBL = "SELECT c.relname FROM pg_catalog.pg_class c \
-		LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace \
-		WHERE c.relkind IN ('r','') AND n.nspname NOT IN ('pg_catalog','pg_toast') and 
-		pg_catalog.pg_table_is_visible(c.oid)";
+	my $sql_showTBL = "SELECT tablename FROM pg_tables \
+		WHERE schemaname = 'public'";
 
 	foreach ( &sqlRawReturn($sql_showDB) ) {
 		$database_exists++ if ($_ eq $param{'DBName'});
@@ -701,7 +701,7 @@ sub checkTables {
 
 	$cache{create_table}{$_} = 1;
 
-	&sqlCreateTable($_);
+	&sqlCreateTable($_, $param{DBType});
     }
 }
 
