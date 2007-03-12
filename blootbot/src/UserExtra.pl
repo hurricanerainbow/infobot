@@ -192,7 +192,7 @@ sub factstats {
 sub karma {
     my $target	= lc( shift || $who );
     my $karma	= &sqlSelect("stats", "counter",
-	{ nick => $target, type => "karma" }) || 0;
+	{ nick => $target, type => "karma", channel => $chan }) || 0;
 
     if ($karma != 0) {
 	&performStrictReply("$target has karma of $karma");
