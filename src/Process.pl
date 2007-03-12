@@ -309,16 +309,14 @@ sub process {
 	}
 
 	my $karma = &sqlSelect("stats", "counter",
-		{ nick => $term, type => "karma" }) || 0;
+		{ nick => $term, type => "karma", channel => $chan }) || 0;
 	if ($inc eq '++') {
 	    $karma++;
 	} else {
 	    $karma--;
 	}
 
-	&sqlSet("stats", {'nick' => $term}, {
-	    nick	=> $term,
-	    type	=> "karma",
+	&sqlSet("stats", {'nick' => $term, type => "karma", channel => $chan}, {
 	    'time'	=> time(),
 	    counter	=> $karma,
 	} );

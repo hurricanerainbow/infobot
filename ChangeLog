@@ -1,3 +1,13 @@
+2007-03-11 22:00  troubled
+
+	* src/{Process.pl,UserExtra.pl}: Fixed bug with karma stats. It
+	  wasnt supplying the channel and causing a dupe pkey issue and
+	  also resulted in global stats instead of per channel. Stats
+	  are now per channel again. As a result, you should probably:
+	  DELETE FROM stats WHERE channel = 'PRIVATE' AND "type" = 'karma';
+	  to clean up since they will never match now, or be pointless to
+	  keep track of because karma can only be done in channel.
+
 2007-03-08 00:00  troubled
 
 	* files/sample/blootbot.config: set tempDir changed to /tmp and
