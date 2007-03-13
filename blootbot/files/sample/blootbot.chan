@@ -5,7 +5,7 @@
     +RootWarn
     +autojoin
 
-#debian-bots
+#blootbot
     +News
     +RootWarn
     +chanlimitcheck
