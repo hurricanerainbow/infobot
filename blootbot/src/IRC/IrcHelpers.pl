@@ -236,6 +236,8 @@ sub hookMsg {
             $orig{message} =~ /^s\/([^;\/]*)\/([^;\/]*)\/([g]*)$/) {
 	my $sedmsg = $seencache{$who}{'msg'};
 	eval "\$sedmsg =~ s/\Q$1\E/\Q$2\E/$3;";
+	$sedmsg =~ s/^(.{255}).*$/$1.../; # 255 char max to prevent flood
+
 	if ($sedmsg ne $seencache{$who}{'msg'}) {
 	    &DEBUG("sed \"" . $orig{message} . "\" \"" .
 		    $seencache{$who}{'msg'} . "\" \"" . $sedmsg. "\"");
