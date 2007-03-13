@@ -1,0 +1,22 @@
+This is where your reply should go. See what I mean? Anyways, just carry
+on ideas in here unless were both on irc. More of a memo service this is
+i guess. As we reference files, just place them in the subdir i made called
+"incoming" for now, unless you have a collection of related files, then
+make a dir accordingly I guess. Then just make reference to the file in
+here like so:
+
+* incoming/readme.txt -- Description
+
+Ya its just a changelog, but at least its quick and simple. Ne need for date
+and time stamps I guess :)
+
+=====
+=====
+
+Well, lets just start by tossing ideas and files back and forth here.
+I do prefer svn over something like say email. Usually just easier to
+edit a quick txt file. Lets try keep it kind of seperate though so
+we can more easily distinguish between walls of text :)
+
+I guess just put new replies at the top and seperate between posts with
+some kind of line delimiter.
