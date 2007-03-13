@@ -1,5 +1,9 @@
 2007-03-13	troubled
 
+	* files/sample/blootbot.chan: Change the #debian-bots channel to
+	  #blootbot for publicity sake ;)
+	* TODO: Minor edits
+	* README: Mention IRC channel
 	* src/IRC/IrcHelpers.pl: Fixed bug in "+sed" that caused the bot
 	  to flood itself off the network when passed large s///g;. A
 	  temporary limit of 255 charaters on the output has been enabled.
