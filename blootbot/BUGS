@@ -1,5 +1,6 @@
 Known bugs that should be dealt with soon as possible:
 
+	* "+sed" can currently be used to flood the boot off the network. Disable for now
 	* allows adding a "cmd:foo (.*)" factoid but not removing it (not sure if this still applies)
 	* Older CMD: foo's cannot be used or removed. Must be removed manually from the database with SQL
 	* !+topic list gives and incorrect error Failed. "You (#botpark) are not in #botpark, hey?"

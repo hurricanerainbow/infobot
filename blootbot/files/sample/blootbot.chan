@@ -75,7 +75,7 @@ _default
     randomQuoteInterval 60
     +reverse
     +scramble
-    +sed
+    -sed
     +seen
     seenFlushInterval 60
     seenMaxDays 90
