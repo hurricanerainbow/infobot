@@ -1,3 +1,9 @@
+2007-03-13	troubled
+
+	* src/IRC/IrcHelpers.pl: Fixed bug in "+sed" that caused the bot
+	  to flood itself off the network when passed large s///g;. A
+	  temporary limit of 255 charaters on the output has been enabled.
+
 2007-03-11 22:00  troubled
 
 	* src/{Process.pl,UserExtra.pl}: Fixed bug with karma stats. It
