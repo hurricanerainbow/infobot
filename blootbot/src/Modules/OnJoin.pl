@@ -48,7 +48,7 @@ sub Cmdonjoin {
 	my $nick = $3;
 	my $msg = $5;
 
-	# get options 
+	# get options
 	my $strict = &getChanConf('onjoinStrict');
 	my $ops = &getChanConf('onjoinOpsOnly');
 
