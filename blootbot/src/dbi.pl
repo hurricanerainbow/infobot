@@ -339,7 +339,7 @@ sub sqlReplace {
 	&WARN("DEBUG: ($pkey = ) " . sprintf(
                 "REPLACE INTO %s (%s) VALUES (%s)",
                 $table, join(',',@k), join(',',@v)
-        )); 
+        ));
 
     } else {
 	&sqlRaw("Replace($table)", sprintf(
@@ -687,8 +687,6 @@ sub checkTables {
         }
         &status("Tables: ".join(',',@tables));
         @db{@tables} = (1) x @tables;
- 
-
     }
 
     foreach ( qw(botmail connections factoids rootwarn seen stats onjoin) ) {
