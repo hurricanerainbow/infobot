@@ -117,7 +117,7 @@ sub closeLog {
 # Usage: &compress($file);
 sub compress {
     my ($file) = @_;
-    my @compress = ("/usr/bin/bzip2","/bin/gzip");
+    my @compress = ('/usr/bin/bzip2','/bin/bzip2','/bin/gzip');
     my $okay = 0;
 
     if (! -f $file) {
