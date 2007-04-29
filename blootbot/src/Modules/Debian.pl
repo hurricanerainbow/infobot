@@ -21,9 +21,9 @@ my $protocol	= 'http';
 # format: "alias=real".
 my %dists	= (
 	'unstable'	=> 'sid',
-	'testing'	=> 'etch',
-	'stable'	=> 'sarge',
-	'oldstable'	=> 'woody',
+	'testing'	=> 'lenny',
+	'stable'	=> 'etch',
+	'oldstable'	=> 'sarge',
 	'incoming'	=> 'incoming',
 );
 
