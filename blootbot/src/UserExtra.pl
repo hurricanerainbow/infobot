@@ -6,7 +6,7 @@
 use strict;
 use vars qw($message $arg $qWord $verb $lobotomized $who $result $chan
 	$conn $msgType $query $talkchannel $ident $memusage);
-use vars qw(%channels %chanstats %cmdstats %count %ircstats %param
+use vars qw(%channels %chanstats %cmdstats %count %forked %ircstats %param
 	%cache %mask %userstats);
 
 ### hooks get added in CommandHooks.pl.
@@ -24,10 +24,11 @@ sub chaninfo {
 	my $reply	= "I'm on \002$i\002 ".&fixPlural("channel",$i);
 	my $tucount	= 0;	# total user count.
 	my $uucount	= 0;	# unique user count.
+	my %chans;
 	my @array;
 
 	### line 1.
-	foreach (sort keys %channels) {
+	foreach (keys %channels) {
 	    if ( /^\s*$/ or / / ) {
 		&status("chanstats: fe channels: chan == NULL.");
 		#&ircCheck();
@@ -35,8 +36,12 @@ sub chaninfo {
 	    }
 	    next if (/^_default$/);
 
-	    my $str = sprintf("%s/%d", $_, scalar(keys %{ $channels{$_}{''} }));
-	    push(@array, $str);
+	    $chans{$_} = scalar(keys %{ $channels{$_}{''} });
+	    #my $str = sprintf("%s/%d", $_, scalar(keys %{ $channels{$_}{''} }));
+	    #push(@array, $str);
+	}
+	foreach $chan (sort {$chans{$b} <=> $chans{$a}} keys %chans) {
+	    push(@array, "$chan/" . $chans{$chan});
 	}
 	&performStrictReply($reply.": ".join(', ', @array));
 
