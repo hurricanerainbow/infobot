@@ -37,8 +37,6 @@ sub chaninfo {
 	    next if (/^_default$/);
 
 	    $chans{$_} = scalar(keys %{ $channels{$_}{''} });
-	    #my $str = sprintf("%s/%d", $_, scalar(keys %{ $channels{$_}{''} }));
-	    #push(@array, $str);
 	}
 	foreach $chan (sort {$chans{$b} <=> $chans{$a}} keys %chans) {
 	    push(@array, "$chan/" . $chans{$chan});
