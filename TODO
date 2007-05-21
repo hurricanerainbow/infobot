@@ -4,6 +4,7 @@ TODO:
 	- rename ^[+-] commands
 	- remind - like this and others: http://jibble.org/reminderbot/
 	- kill SHM and and move to a pipe
+	- add CIA like support - http://cia.navi.cx/
 	- add pastebot like support - http://sial.org/pbot/
 	- move nicks/server into sql table
 	- make channel flags be server/channel flags
