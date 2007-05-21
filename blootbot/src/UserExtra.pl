@@ -19,9 +19,9 @@ sub chaninfo {
     my $chan = lc shift(@_);
     my $mode;
 
-    if ($chan eq "") {		# all channels.
+    if ($chan eq '') {		# all channels.
 	my $i		= keys %channels;
-	my $reply	= "I'm on \002$i\002 ".&fixPlural("channel",$i);
+	my $reply	= "I'm on \002$i\002 ".&fixPlural('channel',$i);
 	my $tucount	= 0;	# total user count.
 	my $uucount	= 0;	# unique user count.
 	my %chans;
@@ -60,10 +60,10 @@ sub chaninfo {
 
 	my $chans = scalar(keys %channels);
 	&performStrictReply(
-	    "i've cached \002$tucount\002 ". &fixPlural("user",$tucount).
-	    ", \002$uucount\002 unique ". &fixPlural("user",$uucount).
+	    "i've cached \002$tucount\002 ". &fixPlural('user',$tucount).
+	    ", \002$uucount\002 unique ". &fixPlural('user',$uucount).
 	    ", distributed over \002$chans\002 ".
-	    &fixPlural("channel", $chans)."."
+	    &fixPlural('channel', $chans)."."
 	);
 	&ircCheck();
 
@@ -86,7 +86,7 @@ sub chaninfo {
 	push(@array, "\002$int\002 ". &fixPlural($_,$int));
     }
     my $reply = "On \002$chan\002, there ".
-		&fixPlural("has",scalar(@array)). " been ".
+		&fixPlural('has',scalar(@array)). " been ".
 		&IJoin(@array);
 
     # Step 1b: check channel inconstencies.
@@ -110,13 +110,13 @@ sub chaninfo {
     # Step 2:
     undef @array;
     my $type;
-    foreach ("v","o","") {
+    foreach ('v','o','') {
 	my $int = scalar(keys %{ $channels{$chan}{$_} });
 	next unless ($int);
 
-	$type = "Voice" if ($_ eq "v");
-	$type = "Opped" if ($_ eq "o");
-	$type = "Total" if ($_ eq "");
+	$type = 'Voice' if ($_ eq 'v');
+	$type = 'Opped' if ($_ eq 'o');
+	$type = 'Total' if ($_ eq '');
 
 	push(@array,"\002$int\002 $type");
     }
@@ -170,7 +170,7 @@ sub cmdstats {
 # Factoid extension info. xk++
 sub factinfo {
     my $faqtoid = lc shift(@_);
-    my $query   = "";
+    my $query   = '';
 
     if ($faqtoid =~ /^\-(\S+)(\s+(.*))$/) {
 	&msg($who,"error: individual factoid info queries not supported as yet.");
@@ -187,15 +187,15 @@ sub factinfo {
 sub factstats {
     my $type = shift(@_);
 
-    &Forker("Factoids", sub {
+    &Forker('Factoids', sub {
 	&performStrictReply( &CmdFactStats($type) );
     } );
 }
 
 sub karma {
     my $target	= lc( shift || $who );
-    my $karma	= &sqlSelect("stats", "counter",
-	{ nick => $target, type => "karma", channel => $chan }) || 0;
+    my $karma	= &sqlSelect('stats', 'counter',
+	{ nick => $target, type => 'karma'}) || 0;
 
     if ($karma != 0) {
 	&performStrictReply("$target has karma of $karma");
@@ -252,7 +252,7 @@ sub tell {
 
     &status("tell: target = $target, query = $query");
 
-    # "intrusive".
+    # 'intrusive'.
 #    if ($target !~ /^$mask{chan}$/ and !&IsNickInAnyChan($target)) {
 #	&msg($who, "No, $target is not in any of my chans.");
 #	return;
@@ -274,7 +274,7 @@ sub tell {
     # no such factoid.
     if (!defined $result || $result =~ /^0?$/) {
 	$who		= $target;
-	$msgType	= "private";
+	$msgType	= 'private';
 
 	# support command redirection.
 	# recursive cmdHooks aswell :)
@@ -319,12 +319,12 @@ sub countryStats {
 	return;
     }
 
-    if ($chan eq "") {
+    if ($chan eq '') {
 	$chan = $_[0];
     }
 
-    if ($chan eq "") {
-	&help("countrystats");
+    if ($chan eq '') {
+	&help('countrystats');
 	return;
     }
 
@@ -367,7 +367,7 @@ sub do_countrystats {
     }
 
     # TODO: move this into a scheduler
-    $msgType	= "private";
+    $msgType	= 'private';
     &performStrictReply( &formListReply(0, "Country Stats ", @list) );
 
     delete $cache{countryStats};
@@ -382,13 +382,13 @@ sub userCommands {
     # conversion: ascii.
     if ($message =~ /^(asci*|chr) (\d+)$/) {
 	&DEBUG("ascii/chr called ...");
-	return unless (&IsChanConfOrWarn("allowConv"));
+	return unless (&IsChanConfOrWarn('allowConv'));
 
 	&DEBUG("ascii/chr called");
 
 	$arg	= $2;
 	$result	= chr($arg);
-	$result	= "NULL"	if ($arg == 0);
+	$result	= 'NULL'	if ($arg == 0);
 
 	&performReply( sprintf("ascii %s is '%s'", $arg, $result) );
 
@@ -397,12 +397,12 @@ sub userCommands {
 
     # conversion: ord.
     if ($message =~ /^ord(\s+(.*))$/) {
-	return unless (&IsChanConfOrWarn("allowConv"));
+	return unless (&IsChanConfOrWarn('allowConv'));
 
 	$arg = $2;
 
 	if (!defined $arg or length $arg != 1) {
-	    &help("ord");
+	    &help('ord');
 	    return;
 	}
 
@@ -421,11 +421,11 @@ sub userCommands {
 
     # hex.
     if ($message =~ /^hex(\s+(.*))?$/i) {
-	return unless (&IsChanConfOrWarn("allowConv"));
+	return unless (&IsChanConfOrWarn('allowConv'));
 	my $arg = $2;
 
 	if (!defined $arg) {
-	    &help("hex");
+	    &help('hex');
 	    return;
 	}
 
@@ -457,15 +457,15 @@ sub userCommands {
 
     # cycle.
     if ($message =~ /^(cycle)(\s+(\S+))?$/i) {
-	return unless (&hasFlag("o"));
+	return unless (&hasFlag('o'));
 	my $chan = lc $3;
 
-	if ($chan eq "") {
+	if ($chan eq '') {
 	    if ($msgType =~ /public/) {
 		$chan = $talkchannel;
 		&DEBUG("cycle: setting chan to '$chan'.");
 	    } else {
-		&help("cycle");
+		&help('cycle');
 		return;
 	    }
 	}
@@ -477,7 +477,7 @@ sub userCommands {
 
 	&msg($chan, "I'm coming back. (courtesy of $who)");
 	&part($chan);
-###	&ScheduleThis(5, "getNickInUse") if (@_);
+###	&ScheduleThis(5, 'getNickInUse') if (@_);
 	&status("Schedule rejoin in 5secs to $chan by $who.");
 	$conn->schedule(5, sub { &joinchan($chan); });
 
@@ -486,7 +486,7 @@ sub userCommands {
 
     # reload.
     if ($message =~ /^reload$/i) {
-	return unless (&hasFlag("n"));
+	return unless (&hasFlag('n'));
 
 	&status("USER reload $who");
 	&performStrictReply("reloading...");
@@ -497,21 +497,21 @@ sub userCommands {
 
     # redir.
     if ($message =~ /^redir(\s+(.*))?/i) {
-	return unless (&hasFlag("o"));
+	return unless (&hasFlag('o'));
 	my $factoid = $2;
 
 	if (!defined $factoid) {
-	    &help("redir");
+	    &help('redir');
 	    return;
 	}
 
 	my $val  = &getFactInfo($factoid, "factoid_value");
-	if (!defined $val or $val eq "") {
+	if (!defined $val or $val eq '') {
 	    &msg($who, "error: '$factoid' does not exist.");
 	    return;
 	}
 	&DEBUG("val => '$val'.");
-	my @list = &searchTable("factoids", "factoid_key",
+	my @list = &searchTable('factoids', "factoid_key",
 					"factoid_value", "^$val\$");
 
 	if (scalar @list == 1) {
@@ -556,8 +556,8 @@ sub userCommands {
 	    return;
 	}
 	my $num = $1 % 26;
-	my $upper="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	my $lower="abcdefghijklmnopqrstuvwxyz";
+	my $upper='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	my $lower='abcdefghijklmnopqrstuvwxyz';
 	my $to=substr($upper,$num).substr($upper,0,$num).substr($lower,$num).substr($lower,0,$num);
 	eval "\$reply =~ tr/$upper$lower/$to/;";
 
@@ -669,7 +669,7 @@ sub userCommands {
 	my $startString	= scalar(gmtime $^T);
 	my $upString	= &Time2String(time() - $^T);
 	my ($puser,$psystem,$cuser,$csystem) = times;
-	my $factoids	= &countKeys("factoids");
+	my $factoids	= &countKeys('factoids');
 	my $forks = 0;
 	foreach (keys %forked) {
 	    $forks += scalar keys %{ $forked{$_} };
@@ -683,20 +683,20 @@ sub userCommands {
 	&performStrictReply(
 	"Since $startString, there have been".
 	  " \002$count{'Update'}\002 ".
-		&fixPlural("modification", $count{'Update'}).
+		&fixPlural('modification', $count{'Update'}).
 	  ", \002$count{'Question'}\002 ".
-		&fixPlural("question",$count{'Question'}).
+		&fixPlural('question',$count{'Question'}).
 	  ", \002$count{'Dunno'}\002 ".
-		&fixPlural("dunno",$count{'Dunno'}).
+		&fixPlural('dunno',$count{'Dunno'}).
 	  ", \002$count{'Moron'}\002 ".
-		&fixPlural("moron",$count{'Moron'}).
+		&fixPlural('moron',$count{'Moron'}).
 	  " and \002$count{'Commands'}\002 ".
-		&fixPlural("command",$count{'Commands'}).
+		&fixPlural('command',$count{'Commands'}).
 	  ".  I have been awake for $upString this session, and ".
 	  "currently reference \002$factoids\002 factoids.  ".
 	  "I'm using about \002$memusage\002 ".
 	  "kB of memory. With \002$forks\002 active ".
-		&fixPlural("fork",$forks).
+		&fixPlural('fork',$forks).
 	  ". Process time user/system $puser/$psystem child $cuser/$csystem"
 	);
 
@@ -704,9 +704,9 @@ sub userCommands {
     }
 
     # wantNick. xk++
-    # FIXME does not try to get nick "back", just switches nicks
+    # FIXME does not try to get nick 'back', just switches nicks
     if ($message =~ /^wantNick\s(.*)?$/i) {
-	return unless (&hasFlag("o"));
+	return unless (&hasFlag('o'));
 	my $wantnick = lc $1;
 	my $mynick = $conn->nick();
 
@@ -729,7 +729,7 @@ sub userCommands {
 	    my $str = "someone is using nick $wantnick; GHOSTing";
 	    &status($str);
 	    &msg($who, $str);
-	    &msg("NickServ", "GHOST $wantnick $param{'nickServ_pass'}");
+	    &msg('NickServ', "GHOST $wantnick $param{'nickServ_pass'}");
 
 	    $conn->schedule(5, sub {
 		&status("going to change nick from $mynick to $wantnick after GHOST.");
@@ -742,7 +742,7 @@ sub userCommands {
 	return;
     }
 
-    return "CONTINUE";
+    return 'CONTINUE';
 }
 
 1;
