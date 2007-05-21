@@ -177,7 +177,7 @@ sub irc {
 
     # works? needs to actually do something
     # should likely listen on a tcp port instead
-    #$irc->addfh(STDIN, \&on_stdin, "r");
+    #$irc->addfh(STDIN, \&on_stdin, 'r');
 
     &status("starting main loop");
 
@@ -192,7 +192,7 @@ sub rawout {
     my ($buf) = @_;
     $buf =~ s/\n//gi;
 
-    # slow down a bit if traffic is "high".
+    # slow down a bit if traffic is 'high'.
     # need to take into account time of last message sent.
     if ($last{buflen} > 256 and length($buf) > 256) {
 	sleep 1;
@@ -207,7 +207,7 @@ sub say {
     my ($msg) = @_;
     my $mynick = $conn->nick();
     if (!defined $msg) {
-	$msg ||= "NULL";
+	$msg ||= 'NULL';
 	&WARN("say: msg == $msg.");
 	return;
     }
@@ -230,7 +230,7 @@ sub say {
 
     return unless (&whatInterface() =~ /IRC/);
 
-    $msg = "zero" if ($msg =~ /^0+$/);
+    $msg = 'zero' if ($msg =~ /^0+$/);
 
     my $t = time();
 
@@ -238,8 +238,8 @@ sub say {
 	$pubcount++;
 	$pubsize += length $msg;
 
-	my $i = &getChanConfDefault("sendPublicLimitLines", 3, $chan);
-	my $j = &getChanConfDefault("sendPublicLimitBytes", 1000, $chan);
+	my $i = &getChanConfDefault('sendPublicLimitLines', 3, $chan);
+	my $j = &getChanConfDefault('sendPublicLimitBytes', 1000, $chan);
 
 	if ( ($pubcount % $i) == 0 and $pubcount) {
 	    sleep 1;
@@ -265,7 +265,7 @@ sub msg {
     }
 
     if (!defined $msg) {
-	$msg ||= "NULL";
+	$msg ||= 'NULL';
 	&WARN("msg: msg == $msg.");
 	return;
     }
@@ -285,8 +285,8 @@ sub msg {
 	$msgcount++;
 	$msgsize += length $msg;
 
-	my $i = &getChanConfDefault("sendPrivateLimitLines", 3, $chan);
-	my $j = &getChanConfDefault("sendPrivateLimitBytes", 1000, $chan);
+	my $i = &getChanConfDefault('sendPrivateLimitLines', 3, $chan);
+	my $j = &getChanConfDefault('sendPrivateLimitBytes', 1000, $chan);
 	if ( ($msgcount % $i) == 0 and $msgcount) {
 	    sleep 1;
 	} elsif ($msgsize > $j) {
@@ -342,8 +342,8 @@ sub notice {
 	$notcount++;
 	$notsize += length $txt;
 
-	my $i = &getChanConfDefault("sendNoticeLimitLines", 3, $chan);
-	my $j = &getChanConfDefault("sendNoticeLimitBytes", 1000, $chan);
+	my $i = &getChanConfDefault('sendNoticeLimitLines', 3, $chan);
+	my $j = &getChanConfDefault('sendNoticeLimitBytes', 1000, $chan);
 
 	if ( ($notcount % $i) == 0 and $notcount) {
 	    sleep 1;
@@ -479,8 +479,8 @@ sub dcc_close {
 
 sub joinchan {
     my ($chan, $key) = @_;
-    $key ||= &getChanConf("chankey", $chan);
-    $key ||= "";
+    $key ||= &getChanConf('chankey', $chan);
+    $key ||= '';
 
     # forgot for about 2 years to implement channel keys when moving
     # over to Net::IRC...
@@ -505,7 +505,7 @@ sub part {
     my $chan;
 
     foreach $chan (@_) {
-	next if ($chan eq "");
+	next if ($chan eq '');
 	$chan =~ tr/A-Z/a-z/;	# lowercase.
 
 	if ($chan !~ /^$mask{chan}$/) {
@@ -541,24 +541,24 @@ sub mode {
 
 sub op {
     my ($chan, @who) = @_;
-    my $os	= "o" x scalar(@who);
+    my $os	= 'o' x scalar(@who);
 
     &mode($chan, "+$os @who");
 }
 
 sub deop {
     my ($chan, @who) = @_;
-    my $os = "o" x scalar(@who);
+    my $os = 'o' x scalar(@who);
 
     &mode($chan, "-$os ".@who);
 }
 
 sub kick {
     my ($nick,$chan,$msg) = @_;
-    my (@chans) = ($chan eq "") ? (keys %channels) : lc($chan);
+    my (@chans) = ($chan eq '') ? (keys %channels) : lc($chan);
     my $mynick = $conn->nick();
 
-    if ($chan ne "" and &validChan($chan) == 0) {
+    if ($chan ne '' and &validChan($chan) == 0) {
 	&ERROR("kick: invalid channel $chan.");
 	return;
     }
@@ -715,7 +715,7 @@ sub joinNextChan {
     }
 
     # chanserv check: global channels, in case we missed one.
-    foreach ( &ChanConfList("chanServ_ops") ) {
+    foreach ( &ChanConfList('chanServ_ops') ) {
 	&chanServCheck($_);
     }
 }
@@ -847,14 +847,14 @@ sub getJoinChans {
     my $nick = $conn->nick();
 
     foreach (keys %chanconf) {
-	next if ($_ eq "_default");
+	next if ($_ eq '_default');
 
 	my $skip = 0;
 	my $val = $chanconf{$_}{autojoin};
 
 	if (defined $val) {
-	    $skip++ if ($val eq "0");
-	    if ($val eq "1") {
+	    $skip++ if ($val eq '0');
+	    if ($val eq '1') {
 		# convert old +autojoin to autojoin <nick>
 		$val = lc $nick;
 		$chanconf{$_}{autojoin} = $val;
@@ -911,7 +911,7 @@ sub closeDCC {
 sub joinfloodCheck {
     my($who,$chan,$userhost) = @_;
 
-    return unless (&IsChanConf("joinfloodCheck") > 0);
+    return unless (&IsChanConf('joinfloodCheck') > 0);
 
     if (exists $netsplit{lc $who}) {	# netsplit join.
 	&DEBUG("joinfloodCheck: $who was in netsplit; not checking.");

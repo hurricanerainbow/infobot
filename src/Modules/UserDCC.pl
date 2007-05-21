@@ -48,7 +48,7 @@ sub userDCC {
     if ($message =~ /^tellme(\s+(.*))?$/i) {
 	my $args = $2;
 	if ($args =~ /^\s*$/) {
-	    &help("tellme");
+	    &help('tellme');
 	    return;
 	}
 
@@ -60,12 +60,12 @@ sub userDCC {
 
     # 4op.
     if ($message =~ /^4op(\s+($mask{chan}))?$/i) {
-	return unless (&hasFlag("o"));
+	return unless (&hasFlag('o'));
 
 	my $chan = $2;
 
-	if ($chan eq "") {
-	    &help("4op");
+	if ($chan eq '') {
+	    &help('4op');
 	    return;
 	}
 
@@ -86,13 +86,13 @@ sub userDCC {
 
     # opme.
     if ($message =~ /^opme(\s+($mask{chan}))?$/i) {
-	return unless (&hasFlag("o"));
-	return unless (&hasFlag("A"));
+	return unless (&hasFlag('o'));
+	return unless (&hasFlag('A'));
 
 	my $chan = $2;
 
-	if ($chan eq "") {
-	    &help("4op");
+	if ($chan eq '') {
+	    &help('4op');
 	    return;
 	}
 
@@ -104,13 +104,13 @@ sub userDCC {
 
     # backlog.
     if ($message =~ /^backlog(\s+(.*))?$/i) {
-	return unless (&hasFlag("o"));
-	return unless (&IsParam("backlog"));
+	return unless (&hasFlag('o'));
+	return unless (&IsParam('backlog'));
 	my $num = $2;
 	my $max = $param{'backlog'};
 
 	if (!defined $num) {
-	    &help("backlog");
+	    &help('backlog');
 	    return;
 	} elsif ($num !~ /^\d+/) {
 	    &msg($who, "error: argument is not positive integer.");
@@ -132,8 +132,8 @@ sub userDCC {
 
     # dump variables.
     if ($message =~ /^dumpvars$/i) {
-	return unless (&hasFlag("o"));
-	return unless (&IsParam("DumpVars"));
+	return unless (&hasFlag('o'));
+	return unless (&IsParam('DumpVars'));
 
 	&status("Dumping all variables...");
 	&dumpallvars();
@@ -154,12 +154,12 @@ sub userDCC {
 
     # kick.
     if ($message =~ /^kick(\s+(.*?))$/) {
-	return unless (&hasFlag("o"));
+	return unless (&hasFlag('o'));
 
 	my $arg = $2;
 
-	if ($arg eq "") {
-	    &help("kick");
+	if ($arg eq '') {
+	    &help('kick');
 	    return;
 	}
 	my @args = split(/\s+/, $arg);
@@ -182,11 +182,11 @@ sub userDCC {
 
     # mode.
     if ($message =~ /^mode(\s+(.*))?$/) {
-	return unless (&hasFlag("n"));
+	return unless (&hasFlag('n'));
 	my ($chan,$mode) = split /\s+/,$2,2;
 
-	if ($chan eq "") {
-	    &help("mode");
+	if ($chan eq '') {
+	    &help('mode');
 	    return;
 	}
 
@@ -207,12 +207,12 @@ sub userDCC {
 
     # part.
     if ($message =~ /^part(\s+(\S+))?$/i) {
-	return unless (&hasFlag("o"));
+	return unless (&hasFlag('o'));
 	my $jchan = $2;
 
 	if ($jchan !~ /^$mask{chan}$/) {
 	    &msg($who, "error, invalid chan.");
-	    &help("part");
+	    &help('part');
 	    return;
 	}
 
@@ -228,12 +228,12 @@ sub userDCC {
 
     # lobotomy. sometimes we want the bot to be _QUIET_.
     if ($message =~ /^(lobotomy|bequiet)$/i) {
-	return unless (&hasFlag("o"));
+	return unless (&hasFlag('o'));
 
 	if ($lobotomized) {
 	    &performReply("i'm already lobotomized");
 	} else {
-	    &performReply("i have been lobotomized");
+	    &performReply('i have been lobotomized');
 	    $lobotomized = 1;
 	}
 
@@ -242,10 +242,10 @@ sub userDCC {
 
     # unlobotomy.
     if ($message =~ /^(unlobotomy|benoisy)$/i) {
-	return unless (&hasFlag("o"));
+	return unless (&hasFlag('o'));
 
 	if ($lobotomized) {
-	    &performReply("i have been unlobotomized, woohoo");
+	    &performReply('i have been unlobotomized, woohoo');
 	    $lobotomized = 0;
 	    delete $cache{lobotomy};
 #	    undef $cache{lobotomy};	# ??
@@ -258,7 +258,7 @@ sub userDCC {
 
     # op.
     if ($message =~ /^op(\s+(.*))?$/i) {
-	return unless (&hasFlag("o"));
+	return unless (&hasFlag('o'));
 	my ($opee) = lc $2;
 	my @chans;
 
@@ -305,7 +305,7 @@ sub userDCC {
 
     # deop.
     if ($message =~ /^deop(\s+(.*))?$/i) {
-	return unless (&hasFlag("o"));
+	return unless (&hasFlag('o'));
 	my ($opee) = lc $2;
 	my @chans;
 
@@ -352,7 +352,7 @@ sub userDCC {
 
     # say.
     if ($message =~ s/^say\s+(\S+)\s+(.*)//) {
-	return unless (&hasFlag("o"));
+	return unless (&hasFlag('o'));
 	my ($chan,$msg) = (lc $1, $2);
 
 	&DEBUG("chan => '$1', msg => '$msg'.");
@@ -364,7 +364,7 @@ sub userDCC {
 
     # do.
     if ($message =~ s/^do\s+(\S+)\s+(.*)//) {
-	return unless (&hasFlag("o"));
+	return unless (&hasFlag('o'));
 	my ($chan,$msg) = (lc $1, $2);
 
 	&DEBUG("chan => '$1', msg => '$msg'.");
@@ -376,7 +376,7 @@ sub userDCC {
 
     # die.
     if ($message =~ /^die$/) {
-	return unless (&hasFlag("n"));
+	return unless (&hasFlag('n'));
 
 	&doExit();
 
@@ -387,7 +387,7 @@ sub userDCC {
     # global factoid substitution.
     if ($message =~ m|^\* =~ s([/,#])(.+?)\1(.*?)\1;?\s*$|) {
 	my ($delim,$op,$np) = ($1, $2, $3);
-	return unless (&hasFlag("n"));
+	return unless (&hasFlag('n'));
 	### TODO: support flags to do full-on global.
 
 	# incorrect format.
@@ -398,8 +398,8 @@ sub userDCC {
 
 	### TODO: fix up $op to support mysql/sqlite/pgsql
 	### TODO: => add db/sql specific function to fix this.
-	my @list = &searchTable("factoids", "factoid_key",
-			"factoid_value", $op);
+	my @list = &searchTable('factoids', 'factoid_key',
+			'factoid_value', $op);
 
 	if (!scalar @list) {
 	    &performReply("Expression didn't match anything.");
@@ -412,7 +412,7 @@ sub userDCC {
 	}
 
 	&status("gsubst: going to alter ".scalar(@list)." factoids.");
-	&performReply("going to alter ".scalar(@list)." factoids.");
+	&performReply('going to alter '.scalar(@list)." factoids.");
 
 	my $error = 0;
 	foreach (@list) {
@@ -430,7 +430,7 @@ sub userDCC {
 		    &performReply("that's too long (or was long)");
 		    return;
 		}
-		&setFactInfo($faqtoid, "factoid_value", $result);
+		&setFactInfo($faqtoid, 'factoid_value', $result);
 		&status("update: '$faqtoid' =is=> '$result'; was '$was'");
 	    } else {
 		&WARN("subst: that's weird... thought we found the string ($op) in '$faqtoid'.");
@@ -443,17 +443,17 @@ sub userDCC {
 	}
 
 	&performReply("Ok... did s/$op/$np/ for ".
-				(scalar(@list) - $error)." factoids");
+				(scalar(@list) - $error).' factoids');
 
 	return;
     }
 
     # jump.
     if ($message =~ /^jump(\s+(\S+))?$/i) {
-	return unless (&hasFlag("n"));
+	return unless (&hasFlag('n'));
 
-	if ($2 eq "") {
-	    &help("jump");
+	if ($2 eq '') {
+	    &help('jump');
 	    return;
 	}
 
@@ -476,7 +476,7 @@ sub userDCC {
 
     # reload.
     if ($message =~ /^reload$/i) {
-	return unless (&hasFlag("n"));
+	return unless (&hasFlag('n'));
 
 	&status("USER reload $who");
 	&performStrictReply("reloading...");
@@ -488,7 +488,7 @@ sub userDCC {
 
     # reset.
     if ($message =~ /^reset$/i) {
-	return unless (&hasFlag("n"));
+	return unless (&hasFlag('n'));
 
 	&msg($who,"resetting...");
 	my @done;
@@ -501,26 +501,26 @@ sub userDCC {
 	    push(@done, $_);
 	    sleep 1;
 	}
-	&DEBUG("before clearircvars");
+	&DEBUG('before clearircvars');
 	&clearIRCVars();
-	&DEBUG("before joinnextchan");
+	&DEBUG('before joinnextchan');
 	&joinNextChan();
-	&DEBUG("after joinnextchan");
+	&DEBUG('after joinnextchan');
 
 	&status("USER reset $who");
-	&msg($who,"reset complete");
+	&msg($who,'reset complete');
 
 	return;
     }
 
     # rehash.
     if ($message =~ /^rehash$/) {
-	return unless (&hasFlag("n"));
+	return unless (&hasFlag('n'));
 
 	&msg($who,"rehashing...");
-	&restart("REHASH");
+	&restart('REHASH');
 	&status("USER rehash $who");
-	&msg($who,"rehashed");
+	&msg($who,'rehashed');
 
 	return;
     }
@@ -533,7 +533,7 @@ sub userDCC {
 	my @args = split /[\s\t]+/, $2;	# hrm.
 
 	if (scalar @args != 1) {
-	    &help("chaninfo");
+	    &help('chaninfo');
 	    return;
 	}
 
@@ -568,14 +568,14 @@ sub userDCC {
 	}
 
 	if (!scalar @chans) {
-	    push(@chans, "_default");
+	    push(@chans, '_default');
 	    $no_chan	= 1;
 	}
 
 	my($what,$val) = split /[\s\t]+/, $args, 2;
 
 	### TODO: "cannot set values without +m".
-	return unless (&hasFlag("n"));
+	return unless (&hasFlag('n'));
 
 	# READ ONLY.
 	if (defined $what and $what !~ /^[-+]/ and !defined $val and $no_chan) {
@@ -602,17 +602,17 @@ sub userDCC {
 	}
 
 	### TODO: move to UserDCC again.
-	if ($cmd eq "chanset" and !defined $what) {
+	if ($cmd eq 'chanset' and !defined $what) {
 	    &DEBUG("showing channel conf.");
 
 	    foreach $chan (@chans) {
 		if ($chan eq '_default') {
-		    &performStrictReply("Default channel settings");
+		    &performStrictReply('Default channel settings');
 		} else {
 		    &performStrictReply("chan: $chan (see _default also)");
 		}
 		my @items;
-		my $str = "";
+		my $str = '';
 		foreach (sort keys %{ $chanconf{$chan} }) {
 		    my $newstr = join(', ', @items);
 		    ### TODO: make length use channel line limit?
@@ -642,12 +642,12 @@ sub userDCC {
     }
 
     if ($message =~ /^(chanunset|\-chan)(\s+(.*))?$/) {
-	return unless (&hasFlag("n"));
+	return unless (&hasFlag('n'));
 	my $args	= $3;
 	my $no_chan	= 0;
 
 	if (!defined $args) {
-	    &help("chanunset");
+	    &help('chanunset');
 	    return;
 	}
 
@@ -658,7 +658,7 @@ sub userDCC {
 	    $delete	= ($1) ? 1 : 0;
 	} else {
 	    &VERB("no chan arg; setting to default.",2);
-	    $chan	= "_default";
+	    $chan	= '_default';
 	    $no_chan	= 1;
 	}
 
@@ -667,7 +667,7 @@ sub userDCC {
 	    return;
 	}
 
-	if ($args ne "") {
+	if ($args ne '') {
 
 	    if (!&getChanConf($args,$chan)) {
 		&performStrictReply("$args does not exist for $chan");
@@ -676,7 +676,7 @@ sub userDCC {
 
 	    my @chans = &ChanConfList($args);
 	    &DEBUG("scalar chans => ".scalar(@chans) );
-	    if (scalar @chans == 1 and $chans[0] eq "_default" and !$no_chan) {
+	    if (scalar @chans == 1 and $chans[0] eq '_default' and !$no_chan) {
 		&performStrictReply("ok, $args was set only for _default; unsetting for _defaul but setting for other chans.");
 
 		my $val = $chanconf{$_}{_default};
@@ -730,7 +730,7 @@ sub userDCC {
 	my(@args) = split /[\s\t]+/, $2 || '';
 
 	if (scalar @args != 1) {
-	    &help("newpass");
+	    &help('newpass');
 	    return;
 	}
 
@@ -750,7 +750,7 @@ sub userDCC {
 	my(@args) = split /[\s\t]+/, $2 || '';
 
 	if (!scalar @args) {
-	    &help("chpass");
+	    &help('chpass');
 	    return;
 	}
 
@@ -767,7 +767,7 @@ sub userDCC {
 
 	if (scalar @args == 1) {
 	    # del pass.
-	    if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
+	    if (!&IsFlag('n') and $who !~ /^\Q$verifyUser\E$/i) {
 		&performStrictReply("cannot remove passwd of others.");
 		return;
 	    }
@@ -801,7 +801,7 @@ sub userDCC {
 	my(@args) = split /[\s\t]+/, $2 || '';
 
 	if (!scalar @args) {
-	    &help("chattr");
+	    &help('chattr');
 	    return;
 	}
 
@@ -832,9 +832,9 @@ sub userDCC {
 
 	&DEBUG("who => $who");
 	&DEBUG("verifyUser => $verifyUser");
-	if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
+	if (!&IsFlag('n') and $who !~ /^\Q$verifyUser\E$/i) {
 	    &performStrictReply("cannto change attributes of others.");
-	    return "REPLY";
+	    return 'REPLY';
 	}
 
 	my $state;
@@ -852,7 +852,7 @@ sub userDCC {
 		next if ($flags =~ /\Q$_\E/);
 		$flags .= $_;
 	    } else {
-		if (&IsParam("owner")
+		if (&IsParam('owner')
 			and $param{owner} =~ /^\Q$user\E$/i
 			and $flags =~ /[nmo]/
 		) {
@@ -882,13 +882,13 @@ sub userDCC {
     if ($message =~ /^chnick(\s+(.*))?$/) {
 	my(@args) = split /[\s\t]+/, $2 || '';
 
-	if ($who eq "_default") {
+	if ($who eq '_default') {
 	    &WARN("$who or verifyuser tried to run chnick.");
-	    return "REPLY";
+	    return 'REPLY';
 	}
 
 	if (!scalar @args or scalar @args > 2) {
-	    &help("chnick");
+	    &help('chnick');
 	    return;
 	}
 
@@ -917,9 +917,9 @@ sub userDCC {
 	    return;
 	}
 
-	if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
+	if (!&IsFlag('n') and $who !~ /^\Q$verifyUser\E$/i) {
 	    &performStrictReply("cannto change nick of others.");
-	    return "REPLY" if ($who eq "_default");
+	    return 'REPLY' if ($who eq '_default');
 	    return;
 	}
 
@@ -938,7 +938,7 @@ sub userDCC {
     }
 
     if ($message =~ /^([-+])host(\s+(.*))?$/) {
-	my $cmd		= $1."host";
+	my $cmd		= $1.'host';
 	my(@args)	= split /[\s\t]+/, $3 || '';
 	my $state	= ($1 eq "+") ? 1 : 0;
 
@@ -947,14 +947,14 @@ sub userDCC {
 	    return;
 	}
 
-	if ($who eq "_default") {
+	if ($who eq '_default') {
 	    &WARN("$who or verifyuser tried to run $cmd.");
-	    return "REPLY";
+	    return 'REPLY';
 	}
 
 	my ($user,$mask);
 	if ($args[0] =~ /^$mask{nick}$/i) {	# <nick>
-	    return unless (&hasFlag("n"));
+	    return unless (&hasFlag('n'));
 	    $user	= &getUser($args[0]);
 	    $mask	= $args[1];
 	} else {				# <mask>
@@ -969,11 +969,11 @@ sub userDCC {
 	}
 
 	if (!defined $mask) {
-	    &performStrictReply("Hostmasks for $user: " . join(" ", keys %{$users{$user}{HOSTS}}));
+	    &performStrictReply("Hostmasks for $user: " . join(' ', keys %{$users{$user}{HOSTS}}));
 	    return;
 	}
 
-	if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
+	if (!&IsFlag('n') and $who !~ /^\Q$verifyUser\E$/i) {
 	    &performStrictReply("cannto change masks of others.");
 	    return;
 	}
@@ -1021,7 +1021,7 @@ sub userDCC {
     }
 
     if ($message =~ /^([-+])ban(\s+(.*))?$/) {
-	my $cmd		= $1."ban";
+	my $cmd		= $1.'ban';
 	my $flatarg	= $3;
 	my(@args)	= split /[\s\t]+/, $3 || '';
 	my $state	= ($1 eq "+") ? 1 : 0;
@@ -1042,7 +1042,7 @@ sub userDCC {
 	if ($flatarg =~ s/^($mask{chan})\s*//) {
 	    $chan = $1;
 	} else {
-	    $chan = "*";	# _default instead?
+	    $chan = '*';	# _default instead?
 	}
 
 	if ($state == 0) {		# delete.
@@ -1081,7 +1081,7 @@ sub userDCC {
 	    $reason	= $1;
 	}
 
-	if (!&IsFlag("n") and $who !~ /^\Q$verifyUser\E$/i) {
+	if (!&IsFlag('n') and $who !~ /^\Q$verifyUser\E$/i) {
 	    &performStrictReply("cannto change masks of others.");
 	    return;
 	}
@@ -1103,7 +1103,7 @@ sub userDCC {
 	my $arg = $2;
 
 	if (!defined $arg) {
-	    &help("whois");
+	    &help('whois');
 	    return;
 	}
 
@@ -1118,7 +1118,7 @@ sub userDCC {
 	foreach (keys %{ $users{$user} }) {
 	    my $ref = ref $users{$user}{$_};
 
-	    if ($ref eq "HASH") {
+	    if ($ref eq 'HASH') {
 		my $type = $_;
 		### DOES NOT WORK???
 		foreach (keys %{ $users{$user}{$type} }) {
@@ -1138,7 +1138,7 @@ sub userDCC {
 	my $arg	= $2;
 
 	if (defined $arg) {
-	    if ($arg ne "_default" and !&validChan($arg) ) {
+	    if ($arg ne '_default' and !&validChan($arg) ) {
 		&performStrictReply("error: chan $chan is invalid.");
 		return;
 	    }
@@ -1158,7 +1158,7 @@ sub userDCC {
 	    foreach (keys %{ $bans{$c} }) {
 		my $val = $bans{$c}{$_};
 
-		if (ref $val eq "ARRAY") {
+		if (ref $val eq 'ARRAY') {
 		    my @array = @{ $val };
 		    &performStrictReply("    $_: @array");
 		} else {
@@ -1191,11 +1191,11 @@ sub userDCC {
     }
 
     if ($message =~ /^save$/) {
-	return unless (&hasFlag("o"));
+	return unless (&hasFlag('o'));
 
 	&writeUserFile();
 	&writeChanFile();
-	&performStrictReply("saved user and chan files");
+	&performStrictReply('saved user and chan files');
 
 	return;
     }
@@ -1206,9 +1206,9 @@ sub userDCC {
 
     # ignore.
     if ($message =~ /^(\+|\-)ignore(\s+(.*))?$/i) {
-	return unless (&hasFlag("o"));
+	return unless (&hasFlag('o'));
 	my $state	= ($1 eq "+") ? 1 : 0;
-	my $str		= $1."ignore";
+	my $str		= $1.'ignore';
 	my $args	= $3;
 
 	if (!$args) {
@@ -1243,7 +1243,7 @@ sub userDCC {
 	if ($args =~ s/^($mask{chan}|\*)\s*//) {
 	    $chan = $1;
 	} else {
-	    $chan = "*";
+	    $chan = '*';
 	}
 
 	# time.
@@ -1300,7 +1300,7 @@ sub userDCC {
 
 	    foreach (keys %{ $ignore{$c} }) {
 		my $ref = ref $ignore{$c}{$_};
-		if ($ref eq "ARRAY") {
+		if ($ref eq 'ARRAY') {
 		    my @array = @{ $ignore{$c}{$_} };
 		    &performStrictReply("      $_: @array");
 		} else {
@@ -1316,7 +1316,7 @@ sub userDCC {
     # adduser/deluser.
     if ($message =~ /^(add|del)user(\s+(.*))?$/i) {
 	my $str		= $1;
-	my $strstr	= $1."user";
+	my $strstr	= $1.'user';
 	my @args	= split /\s+/, $3 || '';
 	my $args	= $3;
 	my $state	= ($str =~ /^(add)$/) ? 1 : 0;
@@ -1402,7 +1402,7 @@ sub userDCC {
 
 	my @time;
 	foreach (sort { $a <=> $b } keys %time) {
-	    my $str = join(", ", sort keys %{ $time{$_} });
+	    my $str = join(', ', sort keys %{ $time{$_} });
 	    &DEBUG("time => $_, str => $str");
 	    push(@time, "$str (".&Time2String($_).")");
 	}
@@ -1415,7 +1415,7 @@ sub userDCC {
     }
 
     # quite a cool hack: reply in DCC CHAT.
-    $msgType = "chat" if (exists $dcc{'CHAT'}{$who});
+    $msgType = 'chat' if (exists $dcc{'CHAT'}{$who});
 
     my $done = 0;
     $done++ if &parseCmdHook($message);
@@ -1426,7 +1426,7 @@ sub userDCC {
 	return;
     }
 
-    return "REPLY";
+    return 'REPLY';
 }
 
 1;

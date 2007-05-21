@@ -35,7 +35,7 @@ sub wtf::wtf {
 		return("argument appears to be fuzzy.");
 	}
 
-	my $reply ="";
+	my $reply ='';
 	foreach (`$binary '$query' 2>&1`){
 		$reply .= $_;
 	}

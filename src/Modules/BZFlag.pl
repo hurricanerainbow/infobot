@@ -44,7 +44,7 @@ sub BZFlag {
 sub list {
 	my ($response);
 	my $ua = new LWP::UserAgent;
-	$ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
+	$ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam('httpProxy'));
 
 	$ua->timeout(5);
 
@@ -58,7 +58,7 @@ sub list {
 		my ($style, $maxShots, $shakeWins, $shakeTimeout, $maxPlayerScore, $maxTeamScore, $maxTime,
 				$maxPlayers, $rogueSize, $rogueMax, $redSize, $redMax, $greenSize, $greenMax,
 				$blueSize, $blueMax, $purpleSize, $purpleMax, $observerSize, $observerMax) =
-				unpack("A4A4A4A4A4A4A4A2A2A2A2A2A2A2A2A2A2A2A2A2", $flags);
+				unpack('A4A4A4A4A4A4A4A2A2A2A2A2A2A2A2A2A2A2A2A2', $flags);
 		my $playerSize = hex($rogueSize) + hex($redSize) + hex($greenSize)
 				+ hex($blueSize) + hex($purpleSize) + hex($observerSize);
 		$servers{$serverport} = $playerSize;
@@ -79,7 +79,7 @@ sub list {
 sub list17 {
 	my ($response);
 	my $ua = new LWP::UserAgent;
-	$ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
+	$ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam('httpProxy'));
 
 	$ua->timeout(5);
 
@@ -96,7 +96,7 @@ sub list17 {
 				$rogueMax,$redMax,$greenMax,$blueMax,$purpleMax,
 				$shakeWins,$shakeTimeout,
 				$maxPlayerScore,$maxTeamScore,$maxTime) =
-				unpack("A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4", $flags);
+				unpack('A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4A4', $flags);
 		my $playerSize = hex($rogueSize) + hex($redSize) + hex($greenSize)
 				+ hex($blueSize) + hex($purpleSize);
 		$servers{$serverport} = $playerSize;
@@ -120,8 +120,8 @@ sub querytext {
 		&::status("BZFlag module requires Socket.");
 		return 'BZFlag module not active';
 	}
-	#my @teamName = ("Rogue", "Red", "Green", "Blue", "Purple", "Observer", "Rabbit");
-	my @teamName = ("X", "R", "G", "B", "P", "O", "K");
+	#my @teamName = ('Rogue', 'Red', 'Green', 'Blue', 'Purple', 'Observer', 'Rabbit');
+	my @teamName = ('X', 'R', 'G', 'B', 'P', 'O', 'K');
 	my ($message, $server, $response);
 	$port = 5154 unless $port;
 
@@ -154,26 +154,26 @@ sub querytext {
 	my ($version) = $magic . $major . $minor . $something . $revision;
 
 	# quit if version isn't valid
-	return 'not a bzflag server' if ($magic ne "BZFS");
+	return 'not a bzflag server' if ($magic ne 'BZFS');
 	$response .= "$major$minor$something$revision ";
 	# check version
-	if ($version eq "BZFS0026") {
+	if ($version eq 'BZFS0026') {
 		# 1.11.x handled here
 		return 'read error' unless read(S1, $buffer, 1) == 1;
-		my ($id) = unpack("C", $buffer);
+		my ($id) = unpack('C', $buffer);
 		return "rejected by server" if ($id == 255);
 
 		# send game request
-		print S1 pack("n2", 0, 0x7167);
+		print S1 pack('n2', 0, 0x7167);
 
 		# get reply
 		my $nbytes = read(S1, $buffer, 4);
-		my ($infolen, $infocode) = unpack("n2", $buffer);
+		my ($infolen, $infocode) = unpack('n2', $buffer);
 		if ($infocode == 0x6774) {
 			# read and ignore MsgGameTime from new servers
 			$nbytes = read(S1, $buffer, 8);
 			$nbytes = read(S1, $buffer, 4);
-		  ($infolen, $infocode) = unpack("n2", $buffer);
+		  ($infolen, $infocode) = unpack('n2', $buffer);
 		}
 		$nbytes = read(S1, $buffer, 42);
 		if ($nbytes != 42) {
@@ -184,15 +184,15 @@ sub querytext {
 			$rogueSize,$redSize,$greenSize,$blueSize,$purpleSize,$observerSize,
 			$rogueMax,$redMax,$greenMax,$blueMax,$purpleMax,$observerMax,
 			$shakeWins,$shakeTimeout,
-			$maxPlayerScore,$maxTeamScore,$maxTime,$timeElapsed) = unpack("n23", $buffer);
+			$maxPlayerScore,$maxTeamScore,$maxTime,$timeElapsed) = unpack('n23', $buffer);
 		return "bad server data $infocode" unless $infocode == 0x7167;
 
 		# send players request
-		print S1 pack("n2", 0, 0x7170);
+		print S1 pack('n2', 0, 0x7170);
 
 		# get number of teams and players we'll be receiving
 		return 'count read error' unless read(S1, $buffer, 8) == 8;
-		my ($countlen,$countcode,$numTeams,$numPlayers) = unpack("n4", $buffer);
+		my ($countlen,$countcode,$numTeams,$numPlayers) = unpack('n4', $buffer);
 
 		# get the teams
 		return 'bad count data' unless $countcode == 0x7170;
@@ -200,7 +200,7 @@ sub querytext {
 		($countlen,$countcode,$numTeams) = unpack("n n C", $buffer);
 		for (1..$numTeams) {
 			return 'team read error' unless read(S1, $buffer, 8) == 8;
-			my ($team,$size,$won,$lost) = unpack("n4", $buffer);
+			my ($team,$size,$won,$lost) = unpack('n4', $buffer);
 			if ($size > 0) {
 				my $score = $won - $lost;
 				$response .= "$teamName[$team]:$score($won-$lost) ";
@@ -211,7 +211,7 @@ sub querytext {
 		for (1..$numPlayers) {
 			last unless read(S1, $buffer, 175) == 175;
 			my ($playerlen,$playercode,$pID,$type,$team,$won,$lost,$tks,$sign,$email) =
-					unpack("n2Cn5A32A128", $buffer);
+					unpack('n2Cn5A32A128', $buffer);
 			#my ($playerlen,$playercode,$pAddr,$pPort,$pNum,$type,$team,$won,$lost,$sign,$email) =
 			#		unpack("n2Nn2 n4A32A128", $buffer);
 			return 'bad player data' unless $playercode == 0x6170;
@@ -227,10 +227,10 @@ sub querytext {
 		# 1.10.x handled here
 		$revision = $something * 10 + $revision;
 		return 'read error' unless read(S1, $buffer, 1) == 1;
-		my ($id) = unpack("C", $buffer);
+		my ($id) = unpack('C', $buffer);
 
 		# send game request
-		print S1 pack("n2", 0, 0x7167);
+		print S1 pack('n2', 0, 0x7167);
 
 		# FIXME the packets are wrong from here down
 		# get reply
@@ -239,15 +239,15 @@ sub querytext {
 			$rogueSize,$redSize,$greenSize,$blueSize,$purpleSize,
 			$rogueMax,$redMax,$greenMax,$blueMax,$purpleMax,
 			$shakeWins,$shakeTimeout,
-			$maxPlayerScore,$maxTeamScore,$maxTime) = unpack("n20", $buffer);
+			$maxPlayerScore,$maxTeamScore,$maxTime) = unpack('n20', $buffer);
 		return 'bad server data' unless $infocode == 0x7167;
 
 		# send players request
-		print S1 pack("n2", 0, 0x7170);
+		print S1 pack('n2', 0, 0x7170);
 
 		# get number of teams and players we'll be receiving
 		return 'count read error' unless read(S1, $buffer, 8) == 8;
-		my ($countlen,$countcode,$numTeams,$numPlayers) = unpack("n4", $buffer);
+		my ($countlen,$countcode,$numTeams,$numPlayers) = unpack('n4', $buffer);
 
 		# get the teams
 		return 'bad count data' unless $countcode == 0x7170;
@@ -255,7 +255,7 @@ sub querytext {
 		($countlen,$countcode,$numTeams) = unpack("n n C", $buffer);
 		for (1..$numTeams) {
 			return 'team read error' unless read(S1, $buffer, 8) == 8;
-			my ($team,$size,$won,$lost) = unpack("n4", $buffer);
+			my ($team,$size,$won,$lost) = unpack('n4', $buffer);
 			if ($size > 0) {
 				my $score = $won - $lost;
 				$response .= "$teamName[$team]:$score($won-$lost) ";
@@ -266,7 +266,7 @@ sub querytext {
 		for (1..$numPlayers) {
 			last unless read(S1, $buffer, 175) == 175;
 			my ($playerlen,$playercode,$pID,$type,$team,$won,$lost,$tks,$sign,$email) =
-					unpack("n2Cn5A32A128", $buffer);
+					unpack('n2Cn5A32A128', $buffer);
 			#my ($playerlen,$playercode,$pAddr,$pPort,$pNum,$type,$team,$won,$lost,$sign,$email) =
 			#		unpack("n2Nn2 n4A32A128", $buffer);
 			return 'bad player data' unless $playercode == 0x6170;
@@ -283,7 +283,7 @@ sub querytext {
 		# 1.7* versions handled here
 		# old servers send a reconnect port number
 		return 'read error' unless read(S1, $buffer, 2) == 2;
-		my ($reconnect) = unpack("n", $buffer);
+		my ($reconnect) = unpack('n', $buffer);
 		$minor = $minor * 10 + $something;
 		# quit if rejected
 		return 'rejected by server' if ($reconnect == 0);
@@ -298,7 +298,7 @@ sub querytext {
 		close(S1);
 
 		# send game request
-		print S pack("n2", 0, 0x7167);
+		print S pack('n2', 0, 0x7167);
 
 		# get reply
 		return 'server read error' unless read(S, $buffer, 40) == 40;
@@ -306,21 +306,21 @@ sub querytext {
 			$rogueSize,$redSize,$greenSize,$blueSize,$purpleSize,
 			$rogueMax,$redMax,$greenMax,$blueMax,$purpleMax,
 			$shakeWins,$shakeTimeout,
-			$maxPlayerScore,$maxTeamScore,$maxTime) = unpack("n20", $buffer);
+			$maxPlayerScore,$maxTeamScore,$maxTime) = unpack('n20', $buffer);
 		return 'bad server data' unless $infocode == 0x7167;
 
 		# send players request
-		print S pack("n2", 0, 0x7170);
+		print S pack('n2', 0, 0x7170);
 
 		# get number of teams and players we'll be receiving
 		return 'count read error' unless read(S, $buffer, 8) == 8;
-		my ($countlen,$countcode,$numTeams,$numPlayers) = unpack("n4", $buffer);
+		my ($countlen,$countcode,$numTeams,$numPlayers) = unpack('n4', $buffer);
 		return 'bad count data' unless $countcode == 0x7170;
 
 		# get the teams
 		for (1..$numTeams) {
 			return 'team read error' unless read(S, $buffer, 14) == 14;
-			my ($teamlen,$teamcode,$team,$size,$aSize,$won,$lost) = unpack("n7", $buffer);
+			my ($teamlen,$teamcode,$team,$size,$aSize,$won,$lost) = unpack('n7', $buffer);
 			return 'bad team data' unless $teamcode == 0x7475;
 			if ($size > 0) {
 				my $score = $won - $lost;

@@ -16,7 +16,7 @@ use vars qw(%param %file %cache);
 $logtime	= time();
 $logcount	= 0;
 $logrepeat	= 0;
-$logold		= "";
+$logold		= '';
 
 $param{VEBOSITY} ||= 1;		# lame fix for preload
 
@@ -73,7 +73,7 @@ sub cl {
 
 # logging support.
 sub openLog {
-    return unless (&IsParam("logfile"));
+    return unless (&IsParam('logfile'));
     $file{log} = $param{'logfile'};
 
     my $error = 0;
@@ -90,7 +90,7 @@ sub openLog {
 	$error++;
     }
 
-    if (&IsParam("logType") and $param{'logType'} =~ /DAILY/i) {
+    if (&IsParam('logType') and $param{'logType'} =~ /DAILY/i) {
 	my ($day,$month,$year) = (gmtime time())[3,4,5];
 	$logDate = sprintf("%04d%02d%02d",$year+1900,$month+1,$day);
 	$file{log} .= $logDate;
@@ -106,7 +106,7 @@ sub openLog {
 
 sub closeLog {
     # lame fix for paramlogfile.
-    return unless (&IsParam("logfile"));
+    return unless (&IsParam('logfile'));
     return unless (defined fileno LOG);
 
     close LOG;
@@ -148,7 +148,7 @@ sub compress {
 }
 
 sub DEBUG {
-    return unless (&IsParam("DEBUG"));
+    return unless (&IsParam('DEBUG'));
 
     &status("${b_green}!DEBUG!$ob $_[0]");
 }
@@ -158,7 +158,7 @@ sub ERROR {
 }
 
 sub WARN {
-    return unless (&IsParam("WARN"));
+    return unless (&IsParam('WARN'));
 
     return if ($_[0] =~ /^PERL: Subroutine \S+ redefined at/);
 
@@ -174,11 +174,11 @@ sub TODO {
 }
 
 sub VERB {
-    if (!&IsParam("VERBOSITY")) {
+    if (!&IsParam('VERBOSITY')) {
 	# NOTHING.
-    } elsif ($param{'VERBOSITY'} eq "1" and $_[1] <= 1) {
+    } elsif ($param{'VERBOSITY'} eq '1' and $_[1] <= 1) {
 	&status($_[0]);
-    } elsif ($param{'VERBOSITY'} eq "2" and $_[1] <= 2) {
+    } elsif ($param{'VERBOSITY'} eq '2' and $_[1] <= 2) {
 	&status($_[0]);
     }
 }
@@ -206,10 +206,10 @@ sub status {
 
     # if it's not a scalar, attempt to warn and fix.
     my $ref = ref $input;
-    if (defined $ref and $ref ne "") {
+    if (defined $ref and $ref ne '') {
 	&WARN("status: 'input' is not scalar ($ref).");
 
-	if ($ref eq "ARRAY") {
+	if ($ref eq 'ARRAY') {
 	    foreach (@$input) {
 		&WARN("status: '$_'.");
 	    }
@@ -277,12 +277,12 @@ sub status {
 	$status = "[$statcount] ".$input;
     }
 
-    if (&IsParam("backlog")) {
+    if (&IsParam('backlog')) {
 	push(@backlog, $status);	# append to end.
 	shift(@backlog) if (scalar @backlog > $param{'backlog'});
     }
 
-    if (&IsParam("VERBOSITY")) {
+    if (&IsParam('VERBOSITY')) {
 	if ($statcountfix) {
 	    printf $_red."!%6d!".$ob." ", $statcount;
 	} else {
@@ -337,19 +337,19 @@ sub status {
     }
 
     # log the line into a file.
-    return unless (&IsParam("logfile"));
+    return unless (&IsParam('logfile'));
     return unless (defined fileno LOG);
 
     # remove control characters from logging to LOGFILE.
     for ($input) {
-	last if (&IsParam("logColors"));
+	last if (&IsParam('logColors'));
 	s/\e\[[0-9;]+m//g;	# escape codes.
 	s/[\cA-\c_]//g;		# control chars.
     }
     $input = "FORK($$) ".$input if ($statcountfix);
 
     my $date;
-    if (&IsParam("logType") and $param{'logType'} =~ /DAILY/i) {
+    if (&IsParam('logType') and $param{'logType'} =~ /DAILY/i) {
 	$date = sprintf("%02d:%02d.%02d", (gmtime $time)[2,1,0]);
 
 	my ($day,$month,$year) = (gmtime $time)[3,4,5];
@@ -424,7 +424,7 @@ sub closeSQLDebug {
 }
 
 sub SQLDebug {
-    return unless (&IsParam("SQLDebug"));
+    return unless (&IsParam('SQLDebug'));
 
     return unless (fileno SQLDEBUG);
 

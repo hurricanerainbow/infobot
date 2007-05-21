@@ -12,7 +12,7 @@ sub kernelGetInfo {
 }
 
 sub Kernel {
-    my $retval = "Linux kernel versions";
+    my $retval = 'Linux kernel versions';
     my @now = &kernelGetInfo();
     if (!scalar @now) {
 	&::msg($::who, "failed.");
@@ -32,7 +32,7 @@ sub Kernel {
 	$line =~ s/ for 2.4//;
 	$line =~ s/ for 2.2//;
 	$line =~ s/ is: */: /;
-	$retval .= ", " . $line;
+	$retval .= ', ' . $line;
     }
     &::performStrictReply($retval);
 }
@@ -43,7 +43,7 @@ sub kernelAnnounce {
     my @old;
 
     if (!scalar @now) {
-	&::DEBUG("kA: failure to retrieve.");
+	&::DEBUG('kA: failure to retrieve.');
 	return;
     }
 

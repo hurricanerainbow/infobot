@@ -7,26 +7,26 @@ use strict;
 use vars qw($message);
 
 my %digits = (
-	"first",   "1",
-	"second",  "2",
-	"third",   "3",
-	"fourth",  "4",
-	"fifth",   "5",
-	"sixth",   "6",
-	"seventh", "7",
-	"eighth",  "8",
-	"ninth",   "9",
-	"tenth",   "10",
-	"one",     "1",
-	"two",     "2",
-	"three",   "3",
-	"four",    "4",
-	"five",    "5",
-	"six",     "6",
-	"seven",   "7",
-	"eight",   "8",
-	"nine",    "9",
-	"ten",     "10"
+	'first',   '1',
+	'second',  '2',
+	'third',   '3',
+	'fourth',  '4',
+	'fifth',   '5',
+	'sixth',   '6',
+	'seventh', '7',
+	'eighth',  '8',
+	'ninth',   '9',
+	'tenth',   '10',
+	'one',     '1',
+	'two',     '2',
+	'three',   '3',
+	'four',    '4',
+	'five',    '5',
+	'six',     '6',
+	'seven',   '7',
+	'eight',   '8',
+	'nine',    '9',
+	'ten',     '10'
 );
 
 sub perlMath {
@@ -60,13 +60,13 @@ sub perlMath {
 
     while ($locMsg =~ /(log\s*((\d+\.?\d*)|\d*\.?\d+))\s*/) {
 	my ($exp, $res) = ($1, $2);
-	my $val = ($res) ? log($res) : "Infinity";
+	my $val = ($res) ? log($res) : 'Infinity';
 	$locMsg =~ s/$exp/+$val/g;
     }
 
     while ($locMsg =~ /(bin2dec ([01]+))/) {
 	my $exp = $1;
-	my $val = join ("", unpack("B*",$2)) ;
+	my $val = join ('', unpack('B*',$2)) ;
 	$locMsg =~ s/$exp/+$val/g;
     }
 
@@ -121,11 +121,11 @@ sub perlMath {
 		&FIXME("math: locMsg => '$locMsg'...");
 	    } else {
 		&status("math: could not really compute.");
-		$locMsg = "";
+		$locMsg = '';
 	    }
 	}
     } else {
-	$locMsg = "";
+	$locMsg = '';
     }
 
     if (defined $locMsg and $locMsg ne $message) {

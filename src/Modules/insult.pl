@@ -14,12 +14,12 @@ sub Insult {
     my @adjs;
     my @amts;
     my @nouns;
-    &::DEBUG("Reading insult data");
+    &::DEBUG('Reading insult data');
     while (<DATA>) {
 	chomp;
-	push(@adjs, split(" ", $1)) if /^adj\s*(.*)/;
-	push(@amts, split(" ", $1)) if /^amt\s*(.*)/;
-	push(@nouns, split(" ", $1)) if /^noun\s*(.*)/;
+	push(@adjs, split(' ', $1)) if /^adj\s*(.*)/;
+	push(@amts, split(' ', $1)) if /^amt\s*(.*)/;
+	push(@nouns, split(' ', $1)) if /^noun\s*(.*)/;
     }
     grep(s/\|/ /g, @adjs);
     grep(s/\|/ /g, @amts);
@@ -32,7 +32,7 @@ sub Insult {
     my $adj2 = @adjs[rand(@adjs)];
     my $noun = @nouns[rand(@nouns)];
     my $whois = "$insultwho is";
-    $whois = "You are" if ($insultwho eq $::who or $insultwho eq "me");
+    $whois = 'You are' if ($insultwho eq $::who or $insultwho eq 'me');
 
     &::performStrictReply("$whois nothing but a$n $adj $amt of $adj2 $noun");
 }

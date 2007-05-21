@@ -37,7 +37,7 @@ sub Dict {
     my $socket	= new IO::Socket;
     socket($socket, PF_INET, SOCK_STREAM, $proto) or return "error: socket: $!";
     eval {
-	local $SIG{ALRM} = sub { die "alarm" };
+	local $SIG{ALRM} = sub { die 'alarm' };
 	alarm 10;
 	connect($socket, sockaddr_in($port, inet_aton($server))) or die "error: connect: $!";
 	alarm 0;
@@ -110,7 +110,7 @@ sub Define {
     &::DEBUG("Dict: asking $dict.");
     print $socket "DEFINE $dict \"$query\"\n";
 
-    my $def = "";
+    my $def = '';
     my $term = $query;
 
     while (<$socket>) {
@@ -148,7 +148,7 @@ sub Define {
 		    $def =~ s/\s+$//;
 		    #&::DEBUG("def => '$def'.");
 		    $def =~ s/\[[^\]]*\]//g;
-		    push(@results, $def) if ($def ne "");
+		    push(@results, $def) if ($def ne '');
 		    $def = $text;
 		} elsif (/^\s+(.*)/) {
 		    $def .= $line;

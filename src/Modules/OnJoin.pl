@@ -111,7 +111,7 @@ sub Cmdonjoin {
 	&sqlDelete('onjoin', { nick => $nick, channel => $ch });
 	my $insert = &sqlInsert('onjoin', { nick => $nick, channel => $ch, message => $msg, modified_by => $who, modified_time => time() });
 	if ($insert){
-		&performReply("ok");
+		&performReply('ok');
 	}
 	else{
 		&performReply('whoops. database error');

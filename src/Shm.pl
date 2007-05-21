@@ -13,7 +13,7 @@ sub openSHM {
     my $IPC_PRIVATE = 0;
     my $size = 2000;
 
-    if (&IsParam("noSHM")) {
+    if (&IsParam('noSHM')) {
 	&status("Shared memory: Disabled. WARNING: bot may become unreliable");
 	return 0;
     }
@@ -45,7 +45,7 @@ sub shmRead {
     my $size = 3*80;
     my $retval = '';
 
-    return '' if (&IsParam("noSHM"));
+    return '' if (&IsParam('noSHM'));
 
     if (shmread($key,$retval,$position,$size)) {
 	#&DEBUG("shmRead($key): $retval");
@@ -63,7 +63,7 @@ sub shmWrite {
     my $position = 0;
     my $size = 80*3;
 
-    return if (&IsParam("noSHM"));
+    return if (&IsParam('noSHM'));
 
     if (length($str) > $size) {
 	&status("ERROR: length(str) (..)>$size...");
@@ -81,7 +81,7 @@ sub shmWrite {
 
     my $read = &shmRead($key);
     $read =~ s/\0+//g;
-    if ($read eq "") {
+    if ($read eq '') {
 	$str = sprintf("%s:%d:%d: ", $param{ircUser}, $bot_pid, time());
     } else {
 	$str = $read ."||". $str;
@@ -229,8 +229,8 @@ sub shmFlush {
     return if ($$ != $::bot_pid); # fork protection.
 
     if (@_) {
-	&ScheduleThis(15, "shmFlush");
-	return if ($_[0] eq "2");
+	&ScheduleThis(15, 'shmFlush');
+	return if ($_[0] eq '2');
     }
 
     my $time;
@@ -272,7 +272,7 @@ sub shmFlush {
 	}
     }
 
-    &shmWrite($shm,"") if ($shmmsg ne "");
+    &shmWrite($shm,'') if ($shmmsg ne '');
 }
 
 1;

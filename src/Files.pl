@@ -26,7 +26,7 @@ sub loadLang {
 
     while (<FILE>) {
 	chop;
-	if ($_ eq "" || /^#/) {
+	if ($_ eq '' || /^#/) {
 	    undef $replyName;
 	    next;
 	}

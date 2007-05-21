@@ -64,14 +64,14 @@ sub pager::page {
 		}
 
 		my $channel = $::chan || 'infobot';
-		# TODO disallow use from private message? $chan="_default"
+		# TODO disallow use from private message? $chan='_default'
 
 		&::status("pager: from $from <$fromaddr>, to $to <$toaddr>, msg \"$msg\"");
 		my %headers = (
 			To => "$to <$toaddr>",
 			From => "$from <$fromaddr>",
 			Subject => "Message from $channel!",
-			'X-Mailer' => "blootbot",
+			'X-Mailer' => 'blootbot',
 		);
 
 #		my $logmsg;
@@ -98,5 +98,5 @@ sub pager::page {
 	&::performStrictReply($retval);
 }
 
-"pager";
+'pager';
 # vim: ts=2 sw=2

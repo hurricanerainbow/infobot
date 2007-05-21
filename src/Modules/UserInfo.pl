@@ -9,13 +9,13 @@
 
 use strict;
 
-my $orderOfInfo = "RN,J,C,W,D";
+my $orderOfInfo = 'RN,J,C,W,D';
 my %infoDesc = (
-	"RN"	=> "Real Name",
-	"J"	=> "Occupation",
-	"C"	=> "Contact",
-	"W"	=> "URL",
-	"D"	=> "Description",
+	'RN'	=> 'Real Name',
+	'J'	=> 'Occupation',
+	'C'	=> 'Contact',
+	'W'	=> 'URL',
+	'D'	=> 'Description',
 );
 
 sub UserInfo2Hash {
@@ -61,7 +61,7 @@ sub UserInfoGet {
     }
 
     my $result;
-    if ($result = &getFactoid($query." info")) {
+    if ($result = &getFactoid($query.' info')) {
 	# good.
     } else { # bad.
 	&performReply("No User Information on \002$query\002");
@@ -160,7 +160,7 @@ sub UserInfoSet {
 	$userInfo{$info} = $what;
     }
 
-    &setFactInfo($who." info", "factoid_value", &Hash2UserInfo(%userInfo));
+    &setFactInfo($who.' info', 'factoid_value', &Hash2UserInfo(%userInfo));
     if ($new) {
 	&DEBUG("UIS: locking '$who info'.");
 	&DEBUG("UIS: nuh => '$nuh'.");

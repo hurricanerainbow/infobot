@@ -18,7 +18,7 @@ sub validFactoid {
 
     for (lc $lhs) {
 	# allow the following only if they have been made on purpose.
-	if ($rhs ne "" and $rhs !~ /^</) {
+	if ($rhs ne '' and $rhs !~ /^</) {
 	    / \Q$ident$/i and last;	# someone said i'm something.
 	    /^i('m)? / and last;
 	    /^(it|that|there|what)('s)?(\s+|$)/ and last;
@@ -123,9 +123,9 @@ sub FactoidStuff {
 	    if ($param{'acceptUrl'} !~ /REQUIRE/ or $rhs =~ /(http|ftp|mailto|telnet|file):/) {
 		&msg($target, "$who knew: $lhs $mhs $rhs");
 
-		# "are" hack :)
-		$rhs = "<REPLY> are" if ($mhs eq "are");
-		&setFactInfo($lhs, "factoid_value", $rhs);
+		# 'are' hack :)
+		$rhs = "<REPLY> are" if ($mhs eq 'are');
+		&setFactInfo($lhs, 'factoid_value', $rhs);
 	    }
 
 	    return 'INFOBOT REPLY';
@@ -140,8 +140,8 @@ sub FactoidStuff {
 	return 'forget: no addr' unless ($addressed);
 
 	my $faqtoid = $message;
-	if ($faqtoid eq "") {
-	    &help("forget");
+	if ($faqtoid eq '') {
+	    &help('forget');
 	    return;
 	}
 
@@ -155,22 +155,22 @@ sub FactoidStuff {
 	}
 
 	# TODO: squeeze 3 getFactInfo calls into one?
-	my $author	= &getFactInfo($faqtoid, "created_by");
-	my $count	= &getFactInfo($faqtoid, "requested_count") || 0;
+	my $author	= &getFactInfo($faqtoid, 'created_by');
+	my $count	= &getFactInfo($faqtoid, 'requested_count') || 0;
 	# don't delete if requested $limit times
 	my $limit	= &getChanConfDefault('factoidPreventForgetLimit', 100, $chan);
 	# don't delete if older than $limitage seconds (modified by requests below)
 	my $limitage	= &getChanConfDefault('factoidPreventForgetLimitTime', 7 * 24 * 60 * 60, $chan);
-	my $t		= &getFactInfo($faqtoid, "created_time") || 0;
+	my $t		= &getFactInfo($faqtoid, 'created_time') || 0;
 	my $age		= time() - $t;
 
 	# lets scale limitage from 1 (nearly 0) to $limit (full time).
 	$limitage	= $limitage*($count+1)/$limit if ($count < $limit);
 	# isauthor and isop.
 	my $isau	= (defined $author and &IsHostMatch($author) == 2) ? 1 : 0;
-	my $isop	= (&IsFlag("o") eq "o") ? 1 : 0;
+	my $isop	= (&IsFlag('o') eq 'o') ? 1 : 0;
 
-	if (IsFlag("r") ne "r" && !$isop) {
+	if (IsFlag('r') ne 'r' && !$isop) {
 	    &msg($who, "you don't have access to remove factoids");
 	    return;
 	}
@@ -198,16 +198,16 @@ sub FactoidStuff {
 	# prevent deletion if other factoids redirect to it.
 	# TODO: use hash instead of array.
 	my @list;
-	if (&getChanConf("factoidPreventForgetRedirect")) {
+	if (&getChanConf('factoidPreventForgetRedirect')) {
 	    &status("Factoids/Core: forget: checking for redirect factoids");
-	    @list = &searchTable("factoids", "factoid_key",
-			"factoid_value", "^<REPLY> see ");
+	    @list = &searchTable('factoids', 'factoid_key',
+			'factoid_value', "^<REPLY> see ");
 	}
 
 	my $match = 0;
 	for (@list) {
 	    my $f = $_;
-	    my $v = &getFactInfo($f, "factoid_value");
+	    my $v = &getFactInfo($f, 'factoid_value');
 	    my $fsafe = quotemeta($faqtoid);
 	    next unless ($v =~ /^<REPLY> ?see( also)? $fsafe\.?$/i);
 
@@ -234,21 +234,21 @@ sub FactoidStuff {
 	    # TODO: make forget limit configurable.
 	    # TODO: make forget ignore time configurable.
 	    if ($cache{forget}{$h} > 5) {
-		&ignoreAdd(&makeHostMask($nuh), "*", 3*24*60, "abuse of forget");
+		&ignoreAdd(&makeHostMask($nuh), '*', 3*24*60, "abuse of forget");
 		&msg($who, "forget: Ignoring you for abuse!");
 	    }
 	}
 
 	# lets do it!
 
-	if (&IsParam("factoidDeleteDelay") or &IsChanConf("factoidDeleteDelay") > 0) {
+	if (&IsParam('factoidDeleteDelay') or &IsChanConf('factoidDeleteDelay') > 0) {
 	    if (!($isop or $isau) and $faqtoid =~ / #DEL#$/) {
 		&msg($who, "cannot delete it ($faqtoid).");
 		return;
 	    }
 
 	    &status("forgot (safe delete): '$faqtoid' - ". scalar(gmtime));
-	    ### TODO: check if the "backup" exists and overwrite it
+	    ### TODO: check if the 'backup' exists and overwrite it
 	    my $check = &getFactoid("$faqtoid #DEL#");
 
 	    if (!defined $check or $check =~ /^\s*$/) {
@@ -260,9 +260,9 @@ sub FactoidStuff {
 			&DEBUG("forget: not overwriting backup: $faqtoid");
 		    } else {
 			&status("forget: backing up '$faqtoid'");
-			&setFactInfo($faqtoid, "factoid_key", $new);
-			&setFactInfo($new, "modified_by", $who);
-			&setFactInfo($new, "modified_time", time());
+			&setFactInfo($faqtoid, 'factoid_key', $new);
+			&setFactInfo($new, 'modified_by', $who);
+			&setFactInfo($new, 'modified_time', time());
 		    }
 
 		} else {
@@ -289,16 +289,16 @@ sub FactoidStuff {
 	return 'unforget: no addr' unless ($addressed);
 
 	my $i = 0;
-	$i++ if (&IsParam("factoidDeleteDelay"));
-	$i++ if (&IsChanConf("factoidDeleteDelay") > 0);
+	$i++ if (&IsParam('factoidDeleteDelay'));
+	$i++ if (&IsChanConf('factoidDeleteDelay') > 0);
 	if (!$i) {
 	    &performReply("safe delete has been disable so what is there to undelete?");
 	    return;
 	}
 
 	my $faqtoid = $message;
-	if ($faqtoid eq "") {
-	    &help("unforget");
+	if ($faqtoid eq '') {
+	    &help('unforget');
 	    return;
 	}
 
@@ -316,9 +316,9 @@ sub FactoidStuff {
 	    return;
 	}
 
-	&setFactInfo($faqtoid." #DEL#", "factoid_key",   $faqtoid);
-#	&setFactInfo($faqtoid, "modified_by",   "");
-#	&setFactInfo($faqtoid, "modified_time", 0);
+	&setFactInfo($faqtoid." #DEL#", 'factoid_key',   $faqtoid);
+#	&setFactInfo($faqtoid, 'modified_by',   '');
+#	&setFactInfo($faqtoid, 'modified_time', 0);
 
 	$check	= &getFactoid($faqtoid);
 	# TODO: check if $faqtoid." #DEL#" exists?
@@ -339,19 +339,19 @@ sub FactoidStuff {
 	my $function = lc $1;
 	my $faqtoid  = lc $4;
 
-	if ($faqtoid eq "") {
+	if ($faqtoid eq '') {
 	    &help($function);
 	    return;
 	}
 
-	if (&getFactoid($faqtoid) eq "") {
+	if (&getFactoid($faqtoid) eq '') {
 	    &msg($who, "factoid \002$faqtoid\002 does not exist");
 	    return;
 	}
 
-	if ($function eq "lock") {
+	if ($function eq 'lock') {
 	    # strongly requested by #debian on 19991028. -xk
-	    if (1 and $faqtoid !~ /^\Q$who\E$/i and &IsFlag("o") ne "o") {
+	    if (1 and $faqtoid !~ /^\Q$who\E$/i and &IsFlag('o') ne 'o') {
 		&msg($who,"sorry, locking cannot be used since it can be abused unneccesarily.");
 		&status("Replace 1 with 0 in Process.pl#~324 for locking support.");
 		return;
@@ -369,8 +369,8 @@ sub FactoidStuff {
     if ($message =~ s/^rename(\s+|$)//) {
 	return 'rename: no addr' unless ($addressed);
 
-	if ($message eq "") {
-	    &help("rename");
+	if ($message eq '') {
+	    &help('rename');
 	    return;
 	}
 
@@ -384,7 +384,7 @@ sub FactoidStuff {
 	    }
 
 	    # who == nick!user@host.
-	    if (&IsFlag("m") ne "m" and $author !~ /^\Q$who\E\!/i) {
+	    if (&IsFlag('m') ne 'm' and $author !~ /^\Q$who\E\!/i) {
 		&msg($who, "factoid '$from' is not yours to modify.");
 		return;
 	    }
@@ -394,7 +394,7 @@ sub FactoidStuff {
 		return;
 	    }
 
-	    &setFactInfo($from,"factoid_key",$to);
+	    &setFactInfo($from,'factoid_key',$to);
 
 	    &status("rename: <$who> '$from' is now '$to'");
 	    &performReply("i renamed '$from' to '$to'");
@@ -421,7 +421,7 @@ sub FactoidStuff {
 	    return 'subst: locked' if (&IsLocked($faqtoid) == 1);
 	    my $was = $result;
 
-	    if (($flags eq "g" && $result =~ s/\Q$op/$np/gi) || $result =~ s/\Q$op/$np/i) {
+	    if (($flags eq 'g' && $result =~ s/\Q$op/$np/gi) || $result =~ s/\Q$op/$np/i) {
 		# excessive length.
 		if (length $result > $param{'maxDataSize'}) {
 		    &performReply("that's too long");
@@ -433,17 +433,17 @@ sub FactoidStuff {
 		    return;
 		}
 		# min length.
-		my $faqauth = &getFactInfo($faqtoid, "created_by");
+		my $faqauth = &getFactInfo($faqtoid, 'created_by');
 		if ((length $result)*2 < length $was and
-			&IsFlag("o") ne "o" and
+			&IsFlag('o') ne 'o' and
 			&IsHostMatch($faqauth) != 2
 		) {
 		    &performReply("too drastic change of factoid.");
 		}
 
-		&setFactInfo($faqtoid, "factoid_value", $result);
+		&setFactInfo($faqtoid, 'factoid_value', $result);
 		&status("update: '$faqtoid' =is=> '$result'; was '$was'");
-		&performReply("OK");
+		&performReply('OK');
 	    } else {
 		&performReply("that doesn't contain '$op'");
 	    }
@@ -501,7 +501,7 @@ sub FactoidStuff {
 	&loadMyModule('Math');
 	my $newresult = &perlMath();
 
-	if (defined $newresult and $newresult ne "") {
+	if (defined $newresult and $newresult ne '') {
 	    $cmdstats{'Maths'}++;
 	    $result = $newresult;
 	    &status("math: <$who> $message => $result");

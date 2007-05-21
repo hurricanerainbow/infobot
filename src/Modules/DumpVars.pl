@@ -15,7 +15,7 @@ my $countlines = 0;
 
 sub dumpvarslog {
     my ($line) = @_;
-    if (&IsParam("dumpvarsLogFile")) {
+    if (&IsParam('dumpvarsLogFile')) {
 	print DUMPVARS $line."\n";
     } else {
 	&status("DV: ".$line);
@@ -28,7 +28,7 @@ sub DumpNames(\%$) {
     my $line;
 
     if ($packname eq 'main::') {
-	&dumpvarslog("Packages");
+	&dumpvarslog('Packages');
 
 	foreach $symname (sort keys %$package) {
 	    local *sym = $$package{$symname};
@@ -113,7 +113,7 @@ sub DumpNames(\%$) {
 }
 
 sub dumpallvars {
-    if (&IsParam("dumpvarsLogFile")) {
+    if (&IsParam('dumpvarsLogFile')) {
 	my $file = $param{'dumpvarsLogFile'};
 	&status("opening fh to dumpvars ($file)");
 	if (!open(DUMPVARS,">$file")) {
@@ -124,7 +124,7 @@ sub dumpallvars {
 
     DumpNames(%main::,'main::');
 
-    if (&IsParam("dumpvarsLogFile")) {
+    if (&IsParam('dumpvarsLogFile')) {
 	&status("closing fh to dumpvars");
 	close DUMPVARS;
     }

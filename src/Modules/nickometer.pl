@@ -46,7 +46,7 @@ sub query {
     ### TODO: compact with map?
     my @list;
     foreach (sort {$b <=> $a} keys %nickometer) {
-      my $str = join(", ", sort keys %{ $nickometer{$_} });
+      my $str = join(', ', sort keys %{ $nickometer{$_} });
       push(@list, "$str ($_%)");
     }
 
@@ -58,7 +58,7 @@ sub query {
   my $percentage = &nickometer($term);
 
   if ($percentage =~ /NaN/) {
-    $percentage = "off the scale";
+    $percentage = 'off the scale';
   } else {
     $percentage = sprintf("%0.4f", $percentage);
     $percentage =~ s/(\.\d+)0+$/$1/;
@@ -143,7 +143,7 @@ sub nickometer ($) {
 	 $text =~ s/^([^\[\]]*) (\[) (.*) (\]) ([^\[\]]*) $/$1$3$5/x)
   {
     print "Removed $2$4 outside parentheses; nick now $_\n" if $verbose;
-    &punish(15, "brackets");
+    &punish(15, 'brackets');
   }
   my $parentheses = $text =~ tr/(){}[]/(){}[]/;
   &punish(&slow_pow(10, $parentheses),

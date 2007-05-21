@@ -16,13 +16,13 @@ sub cliloop {
 
     $nuh = "local!local\@local";
     $uh  = "local\@local";
-    $who = "local";
-    $orig{who} = "local";
+    $who = 'local';
+    $orig{who} = 'local';
     $ident = $param{'ircUser'};
     $chan = $talkchannel = "_local";
     $addressed = 1;
     $msgType = 'private';
-    $host = "local";
+    $host = 'local';
 
     # install libterm-readline-gnu-perl to get history support
     use Term::ReadLine;
@@ -47,7 +47,7 @@ sub msg {
     }
 
     if (!defined $msg) {
-	$msg ||= "NULL";
+	$msg ||= 'NULL';
 	&WARN("msg: msg == $msg.");
 	return;
     }

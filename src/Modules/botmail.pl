@@ -15,7 +15,7 @@ sub parse {
     my($what) = @_;
 
     if (!defined $what or $what =~ /^\s*$/) {
-	&::help("botmail");
+	&::help('botmail');
 	return;
     }
 
@@ -36,8 +36,8 @@ sub parse {
 }
 
 sub stats {
-    my $botmail	= &::countKeys("botmail");
-    &::msg($::who, "I have \002$botmail\002 ". &::fixPlural("message", $botmail). ".");
+    my $botmail	= &::countKeys('botmail');
+    &::msg($::who, "I have \002$botmail\002 ". &::fixPlural('message', $botmail). ".");
 }
 
 #####
@@ -46,7 +46,7 @@ sub check {
     my($recipient, $always) = @_;
     $recipient ||= $::who;
 
-    my %from = &::sqlSelectColHash("botmail", "srcwho,time", {
+    my %from = &::sqlSelectColHash('botmail', "srcwho,time", {
 	dstwho => lc $recipient
     } );
     my $t	= keys %from;
@@ -64,7 +64,7 @@ sub check {
 sub next {
     my($recipient) = @_;
 
-    my %hash = &::sqlSelectRowHash("botmail", "*", {
+    my %hash = &::sqlSelectRowHash('botmail', '*', {
 	dstwho => lc $recipient
     } );
 
@@ -75,7 +75,7 @@ sub next {
 	my $ago = &::Time2String(time() - $hash{'time'});
 	&::msg($recipient, "From $hash{srcwho} ($hash{srcuh}) on $date ($ago ago):");
 	&::msg($recipient, $hash{'msg'});
-	&::sqlDelete("botmail", { 'dstwho'=>$hash{dstwho}, 'srcwho'=>$hash{srcwho}});
+	&::sqlDelete('botmail', { 'dstwho'=>$hash{dstwho}, 'srcwho'=>$hash{srcwho}});
     }
 }
 
@@ -91,7 +91,7 @@ sub add {
     # only support 1 botmail with unique dstwho/srcwho to have same
     # functionality as botmail from infobot.
     # Note: I removed the &::sqlQuote reference. Seems to be working and inserting fine without it here. -- troubled
-    my %hash = &::sqlSelectRowHash("botmail", "*", {
+    my %hash = &::sqlSelectRowHash('botmail', '*', {
 	srcwho => lc $::who,
 	dstwho => lc $recipient
     } );
@@ -101,7 +101,7 @@ sub add {
 	return;
     }
 
-    &::sqlInsert("botmail", {
+    &::sqlInsert('botmail', {
 	'dstwho'	=> lc $recipient,
 	'srcwho'	=> lc $::who,
 	'srcuh'		=> $::nuh,

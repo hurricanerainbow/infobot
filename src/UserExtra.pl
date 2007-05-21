@@ -552,7 +552,7 @@ sub userCommands {
 	my $reply = $3;
 
 	if (!defined $reply) {
-	    &help("rot13");
+	    &help('rot13');
 	    return;
 	}
 	my $num = $1 % 26;

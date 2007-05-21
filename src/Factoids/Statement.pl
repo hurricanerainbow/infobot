@@ -24,13 +24,13 @@ sub doStatement {
     # check if we need to be addressed and if we are
     return unless ($learnok);
 
-    my($urlType) = "";
+    my($urlType) = '';
 
     # prefix www with http:// and ftp with ftp://
     $in =~ s/ www\./ http:\/\/www\./ig;
     $in =~ s/ ftp\./ ftp:\/\/ftp\./ig;
 
-    $urlType = "about"   if ($in =~ /\babout:/i);
+    $urlType = 'about'   if ($in =~ /\babout:/i);
     $urlType = 'afp'     if ($in =~ /\bafp:/);
     $urlType = 'file'    if ($in =~ /\bfile:/);
     $urlType = 'palace'  if ($in =~ /\bpalace:/);
@@ -40,12 +40,12 @@ sub doStatement {
     }
 
     # acceptUrl.
-    if (&IsParam("acceptUrl")) {
+    if (&IsParam('acceptUrl')) {
 	if ($param{'acceptUrl'} eq 'REQUIRE') {		# require url type.
-	    return if ($urlType eq "");
+	    return if ($urlType eq '');
 	} elsif ($param{'acceptUrl'} eq 'REJECT') {
-	    &status("REJECTED URL entry") if (&IsParam("VERBOSITY"));
-	    return unless ($urlType eq "");
+	    &status("REJECTED URL entry") if (&IsParam('VERBOSITY'));
+	    return unless ($urlType eq '');
 	} else {
 	    # OPTIONAL
 	}
@@ -56,7 +56,7 @@ sub doStatement {
 	my($lhs, $mhs, $rhs) = ($`, $&, $');
 
 	# allows factoid arguments to be updated. -lear.
-	$lhs =~ s/^(cmd: )?(.*)/$1||"" . lc $2/e;
+	$lhs =~ s/^(cmd: )?(.*)/$1||'' . lc $2/e;
 
 	# discard article.
 	$lhs =~ s/^(the|da|an?)\s+//i;
@@ -67,7 +67,7 @@ sub doStatement {
 	$rhs =~ s/^\s+|\s+$//g;
 
 	# break if either lhs or rhs is NULL.
-	if ($lhs eq "" or $rhs eq "") {
+	if ($lhs eq '' or $rhs eq '') {
 	    return "NOT-A-STATEMENT";
 	}
 
@@ -86,7 +86,7 @@ sub doStatement {
 
 	&status("statement: <$who> $message");
 
-	# change "#*#" back to "*" because of '\' sar to '#blah#'.
+	# change "#*#" back to '*' because of '\' sar to '#blah#'.
 	$lhs =~ s/\#(\S+)\#/$1/g;
 	$rhs =~ s/\#(\S+)\#/$1/g;
 
@@ -108,7 +108,7 @@ sub doStatement {
 	return if (&update($lhs, $mhs, $rhs));
     }
 
-    return "CONTINUE";
+    return 'CONTINUE';
 }
 
 1;
