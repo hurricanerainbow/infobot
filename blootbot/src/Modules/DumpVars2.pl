@@ -32,7 +32,7 @@ sub symdumpAll {
 sub symdumpRecur {
     my $x = shift;
 
-    if (ref $x eq "HASH") {
+    if (ref $x eq 'HASH') {
 	foreach (keys %$x) {
 	    &symdumpRecur($_);
 	}

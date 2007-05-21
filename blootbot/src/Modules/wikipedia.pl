@@ -50,7 +50,7 @@ sub wikipedia_lookup {
   &::DEBUG("wikipedia($phrase)");
 
   my $ua = new LWP::UserAgent;
-  $ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
+  $ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam('httpProxy'));
   # Let's pretend
   $ua->agent("Mozilla/5.0 " . $ua->agent);
   $ua->timeout(5);
@@ -137,7 +137,7 @@ sub wikipedia_lookup {
 	#$text = substr($text, 0, 330);
 	#$text =~ s/(.+)\.([^.]*)$/$1./g;
 
-	return("At " . $url . " (URL), Wikipedia explains: " . $text,
+	return('At ' . $url . " (URL), Wikipedia explains: " . $text,
 	       1);
       }
     }
@@ -150,7 +150,7 @@ sub wikipedia_get_text {
   &::DEBUG("wikipedia_get_text($article)");
 
   my $ua = new LWP::UserAgent;
-  $ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
+  $ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam('httpProxy'));
   # Let's pretend
   $ua->agent("Mozilla/5.0 " . $ua->agent);
   $ua->timeout(5);
@@ -174,19 +174,19 @@ sub wikipedia_get_text {
 	} elsif (/#REDIRECT\s*\[\[(.*?)\]\]/i) {
 	  $redirect = $1;
 	  $redirect =~ tr/ /_/;
-	  &::DEBUG("wiki redirect to " . $redirect);
+	  &::DEBUG('wiki redirect to ' . $redirect);
 	  last;
 	} elsif (/<text[^>]*>(.*)/) {
 	  $text = '"' . $1;
 	} elsif (/(.*)<\/text>/) {
-	  $text = $text . " " . $1 . '"';
+	  $text = $text . ' ' . $1 . '"';
 	  last;
 	} elsif ($text) {
-	  $text = $text . " " . $_;
+	  $text = $text . ' ' . $_;
 	}
       }
       &::DEBUG("wikipedia returned text: " . $text .
-		   ", redirect " . $redirect. "\n");
+		   ', redirect ' . $redirect. "\n");
 
       if (!$redirect and !$text) {
 	return ($res->as_string);

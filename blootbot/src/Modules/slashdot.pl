@@ -37,7 +37,7 @@ sub Slashdot {
     my $retval  = "i could not get the headlines.";
 
     if (scalar @results) {
-	my $prefix	= "Slashdot Headlines ";
+	my $prefix	= 'Slashdot Headlines ';
 	my @list	= &slashdotParse(@results);
 	$retval		= &::formListReply(0, $prefix, @list);
     }

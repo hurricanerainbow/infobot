@@ -86,7 +86,7 @@ sub switchPerson {
 	s/(^|\W)you\'?re(\W|$)/$1you are$2/ig;
 
 	if ($addressed) {
-	    my $mynick = "UNDEF";
+	    my $mynick = 'UNDEF';
 	    $mynick = $conn->nick() if ($conn);
 	    # is it safe to remove $in from here, too?
 	    $in =~ s/yourself/$mynick/i;

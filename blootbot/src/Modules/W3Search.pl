@@ -44,7 +44,7 @@ sub W3Search {
 #		search_parse_debug => 2,
 	}
     );
-    $Search->http_proxy($::param{'httpProxy'}) if (&::IsParam("httpProxy"));
+    $Search->http_proxy($::param{'httpProxy'}) if (&::IsParam('httpProxy'));
     #my $max = $Search->maximum_to_retrieve(10);	# DOES NOT WORK.
 
     my (@results, $count, $r);

@@ -51,7 +51,7 @@ sub queryText {
 	}
 
 	my $ua = new LWP::UserAgent;
-	$ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
+	$ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam('httpProxy'));
 
 	$ua->timeout(10);
 	my $request = new HTTP::Request('GET', "http://weather.noaa.gov/weather/current/$station.html");
@@ -64,7 +64,7 @@ sub queryText {
 		    . " or http://www.nws.noaa.gov/tg/siteloc.shtml"
 		    . " for ICAO locations codes).";
 	    } else {
-		return "Something failed in connecting to the NOAA web"
+		return 'Something failed in connecting to the NOAA web'
 		    . " server. Try again later.";
 	    }
 	}
@@ -105,7 +105,7 @@ sub queryText {
 
 	if ($time) {
 	    if ($wxmode eq 'metar' && defined($feat{'ob'})) {
-	        return ("METAR " . $place . ": " . $feat{'ob'});
+	        return ('METAR ' . $place . ": " . $feat{'ob'});
 	    }
 
 	    $result = "$place; $id; last updated: $time";

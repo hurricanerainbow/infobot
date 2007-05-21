@@ -17,7 +17,7 @@ sub help {
     my %help  = ();
 
     # crude hack for performStrictReply() to work as expected.
-    $msgType = "private" if ($msgType eq "public");
+    $msgType = 'private' if ($msgType eq 'public');
 
     if (!open(FILE, $file)) {
 	&ERROR("Failed reading help file ($file): $!");
@@ -39,12 +39,12 @@ sub help {
 	$val =~ s/__/\037/g;
 	$val =~ s/==/        /;
 
-	$help{$key}  = ""		 if (!exists $help{$key});
+	$help{$key}  = ''		 if (!exists $help{$key});
 	$help{$key} .= $val."\n";
     }
     close FILE;
 
-    if (!defined $topic or $topic eq "") {
+    if (!defined $topic or $topic eq '') {
 	&msg($who, $help{'main'});
 
 	my $i = 0;
@@ -165,7 +165,7 @@ sub formListReply {
 # Usage: &IJoin(@array);
 sub IJoin {
     if (!scalar @_) {
-	return "NULL";
+	return 'NULL';
     } elsif (scalar @_ == 1) {
 	return $_[0];
     } else {
@@ -177,10 +177,10 @@ sub IJoin {
 # Usage: &Time2String(seconds);
 sub Time2String {
     my ($time) = @_;
-    my $prefix = "";
+    my $prefix = '';
     my (@s, @t);
 
-    return "NULL" if (!defined $time);
+    return 'NULL' if (!defined $time);
     return $time  if ($time !~ /\d+/);
 
     if ($time < 0) {
@@ -279,24 +279,24 @@ sub fixPlural {
 	return $str;
     }
 
-    if ($str eq "has") {
-	$str = "have"	if ($int > 1);
-    } elsif ($str eq "is") {
-	$str = "are"	if ($int > 1);
-    } elsif ($str eq "was") {
-	$str = "were"	if ($int > 1);
-    } elsif ($str eq "this") {
-	$str = "these"	if ($int > 1);
+    if ($str eq 'has') {
+	$str = 'have'	if ($int > 1);
+    } elsif ($str eq 'is') {
+	$str = 'are'	if ($int > 1);
+    } elsif ($str eq 'was') {
+	$str = 'were'	if ($int > 1);
+    } elsif ($str eq 'this') {
+	$str = 'these'	if ($int > 1);
     } elsif ($str =~ /y$/) {
 	if ($int > 1) {
 	    if ($str =~ /ey$/) {
-		$str .= "s";	# eg: "money" => "moneys".
+		$str .= 's';	# eg: 'money' => 'moneys'.
 	    } else {
 		$str =~ s/y$/ies/;
 	    }
 	}
     } else {
-	$str .= "s"	if ($int != 1);
+	$str .= 's'	if ($int != 1);
     }
 
     return $str;
@@ -436,7 +436,7 @@ sub IsHostMatch {
 	$this{'host'} = &makeHostMask(lc $3);
     } else {
 	&WARN("IHM: thisnuh is invalid '$thisnuh'.");
-	return 1 if ($thisnuh eq "");
+	return 1 if ($thisnuh eq '');
 	return 0;
     }
 
@@ -501,7 +501,7 @@ sub isFileUpdated {
 # Usage: &makeHostMask($host);
 sub makeHostMask {
     my ($host)	= @_;
-    my $nu	= "";
+    my $nu	= '';
 
     if ($host =~ s/^(\S+!\S+\@)//) {
 	&DEBUG("mHM: detected nick!user\@ for host arg; fixing");
@@ -548,7 +548,7 @@ sub makeRandom {
 
 sub checkMsgType {
     my ($reply) = @_;
-    return unless (&IsParam("minLengthBeforePrivate"));
+    return unless (&IsParam('minLengthBeforePrivate'));
     return if ($force_public_reply);
 
     if (length $reply > $param{'minLengthBeforePrivate'}) {
@@ -609,7 +609,7 @@ sub Forker {
     &shmFlush();
     &VERB("double fork detected; not forking.",2) if ($$ != $bot_pid);
 
-    if (&IsParam("forking") and $$ == $bot_pid) {
+    if (&IsParam('forking') and $$ == $bot_pid) {
 	return unless &addForked($label);
 
 	$SIG{CHLD} = 'IGNORE';
@@ -655,13 +655,13 @@ sub mkcrypt {
 }
 
 sub closeStats {
-    return unless (&getChanConfList("ircTextCounters"));
+    return unless (&getChanConfList('ircTextCounters'));
 
     foreach (keys %cmdstats) {
 	my $type	= $_;
-	my $i	= &sqlSelect("stats", "counter", {
+	my $i	= &sqlSelect('stats', 'counter', {
 		nick	=> $type,
-		type	=> "cmdstats",
+		type	=> 'cmdstats',
 	} );
 	my $z	= 0;
 	$z++ unless ($i);
@@ -669,8 +669,8 @@ sub closeStats {
 	$i	+= $cmdstats{$type};
 
 
-	&sqlSet("stats", {'nick' => $type}, {
-	    type	=> "cmdstats",
+	&sqlSet('stats', {'nick' => $type}, {
+	    type	=> 'cmdstats',
 	    'time'	=> time(),
 	    counter	=> $i,
 	} );

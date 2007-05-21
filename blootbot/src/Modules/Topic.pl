@@ -33,7 +33,7 @@ sub topicDecipher {
 	}
 
 	my $subtopic	= $_;
-	my $owner	= "Unknown";
+	my $owner	= 'Unknown';
 
 	if (/(.*)\s+\((.*?)\)$/) {
 	    $subtopic	= $1;
@@ -60,7 +60,7 @@ sub topicCipher {
     foreach (@_) {
 	my ($subtopic, $setby) = split /\|\|/;
 
-	if ($param{'topicAuthor'} eq "1" and (!$setby =~ /^(unknown|)$/i)) {
+	if ($param{'topicAuthor'} eq '1' and (!$setby =~ /^(unknown|)$/i)) {
 	    push(@topic, "$subtopic ($setby)");
 	} else {
 	    push(@topic, "$subtopic");
@@ -101,7 +101,7 @@ sub topicNew {
 	return 1;
     }
 
-    if (defined $updateMsg && $updateMsg ne "") {
+    if (defined $updateMsg && $updateMsg ne '') {
 	&msg($who, $updateMsg);
     }
 
@@ -113,7 +113,7 @@ sub topicNew {
 	$conn->topic($chan, $topic);
 	&topicAddHistory($chan, $topic);
     } else {
-	$conn->topic($chan, " ");
+	$conn->topic($chan, ' ');
     }
 
     return 1;
@@ -125,10 +125,10 @@ sub topicAddHistory {
     my ($chan, $topic)	= @_;
     my $dupe		= 0;
 
-    return 1 if ($topic eq "");			# required fix.
+    return 1 if ($topic eq '');			# required fix.
 
     foreach (@{ $topic{$chan}{'History'} }) {
-	next if ($_ ne "" and $_ ne $topic);
+	next if ($_ ne '' and $_ ne $topic);
 	# checking length is required.
 
 	# slightly weird to put a return statement in a loop.
@@ -153,24 +153,24 @@ sub topicAddHistory {
 sub do_add {
     my ($chan, $args) = @_;
 
-    if ($args eq "") {
-	&help("topic add");
+    if ($args eq '') {
+	&help('topic add');
 	return;
     }
 
     # heh, joeyh. 19990819. -xk
     if ($who =~ /\|\|/) {
-	&msg($who, "error: you have an invalid nick, loser!");
+	&msg($who, 'error: you have an invalid nick, loser!');
 	return;
     }
 
-    return if ($channels{$chan}{t} and !&hasFlag("T"));
+    return if ($channels{$chan}{t} and !&hasFlag('T'));
 
     my @prev = &topicDecipher($chan);
     my $new;
     # If bot new to chan and topic is blank, it still got a (owner). This is fix
-    if ($param{'topicAuthor'} eq "1") {
-    	$new  = "$args ($orig{who})";
+    if ($param{'topicAuthor'} eq '1') {
+	$new  = "$args ($orig{who})";
     } else {
 	$new  = "$args";
     }
@@ -181,7 +181,7 @@ sub do_add {
 	$new = &topicCipher(@prev, $str);
     }
 
-    &topicNew($chan, $new, "");
+    &topicNew($chan, $new, '');
 }
 
 # cmd: delete.
@@ -191,12 +191,12 @@ sub do_delete {
     my $topiccount	= scalar @subtopics;
 
     if ($topiccount == 0) {
-	&msg($who, "No topic set.");
+	&msg($who, 'No topic set.');
 	return;
     }
 
-    if ($args eq "") {
-	&help("topic del");
+    if ($args eq '') {
+	&help('topic del');
 	return;
     }
 
@@ -215,8 +215,8 @@ sub do_delete {
     }
 
     my @delete;
-    foreach (split ",", $args) {
-	next if ($_ eq "");
+    foreach (split ',', $args) {
+	next if ($_ eq '');
 
 	# change to hash list instead of array?
 	if (/^(\d+)-(\d+)$/) {
@@ -231,7 +231,7 @@ sub do_delete {
 	    return;
 	}
 
-	$topic{$chan}{'What'} = "Deleted ".join("/",@delete);
+	$topic{$chan}{'What'} = 'Deleted '.join("/",@delete);
     }
 
     foreach (@delete) {
@@ -246,7 +246,7 @@ sub do_delete {
 
 	my ($subtopic,$whoby) = split('\|\|', $subtopics[$_-1]);
 
-	$whoby = "unknown" if ($whoby eq "");
+	$whoby = 'unknown' if ($whoby eq '');
 
 	&msg($who, "Deleting topic: $subtopic ($whoby)");
 	undef $subtopics[$_-1];
@@ -258,7 +258,7 @@ sub do_delete {
 	push(@newtopics, $_);
     }
 
-    &topicNew($chan, &topicCipher(@newtopics), "");
+    &topicNew($chan, &topicCipher(@newtopics), '');
 }
 
 # cmd: list
@@ -294,8 +294,8 @@ sub do_list {
 sub do_modify {
     my ($chan, $args) = @_;
 
-    if ($args eq "") {
-	&help("topic mod");
+    if ($args eq '') {
+	&help('topic mod');
 	return;
     }
 
@@ -318,8 +318,8 @@ sub do_modify {
 	my $topic = $topic{$chan}{'Current'};
 
 	### TODO: use m### to make code safe!
-	if (($flags eq "g" and $topic =~ s/\Q$op\E/$np/g) ||
-	    ($flags eq ""  and $topic =~ s/\Q$op\E/$np/)
+	if (($flags eq 'g' and $topic =~ s/\Q$op\E/$np/g) ||
+	    ($flags eq ''  and $topic =~ s/\Q$op\E/$np/)
 	) {
 
 	    $_ = "Modifying topic with sar s/$op/$np/.";
@@ -338,8 +338,8 @@ sub do_modify {
 sub do_move {
     my ($chan, $args) = @_;
 
-    if ($args eq "") {
-	&help("topic mv");
+    if ($args eq '') {
+	&help('topic mv');
 	return;
     }
 
@@ -408,7 +408,7 @@ sub do_move {
 
     undef @subtopics;			# lets reuse this array.
     foreach (@newtopics) {
-	next if (!defined $_ or $_ eq "");
+	next if (!defined $_ or $_ eq '');
 	push(@subtopics, $_);
     }
 
@@ -422,7 +422,7 @@ sub do_shuffle {
     my @subtopics	= &topicDecipher($chan);
     my @newtopics;
 
-    $topic{$chan}{'What'} = "shuffled";
+    $topic{$chan}{'What'} = 'shuffled';
 
     foreach (&makeRandom(scalar @subtopics)) {
 	push(@newtopics, $subtopics[$_]);
@@ -457,8 +457,8 @@ sub do_history {
 sub do_restore {
     my ($chan, $args) = @_;
 
-    if ($args eq "") {
-	&help("topic restore");
+    if ($args eq '') {
+	&help('topic restore');
 	return;
     }
 
@@ -492,7 +492,7 @@ sub do_rehash {
     my ($chan) = @_;
 
     $_ = "Rehashing topic...";
-    $topic{$chan}{'What'} = "Rehash";
+    $topic{$chan}{'What'} = 'Rehash';
     &topicNew($chan, $topic{$chan}{'Current'}, $_, 1);
 }
 
@@ -504,7 +504,7 @@ sub do_info {
     if (exists $topic{$chan}{'Who'} and exists $topic{$chan}{'Time'}) {
 	$reply = "topic on \002$chan\002 was last set by ".
 		$topic{$chan}{'Who'}. ".  This was done ".
-		&Time2String(time() - $topic{$chan}{'Time'}) ." ago".
+		&Time2String(time() - $topic{$chan}{'Time'}) .' ago'.
 		".  Length: ".length($topic{$chan}{'Current'});
 	my $change = $topic{$chan}{'What'};
 	$reply .= ".  Change => $change" if (defined $change);
@@ -559,13 +559,13 @@ sub Topic {
 
     } else {
 	### HELP:
-	if ($cmd ne "" and $cmd !~ /^help/i) {
+	if ($cmd ne '' and $cmd !~ /^help/i) {
 	    &msg($who, "Invalid command [$cmd].");
 	    &msg($who, "Try 'help topic'.");
 	    return;
 	}
 
-	&help("topic");
+	&help('topic');
     }
 
     return;

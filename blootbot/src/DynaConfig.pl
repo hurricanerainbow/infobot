@@ -64,7 +64,7 @@ sub readUserFile {
 	if (/^--(\S+)[\s\t]+(.*)$/) {		# user: middle entry.
 	    my ($what,$val) = ($1,$2);
 
-	    if (!defined $val or $val eq "") {
+	    if (!defined $val or $val eq '') {
 		&WARN("$what: val == NULL.");
 		next;
 	    }
@@ -75,7 +75,7 @@ sub readUserFile {
 	    }
 
 	    # nice little hack.
-	    if ($what eq "HOSTS") {
+	    if ($what eq 'HOSTS') {
 		$users{$nick}{$what}{$val} = 1;
 	    } else {
 		$users{$nick}{$what} = $val;
@@ -86,9 +86,9 @@ sub readUserFile {
 
 	} elsif (/^::(\S+) ignore$/) {		# ignore: start entry.
 	    $chan	= $1;
-	    $type	= "ignore";
+	    $type	= 'ignore';
 
-	} elsif (/^- (\S+):\+(\d+):\+(\d+):(\S+):(.*)$/ and $type eq "ignore") {
+	} elsif (/^- (\S+):\+(\d+):\+(\d+):(\S+):(.*)$/ and $type eq 'ignore') {
 	    ### ignore: middle entry.
 	    my $mask = $1;
 	    my(@array) = ($2,$3,$4,$5);
@@ -101,9 +101,9 @@ sub readUserFile {
 
 	} elsif (/^::(\S+) bans$/) {		# bans: start entry.
 	    $chan	= $1;
-	    $type	= "bans";
+	    $type	= 'bans';
 
-	} elsif (/^- (\S+):\+(\d+):\+(\d+):(\d+):(\S+):(.*)$/ and $type eq "bans") {
+	} elsif (/^- (\S+):\+(\d+):\+(\d+):(\d+):(\S+):(.*)$/ and $type eq 'bans') {
 	    ### bans: middle entry.
 	    # $btime, $atime, $count, $whoby, $reason.
 	    my(@array) = ($2,$3,$4,$5,$6);
@@ -155,7 +155,7 @@ sub writeUserFile {
 	    my $what	= $_;
 	    my $val	= $users{$user}{$_};
 
-	    if (ref($val) eq "HASH") {
+	    if (ref($val) eq 'HASH') {
 		foreach (sort keys %{ $users{$user}{$_} }) {
 		    print OUT "--$what\t\t$_\n";
 		}
@@ -407,7 +407,7 @@ sub writeChanFile {
 # TODO: return all flags for opers
 sub IsFlag {
     my $flags = shift;
-    my ($ret, $f, $o) = "";
+    my ($ret, $f, $o) = '';
 
     &verifyUser($who, $nuh);
 
@@ -432,7 +432,7 @@ sub verifyUser {
 	return $userHandle;
     }
 
-    $userHandle = "";
+    $userHandle = '';
 
     foreach $user (keys %users) {
 	next if ($user eq "_default");
@@ -453,7 +453,7 @@ sub verifyUser {
 	    last;
 	}
 
-	last if ($userHandle ne "");
+	last if ($userHandle ne '');
 
 	if ($user =~ /^\Q$nick\E$/i and !exists $cache{VUSERWARN}{$user}) {
 	    &status("vU: nick matched but host is not in list ($lnuh).");
@@ -472,10 +472,10 @@ sub verifyUser {
 sub ckpasswd {
     # returns true if arg1 encrypts to arg2
     my ($plain, $encrypted) = @_;
-    if ($encrypted eq "") {
+    if ($encrypted eq '') {
 	($plain, $encrypted) = split(/\s+/, $plain, 2);
     }
-    return 0 unless ($plain ne "" and $encrypted ne "");
+    return 0 unless ($plain ne '' and $encrypted ne '');
 
     # MD5 // DES. Bobby Billingsley++.
     my $salt;
@@ -508,8 +508,8 @@ sub hasFlag {
 sub ignoreAdd {
     my($mask,$chan,$expire,$comment) = @_;
 
-    $chan	||= "*";	# global if undefined.
-    $comment	||= "";		# optional.
+    $chan	||= '*';	# global if undefined.
+    $comment	||= '';		# optional.
     $expire	||= 0;		# permament.
     my $count	||= 0;
 
@@ -603,7 +603,7 @@ sub userDel {
 sub banAdd {
     my($mask,$chan,$expire,$reason) = @_;
 
-    $chan	||= "*";
+    $chan	||= '*';
     $expire	||= 0;
 
     if ($expire > 0) {
@@ -615,7 +615,7 @@ sub banAdd {
 		exists $bans{'*'}{$mask});
     $bans{$chan}{$mask} = [$expire, time(), 0, $who, $reason];
 
-    my @chans	= ($chan eq "*") ? keys %channels : $chan;
+    my @chans	= ($chan eq '*') ? keys %channels : $chan;
     my $m	= $mask;
     $m		=~ s/\?/\\./g;
     $m		=~ s/\*/\\S*/g;
@@ -722,7 +722,7 @@ sub chanSet {
 	my $was		= $chanconf{$chan}{$what};
 
 	if ($set) {			# add/set.
-	    if (defined $was and $was eq "1") {
+	    if (defined $was and $was eq '1') {
 		&performStrictReply("setting $what for $chan already 1.");
 		return;
 	    }
@@ -739,9 +739,9 @@ sub chanSet {
 	}
 
 	# alter for cosmetic (print out) reasons only.
-	$was	= (defined $was) ? "; was '$was'" : "";
+	$was	= (defined $was) ? "; was '$was'" : '';
 
-	if ($val eq "0") {
+	if ($val eq '0') {
 	    &performStrictReply("Unsetting $what for $chan$was.");
 	    delete $chanconf{$chan}{$what};
 	} else {
@@ -759,7 +759,7 @@ sub chanSet {
 	    &performStrictReply("setting $what for $chan already '$val'.");
 	    return;
 	}
-	$was	= ($was) ? "; was '$was'" : "";
+	$was	= ($was) ? "; was '$was'" : '';
 	&performStrictReply("Setting $what for $chan to '$val'$was.");
 
 	$chanconf{$chan}{$what} = $val;
@@ -826,19 +826,19 @@ sub rehashConfVars {
 
 my @regFlagsUser = (
 	# possible chars to include in FLAG
-	"A",	# bot administration over /msg
+	'A',	# bot administration over /msg
 			# default is only via DCC CHAT
-	"O",	# dynamic ops (as on channel). (automatic +o)
-	"T",	# add topics.
-	"a",	# ask/request factoid.
-	"m",	# modify factoid. (includes renaming)
-	"n",	# bot owner, can "reload"
-	"o",	# master of bot (automatic +amrt)
+	'O',	# dynamic ops (as on channel). (automatic +o)
+	'T',	# add topics.
+	'a',	# ask/request factoid.
+	'm',	# modify factoid. (includes renaming)
+	'n',	# bot owner, can 'reload'
+	'o',	# master of bot (automatic +amrt)
 			# can search on factoid strings shorter than 2 chars
 			# can tell bot to join new channels
 			# can [un]lock factoids
-	"r",	# remove factoid.
-	"t",	# teach/add factoid.
+	'r',	# remove factoid.
+	't',	# teach/add factoid.
 );
 
 1;

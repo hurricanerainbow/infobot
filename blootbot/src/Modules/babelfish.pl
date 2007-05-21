@@ -63,7 +63,7 @@ sub babelfishParam {
   $to = $lang_code{$to};
 
   my $ua = new LWP::UserAgent;
-  $ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam("httpProxy"));
+  $ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam('httpProxy'));
   # Let's pretend
   $ua->agent("Mozilla/5.0 " . $ua->agent);
   $ua->timeout(5);

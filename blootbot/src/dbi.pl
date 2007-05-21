@@ -23,15 +23,15 @@ sub sqlOpenDB {
 	$db = "dbname=$db.sqlite";
     } elsif ($type =~ /^pg/i) {
 	$db = "dbname=$db";
-	$type = "Pg";
+	$type = 'Pg';
     }
 
     my $dsn = "DBI:$type:$db";
-    my $hoststr = "";
+    my $hoststr = '';
     # SQLHost should be unset for SQLite
     if (exists $param{'SQLHost'} and $param{'SQLHost'}) {
-	# PostgreSQL requires ";" and keyword "host". See perldoc Pg -- troubled
-	if ($type eq "Pg") {
+	# PostgreSQL requires ";" and keyword 'host'. See perldoc Pg -- troubled
+	if ($type eq 'Pg') {
 		$dsn	.= ";host=$param{SQLHost}";
 	} else {
 		$dsn    .= ":$param{SQLHost}";
@@ -61,7 +61,7 @@ sub sqlCloseDB {
     return 0 unless ($dbh);
 
     my $x = $param{SQLHost};
-    my $hoststr = ($x) ? " to $x" : "";
+    my $hoststr = ($x) ? " to $x" : '';
 
     &status("Closed DBI connection$hoststr.");
     $dbh->disconnect();
@@ -232,7 +232,7 @@ sub sqlSet {
 	return;
     }
 
-    if (!defined $data_href or ref($data_href) ne "HASH") {
+    if (!defined $data_href or ref($data_href) ne 'HASH') {
 	&WARN("sqlSet: data_href == NULL.");
 	return;
     }
@@ -265,7 +265,7 @@ sub sqlSet {
 sub sqlUpdate {
     my ($table, $data_href, $where_href) = @_;
 
-    if (!defined $data_href or ref($data_href) ne "HASH") {
+    if (!defined $data_href or ref($data_href) ne 'HASH') {
 	&WARN("sqlSet: data_href == NULL.");
 	return 0;
     }
@@ -273,7 +273,7 @@ sub sqlUpdate {
     my $where  = &hashref2where($where_href) if ($where_href);
     my $update = &hashref2update($data_href) if ($data_href);
 
-    &sqlRaw("Update", "UPDATE $table SET $update WHERE $where");
+    &sqlRaw('Update', "UPDATE $table SET $update WHERE $where");
 
     return 1;
 }
@@ -282,10 +282,10 @@ sub sqlUpdate {
 # Usage: &sqlInsert($table, $data_href, $other);
 sub sqlInsert {
     my ($table, $data_href, $other) = @_;
-    # note: if $other == 1, add "DELAYED" to function instead.
+    # note: if $other == 1, add 'DELAYED' to function instead.
     # note: ^^^ doesnt actually do anything lol. Need code to s/1/DELAYED/ below -- troubled
 
-    if (!defined $data_href or ref($data_href) ne "HASH") {
+    if (!defined $data_href or ref($data_href) ne 'HASH') {
 	&WARN("sqlInsert: data_href == NULL.");
 	return;
     }
@@ -301,7 +301,7 @@ sub sqlInsert {
 
     return &sqlRaw("Insert($table)", sprintf(
 	"INSERT %s INTO %s (%s) VALUES (%s)",
-	($other || ""), $table, join(',',@k), join(',',@v)
+	($other || ''), $table, join(',',@k), join(',',@v)
     ) );
 }
 
@@ -310,7 +310,7 @@ sub sqlInsert {
 sub sqlReplace {
     my ($table, $data_href, $pkey) = @_;
 
-    if (!defined $data_href or ref($data_href) ne "HASH") {
+    if (!defined $data_href or ref($data_href) ne 'HASH') {
 	&WARN("sqlReplace: data_href == NULL.");
 	return;
     }
@@ -356,14 +356,14 @@ sub sqlReplace {
 sub sqlDelete {
     my ($table, $where_href) = @_;
 
-    if (!defined $where_href or ref($where_href) ne "HASH") {
+    if (!defined $where_href or ref($where_href) ne 'HASH') {
 	&WARN("sqlDelete: where_href == NULL.");
 	return;
     }
 
     my $where	= &hashref2where($where_href);
 
-    &sqlRaw("Delete", "DELETE FROM $table WHERE $where");
+    &sqlRaw('Delete', "DELETE FROM $table WHERE $where");
 
     return 1;
 }
@@ -443,7 +443,7 @@ sub hashref2where {
 	return;
     }
 
-    if (ref($href) ne "HASH") {
+    if (ref($href) ne 'HASH') {
 	&WARN("hashref2where: href is not HASH ref (href => $href)");
 	return;
     }
@@ -466,7 +466,7 @@ sub hashref2where {
 sub hashref2update {
     my ($href) = @_;
 
-    if (ref($href) ne "HASH") {
+    if (ref($href) ne 'HASH') {
 	&WARN("hashref2update: href is not HASH ref.");
 	return;
     }
@@ -492,7 +492,7 @@ sub hashref2update {
 sub hashref2array {
     my ($href) = @_;
 
-    if (ref($href) ne "HASH") {
+    if (ref($href) ne 'HASH') {
 	&WARN("hashref2update: href is not HASH ref.");
 	return;
     }
@@ -520,7 +520,7 @@ sub hashref2array {
 # Usage: &countKeys($table, [$col]);
 sub countKeys {
     my ($table, $col) = @_;
-    $col ||= "*";
+    $col ||= '*';
 
     return (&sqlRawReturn("SELECT count($col) FROM $table"))[0];
 }

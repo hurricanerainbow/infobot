@@ -21,13 +21,13 @@ sub update {
     return if (&IsLocked($lhs) == 1);
 
     # profanity.
-    if (&IsParam("profanityCheck") and &hasProfanity($rhs)) {
+    if (&IsParam('profanityCheck') and &hasProfanity($rhs)) {
 	&performReply("please, watch your language.");
 	return 1;
     }
 
     # teaching.
-    if (&IsFlag("t") ne "t" && &IsFlag("o") ne "o") {
+    if (&IsFlag('t') ne 't' && &IsFlag('o') ne 'o') {
 	&msg($who, "permission denied.");
 	&status("alert: $who wanted to teach me.");
 	return 1;
@@ -54,7 +54,7 @@ sub update {
 
     # factoid arguments handler.
     # must start with a non-variable
-    if (&IsChanConf("factoidArguments") > 0 and $lhs =~ /^[^\$]+.*\$/) {
+    if (&IsChanConf('factoidArguments') > 0 and $lhs =~ /^[^\$]+.*\$/) {
 	&status("Update: Factoid Arguments found.");
 	&status("Update: orig lhs => '$lhs'.");
 	&status("Update: orig rhs => '$rhs'.");
@@ -87,23 +87,23 @@ sub update {
 	# nice 'are' hack (or work-around).
 	if ($mhs =~ /^are$/i and $rhs !~ /<\S+>/) {
 	    &status("Update: 'are' hack detected.");
-	    $mhs = "is";
+	    $mhs = 'is';
 	    $rhs = "<REPLY> are ". $rhs;
 	}
 
 	&status("enter: <$who> \'$lhs\' =$mhs=> \'$rhs\'");
 	$count{'Update'}++;
 
-	&performAddressedReply("okay");
+	&performAddressedReply('okay');
 
-	&sqlInsert("factoids", {
+	&sqlInsert('factoids', {
 		created_by	=> $nuh,
 		created_time	=> time(),	# modified time.
 		factoid_key	=> $lhs,
 		factoid_value	=> $rhs,
 	} );
 
-	if (!defined $rhs or $rhs eq "") {
+	if (!defined $rhs or $rhs eq '') {
 	    &ERROR("Update: rhs1 == NULL.");
 	}
 
@@ -174,20 +174,20 @@ sub update {
 	    }
 	}
 
-	&performAddressedReply("okay");
+	&performAddressedReply('okay');
 
 	$count{'Update'}++;
 	&status("update: <$who> \'$lhs\' =$mhs=> \'$rhs\'; was \'$exists\'");
-	&sqlSet("factoids", {'factoid_key' => $lhs}, {
+	&sqlSet('factoids', {'factoid_key' => $lhs}, {
 		modified_by	=> $nuh,
 		modified_time	=> time(),
 		factoid_value	=> $rhs,
 	} );
 
-	if (!defined $rhs or $rhs eq "") {
+	if (!defined $rhs or $rhs eq '') {
 	    &ERROR("Update: rhs1 == NULL.");
 	}
-    } else {				# not "also"
+    } else {				# not 'also'
 
 	if (!$correction_plausible) {	# "no, blah is ..."
 	    if ($addressed) {
@@ -197,27 +197,27 @@ sub update {
 	    return 1;
 	}
 
-	my $author = &getFactInfo($lhs, "created_by") || "";
+	my $author = &getFactInfo($lhs, 'created_by') || '';
 
-	if (IsFlag("m") ne "m" && IsFlag("o") ne "o" &&
+	if (IsFlag('m') ne 'm' && IsFlag('o') ne 'o' &&
 	    $author !~ /^\Q$who\E\!/i
 	) {
 	    &msg($who, "you can't change that factoid.");
 	    return 1;
 	}
 
-	&performAddressedReply("okay");
+	&performAddressedReply('okay');
 
 	$count{'Update'}++;
 	&status("update: <$who> \'$lhs\' =$mhs=> \'$rhs\'; was \'$exists\'");
 
-	&sqlSet("factoids", {'factoid_key' => $lhs}, {
+	&sqlSet('factoids', {'factoid_key' => $lhs}, {
 		modified_by	=> $nuh,
 		modified_time	=> time(),
 		factoid_value	=> $rhs,
 	} );
 
-	if (!defined $rhs or $rhs eq "") {
+	if (!defined $rhs or $rhs eq '') {
 	    &ERROR("Update: rhs1 == NULL.");
 	}
     }

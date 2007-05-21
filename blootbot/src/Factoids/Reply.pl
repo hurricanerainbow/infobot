@@ -46,7 +46,7 @@ sub getReply {
 	} else {
 	    $factoid = "$search $message";
 	}
-	($count, $fauthor, $result) = &sqlSelect("factoids",
+	($count, $fauthor, $result) = &sqlSelect('factoids',
 	    "requested_count,created_by,factoid_value",
 	    { factoid_key => $factoid }
 	);
@@ -55,7 +55,7 @@ sub getReply {
 
     if ($result) {
 	$lhs = $message;
-	$mhs = "is";
+	$mhs = 'is';
 	$rhs = $result;
 
 	return "\"$factoid\" $mhs \"$rhs\"" if ($literal);
@@ -76,7 +76,7 @@ sub getReply {
     $result	= &SARit($result);
 
     $reply	= $result;
-    if ($result ne "") {
+    if ($result ne '') {
 	### AT LAST, REPEAT PREVENTION CODE REMOVED IN FAVOUR OF GLOBAL
 	### FLOOD REPETION AND PROTECTION. -20000124
 
@@ -84,7 +84,7 @@ sub getReply {
 	### FIXME: old mysql/sqlite doesn't support
 	### "requested_count=requested_count+1".
 	$count++;
-	&sqlSet("factoids", {'factoid_key' => $factoid}, {
+	&sqlSet('factoids', {'factoid_key' => $factoid}, {
 		requested_by	=> $nuh,
 		requested_time	=> time(),
 		requested_count	=> $count
@@ -92,9 +92,9 @@ sub getReply {
 
 	# TODO: rename $real to something else!
 	my $real   = 0;
-#	my $author = &getFactInfo($lhs,"created_by") || '';
+#	my $author = &getFactInfo($lhs,'created_by') || '';
 #	$real++ if ($author =~ /^\Q$who\E\!/);
-#	$real++ if (&IsFlag("n"));
+#	$real++ if (&IsFlag('n'));
 	$real = 0 if ($msgType =~ /public/);
 
 	### fix up the reply.
@@ -117,7 +117,7 @@ sub getReply {
 	    ### bot->person reply.
 	    # result is random if separated by '||'.
 	    # rhs is full factoid with '||'.
-	    if ($mhs eq "is") {
+	    if ($mhs eq 'is') {
 		$reply = &getRandom(keys %{ $lang{'factoid'} });
 		$reply =~ s/##KEY/$lhs/;
 		$reply =~ s/##VALUE/$result/;
@@ -337,25 +337,25 @@ sub substVars {
     }
 
     if ($reply =~ /\$factoids/) {
-	my $factoids = &countKeys("factoids");
+	my $factoids = &countKeys('factoids');
 	$reply =~ s/\$factoids/$factoids/;
     }
 
     if ($reply =~ /\$Fupdate/) {
 	my $x = "\002$count{'Update'}\002 ".
-		&fixPlural("modification", $count{'Update'});
+		&fixPlural('modification', $count{'Update'});
 	$reply =~ s/\$Fupdate/$x/;
     }
 
     if ($reply =~ /\$Fquestion/) {
 	my $x = "\002$count{'Question'}\002 ".
-		&fixPlural("question", $count{'Question'});
+		&fixPlural('question', $count{'Question'});
 	$reply =~ s/\$Fquestion/$x/;
     }
 
     if ($reply =~ /\$Fdunno/) {
 	my $x = "\002$count{'Dunno'}\002 ".
-		&fixPlural("dunno", $count{'Dunno'});
+		&fixPlural('dunno', $count{'Dunno'});
 	$reply =~ s/\$Fdunno/$x/;
     }
 

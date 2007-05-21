@@ -84,10 +84,10 @@ sub ftpGet {
     my $delta_time	= &timedelta($start_time);
     if ($delta_time > 0 and $verbose_ftp) {
 	&status(sprintf("FTP: %.02f sec to complete.", $delta_time));
-	my ($rateunit,$rate) = ("B", $size / $delta_time);
+	my ($rateunit,$rate) = ('B', $size / $delta_time);
 	if ($rate > 1024) {
 	    $rate /= 1024;
-	    $rateunit = "kB";
+	    $rateunit = 'kB';
 	}
 	&status(sprintf("FTP: %.01f ${rateunit}/sec.", $rate));
     }
@@ -153,7 +153,7 @@ sub getURL {
     return unless &loadPerlModule("LWP::UserAgent");
 
     $ua = new LWP::UserAgent;
-    $ua->proxy('http', $param{'httpProxy'}) if &IsParam("httpProxy");
+    $ua->proxy('http', $param{'httpProxy'}) if &IsParam('httpProxy');
 
     if (defined $post) {
 	$req = new HTTP::Request('POST',$url);
@@ -189,7 +189,7 @@ sub getURLAsFile {
     }
 
     $ua = new LWP::UserAgent;
-    $ua->proxy('http', $param{'httpProxy'}) if &IsParam("httpProxy");
+    $ua->proxy('http', $param{'httpProxy'}) if &IsParam('httpProxy');
     $req = HTTP::Request->new('GET', $url);
     &status("getURLAsFile: getting '$url' as '$file'");
     $res = $ua->request($req, $file);

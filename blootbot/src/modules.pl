@@ -44,7 +44,7 @@ sub loadCoreModules {
 	}
 
 	$moduleAge{$mod} = (stat $mod)[9];
-	&showProc(" ($_)") if (&IsParam("DEBUG"));
+	&showProc(" ($_)") if (&IsParam('DEBUG'));
     }
 }
 
@@ -71,7 +71,7 @@ sub loadDBModules {
 }
 
 sub loadFactoidsModules {
-    if (!&IsParam("factoids")) {
+    if (!&IsParam('factoids')) {
 	&status("Factoid support DISABLED.");
 	return;
     }
@@ -88,7 +88,7 @@ sub loadFactoidsModules {
 	}
 
 	$moduleAge{$mod} = (stat $mod)[9];
-	&showProc(" ($_)") if (&IsParam("DEBUG"));
+	&showProc(" ($_)") if (&IsParam('DEBUG'));
     }
 }
 
@@ -115,7 +115,7 @@ sub loadIRCModules {
 
 	# hrm... use another config option besides DEBUG to display
 	# change in memory usage.
-	&status("Loading Modules \"$mod\"") if (!&IsParam("DEBUG"));
+	&status("Loading Modules \"$mod\"") if (!&IsParam('DEBUG'));
 	eval "require \"$mod\"";
 	if ($@) {
 	    &ERROR("require \"$mod\" => $@");
@@ -124,7 +124,7 @@ sub loadIRCModules {
 	}
 
 	$moduleAge{$mod} = (stat $mod)[9];
-	&showProc(" ($_)") if (&IsParam("DEBUG"));
+	&showProc(" ($_)") if (&IsParam('DEBUG'));
     }
 }
 
@@ -154,7 +154,7 @@ sub loadMyModulesNow {
 
 ### rename to moduleReloadAll?
 sub reloadAllModules {
-    my $retval = "";
+    my $retval = '';
 
     &VERB("Module: reloading all.",2);
 
@@ -171,7 +171,7 @@ sub reloadAllModules {
 sub reloadModule {
     my ($mod)	= @_;
     my $file	= (grep /\/$mod/, keys %INC)[0];
-    my $retval = "";
+    my $retval = '';
 
     # don't reload if it's not our module.
     if ($mod =~ /::/ or $mod !~ /pl$/) {

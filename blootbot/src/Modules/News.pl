@@ -35,7 +35,7 @@ sub Parse {
 	&readNews();
     }
 
-    if ($::msgType ne "private") {
+    if ($::msgType ne 'private') {
 	$chan = $::chan;
     }
 
@@ -118,8 +118,8 @@ sub Parse {
     } elsif ($what =~ /^(un)?notify$/i) {
 	my $state = ($1) ? 0 : 1;
 
-	# TODO: don't notify even if "News" is called.
-	if (&::IsChanConf("newsNotifyAll") <= 0) {
+	# TODO: don't notify even if 'News' is called.
+	if (&::IsChanConf('newsNotifyAll') <= 0) {
 	    &::DEBUG("news: chan => $chan, ::chan => $::chan.");
 	    &::notice($who, "not available for this channel or disabled altogether.");
 	    return;
@@ -137,7 +137,7 @@ sub Parse {
 	} else {		# state = 0
 	    my $x = $::newsuser{$chan}{$who};
 	    if (defined $x and ($x == 0 or $x == -1)) {
-		&::notice($who, "notify already disabled");
+		&::notice($who, 'notify already disabled');
 		return;
 	    }
 	    $::newsuser{$chan}{$who} = -1;
@@ -198,9 +198,9 @@ sub readNews {
     return unless ($ci or $cn or $cu);
 
     &::status("News: read ".
-	$ci. &::fixPlural(" item", $ci). " for ".
-	$cn. &::fixPlural(" chan", $cn). ", ".
-	$cu. &::fixPlural(" user", $cu), " cache"
+	$ci. &::fixPlural(' item', $ci). ' for '.
+	$cn. &::fixPlural(' chan', $cn). ', '.
+	$cu. &::fixPlural(' user', $cu), ' cache'
     );
 }
 
@@ -244,7 +244,7 @@ sub writeNews {
     }
 
     # TODO: show how many users we wrote down.
-    if (&::getChanConfList("newsKeepRead")) {
+    if (&::getChanConfList('newsKeepRead')) {
 	# old users are removed in newsFlush(), perhaps it should be
 	# done here.
 
@@ -266,7 +266,7 @@ sub add {
     my($str) = @_;
 
     if (!defined $chan or !defined $str or $str =~ /^\s*$/) {
-	&::help("news add");
+	&::help('news add');
 	return;
     }
 
@@ -281,7 +281,7 @@ sub add {
     }
 
     $::news{$chan}{$str}{Time}	= time();
-    my $expire = &::getChanConfDefault("newsDefaultExpire",7, $chan);
+    my $expire = &::getChanConfDefault('newsDefaultExpire',7, $chan);
     $::news{$chan}{$str}{Expire}	= time() + $expire*60*60*24;
     $::news{$chan}{$str}{Author}	= $::who;	# case!
 
@@ -302,7 +302,7 @@ sub del {
     my $item	= 0;
 
     if (!defined $what) {
-	&::help("news del");
+	&::help('news del');
 	return;
     }
 
@@ -350,7 +350,7 @@ sub del {
     if (exists $::news{$chan}{$what}) {
 	my $auth = 0;
 	$auth++ if ($::who eq $::news{$chan}{$what}{Author});
-	$auth++ if (&::IsFlag("o"));
+	$auth++ if (&::IsFlag('o'));
 
 	if (!$auth) {
 	    # TODO: show when it'll expire.
@@ -371,7 +371,7 @@ sub list {
 	return;
     }
 
-    if (&::IsChanConf("newsKeepRead") > 0) {
+    if (&::IsChanConf('newsKeepRead') > 0) {
 	my $x = $::newsuser{$chan}{$who};
 
 	if (defined $x and ($x == 0 or $x == -1)) {
@@ -404,7 +404,7 @@ sub list {
     }
     my $timestr = &::Time2String(time() - $newest);
     &::msg($who, "|= Last updated $timestr ago.");
-    &::msg($who, " \037Num\037  \037Item ".(" "x40)." \037");
+    &::msg($who, " \037Num\037  \037Item ".(' 'x40)." \037");
 
 #    &::DEBUG("news: list: expire = $expire");
 #    &::DEBUG("news: list: eno    = $eno");
@@ -413,7 +413,7 @@ sub list {
     foreach ( &getNewsAll() ) {
 	my $subtopic	= $_;
 	my $setby	= $::news{$chan}{$subtopic}{Author};
-	my $chr		= (exists $::News{$chan}{$subtopic}{Text}) ? "" : "*";
+	my $chr		= (exists $::News{$chan}{$subtopic}{Text}) ? '' : '*';
 
 	if (!defined $subtopic) {
 	    &::DEBUG("news: warn: subtopic == undef.");
@@ -441,7 +441,7 @@ sub read {
     my($str) = @_;
 
     if (!defined $chan or !defined $str or $str =~ /^\s*$/) {
-	&::help("news read");
+	&::help('news read');
 	return;
     }
 
@@ -466,7 +466,7 @@ sub read {
     }
 
     if (!exists $::news{$chan}{$item}{Text}) {
-	&::notice($who, "Someone forgot to add info to this news item");
+	&::notice($who, 'Someone forgot to add info to this news item');
 	return;
     }
 
@@ -511,8 +511,8 @@ sub read {
 sub mod {
     my($item, $str) = split /\s+/, $_[0], 2;
 
-    if (!defined $item or $item eq "" or $str =~ /^\s*$/) {
-	&::help("news mod");
+    if (!defined $item or $item eq '' or $str =~ /^\s*$/) {
+	&::help('news mod');
 	return;
     }
 
@@ -539,10 +539,10 @@ sub mod {
 	# TODO: make code safer.
 	my $done = 0;
 	# TODO: use eval to deal with flags easily.
-	if ($flags eq "") {
+	if ($flags eq '') {
 	    $done++ if (!$done and $mod_news  =~ s/\Q$op\E/$np/);
 	    $done++ if (!$done and $mod_nnews =~ s/\Q$op\E/$np/);
-	} elsif ($flags eq "g") {
+	} elsif ($flags eq 'g') {
 	    $done++ if ($mod_news  =~ s/\Q$op\E/$np/g);
 	    $done++ if ($mod_nnews =~ s/\Q$op\E/$np/g);
 	}
@@ -598,8 +598,8 @@ sub set {
     $what = $1 if ($args =~ s/^(\S+)\s*//);
     $value = $args;
 
-    if ($item eq "") {
-	&::help("news set");
+    if ($item eq '') {
+	&::help('news set');
 	return;
     }
 
@@ -617,7 +617,7 @@ sub set {
     }
 
     my $ok = 0;
-    my @elements = ("Expire","Text");
+    my @elements = ('Expire','Text');
     foreach (@elements) {
 	next unless ($what =~ /^$_$/i);
 	$what = $_;
@@ -641,7 +641,7 @@ sub set {
 	return;
     }
 
-    if ($what eq "Expire") {
+    if ($what eq 'Expire') {
 	# TODO: use do_set().
 
 	my $time = 0;
@@ -697,7 +697,7 @@ sub set {
 #    &::DEBUG("news: who => '$who'");
     my $author = $::news{$chan}{$news}{Author};
     $auth++ if ($::who eq $author);
-    $auth++ if (&::IsFlag("o"));
+    $auth++ if (&::IsFlag('o'));
     if (!defined $author) {
 	&::DEBUG("news: news{$chan}{$news}{Author} is not defined! auth'd anyway");
 	$::news{$chan}{$news}{Author} = $::who;
@@ -751,7 +751,7 @@ sub latest {
     }
 
     $::chan	= $chan;
-    return if (&::IsChanConf("newsNotifyAll") <= 0);
+    return if (&::IsChanConf('newsNotifyAll') <= 0);
 
     # I don't understand this code ;)
     $t = 1 if (!defined $t);
@@ -791,7 +791,7 @@ sub latest {
     # scalar @new, !$flag
     my $unread	= scalar @new;
     my $total	= scalar keys %{ $::news{$chan} };
-    if (!$flag && &::IsChanConf("newsTellUnread") <= 0) {
+    if (!$flag && &::IsChanConf('newsTellUnread') <= 0) {
 	return;
     }
 

@@ -20,7 +20,7 @@ sub doQuestion {
     # my doesn't allow variables to be inherinted, local does.
     # following is used in math()...
     local($query)	= @_;
-    local($reply)	= "";
+    local($reply)	= '';
     local $finalQMark	= $query =~ s/\?+\s*$//;
     $finalQMark		+= $query =~ s/\?\s*$//;
     $query		=~ s/^\s+|\s+$//g;
@@ -29,11 +29,11 @@ sub doQuestion {
 	return '';
     }
 
-    my $questionWord	= "";
+    my $questionWord	= '';
 
     if (!$addressed) {
 	return '' unless ($finalQMark);
-	return '' unless &IsChanConf("minVolunteerLength") > 0;
+	return '' unless &IsChanConf('minVolunteerLength') > 0;
 	return '' if (length $query < &::getChanConf('minVolunteerLength'));
     } else {
 	### TODO: this should be caught in Process.pl?
@@ -41,7 +41,7 @@ sub doQuestion {
 
 	# there is no flag to disable/enable asking factoids...
 	# so it was added... thanks zyxep! :)
-	if (&IsFlag("a") ne "a" && &IsFlag("o") ne "o") {
+	if (&IsFlag('a') ne 'a' && &IsFlag('o') ne 'o') {
 	    &status("$who tried to ask us when not allowed.");
 	    return;
 	}
@@ -87,13 +87,13 @@ sub doQuestion {
 	$questionWord = lc($1);
     }
 
-    if ($questionWord eq "" and $finalQMark and $addressed) {
-	$questionWord = "where";
+    if ($questionWord eq '' and $finalQMark and $addressed) {
+	$questionWord = 'where';
     }
     $query =~ s/^\s+|\s+$//g; # bleh. hacked.
     push(@query, $query) if ($query ne $x);
 
-    if (&IsChanConf("factoidArguments") > 0) {
+    if (&IsChanConf('factoidArguments') > 0) {
 	$result = &factoidArgs($query[0]);
 
 	return $result if (defined $result);
@@ -103,7 +103,7 @@ sub doQuestion {
     for (my$i=0; $i<scalar @query; $i++) {
 	$query	= $query[$i];
 	$result = &getReply($query);
-	next if (!defined $result or $result eq "");
+	next if (!defined $result or $result eq '');
 
 	# 'see also' factoid redirection support.
 
@@ -138,7 +138,7 @@ sub doQuestion {
 
 		return;
 	    }
-	    last if (!defined $newr or $newr eq "");
+	    last if (!defined $newr or $newr eq '');
 	    $result  = $newr;
 	}
 
@@ -162,13 +162,13 @@ sub doQuestion {
 ###	return $result if (defined $result);
     }
 
-    if ($questionWord ne "" or $finalQMark) {
+    if ($questionWord ne '' or $finalQMark) {
 	# if it has not been explicitly marked as a question
-	if ($addressed and $reply eq "") {
+	if ($addressed and $reply eq '') {
 	    &status("notfound: <$who> ".join(' :: ', @query))
 						if ($finalQMark);
 
-	    return '' unless (&IsParam("friendlyBots"));
+	    return '' unless (&IsParam('friendlyBots'));
 
 	    foreach (split /\s+/, $param{'friendlyBots'}) {
 		&msg($_, ":INFOBOT:QUERY <$who> $query");
@@ -191,7 +191,7 @@ sub factoidArgs {
 
     # ignore split to commands [dumb commands vs. factoids] (editing commands?)
     return undef if $str =~ /\s+\=\~\s+s[\#\/\:]/;
-    my @list = &searchTable("factoids", "factoid_key", "factoid_key", "^cmd: $first ");
+    my @list = &searchTable('factoids', 'factoid_key', 'factoid_key', "^cmd: $first ");
 #    my $delta_time = &timedelta($t);
 #    &DEBUG("factArgs: delta_time = $delta_time s");
 #    &DEBUG("factArgs: list => ".scalar(@list) );
@@ -238,9 +238,9 @@ sub factoidArgs {
 	}
 
 	# update stats. old mysql/sqlite don't do +1
-	my ($count) = &sqlSelect("factoids", "requested_count", { factoid_key => $q });
+	my ($count) = &sqlSelect('factoids', 'requested_count', { factoid_key => $q });
 	$count++;
-	&sqlSet("factoids", {'factoid_key' => $q}, {
+	&sqlSet('factoids', {'factoid_key' => $q}, {
 		requested_by	=> $nuh,
 		requested_time	=> time(),
 		requested_count	=> $count

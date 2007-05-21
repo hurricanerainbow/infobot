@@ -21,7 +21,7 @@ sub rootWarn {
 	    &status('RootWarn: Detected root user; notifying user');
 	} else {
 	    &status('RootWarn: Detected root user; notifying nick and channel.');
-	    &msg($chan, "ROO".("O" x int(rand 8))."T has landed!");
+	    &msg($chan, 'ROO'.('O' x int(rand 8))."T has landed!");
 	}
 
 	if ($_ = &getFactoid('root')) {
@@ -57,7 +57,7 @@ sub rootWarn {
     $attempt++;
     ### TODO: OPTIMIZE THIS.
     # ok... don't record the attempt if nick==root.
-    return if ($nick eq "root");
+    return if ($nick eq 'root');
 
     &sqlSet('rootwarn', { nick => lc($nick) }, {
 	attempt	=> $attempt,
@@ -81,8 +81,8 @@ sub CmdrootWarn {
     }
 
     # reply #1.
-    $reply = "there ".&fixPlural("has",$count) ." been \002$count\002 ".
-		&fixPlural("rooter",$count) ." warned about root.";
+    $reply = 'there '.&fixPlural('has',$count) ." been \002$count\002 ".
+		&fixPlural('rooter',$count) ." warned about root.";
 
     if ($param{'DBType'} !~ /^(pg|my)sql$/i) {
 	&FIXME("rootwarn does not yet support non-{my,pg}sql.");
@@ -103,8 +103,8 @@ sub CmdrootWarn {
 
     if ($found) {
 	$reply .= " Of which, \002$found\002 ".
-		&fixPlural("rooter",$found)." ".
-		&fixPlural("has",$found).
+		&fixPlural('rooter',$found).' '.
+		&fixPlural('has',$found).
 		" done it at least 3 times.";
     }
 

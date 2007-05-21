@@ -47,8 +47,8 @@ $SIG{'__WARN__'} = 'doWarn';
 
 # initialize variables.
 $last{buflen}	= 0;
-$last{say}	= "";
-$last{msg}	= "";
+$last{say}	= '';
+$last{msg}	= '';
 $userHandle	= "_default";
 $wingaterun	= time();
 $firsttime	= 1;
@@ -79,22 +79,22 @@ $notsize	= 0;
 $notcount	= 0;
 ###
 $bot_release	= "1.3.3";
-if ( -d "CVS" ) {
+if ( -d 'CVS' ) {
     use POSIX qw(strftime);
-    $bot_release	.= strftime(" cvs (%Y%m%d)", gmtime( (stat("CVS"))[9] ) );
+    $bot_release	.= strftime(" cvs (%Y%m%d)", gmtime( (stat('CVS'))[9] ) );
 }
 $bot_version	= "blootbot $bot_release -- $^O";
-$noreply	= "NOREPLY";
+$noreply	= 'NOREPLY';
 
 ##########
 ### misc commands.
 ###
 
 sub whatInterface {
-    if (!&IsParam("Interface") or $param{'Interface'} =~ /IRC/) {
-	return "IRC";
+    if (!&IsParam('Interface') or $param{'Interface'} =~ /IRC/) {
+	return 'IRC';
     } else {
-	return "CLI";
+	return 'CLI';
     }
 }
 
@@ -113,7 +113,7 @@ sub doExit {
 	&status("parent caught SIG$sig (pid $$).") if (defined $sig);
 
 	&status("--- Start of quit.");
-	$ident ||= "blootbot";	# lame hack.
+	$ident ||= 'blootbot';	# lame hack.
 
 	&status("Memory Usage: $memusage KiB");
 
@@ -131,13 +131,13 @@ sub doExit {
 	&sqlCloseDB();
 	&closeSHM($shm);
 
-	if (&IsParam("dumpvarsAtExit")) {
+	if (&IsParam('dumpvarsAtExit')) {
 	    &loadMyModule('DumpVars');
 	    &dumpallvars();
 	}
-	&symdumpAll()		if (&IsParam("symdumpAtExit"));
+	&symdumpAll()		if (&IsParam('symdumpAtExit'));
 	&closeLog();
-	&closeSQLDebug()	if (&IsParam("SQLDebug"));
+	&closeSQLDebug()	if (&IsParam('SQLDebug'));
 
 	&status("--- QUIT.");
     } else {					# child.
@@ -206,7 +206,7 @@ sub getChanConfList {
 	    &WARN("multiple items found?");
 	}
 
-	if ($chanconf{$chan}{$param} eq "0") {
+	if ($chanconf{$chan}{$param} eq '0') {
 	    $chan{$chan}	= -1;
 	} else {
 	    $chan{$chan}	=  1;
@@ -224,7 +224,7 @@ sub IsChanConf {
     my($param)	= shift;
 
     # knocked tons of bugs with this! :)
-    my $debug	= 0; # 1 if ($param eq "whatever");
+    my $debug	= 0; # 1 if ($param eq 'whatever');
 
     if (!defined $param) {
 	&WARN("IsChanConf: param == NULL.");
@@ -251,7 +251,7 @@ sub IsChanConf {
     if (!defined $msgType) {
 	$nomatch++;
     } else {
-	$nomatch++ if ($msgType eq "");
+	$nomatch++ if ($msgType eq '');
 	$nomatch++ unless ($msgType =~ /^(public|private)$/i);
     }
 
@@ -317,7 +317,7 @@ sub getChanConf {
 	if (!defined $chanconf{$c[0]}{$param} and ($c ne '_default')) {
 	    return &getChanConf($param, '_default');
 	}
-	#&DEBUG("gCC: $param,$c \"" . $chanconf{$c[0]}{$param} . '"');
+	&DEBUG("gCC: $param,$c \"" . $chanconf{$c[0]}{$param} . '"');
 	return $chanconf{$c[0]}{$param};
     }
 
@@ -372,9 +372,9 @@ sub findChanConf {
 }
 
 sub showProc {
-    my ($prefix) = $_[0] || "";
+    my ($prefix) = $_[0] || '';
 
-    if ($^O eq "linux") {
+    if ($^O eq 'linux') {
 	if (!open(IN, "/proc/$$/status")) {
 	    &ERROR("cannot open '/proc/$$/status'.");
 	    return;
@@ -385,7 +385,7 @@ sub showProc {
 	}
 	close IN;
 
-    } elsif ($^O eq "netbsd") {
+    } elsif ($^O eq 'netbsd') {
 	$memusage = int( (stat "/proc/$$/mem")[7]/1024 );
 
     } elsif ($^O =~ /^(free|open)bsd$/) {
@@ -393,11 +393,11 @@ sub showProc {
 	$memusage = $info[20];
 
     } else {
-	$memusage = "UNKNOWN";
+	$memusage = 'UNKNOWN';
 	return;
     }
 
-    if (defined $memusageOld and &IsParam("DEBUG")) {
+    if (defined $memusageOld and &IsParam('DEBUG')) {
 	# it's always going to be increase.
 	my $delta = $memusage - $memusageOld;
 	my $str;
@@ -435,18 +435,18 @@ sub setup {
     &loadMyModulesNow();	# must be after chan file.
 
     $shm = &openSHM();
-    &openSQLDebug()	if (&IsParam("SQLDebug"));
+    &openSQLDebug()	if (&IsParam('SQLDebug'));
     &sqlOpenDB($param{'DBName'}, $param{'DBType'}, $param{'SQLUser'},
 	$param{'SQLPass'});
     &checkTables();
 
-    &status("Setup: ". &countKeys("factoids") ." factoids.");
-    &getChanConfDefault("sendPrivateLimitLines", 3, $chan);
-    &getChanConfDefault("sendPrivateLimitBytes", 1000, $chan);
-    &getChanConfDefault("sendPublicLimitLines", 3, $chan);
-    &getChanConfDefault("sendPublicLimitBytes", 1000, $chan);
-    &getChanConfDefault("sendNoticeLimitLines", 3, $chan);
-    &getChanConfDefault("sendNoticeLimitBytes", 1000, $chan);
+    &status("Setup: ". &countKeys('factoids') ." factoids.");
+    &getChanConfDefault('sendPrivateLimitLines', 3, $chan);
+    &getChanConfDefault('sendPrivateLimitBytes', 1000, $chan);
+    &getChanConfDefault('sendPublicLimitLines', 3, $chan);
+    &getChanConfDefault('sendPublicLimitBytes', 1000, $chan);
+    &getChanConfDefault('sendNoticeLimitLines', 3, $chan);
+    &getChanConfDefault('sendNoticeLimitBytes', 1000, $chan);
 
     $param{tempDir} =~ s#\~/#$ENV{HOME}/#;
 
@@ -484,7 +484,7 @@ sub setupConfig {
 }
 
 sub startup {
-    if (&IsParam("DEBUG")) {
+    if (&IsParam('DEBUG')) {
 	&status("enabling debug diagnostics.");
 	# I thought disabling this reduced memory usage by 1000 KiB.
 	use diagnostics;
@@ -502,7 +502,7 @@ sub shutdown {
     &status("--- shutdown called.");
 
     # hack.
-    $ident ||=	"blootbot";
+    $ident ||=	'blootbot';
 
     if (!&isFileUpdated("$bot_state_dir/blootbot.users", $wtime_userfile)) {
 	&writeUserFile()
@@ -537,10 +537,10 @@ sub restart {
 
 	&ircCheck();	# heh, evil!
 
-	&DCCBroadcast("-HUP called.","m");
+	&DCCBroadcast("-HUP called.",'m');
 	&shutdown($sig);
 	&loadConfig($bot_config_dir."/blootbot.config");
-	&reloadAllModules() if (&IsParam("DEBUG"));
+	&reloadAllModules() if (&IsParam('DEBUG'));
 	&setup();
 
 	&status("--- End of $sig.");
@@ -566,7 +566,7 @@ sub loadConfig {
 	next unless /\S/;
 	my ($set,$key,$val) = split(/\s+/, $_, 3);
 
-	if ($set ne "set") {
+	if ($set ne 'set') {
 	    &status("loadConfig: invalid line '$_'.");
 	    next;
 	}

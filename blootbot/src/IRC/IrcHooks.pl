@@ -50,7 +50,7 @@ sub on_chat {
     }
 
     ### set vars that would have been set in hookMsg.
-    $userHandle		= "";	# reset.
+    $userHandle		= '';	# reset.
     $who		= lc $nick;
     $message		= $msg;
     $orig{who}		= $nick;
@@ -66,7 +66,7 @@ sub on_chat {
 	my $crypto	= $users{$userHandle}{PASS};
 	my $success	= 0;
 
-	if ($userHandle eq "_default") {
+	if ($userHandle eq '_default') {
 	    &WARN("DCC CHAT: _default/guest not allowed.");
 	    return;
 	}
@@ -84,7 +84,7 @@ sub on_chat {
 	    $conn->privmsg($sock, "Commands start with '.' (like '.quit' or '.help')");
 	    $conn->privmsg($sock, "Everything else goes out to the party line.");
 
-	    &dccStatus(2) unless (exists $sched{"dccStatus"}{RUNNING});
+	    &dccStatus(2) unless (exists $sched{'dccStatus'}{RUNNING});
 
 	    $success++;
 
@@ -103,7 +103,7 @@ sub on_chat {
 
 	    $dcc{'CHATvrfy'}{$nick} = $userHandle;
 
-	    return if ($userHandle eq "_default");
+	    return if ($userHandle eq '_default');
 
 	    &dccsay($nick,"Flags: $users{$userHandle}{FLAGS}");
 	}
@@ -117,7 +117,7 @@ sub on_chat {
 	### TODO: make use of &Forker(); here?
 	&loadMyModule('UserDCC');
 
-	&DCCBroadcast("#$who# $message","m");
+	&DCCBroadcast("#$who# $message",'m');
 
 	my $retval	= &userDCC();
 	return unless (defined $retval);
@@ -160,7 +160,7 @@ sub on_endofmotd {
     # first time run.
     if (!exists $users{_default}) {
 	&status("!!! First time run... adding _default user.");
-	$users{_default}{FLAGS}	= "amrt";
+	$users{_default}{FLAGS}	= 'amrt';
 	$users{_default}{HOSTS}{"*!*@*"} = 1;
     }
 
@@ -183,11 +183,11 @@ sub on_endofmotd {
     }
 
     if ($firsttime) {
-	&ScheduleThis(1, "setupSchedulers");
+	&ScheduleThis(1, 'setupSchedulers');
 	$firsttime = 0;
     }
 
-    if (&IsParam("ircUMode")) {
+    if (&IsParam('ircUMode')) {
 	&VERB("Attempting change of user modes to $param{'ircUMode'}.", 2);
 	if ($param{'ircUMode'} !~ /^[-+]/) {
 	    &WARN("ircUMode had no +- prefix; adding +");
@@ -204,7 +204,7 @@ sub on_endofmotd {
     $conn->ison($conn->nick());
 
     # Q, as on quakenet.org.
-    if (&IsParam("Q_pass")) {
+    if (&IsParam('Q_pass')) {
 	&status("Authing to Q...");
 	&rawout("PRIVMSG Q\@CServe.quakenet.org :AUTH $param{'Q_user'} $param{'Q_pass'}");
     }
@@ -315,7 +315,7 @@ sub on_dcc_open {
 	### TODO: run ScheduleThis inside on_dcc_open_chat recursively
 	###	1,3,5,10 seconds then fail.
 	if ($nuh{$nick} eq "GETTING-NOW") {
-	    &ScheduleThis(3/60, "on_dcc_open_chat", $nick, $sock);
+	    &ScheduleThis(3/60, 'on_dcc_open_chat', $nick, $sock);
 	} else {
 	    on_dcc_open_chat(undef, $nick, $sock);
 	}
@@ -355,7 +355,7 @@ sub on_dcc_open_chat {
     $dcc{'CHAT'}{$nick} = $sock;
 
     # TODO: don't make DCC CHAT established in the first place.
-    if ($userHandle eq "_default") {
+    if ($userHandle eq '_default') {
 	&dccsay($nick, "_default/guest not allowed");
 	$sock->close();
 	return;
@@ -397,7 +397,7 @@ sub on_disconnect {
 
     &WARN("scheduling call ircCheck() in 60s");
     &clearIRCVars();
-    &ScheduleThis(1, "ircCheck");
+    &ScheduleThis(1, 'ircCheck');
 }
 
 sub on_endofnames {
@@ -420,13 +420,13 @@ sub on_endofnames {
 
     my $txt;
     my @array;
-    foreach ("o","v","") {
+    foreach ('o','v','') {
 	my $count = scalar(keys %{ $channels{$chan}{$_} });
 	next unless ($count);
 
-	$txt = "total" if ($_ eq "");
-	$txt = "voice" if ($_ eq "v");
-	$txt = "ops"   if ($_ eq "o");
+	$txt = 'total' if ($_ eq '');
+	$txt = 'voice' if ($_ eq 'v');
+	$txt = 'ops'   if ($_ eq 'o');
 
 	push(@array, "$count $txt");
     }
@@ -477,17 +477,17 @@ sub on_join {
     my ($user,$host)	= split(/\@/, $event->userhost);
     $chan		= lc( ($event->to)[0] ); # CASING!!!!
     $who		= $event->nick();
-    $msgType		= "public";
+    $msgType		= 'public';
     my $i		= scalar(keys %{ $channels{$chan} });
     my $j		= $cache{maxpeeps}{$chan} || 0;
 
-    if (!&IsParam("noSHM") && time() > ($sched{shmFlush}{TIME} || time()) + 3600) {
+    if (!&IsParam('noSHM') && time() > ($sched{shmFlush}{TIME} || time()) + 3600) {
 	&DEBUG("looks like schedulers died somewhere... restarting...");
 	&setupSchedulers();
     }
 
     $chanstats{$chan}{'Join'}++;
-    $userstats{lc $who}{'Join'} = time() if (&IsChanConf("seenStats") > 0);
+    $userstats{lc $who}{'Join'} = time() if (&IsChanConf('seenStats') > 0);
     $cache{maxpeeps}{$chan}	= $i if ($i > $j);
 
     &joinfloodCheck($who, $chan, $event->userhost);
@@ -518,7 +518,7 @@ sub on_join {
 
     # how to tell if there's a netjoin???
 
-    my $netsplitstr = "";
+    my $netsplitstr = '';
     $netsplitstr = " $b_yellow\[${ob}NETSPLIT VICTIM$b_yellow]$ob" if ($netsplit);
     &status(">>> join/$b_blue$chan$ob $b_cyan$who$ob $b_yellow($ob$user\@$host$b_yellow)$ob$netsplitstr");
 
@@ -529,7 +529,7 @@ sub on_join {
     ### on-join bans.
     my @bans;
     push(@bans, keys %{ $bans{$chan} }) if (exists $bans{$chan});
-    push(@bans, keys %{ $bans{"*"} })   if (exists $bans{"*"});
+    push(@bans, keys %{ $bans{'*'} })   if (exists $bans{'*'});
 
     foreach (@bans) {
 	my $ban	= $_;
@@ -544,7 +544,7 @@ sub on_join {
 	}
 
 	my $reason = "no reason";
-	foreach ($chan, "*") {
+	foreach ($chan, '*') {
 	    next unless (exists $bans{$_});
 	    next unless (exists $bans{$_}{$ban});
 
@@ -637,7 +637,7 @@ sub on_mode {
     $chan	= ($event->to)[0];
 
     # last element is empty... so nuke it.
-    pop @args while ($args[$#args] eq "");
+    pop @args while ($args[$#args] eq '');
 
     if ($nick eq $chan) {	# UMODE
 	&status(">>> mode $b_yellow\[$ob$b@args$b_yellow\]$ob by $b_cyan$nick$ob");
@@ -670,7 +670,7 @@ sub on_msg {
     $h		= $host;
 
     if ($nick eq $ident) { # hopefully ourselves.
-	if ($msg eq "TEST") {
+	if ($msg eq 'TEST') {
 	    &status("IRCTEST: Yes, we're alive.");
 	    delete $cache{connect};
 	    return;
@@ -678,9 +678,9 @@ sub on_msg {
     }
 
     &hookMsg('private', undef, $nick, $msg);
-    $who	= "";
-    $chan	= "";
-    $msgType	= "";
+    $who	= '';
+    $chan	= '';
+    $msgType	= '';
 }
 
 sub on_names {
@@ -739,7 +739,7 @@ sub on_nick_taken {
     $conn = shift(@_);
     my $nick	= $conn->nick();
     #my $newnick = $nick . int(rand 10);
-    my $newnick = $nick . "_";
+    my $newnick = $nick . '_';
 
     &DEBUG("on_nick_taken: nick => $nick");
 
@@ -769,7 +769,7 @@ sub on_notice {
 	if ($check) {
 	    &status("nickserv told us to register; doing it.");
 
-	    if (&IsParam("nickServ_pass")) {
+	    if (&IsParam('nickServ_pass')) {
 		&status("NickServ: ==> Identifying.");
 		&rawout("PRIVMSG NickServ :IDENTIFY $param{'nickServ_pass'}");
 		return;
@@ -782,7 +782,7 @@ sub on_notice {
 	if ($args =~ /^Password a/i) {
 	    my $done	= 0;
 
-	    foreach ( &ChanConfList("chanServ_ops") ) {
+	    foreach ( &ChanConfList('chanServ_ops') ) {
 		next unless &chanServCheck($_);
 		next if ($done);
 		&DEBUG("nickserv activated or restarted; doing chanserv check.");
@@ -823,7 +823,7 @@ sub on_part {
     my $nick	= $event->nick;
     my $userhost = $event->userhost;
     $who	= $nick;
-    $msgType	= "public";
+    $msgType	= 'public';
 
     if (!exists $channels{$chan}) {
 	&DEBUG("on_part: found out $mynick is on $chan!");
@@ -840,7 +840,7 @@ sub on_part {
 	&clearChanVars($chan);
     }
 
-    if (!&IsNickInAnyChan($nick) and &IsChanConf("seenStats") > 0) {
+    if (!&IsNickInAnyChan($nick) and &IsChanConf('seenStats') > 0) {
 	delete $userstats{lc $nick};
     }
 
@@ -880,7 +880,7 @@ sub on_public {
     $who	= $nick;
     $uh		= $event->userhost();
     $nuh	= $nick."!".$uh;
-    $msgType	= "public";
+    $msgType	= 'public';
     # TODO: move this out of hookMsg to here?
     ($user,$host) = split(/\@/, $uh);
     $h		= $host;
@@ -894,7 +894,7 @@ sub on_public {
     $msgtime		= time();
     $lastWho{$chan}	= $nick;
     ### TODO: use $nick or lc $nick?
-    if (&IsChanConf("seenStats") > 0) {
+    if (&IsChanConf('seenStats') > 0) {
 	$userstats{lc $nick}{'Count'}++;
 	$userstats{lc $nick}{'Time'} = time();
     }
@@ -903,7 +903,7 @@ sub on_public {
     my $time	= time();
     if (!$cache{ircTextCounters}) {
 	&DEBUG("caching ircTextCounters for first time.");
-	my @str	= split(/\s+/, &getChanConf("ircTextCounters"));
+	my @str	= split(/\s+/, &getChanConf('ircTextCounters'));
 	for (@str) { $_ = quotemeta($_); }
 	$cache{ircTextCounters} = join('|', @str);
     }
@@ -913,11 +913,11 @@ sub on_public {
 	my $x = $1;
 
 	&VERB("textcounters: $x matched for $who",2);
-	my $c = $chan || "PRIVATE";
+	my $c = $chan || 'PRIVATE';
 
 	# better to do "counter=counter+1".
 	# but that will avoid time check.
-	my ($v,$t) = &sqlSelect("stats", "counter,time", {
+	my ($v,$t) = &sqlSelect('stats', "counter,time", {
 			nick	=> $who,
 			type	=> $x,
 			channel	=> $c,
@@ -926,7 +926,7 @@ sub on_public {
 
 	# don't allow ppl to cheat the stats :-)
 	if (defined $t && $time - $t > 60) {
-	    &sqlSet("stats", {'nick' => $who}, {
+	    &sqlSet('stats', {'nick' => $who}, {
 		type	=> $x,
 		channel => $c,
 		time	=> $time,
@@ -937,9 +937,9 @@ sub on_public {
 
     &hookMsg('public', $chan, $nick, $msg);
     $chanstats{$chan}{'PublicMsg'}++;
-    $who	= "";
-    $chan	= "";
-    $msgType	= "";
+    $who	= '';
+    $chan	= '';
+    $msgType	= '';
 }
 
 sub on_quit {
@@ -949,7 +949,7 @@ sub on_quit {
     my $reason	= ($event->args)[0];
 
     # hack for ICC.
-    $msgType	= "public";
+    $msgType	= 'public';
     $who	= $nick;
 ###    $chan	= $reason;	# no.
 
@@ -973,7 +973,7 @@ sub on_quit {
 
 	# chanlimit code.
 	foreach $chan ( &getNickInChans($nick) ) {
-	    next unless ( &IsChanConf("chanlimitcheck") > 0);
+	    next unless ( &IsChanConf('chanlimitcheck') > 0);
 	    next unless ( exists $channels{$_}{'l'} );
 
 	    &DEBUG("on_quit: netsplit detected on $_; disabling chan limit.");
@@ -1000,7 +1000,7 @@ sub on_quit {
 	# well.. it's good but weird that this has happened - lets just
 	# be quiet about it.
     }
-    delete $userstats{lc $nick} if (&IsChanConf("seenStats") > 0);
+    delete $userstats{lc $nick} if (&IsChanConf('seenStats') > 0);
     delete $chanstats{lc $nick};
     ###
 

@@ -54,7 +54,7 @@ BEGIN {
   $defs_read += read_defs("$::bot_data_dir/unittab");
 
   unless ($defs_read) {
-    &::ERROR("Could not read any of the initialization files UNITTAB");
+    &::ERROR('Could not read any of the initialization files UNITTAB');
     return;
   }
 }
@@ -87,7 +87,7 @@ sub convertUnits {
     return;
   }
   unless ($from =~ /\S/) {
-    &::DEBUG("FAILURE 2");
+    &::DEBUG('FAILURE 2');
     return;
   }
 
@@ -124,8 +124,8 @@ sub convertUnits {
 
 #    print
 #      "conformability (Not the same dimension)\n",
-#      "\t", $from, " is ", text_unit($hu), "\n",
-#      "\t", $to, " is ", text_unit($wu), "\n",
+#      "\t", $from, ' is ', text_unit($hu), "\n",
+#      "\t", $to, ' is ', text_unit($wu), "\n",
 #      ;
   }
 }
@@ -216,7 +216,7 @@ sub unit_multiply {
 sub unit_divide {
   my ($a, $b) = @_;
   if ($b->{_} == 0) {
-    &::DEBUG("Division by zero error");
+    &::DEBUG('Division by zero error');
     return;
   }
   my $r = {%$a};

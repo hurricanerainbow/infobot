@@ -15,7 +15,7 @@ use strict;
 sub spell::spell {
 	my $query = shift;
 	if ($query =~ m/[^[:alpha:]]/) {
-		return("only one word of alphabetic characters supported");
+		return('only one word of alphabetic characters supported');
 	}
 
 	my $binary;
@@ -33,11 +33,11 @@ sub spell::spell {
 	}
 
 	if (!$binary) {
-		return("no binary found.");
+		return('no binary found.');
 	}
 
 	if (!&::validExec($query)) {
-		return("argument appears to be fuzzy.");
+		return('argument appears to be fuzzy.');
 	}
 
 	my $reply = "I can't find alternate spellings for '$query'";

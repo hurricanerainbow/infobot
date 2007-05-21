@@ -20,7 +20,7 @@ sub commify {
 
 sub Quote {
     my $stock = shift;
-    my @results = &::getURL("http://quote.yahoo.com/d/quotes.csv" .
+    my @results = &::getURL('http://quote.yahoo.com/d/quotes.csv' .
 	    "?s=$stock&f=sl1d1t1c1ohgv&e=.csv");
 
 
@@ -45,7 +45,7 @@ sub Quote {
 		"Opened $open, Volume $newvol, Change $change";
     }
 
-    if ($reply eq "") {
+    if ($reply eq '') {
 	$reply = "i couldn't get the quote for $stock. sorry. :(";
     }
 

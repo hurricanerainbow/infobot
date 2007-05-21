@@ -34,11 +34,11 @@ sub hookMode {
 	    my $target = shift @targets;
 
 	    if ($parity) {
-		$chanstats{$chan}{'Op'}++    if ($mode eq "o");
-		$chanstats{$chan}{'Ban'}++   if ($mode eq "b");
+		$chanstats{$chan}{'Op'}++    if ($mode eq 'o');
+		$chanstats{$chan}{'Ban'}++   if ($mode eq 'b');
 	    } else {
-		$chanstats{$chan}{'Deop'}++  if ($mode eq "o");
-		$chanstats{$chan}{'Unban'}++ if ($mode eq "b");
+		$chanstats{$chan}{'Deop'}++  if ($mode eq 'o');
+		$chanstats{$chan}{'Unban'}++ if ($mode eq 'b');
 	    }
 
 	    # modes w/ target affecting nick => cache it.
@@ -47,8 +47,8 @@ sub hookMode {
 		delete $channels{$chan}{$mode}{$target}	if !$parity;
 
 		# lets do some custom stuff.
-		if ($mode eq "o" and $parity) {
-		    if ($nick eq "ChanServ" and $target =~ /^\Q$ident\E$/i) {
+		if ($mode eq 'o' and $parity) {
+		    if ($nick eq 'ChanServ' and $target =~ /^\Q$ident\E$/i) {
 			&VERB("hookmode: chanserv deopped us! asking",2);
 			&chanServCheck($chan);
 		    }
@@ -116,13 +116,13 @@ sub hookMsg {
 		$addressed = 1;
 	    } else {
 		# ignore messages addressed to other people or unaddressed.
-		$skipmessage++ if ($2 ne "" and $2 !~ /^ /);
+		$skipmessage++ if ($2 ne '' and $2 !~ /^ /);
 	    }
 	}
     }
 
     # Determine floodwho.
-    my $c	= "_default";
+    my $c	= '_default';
     if ($msgType =~ /public/i) {
 	# public.
 	$floodwho = $c = lc $chan;
@@ -134,14 +134,14 @@ sub hookMsg {
 	&FIXME("floodwho = ???");
     }
 
-    my $val = &getChanConfDefault("floodRepeat", "2:5", $c);
+    my $val = &getChanConfDefault('floodRepeat', "2:5", $c);
     my ($count, $interval) = split /:/, $val;
 
     # flood repeat protection.
     if ($addressed) {
 	my $time = $flood{$floodwho}{$message} || 0;
 
-	if (!&IsFlag('o') and $msgType eq "public" and (time() - $time < $interval)) {
+	if (!&IsFlag('o') and $msgType eq 'public' and (time() - $time < $interval)) {
 	    ### public != personal who so the below is kind of pointless.
 	    my @who;
 	    foreach (keys %flood) {
@@ -154,7 +154,7 @@ sub hookMsg {
 	    return if ($lobotomized);
 
 	    if (!scalar @who) {
-		push(@who,"Someone");
+		push(@who,'Someone');
 	    }
 	    &msg($who,join(' ', @who)." already said that ". (time - $time) ." seconds ago" );
 
@@ -176,14 +176,14 @@ sub hookMsg {
 
 	if ($addrchar) {
 	    &status("$b_cyan$who$ob is short-addressing $mynick");
-	} elsif ($msgType eq "private") {	# private.
+	} elsif ($msgType eq 'private') {	# private.
 	    &status("$b_cyan$who$ob is /msg'ing $mynick");
 	} else {				# public?
 	    &status("$b_cyan$who$ob is addressing $mynick");
 	}
 
 	$flood{$floodwho}{$message} = time();
-    } elsif ($msgType eq "public" and &IsChanConf("kickOnRepeat") > 0) {
+    } elsif ($msgType eq 'public' and &IsChanConf('kickOnRepeat') > 0) {
 	# unaddressed, public only.
 
 	### TODO: use a separate "short-time" hash.
@@ -191,7 +191,7 @@ sub hookMsg {
 	@data	= keys %{ $flood{$floodwho} } if (exists $flood{$floodwho});
     }
 
-    $val = &getChanConfDefault("floodMessages", "5:30", $c);
+    $val = &getChanConfDefault('floodMessages', "5:30", $c);
     ($count, $interval) = split /:/, $val;
 
     # flood overflow protection.
@@ -252,7 +252,7 @@ sub hookMsg {
 	$seencache{$who}{'msg'}  = $orig{message};
 	$seencache{$who}{'msgcount'}++;
     }
-    if (&IsChanConf("minVolunteerLength") > 0) {
+    if (&IsChanConf('minVolunteerLength') > 0) {
 	# FIXME hack to treat unaddressed as if using addrchar
 	$addrchar = 1;
     }
@@ -305,7 +305,7 @@ sub chanLimitVerify {
     $chan	= $c;
     my $l	= $channels{$chan}{'l'};
 
-    return unless (&IsChanConf("chanlimitcheck") > 0);
+    return unless (&IsChanConf('chanlimitcheck') > 0);
 
     if (scalar keys %netsplit) {
 	&WARN("clV: netsplit active (1, chan = $chan); skipping.");
@@ -319,9 +319,9 @@ sub chanLimitVerify {
     }
 
     # only change it if it's not set.
-    my $plus  = &getChanConfDefault("chanlimitcheckPlus", 5, $chan);
+    my $plus  = &getChanConfDefault('chanlimitcheckPlus', 5, $chan);
     my $count = scalar(keys %{ $channels{$chan}{''} });
-    my $int   = &getChanConfDefault("chanlimitcheckInterval", 10, $chan);
+    my $int   = &getChanConfDefault('chanlimitcheckInterval', 10, $chan);
 
     my $delta = $count + $plus - $l;
 #   $delta    =~ s/^\-//;
@@ -360,14 +360,14 @@ sub chanServCheck {
 	&DEBUG("chanServCheck: lowercased chan ($chan)");
     }
 
-    if (! &IsChanConf("chanServ_ops") > 0) {
+    if (! &IsChanConf('chanServ_ops') > 0) {
 	return 0;
     }
 
     &VERB("chanServCheck($chan) called.",2);
 
-    if ( &IsParam("nickServ_pass") and !$nickserv) {
-	$conn->who("NickServ");
+    if ( &IsParam('nickServ_pass') and !$nickserv) {
+	$conn->who('NickServ');
 	return 0;
     }
 
