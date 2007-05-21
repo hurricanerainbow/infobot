@@ -36,19 +36,19 @@ sub process {
     # hack to support channel +o as "+o" in bot user file.
     # requires +O in user file.
     # is $who arg lowercase?
-    if (exists $channels{$chan}{o}{ $orig{who} } && &IsFlag("O") eq "O") {
+    if (exists $channels{$chan}{o}{ $orig{who} } && &IsFlag('O') eq 'O') {
 	&status("Gave $who/$chan +o (+O)\'ness");
-	$users{$userHandle}{FLAGS} .= "o";
+	$users{$userHandle}{FLAGS} .= 'o';
     }
 
     # check if we have our head intact.
     if ($lobotomized) {
-	if ($addressed and IsFlag("o") eq "o") {
+	if ($addressed and IsFlag('o') eq 'o') {
 	    my $delta_time	= time() - ($cache{lobotomy}{$who} || 0);
 	    &msg($who, "give me an unlobotomy.") if ($delta_time > 60*60);
 	    $cache{lobotomy}{$who} = time();
 	}
-	return 'LOBOTOMY' unless IsFlag("A");
+	return 'LOBOTOMY' unless IsFlag('A');
     }
 
     # talkMethod.
@@ -68,8 +68,8 @@ sub process {
 	$2 =~ /^($mask{chan})(\s+(\S+))?/;
 	my($joinchan, $key) = (lc $1, $3);
 
-	if ($joinchan eq "") {
-	    &help("join");
+	if ($joinchan eq '') {
+	    &help('join');
 	    return;
 	}
 
@@ -78,7 +78,7 @@ sub process {
 	    return;
 	}
 
-	if (&IsFlag("o") ne "o") {
+	if (&IsFlag('o') ne 'o') {
 	    if (!exists $chanconf{$joinchan}) {
 		&msg($who, "I am not allowed to join $joinchan.");
 		return;
@@ -109,7 +109,7 @@ sub process {
 	}
 
 	if (!scalar @array or scalar @array > 2) {
-	    &help("identify");
+	    &help('identify');
 	    return;
 	}
 
@@ -151,7 +151,7 @@ sub process {
 	}
 
 	if (scalar @array != 1) {
-	    &help("pass");
+	    &help('pass');
 	    return;
 	}
 
@@ -171,7 +171,7 @@ sub process {
 
 	if ($first) {
 	    &performStrictReply("First time user... adding you as Master.");
-	    $users{$who}{FLAGS} = "aemnorst";
+	    $users{$who}{FLAGS} = 'aemnorst';
 	}
 
 	my $crypt = $users{$who}{PASS};
@@ -199,7 +199,7 @@ sub process {
     }
 
     # allowOutsiders.
-    if (&IsParam("disallowOutsiders") and $msgType =~ /private/i) {
+    if (&IsParam('disallowOutsiders') and $msgType =~ /private/i) {
 	my $found = 0;
 
 	foreach (keys %channels) {
@@ -262,7 +262,7 @@ sub process {
 	}
 
 	# customized random message.
-	my $tmp = (rand() < 0.5) ? ", $who" : "";
+	my $tmp = (rand() < 0.5) ? ", $who" : '';
 	&performStrictReply( &getRandom(keys %{ $lang{'hello'} }) . $tmp );
 	return;
     }
@@ -298,7 +298,7 @@ sub process {
 
     # karma. set...
     if ($msgType =~ /public/i && $message =~ /^(\S+)(--|\+\+)\s*$/ &&
-	$addressed && &IsChanConfOrWarn("karma")
+	$addressed && &IsChanConfOrWarn('karma')
     ) {
 	# to request factoids such as "g++" or "libstdc++", append "?" to the query.
 	my ($term,$inc) = (lc $1,$2);
@@ -308,15 +308,15 @@ sub process {
 	    return;
 	}
 
-	my $karma = &sqlSelect("stats", "counter",
-		{ nick => $term, type => "karma", channel => $chan }) || 0;
+	my $karma = &sqlSelect('stats', 'counter',
+		{ nick => $term, type => 'karma' }) || 0;
 	if ($inc eq '++') {
 	    $karma++;
 	} else {
 	    $karma--;
 	}
 
-	&sqlSet("stats", {'nick' => $term, type => "karma", channel => $chan}, {
+	&sqlSet('stats', {'nick' => $term, type => 'karma', channel => 'PRIVATE'}, {
 	    'time'	=> time(),
 	    counter	=> $karma,
 	} );
@@ -325,7 +325,7 @@ sub process {
     }
 
     # here's where the external routines get called.
-    # if they return anything but null, that's the "answer".
+    # if they return anything but null, that's the 'answer'.
     if ($addressed) {
 	my $er = &Modules();
 	if (!defined $er) {
@@ -333,7 +333,7 @@ sub process {
 	}
 
 	# allow administration of bot via messages (default is DCC CHAT only)
-	if (&IsFlag("A")) {
+	if (&IsFlag('A')) {
 	    &loadMyModule('UserDCC');
 	    $er = &userDCC();
 	    if (!defined $er) {
@@ -347,7 +347,7 @@ sub process {
 	}
     }
 
-    if (&IsParam("factoids") and $param{'DBType'} =~ /^(mysql|sqlite(2)?|pgsql)$/i) {
+    if (&IsParam('factoids') and $param{'DBType'} =~ /^(mysql|sqlite(2)?|pgsql)$/i) {
 	&FactoidStuff();
     } elsif ($param{'DBType'} =~ /^none$/i) {
 	return "NO FACTOIDS.";
