@@ -15,8 +15,9 @@ my $defaultdist	= 'sid';
 my $refresh = &::getChanConfDefault('debianRefreshInterval', 7, $::chan) * 60 * 60 * 24;
 my $debug	= 0;
 my $debian_dir	= $::bot_state_dir . 'debian';
-my $country	= 'us'; # well .config it yourself then. ;-)
+my $country	= 'nl'; # well .config it yourself then. ;-)
 my $protocol	= 'http';
+my $arch = "$arch";
 
 # format: "alias=real".
 my %dists	= (
@@ -28,34 +29,24 @@ my %dists	= (
 );
 
 my %urlcontents = (
-	"Contents-##DIST-i386.gz" =>
+	"Contents-##DIST-$arch.gz" =>
 		"$protocol://ftp.$country.debian.org".
-		"/debian/dists/##DIST/Contents-i386.gz",
-	"Contents-##DIST-i386-non-US.gz" =>
+		"/debian/dists/##DIST/Contents-$arch.gz",
+	"Contents-##DIST-$arch-non-US.gz" =>
 		"$protocol://non-us.debian.org".
-		"/debian-non-US/dists/##DIST/non-US/Contents-i386.gz",
+		"/debian-non-US/dists/##DIST/non-US/Contents-$arch.gz",
 );
 
 my %urlpackages = (
-	"Packages-##DIST-main-i386.gz" =>
+	"Packages-##DIST-main-$arch.gz" =>
 		"$protocol://ftp.$country.debian.org".
-		"/debian/dists/##DIST/main/binary-i386/Packages.gz",
-	"Packages-##DIST-contrib-i386.gz" =>
+		"/debian/dists/##DIST/main/binary-$arch/Packages.gz",
+	"Packages-##DIST-contrib-$arch.gz" =>
 		"$protocol://ftp.$country.debian.org".
-		"/debian/dists/##DIST/contrib/binary-i386/Packages.gz",
-	"Packages-##DIST-non-free-i386.gz" =>
+		"/debian/dists/##DIST/contrib/binary-$arch/Packages.gz",
+	"Packages-##DIST-non-free-$arch.gz" =>
 		"$protocol://ftp.$country.debian.org".
-		"/debian/dists/##DIST/non-free/binary-i386/Packages.gz",
-
-	"Packages-##DIST-non-US-main-i386.gz" =>
-		"$protocol://non-us.debian.org".
-		"/debian-non-US/dists/##DIST/non-US/main/binary-i386/Packages.gz",
-	"Packages-##DIST-non-US-contrib-i386.gz" =>
-		"$protocol://non-us.debian.org".
-		"/debian-non-US/dists/##DIST/non-US/contrib/binary-i386/Packages.gz",
-	"Packages-##DIST-non-US-non-free-i386.gz" =>
-		"$protocol://non-us.debian.org".
-		"/debian-non-US/dists/##DIST/non-US/non-free/binary-i386/Packages.gz",
+		"/debian/dists/##DIST/non-free/binary-$arch/Packages.gz",
 );
 
 #####################
@@ -210,7 +201,7 @@ sub searchContents {
 	$grepRE = "$query*\[ \t]";
     }
 
-    # fix up grepRE for '*'.
+    # fix up grepRE for "*".
     $grepRE =~ s/\*/.*/g;
 
     my @files;
@@ -327,7 +318,7 @@ sub searchContents {
 
     } elsif (scalar @list == 1) {	# list = 1.
 	&::DEBUG("deb: list == 1; showing package info of '$list[0]'.");
-	&infoPackages('info', $list[0]);
+	&infoPackages("info", $list[0]);
 
     } else {				# list > 1.
 	my $prefix = "Debian Desc Search of '$query' ";
@@ -382,13 +373,13 @@ sub searchAuthor {
 
 	} elsif (/^Maintainer: (.*) \<(\S+)\>$/) {
 	    my($name,$email) = ($1,$2);
-	    if ($package eq '') {
+	    if ($package eq "") {
 		&::DEBUG("deb: sA: package == NULL.");
 		next;
 	    }
 	    $maint{$name}{$email} = 1;
 	    $pkg{$name}{$package} = 1;
-	    $package = '';
+	    $package = "";
 
 	} else {
 	    chop;
@@ -492,13 +483,13 @@ sub searchDesc {
 	    next unless (eval { $desc =~ /$regex/i });
 	    return unless &checkEval($@);
 
-	    if ($package eq '') {
+	    if ($package eq "") {
 		&::WARN("sD: package == NULL?");
 		next;
 	    }
 
 	    $desc{$package} = $desc;
-	    $package = '';
+	    $package = "";
 
 	} else {
 	    chop;
@@ -546,7 +537,7 @@ sub generateIncoming {
 	    print IDX "$1\n";
 	    print PKG "Package: $1\n";
 	    print PKG "Version: $2\n";
-	    print PKG "Architecture: ", (defined $4) ? $4 : 'all', "\n";
+	    print PKG "Architecture: ", (defined $4) ? $4 : "all", "\n";
 	}
 	print PKG "Filename: $file\n";
 	print PKG "Size: $ftp{$file}\n";
@@ -658,7 +649,7 @@ sub infoPackages {
     # download packages file.
     # hrm...
     my %urls = &fixDist($dist, %urlpackages);
-    if ($dist ne 'incoming') {
+    if ($dist ne "incoming") {
 	&::DEBUG("deb: download 3.") if ($debug);
 
 	if (!&DebianDownload($dist, %urls)) {	# no good download.
@@ -671,7 +662,7 @@ sub infoPackages {
     my @files = &validPackage($package, $dist);
     if (!scalar @files) {
 	&::status("Debian: no valid package found; checking incoming.");
-	@files = &validPackage($package, 'incoming');
+	@files = &validPackage($package, "incoming");
 
 	if (scalar @files) {
 	    &::status("Debian: cool, it exists in incoming.");
@@ -709,10 +700,10 @@ sub infoPackages {
     }
     my %pkg = &getPackageInfo($package, $file);
 
-    $query = 'info' if ($query eq 'dinfo');
+    $query = "info" if ($query eq "dinfo");
 
     # 'fm'-like output.
-    if ($query eq 'info') {
+    if ($query eq "info") {
 	if (scalar keys %pkg <= 5) {
 	    &::DEBUG("deb: running debianCheck() due to problems (".scalar(keys %pkg).").");
 	    &debianCheck();
@@ -742,20 +733,20 @@ sub infoPackages {
 	}
     }
 
-    if ($dist eq 'incoming') {
+    if ($dist eq "incoming") {
 	$pkg{'info'} .= "Version: \002$pkg{'version'}\002";
 	$pkg{'info'} .= ", Packaged size: \002". int($pkg{'size'}/1024) ."\002 kB";
 	$pkg{'info'} .= ", is in incoming!!!";
     }
 
     if (!exists $pkg{$query}) {
-	if ($query eq 'suggests') {
+	if ($query eq "suggests") {
 	    $pkg{$query} = "has no suggestions";
-	} elsif ($query eq 'conflicts') {
+	} elsif ($query eq "conflicts") {
 	    $pkg{$query} = "does not conflict with any other package";
-	} elsif ($query eq 'depends') {
+	} elsif ($query eq "depends") {
 	    $pkg{$query} = "does not depend on anything";
-	} elsif ($query eq 'maint') {
+	} elsif ($query eq "maint") {
 	    $pkg{$query} = "has no maintainer";
 	} else {
 	    $pkg{$query} = "has nothing about $query";
@@ -967,7 +958,7 @@ sub searchPackage {
     unlink $file if ( -z $file );
 
     while (!open IN, $file) {
-	if ($dist eq 'incoming') {
+	if ($dist eq "incoming") {
 	    &::DEBUG("deb: sP: dist == incoming; calling gI().");
 	    &generateIncoming();
 	}
@@ -1015,7 +1006,7 @@ sub searchPackage {
 sub getDistro {
     my $dist = $_[0];
 
-    if (!defined $dist or $dist eq '') {
+    if (!defined $dist or $dist eq "") {
 	&::DEBUG("deb: gD: dist == NULL; dist = defaultdist.");
 	$dist = $defaultdist;
     }
@@ -1077,10 +1068,10 @@ sub DebianFind {
     my @results = sort &searchPackage($str);
 
     if (!scalar @results) {
-	&::Forker('Debian', sub { &searchContents($str); } );
+	&::Forker("Debian", sub { &searchContents($str); } );
     } elsif (scalar @results == 1) {
 	&::status("searchPackage returned one result; getting info of package instead!");
-	&::Forker('Debian', sub { &infoPackages('info', "$results[0] $dist"); } );
+	&::Forker("Debian", sub { &infoPackages("info", "$results[0] $dist"); } );
     } else {
 	my $prefix = "Debian Package Listing of '$query' ";
 	&::performStrictReply( &::formListReply(0, $prefix, @results) );
@@ -1146,7 +1137,7 @@ sub searchDescFE {
 	&::performStrictReply( &::formListReply(0, $prefix, ) );
     } elsif (scalar @list == 1) {	# list = 1.
 	&::DEBUG("deb: list == 1; showing package info of '$list[0]'.");
-	&infoPackages('info', $list[0]);
+	&infoPackages("info", $list[0]);
     } else {				# list > 1.
 	my $prefix = "Debian Desc Search of '$query' ";
 	&::performStrictReply( &::formListReply(0, $prefix, @list) );
