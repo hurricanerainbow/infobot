@@ -289,7 +289,7 @@ sub exchange {
 	# looking up the currency for a country
 	$Country = $1;
     } else {
-	return 'that doesn't look right';
+	return "that doesn't look right";
     }
 
     my $ua = new LWP::UserAgent;
