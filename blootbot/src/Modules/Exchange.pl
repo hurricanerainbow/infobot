@@ -392,7 +392,7 @@ sub query {
   return;
 }
 
-
+#print &exchange('1 usd to eur') . "\n";
 1;
 
 __END__
