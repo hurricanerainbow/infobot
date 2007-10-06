@@ -460,7 +460,7 @@ sub FactoidStuff {
 	# fix the string.
 	s/^hey([, ]+)where/where/i;
 	s/\s+\?$/?/;
-	s/whois/who is/ig;
+	s/^whois/who is/i; # Must match ^, else factoids with "whois" anywhere break
 	s/where can i find/where is/i;
 	s/how about/where is/i;
 	s/ da / the /ig;
