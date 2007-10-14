@@ -14,9 +14,10 @@ my $announce	= 0;
 my $defaultdist	= 'sid';
 my $refresh = &::getChanConfDefault('debianRefreshInterval', 7, $::chan) * 60 * 60 * 24;
 my $debug	= 0;
-my $debian_dir	= $::bot_state_dir . 'debian';
+my $debian_dir	= $::bot_state_dir . '/debian';
 my $country	= 'nl'; # well .config it yourself then. ;-)
 my $protocol	= 'http';
+# EDIT THIS (i386, amd64, powerpc, [etc.]):
 my $arch = "$arch";
 
 # format: "alias=real".
