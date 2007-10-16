@@ -1,7 +1,7 @@
 #!/bin/sh
 
 BOTDIR=/home/apt/bot
-BOTNICK=blootbot
+BOTNICK=infobot
 PIDFILE=$BOTDIR/$BOTNICK.pid
 
 if [ -f $PIDFILE ]; then	# exists.
@@ -10,10 +10,10 @@ if [ -f $PIDFILE ]; then	# exists.
 	exit 0
     fi
 
-    # blootbot removes the pid file.
+    # infobot removes the pid file.
     echo "stale pid file; removing."
 #    rm -f $PIDFILE
 fi
 
 cd $BOTDIR
-./blootbot
+./infobot

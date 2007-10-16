@@ -3,7 +3,7 @@ CREATE TABLE connections (
     port integer DEFAULT 6667 NOT NULL,
     nick character varying(20) NOT NULL,
     nickservpass character varying(8) NOT NULL,
-    ircname character varying(20) DEFAULT 'blootbot IRC bot'::character varying NOT NULL,
+    ircname character varying(20) DEFAULT 'infobot IRC bot'::character varying NOT NULL,
     timeadded numeric DEFAULT 0
 ) WITHOUT OIDS;
 

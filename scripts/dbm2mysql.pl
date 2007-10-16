@@ -33,7 +33,7 @@ if (!dbmopen(%db, $dbfile, 0666)) {
 &status("::: opening dbm file: $dbfile");
 
 # open all the data...
-&loadConfig("files/blootbot.config");
+&loadConfig("files/infobot.config");
 $dbname = $param{'DBName'};
 my $dbh_mysql = sqlOpenDB($param{'DBName'},
 	$param{'DBType'}, $param{'SQLUser'}, $param{'SQLPass'});

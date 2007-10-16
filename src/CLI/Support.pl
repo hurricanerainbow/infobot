@@ -26,7 +26,7 @@ sub cliloop {
 
     # install libterm-readline-gnu-perl to get history support
     use Term::ReadLine;
-    my $term = new Term::ReadLine 'blootbot';
+    my $term = new Term::ReadLine 'infobot';
     my $prompt = "$who> ";
     #$OUT = $term->OUT || STDOUT;
     while ( defined ($_ = $term->readline($prompt)) ) {

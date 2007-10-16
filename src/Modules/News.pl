@@ -150,7 +150,7 @@ sub Parse {
 }
 
 sub readNews {
-    my $file = "$::bot_base_dir/blootbot-news.txt";
+    my $file = "$::bot_base_dir/infobot-news.txt";
     if (! -f $file or -z $file) {
 	return;
     }
@@ -211,7 +211,7 @@ sub writeNews {
     }
 
     # should define this at the top of file.
-    my $file = "$::bot_base_dir/blootbot-news.txt";
+    my $file = "$::bot_base_dir/infobot-news.txt";
 
     if (fileno NEWS) {
 	&::ERROR("News: write: fileno NEWS exists, should never happen.");

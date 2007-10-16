@@ -15,7 +15,7 @@ MySQL until I actually change it)
 
 To automate the setup of your database and user, type:
 
-	cd ~/blootbotdir
+	cd ~/infobotdir
 	./setup/setup.pl
 
 (NOTE: The setup will ask for an account capable of administrating

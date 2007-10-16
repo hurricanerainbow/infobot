@@ -7,7 +7,7 @@ running a separate RDBMS process. The distribution comes with a standalone
 command-line access program (sqlite) that can be used to administer an SQLite
 database and which serves as an example of how to use the SQLite library.
 
-blootbot will create a file called <DBname>.sqlite and populate the tables for
+infobot will create a file called <DBname>.sqlite and populate the tables for
 you if they do not already exist.
 
 - Install SQLite libraries and DBI Perl modules.

@@ -19,7 +19,7 @@ my $txtfile = shift;
 open(IN,$txtfile) or die "error: cannot open txtfile '$txtfile'.\n";
 
 # read the bot config file.
-&loadConfig("files/blootbot.config");
+&loadConfig("files/infobot.config");
 &loadDBModules();
 &openDB($param{'DBName'}, $param{'SQLUser'}, $param{'SQLPass'});
 

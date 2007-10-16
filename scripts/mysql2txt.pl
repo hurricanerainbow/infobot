@@ -18,7 +18,7 @@ if (!defined $dbname) {
 }
 
 # open the db.
-&loadConfig("files/blootbot.config");
+&loadConfig("files/infobot.config");
 &loadDBModules();
 
 &openDB($param{'DBName'}, $param{'SQLUser'}, $param{'SQLPass'});

@@ -9,8 +9,8 @@ TODO:
 	- move nicks/server into sql table
 	- make channel flags be server/channel flags
 	- move channel flags to sql table, include initial state
-	- move praise from blootbot.lang to "praise:<something>" in factoids?
-	- move lart from blootbot.lang to "lart:<something>" in factoids?
+	- move praise from infobot.lang to "praise:<something>" in factoids?
+	- move lart from infobot.lang to "lart:<something>" in factoids?
 	- debian BTS frontend "bugs"
 	- !country
 	- !dinstall
@@ -44,7 +44,7 @@ TODO:
 
 Other TODO items may be listed on sourceforge. Please access it from the
 website or this link:
-http://sourceforge.net/pm/task.php?group_id=8794&group_project_id=3207&func=browse&set=open
+http://sourceforge.net/pm/task.php?group_id=2241
 
 ----------------------------------------------------
 ------------ FUTURE, NON-IMPORTANT
@@ -73,26 +73,3 @@ http://sourceforge.net/pm/task.php?group_id=8794&group_project_id=3207&func=brow
 		- do some test cases to confirm code actually works as
 		  proposed.
 
--- useless statistics
-- 20010420:
-DEBUG:      373
-WARN:       129
-FIXME:       35
-status:     386
-TODO:       145
-
-20031111: scripts/output_stats.sh
-DEBUG:      384
-WARN:       167
-FIXME:       33
-status:     424
-ERROR:      123
-TODO:        91
-
-20050217: scripts/output_stats.sh
-DEBUG:  388
-WARN:   164
-FIXME:  43
-status: 436
-ERROR:  125
-TODO:   158

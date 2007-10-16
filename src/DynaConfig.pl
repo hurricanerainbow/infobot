@@ -20,7 +20,7 @@ use vars qw($utime_userfile $ucount_userfile $utime_chanfile $who
 #####
 
 sub readUserFile {
-    my $f = "$bot_state_dir/blootbot.users";
+    my $f = "$bot_state_dir/infobot.users";
 
     if (! -f $f) {
 	&DEBUG("userfile not found; new fresh run detected.");
@@ -129,14 +129,14 @@ sub writeUserFile {
 	return;
     }
 
-    if (!open OUT,">$bot_state_dir/blootbot.users") {
-	&ERROR("Cannot write userfile ($bot_state_dir/blootbot.users): $!");
+    if (!open OUT,">$bot_state_dir/infobot.users") {
+	&ERROR("Cannot write userfile ($bot_state_dir/infobot.users): $!");
 	return;
     }
 
     my $time		= scalar(gmtime);
 
-    print OUT "#v1: blootbot -- $ident -- written $time\n\n";
+    print OUT "#v1: infobot -- $ident -- written $time\n\n";
 
     ### USER LIST.
     my $cusers	= 0;
@@ -235,7 +235,7 @@ sub writeUserFile {
 #####
 
 sub readChanFile {
-    my $f = "$bot_state_dir/blootbot.chan";
+    my $f = "$bot_state_dir/infobot.chan";
     if ( -f $f and -f "$f~") {
 	my $s1 = -s $f;
 	my $s2 = -s "$f~";
@@ -304,13 +304,13 @@ sub writeChanFile {
 	return;
     }
 
-    if (!open OUT,">$bot_state_dir/blootbot.chan") {
-	&ERROR("Cannot write chanfile ($bot_state_dir/blootbot.chan): $!");
+    if (!open OUT,">$bot_state_dir/infobot.chan") {
+	&ERROR("Cannot write chanfile ($bot_state_dir/infobot.chan): $!");
 	return;
     }
 
     my $time		= scalar(gmtime);
-    print OUT "#v1: blootbot -- $ident -- written $time\n\n";
+    print OUT "#v1: infobot -- $ident -- written $time\n\n";
 
     if ($flag_quit) {
 

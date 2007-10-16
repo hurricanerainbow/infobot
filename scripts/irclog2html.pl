@@ -15,7 +15,7 @@
 
 # Modified by Tim Riker <Tim@Rikers.org>
 # to work with infobot logs
-# then modified again for blootbot
+# then modified again for infobot
 
 # Usage: irclog2html <date> < logfile
 
@@ -90,7 +90,7 @@ sub footer {
 <a href="mailto:jdub\@NOSPAMaphid.net">Jeff Waugh</a> - find it at
 <a href="http://freshmeat.net/appindex/2000/03/28/954251322.html">freshmeat.net</a>!
 Modified by <a href="http://www.Rikers.org">Tim Riker</a> to work with
-<a href="http://blootbot.sourceforge.net/">blootbot</a> logs, split per channel, etc.
+<a href="http://infobot.sourceforge.net/">infobot</a> logs, split per channel, etc.
 </body></html>
 };
 	return $return;
@@ -317,7 +317,7 @@ sub main {
 
 if (!scalar @ARGV) {
 		print "Usage: irclog2html.pl <date> < logfile\n";
-    print "Example: bzcat log/blootbot.log-20021104.bz2 | irclog2html.pl 20021104\n";
+    print "Example: bzcat log/infobot.log-20021104.bz2 | irclog2html.pl 20021104\n";
     exit 0;
 }
 my $date = shift;

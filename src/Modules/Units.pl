@@ -1,7 +1,7 @@
 #   Units.pl: convert units of measurement
 #     Author: M-J. Dominus (mjd-perl-units-id-iut+buobvys+@plover.com)
 #    License: GPL, Copyright (C) 1996,1999
-#       NOTE: Integrated into blootbot by xk.
+#       NOTE: Integrated into infobot by xk.
 
 package Units;
 

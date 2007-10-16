@@ -365,7 +365,7 @@ sub on_dcc_open_chat {
 	&status("DCC CHAT: going to use ".$nick."'s crypt.");
 	&dccsay($nick,"Enter your password.");
     } else {
-#	&dccsay($nick,"Welcome to blootbot DCC CHAT interface, $userHandle.");
+#	&dccsay($nick,"Welcome to infobot DCC CHAT interface, $userHandle.");
     }
 }
 

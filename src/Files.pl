@@ -53,7 +53,7 @@ sub loadLang {
 
 # File: Irc Servers list.
 sub loadIRCServers {
-    my ($file)	= $bot_config_dir."/blootbot.servers";
+    my ($file)	= $bot_config_dir."/infobot.servers";
     @ircServers = ();
     %ircPort = ();
 

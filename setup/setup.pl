@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# setup_tables: setup MYSQL/PGSQL side of things for blootbot.
+# setup_tables: setup MYSQL/PGSQL side of things for infobot.
 # written by the xk.
 ###
 
@@ -11,8 +11,8 @@ require "src/CLI/Support.pl";
 
 $bot_src_dir = "src/";
 
-# read param stuff from blootbot.config.
-&loadConfig("files/blootbot.config");
+# read param stuff from infobot.config.
+&loadConfig("files/infobot.config");
 
 &loadDBModules();
 my $dbname = $param{'DBName'};

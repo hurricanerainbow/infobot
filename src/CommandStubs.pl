@@ -481,7 +481,7 @@ sub lart {
 	$for	= $2;
     }
 
-    my $line = &getRandomLineFromFile($bot_data_dir. '/blootbot.lart');
+    my $line = &getRandomLineFromFile($bot_data_dir. '/infobot.lart');
     if (defined $line) {
 	if ($target =~ /^(me|you|itself|\Q$mynick\E)$/i) {
 	    $line =~ s/WHO/$who/g;

@@ -71,7 +71,7 @@ sub pager::page {
 			To => "$to <$toaddr>",
 			From => "$from <$fromaddr>",
 			Subject => "Message from $channel!",
-			'X-Mailer' => 'blootbot',
+			'X-Mailer' => 'infobot',
 		);
 
 #		my $logmsg;

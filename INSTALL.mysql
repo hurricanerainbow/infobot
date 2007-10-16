@@ -5,7 +5,7 @@ INSTALL.mysql
     - Debian: (apt-get install mysql-server libdbd-mysql-perl)
 
 - Run 'mysqladmin -u root -p create <DB NAME>'
-    Where <DB NAME> is the same as specified in blootbot.config.
+    Where <DB NAME> is the same as specified in infobot.config.
 
 - Run 'setup/setup.pl'
 
@@ -27,13 +27,13 @@ commands:
 
   $ mysql -u root -p
 
-  mysql> CREATE DATABASE blootbot;
+  mysql> CREATE DATABASE infobot;
   mysql> GRANT USAGE ON *.* TO 'user'@'localhost' IDENTIFIED BY 'yourpassword';
-  mysql> GRANT ALL PRIVILEGES ON blootbot.* TO 'user'@'localhost';
+  mysql> GRANT ALL PRIVILEGES ON infobot.* TO 'user'@'localhost';
 
 FULL FACTOID DATABASE:
 ----------------------
 You can get the data from the MySQL database that the apt bot uses on
 #debian at freenode (irc.freenode.net), at:
 
-    http://lain.cheme.cmu.edu/~apt/blootbot/apt.sql.bz2
+    http://lain.cheme.cmu.edu/~apt/infobot/apt.sql.bz2

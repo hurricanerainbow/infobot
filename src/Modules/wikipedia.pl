@@ -1,4 +1,4 @@
-# This program is distributed under the same terms as blootbot.
+# This program is distributed under the same terms as infobot.
 
 package wikipedia;
 use strict;

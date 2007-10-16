@@ -134,7 +134,7 @@ sub randomQuote {
     foreach ( &ChanConfList('randomQuote') ) {
 	next unless (&validChan($_));
 
-	my $line = &getRandomLineFromFile($bot_data_dir. "/blootbot.randtext");
+	my $line = &getRandomLineFromFile($bot_data_dir. "/infobot.randtext");
 	if (!defined $line) {
 	    &ERROR("random Quote: weird error?");
 	    return;
@@ -743,9 +743,9 @@ sub miscCheck {
     }
 
     # make backup of important files.
-    &mkBackup( $bot_state_dir."/blootbot.chan", 60*60*24*3);
-    &mkBackup( $bot_state_dir."/blootbot.users", 60*60*24*3);
-    &mkBackup( $bot_base_dir."/blootbot-news.txt", 60*60*24*1);
+    &mkBackup( $bot_state_dir."/infobot.chan", 60*60*24*3);
+    &mkBackup( $bot_state_dir."/infobot.users", 60*60*24*3);
+    &mkBackup( $bot_base_dir."/infobot-news.txt", 60*60*24*1);
 
     # flush cache{lobotomy}
     foreach (keys %{ $cache{lobotomy} }) {
@@ -776,7 +776,7 @@ sub miscCheck {
 	    # don't touch other bots, if they're running.
 	    next unless ($param{ircUser} =~ /^\Q$n\E$/);
 	} else {
-	    &DEBUG("shm: $shmid is not ours or old blootbot => ($z)");
+	    &DEBUG("shm: $shmid is not ours or old infobot => ($z)");
 	    next;
 	}
 

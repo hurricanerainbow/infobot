@@ -12,7 +12,7 @@ use strict;
 my $select = IO::Select->new;
 
 sub Wingates {
-    my $file = "$::blootbot_base_dir/$::param{'ircUser'}.wingate";
+    my $file = "$::infobot_base_dir/$::param{'ircUser'}.wingate";
     my @hosts;
 
     open(IN, $file);

@@ -83,7 +83,7 @@ if ( -d 'CVS' ) {
     use POSIX qw(strftime);
     $bot_release	.= strftime(" cvs (%Y%m%d)", gmtime( (stat('CVS'))[9] ) );
 }
-$bot_version	= "blootbot $bot_release -- $^O";
+$bot_version	= "infobot $bot_release -- $^O";
 $noreply	= 'NOREPLY';
 
 ##########
@@ -113,7 +113,7 @@ sub doExit {
 	&status("parent caught SIG$sig (pid $$).") if (defined $sig);
 
 	&status("--- Start of quit.");
-	$ident ||= 'blootbot';	# lame hack.
+	$ident ||= 'infobot';	# lame hack.
 
 	&status("Memory Usage: $memusage KiB");
 
@@ -158,7 +158,7 @@ sub doWarn {
 }
 
 # Usage: &IsParam($param);
-# blootbot.config specific.
+# infobot.config specific.
 sub IsParam {
     my $param = $_[0];
 
@@ -428,7 +428,7 @@ sub setup {
     &status("--- Started logging.");
 
     # read.
-    &loadLang($bot_data_dir. "/blootbot.lang");
+    &loadLang($bot_data_dir. "/infobot.lang");
     &loadIRCServers();
     &readUserFile();
     &readChanFile();
@@ -456,7 +456,7 @@ sub setup {
 
 sub setupConfig {
     $param{'VERBOSITY'} = 1;
-    &loadConfig($bot_config_dir."/blootbot.config");
+    &loadConfig($bot_config_dir."/infobot.config");
 
     foreach ( qw(ircNick ircUser ircName DBType tempDir) ) {
 	next if &IsParam($_);
@@ -502,13 +502,13 @@ sub shutdown {
     &status("--- shutdown called.");
 
     # hack.
-    $ident ||=	'blootbot';
+    $ident ||=	'infobot';
 
-    if (!&isFileUpdated("$bot_state_dir/blootbot.users", $wtime_userfile)) {
+    if (!&isFileUpdated("$bot_state_dir/infobot.users", $wtime_userfile)) {
 	&writeUserFile()
     }
 
-    if (!&isFileUpdated("$bot_state_dir/blootbot.chan", $wtime_chanfile)) {
+    if (!&isFileUpdated("$bot_state_dir/infobot.chan", $wtime_chanfile)) {
 	&writeChanFile();
     }
 
@@ -539,7 +539,7 @@ sub restart {
 
 	&DCCBroadcast("-HUP called.",'m');
 	&shutdown($sig);
-	&loadConfig($bot_config_dir."/blootbot.config");
+	&loadConfig($bot_config_dir."/infobot.config");
 	&reloadAllModules() if (&IsParam('DEBUG'));
 	&setup();
 

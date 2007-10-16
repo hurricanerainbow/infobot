@@ -13,7 +13,7 @@ use vars qw($msgType $who $bot_pid $nuh $shm $force_public_reply
 
 sub help {
     my $topic = shift;
-    my $file  = $bot_data_dir."/blootbot.help";
+    my $file  = $bot_data_dir."/infobot.help";
     my %help  = ();
 
     # crude hack for performStrictReply() to work as expected.
