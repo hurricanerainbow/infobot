@@ -1,4 +1,7 @@
-#v1: blootbot -- blootbot -- written Mon Feb 28 23:46:48 2005
+#v1.5.0: infobot -- written Mon Feb 28 23:46:48 2005
+# Please edit to your needs.
+# "local" is used for CLI mode
+# Passwords can be generated with mkpasswd in linux
 
 _default
 --FLAGS		amrt

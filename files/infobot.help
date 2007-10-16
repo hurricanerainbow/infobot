@@ -1,12 +1,12 @@
-# Revised: 20050224
+# Revised: 20071016
 #  Author: Tim Riker <Tim@Rikers.org>
 ###
 
 main: I learn mainly by observing declarative statements such as "x is at http://www.xxx.com", and then reply when people ask things like "where can i find x?"
 
-action: This is used to override the usual response. "x is <action> does the hokey-pokey". When asked about x, the bot does this "* blootbot does the hokey-pokey"
+action: This is used to override the usual response. "x is <action> does the hokey-pokey". When asked about x, the bot does this "* infobot does the hokey-pokey"
 
-alternation: The || symbol in an entry causes an blootbot to choose one of the replies at random. "X is Y||Z" will produce "X is Y" or "X is Z" randomly.
+alternation: The || symbol in an entry causes an infobot to choose one of the replies at random. "X is Y||Z" will produce "X is Y" or "X is Z" randomly.
 
 author: oznoid (mailto:lenzo@ri.cmu.edu) is my original author.
 
@@ -212,7 +212,7 @@ forget: If I have an old/redundant factoid x, "forget x" will cause me to erase 
 
 freshmeat: D: Frontend to www.freshmeat.net
 freshmeat: U: ## <query>
-freshmeat: E: ## blootbot
+freshmeat: E: ## infobot
 
 hex: D: Convert ascii to hex
 hex: U: ## <string>
@@ -249,7 +249,7 @@ lart: E: ## #perl everyone perl \=\= lamerville
 
 lc: D: lower case a given string
 lc: U: ## <string>
-lc: E: ## When will blootbot achieve world domination?
+lc: E: ## When will infobot achieve world domination?
 
 listauth: D: Search the factoid extension db by creator
 listauth: U: ## <search>
@@ -257,15 +257,15 @@ listauth: E: ## xk
 
 listkeys: D: Search the factoid database by key (factoid)
 listkeys: U: ## <regex>
-listkeys: E: ## blootbot
+listkeys: E: ## infobot
 
 listvalues: D: Search the factoid database by value (description)
 listvalues: U: ## <regex>
-listvalues: E: ## blootbot
+listvalues: E: ## infobot
 
 literal: used to get a raw factoid contents. Use _default to ignore factoidSearch path.
 literal: U: ## [_default|prefix] <factoid>
-literal: E: ## blootbot
+literal: E: ## infobot
 
 lobotomy: I can be given a lobotomy ([o] is required) if people start to abuse me.  To bring me back to life, give me an unlobotomy
 
@@ -277,7 +277,7 @@ lock: N: Requires factoid extension (extra) support enabled.
 
 md5: D: calculates the md5sum of a given string
 md5: U: ## <string>
-md5: E: ## When will blootbot achieve world domination?
+md5: E: ## When will infobot achieve world domination?
 
 mode: set modes for a channel
 mode: U: ## <#chan> <mode>
@@ -325,7 +325,7 @@ nickometer: E: ## #botpark
 
 onjoin: D: get/set OnJoin message (needs chan option +OnJoin)
 onjoin: U: ## [#chan|_default] [-]<nick> [message]
-onjoin: E: ## blootbot Hey! It's another blootbot!
+onjoin: E: ## infobot Hey! It's another infobot!
 
 ord: D: Convert ascii to decimal
 ord: U: ## <single character>
@@ -343,7 +343,7 @@ part: NOTE: /kick is an alternative
 
 piglatin: D: translates english text into piglatin
 piglatin: U: ## <string>
-piglatin: E: ## When will blootbot achieve world domination?
+piglatin: E: ## When will infobot achieve world domination?
 
 quote: D: Frontend to yahoo's online stock market share listing
 quote: U: ## <query...>
@@ -351,11 +351,11 @@ quote: E: ## RHAT,MSFT
 
 rename: D: Factoid renaming
 rename: U: ## 'from' 'to'
-rename: E: ## 'infobot' 'blootbot'
+rename: E: ## 'infobot' 'infobot'
 
 reverse: D: reverses a given string
 reverse: U: ## <string>
-reverse: E: ## When will blootbot achieve world domination?
+reverse: E: ## When will infobot achieve world domination?
 
 rot13: D: ROT13's a given string
 rot13: U: ## <string>
@@ -366,14 +366,14 @@ say: U: ## <chan> <what>
 
 scramble: D: scrambles a given string
 scramble: U: ## <string>
-scramble: E: ## When will blootbot achieve world domination?
+scramble: E: ## When will infobot achieve world domination?
 
 search: U: ## <engine> for <string>
-search: E: ## google for blootbot
+search: E: ## google for infobot
 
 seen: D: Report last seen time for somebody
 seen: U: ## <nick>
-seen: E: ## blootbot
+seen: E: ## infobot
 
 slashdot: D: News for nerds, Stuff that matters. [tm] (shows the headlines)
 slashdot: U: ##
@@ -384,7 +384,7 @@ status: status dumps general status information
 
 tell: D: Tell someone about a factoid or command
 tell: U: ## <who> -?about <what>
-tell: E: ## me about blootbot
+tell: E: ## me about infobot
 tell: E: ## someone -about testing
 
 topic add: D: Add your own topic
@@ -434,7 +434,7 @@ topic: End of help.
 
 uc: D: upper case a given string
 uc: U: ## <string>
-uc: E: ## When will blootbot achieve world domination?
+uc: E: ## When will infobot achieve world domination?
 
 unforget: If a factoid has been forgotten, "unforget x" will cause me to unerase it.
 
