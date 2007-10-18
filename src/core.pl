@@ -78,11 +78,10 @@ $nottime	= 0;
 $notsize	= 0;
 $notcount	= 0;
 ###
-$bot_release	= "1.3.3";
-if ( -d 'CVS' ) {
-    use POSIX qw(strftime);
-    $bot_release	.= strftime(" cvs (%Y%m%d)", gmtime( (stat('CVS'))[9] ) );
-}
+open(VERSION, '<VERSION');
+$bot_release	= <VERSION> || "(unknown version)";
+chomp($bot_release);
+close(VERSION);
 $bot_version	= "infobot $bot_release -- $^O";
 $noreply	= 'NOREPLY';
 

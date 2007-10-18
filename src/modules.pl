@@ -7,7 +7,7 @@
 
 use strict;
 
-use vars qw($AUTOLOAD $no_timehires);
+use vars qw($AUTOLOAD $no_timehires $bot_version $bot_release);
 
 ###
 ### REQUIRED MODULES.
@@ -157,6 +157,13 @@ sub reloadAllModules {
     my $retval = '';
 
     &VERB("Module: reloading all.",2);
+    
+    # Reload version and save
+    open(VERSION,"<VERSION");
+    $bot_release = <VERSION> || "(unknown version)";
+    chomp($bot_release);
+    $bot_version    = "infobot $bot_release -- $^O";
+    close(VERSION);
 
     # obscure usage of map and regex :)
     foreach (map { s/.*?\/?src/src/; $_ } keys %moduleAge) {
