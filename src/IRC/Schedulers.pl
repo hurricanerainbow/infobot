@@ -703,13 +703,22 @@ sub ircCheck {
 	    }
 	}
 
-	if (grep /^\s*$/, keys %channels) {
-	    &WARN('ircCheck: we have a NULL chan in hash channels? removing!');
-	    if (!exists $channels{''}) {
-		&DEBUG('ircCheck: this should never happen!');
-	    }
+        if (grep /^\s*$/, keys %channels) {
+            &WARN('ircCheck: we have a NULL chan in hash channels? removing!');
+            if (!exists $channels{''}) {
+                &DEBUG('ircCheck: this should never happen!');
+            }
+       }
+     if ($ident !~ /^\Q$param{ircNick}\E$/) {
+       # this does not work unfortunately.
+       &WARN("ircCheck: ident($ident) != param{ircNick}($param{ircNick}).");
 
-	    delete $channels{''};
+       # this check is misleading... perhaps we should do a notify.
+       if (! &IsNickInAnyChan( $param{ircNick} ) ) {
+           &DEBUG("$param{ircNick} not in use... changing!");
+           &nick( $param{ircNick} );
+       } else {
+           &WARN("$param{ircNick} is still in use...");
 	}
     }
 
