@@ -9,6 +9,8 @@
 
 use POSIX qw(_exit);
 
+my %shm_keys;
+
 sub openSHM {
     my $IPC_PRIVATE = 0;
     my $size = 2000;
@@ -20,6 +22,10 @@ sub openSHM {
 
     if (defined( $_ = shmget($IPC_PRIVATE, $size, 0777) )) {
 	&status("Created shared memory (shm) key: [$_]");
+	$shm_keys{$_} = {time     => time,
+			 accessed => 0,
+			 key      => $_,
+			};
 	return $_;
     } else {
 	&ERROR("openSHM: failed.");
@@ -52,8 +58,12 @@ sub shmRead {
 	return $retval;
     } else {
 	&ERROR("shmRead: failed: $!");
+	if (exists $shm_keys{$_}) {
+	      closeSHM($key);
+	}
 	### TODO: if this fails, never try again.
-	&openSHM();
+	# What use is opening a SHM segment if we're not going to read it?
+	# &openSHM();
 	return '';
     }
 }
@@ -64,6 +74,8 @@ sub shmWrite {
     my $size = 80*3;
 
     return if (&IsParam('noSHM'));
+
+    $shm_keys{$keys}{accessed} = 1;
 
     if (length($str) > $size) {
 	&status("ERROR: length(str) (..)>$size...");
