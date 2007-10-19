@@ -702,6 +702,7 @@ sub ircCheck {
 		$cache{connect} = time();
 	    }
 	}
+    }
 
         if (grep /^\s*$/, keys %channels) {
             &WARN('ircCheck: we have a NULL chan in hash channels? removing!');
