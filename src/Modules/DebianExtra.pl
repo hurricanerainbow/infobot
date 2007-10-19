@@ -15,8 +15,10 @@ sub Parse {
 
     #&::DEBUG("DebianExtra: $args\n");
     if (!defined $args or $args =~ /^$/) {
-	$msg = &debianBugs();
-    } elsif ($args =~ /^(\d+)$/) {
+	&debianBugs();
+    }
+
+    if ($args =~ /^\#?(\d+)$/) {
 	# package number:
 	$msg = &do_id($args);
     } elsif ($args =~ /^(\S+\@\S+)$/) {
@@ -74,55 +76,56 @@ sub do_id($){
     my $report = join("\n", @results);
 
     # strip down report to relevant header information.
-    $report =~ s/\r//sig;
+#    $report =~ s/\r//sig;
     $report =~ /<BODY[^>]*>(.+?)<HR>/si;
     $report = $1;
     my $bug = {};
-    ($bug->{num}, $bug->{title}) = $report =~ m#\#(\d+)\<\/A\>\<BR\>(.+?)\<\/H1\>#is;
+    ($bug->{num},$bug->{title}) = $report =~ m#\#(\d+)\<\/A\>\<BR\>(.+?)\<\/H1\>#is;
     &::DEBUG("Bugnum: $bug->{num}\n");
     $bug->{title} =~ s/&lt;/\</g;
     $bug->{title} =~ s/&gt;/\>/g;
     $bug->{title} =~ s/&quot;/\"/g;
     &::DEBUG("Title: $bug->{title}\n");
     $bug->{severity} = 'n'; #Default severity is normal
-    my @bug_flags = split /(?<!\&.t);/s, $report;
+    my @bug_flags = split /(?<!\&.t)[;\.]\n/s, $report;
     foreach my $bug_flag (@bug_flags) {
 	$bug_flag =~ s/\n//g;
 	&::DEBUG("Bug_flag: $bug_flag\n");
-	if ($bug_flag =~ /Severity:/i) {
-	    ($bug->{severity}) = $bug_flag =~ /(wishlist|minor|normal|important|serious|grave)/i;
-	    # Just leave the leter instead of the whole thing.
-	    $bug->{severity} =~ s/^(.).+$/$1/;
-	}
-	elsif ($bug_flag =~ /Package:/) {
-	    ($bug->{package}) = $bug_flag =~ /\"\>\s*([^<>]+?)\s*\<\/a\>/;
-	    # take packagename out of title if it's there
-	    $bug->{title} =~ s/^$bug->{package}: //;
-	}
-	elsif ($bug_flag =~ /Reported by:/) {
-	    ($bug->{reporter}) = $bug_flag =~ /\"\>\s*(.+?)\s*\<\/a\>/;
-	    # strip &lt; and &gt;
-	    $bug->{reporter} =~ s/&lt;/\</g;
-	    $bug->{reporter} =~ s/&gt;/\>/g;
-	}
-	elsif ($bug_flag =~ /Date:/) {
-	    ($bug->{date}) = $bug_flag =~ /Date:\s*(\w.+?)\s*$/;
-	    #ditch extra whitespace
-	    $bug->{date} =~ s/\s{2,}/\ /;
-	}
-	elsif ($bug_flag =~ /Tags:/) {
-	    ($bug->{tags}) = $bug_flag =~ /strong\>\s*(.+?)\s*\<\/strong\>/;
-	}
-	elsif ($bug_flag =~ /merged with /) {
-	    $bug_flag =~ s/merged with\s*//;
-	    $bug_flag =~ s/\<[^\>]+\>//g;
-	    $bug_flag =~ s/\s//sg;
-	    $bug->{merged_with} = $bug_flag;
+	  if ($bug_flag =~ /Severity:/i) {
+	       ($bug->{severity}) = $bug_flag =~ /(wishlist|minor|normal|important|serious|grave)/i;
+	       # Just leave the leter instead of the whole thing.
+	       $bug->{severity} =~ s/^(.).+$/$1/;
+	  }
+	  elsif ($bug_flag =~ /Package:/) {
+	       ($bug->{package}) = $bug_flag =~ /\"\>\s*([^\<\>\"]+?)\s*\<\/a\>/;
+	  }
+	  elsif ($bug_flag =~ /Reported by:/) {
+	       ($bug->{reporter}) = $bug_flag =~ /\"\>\s*(.+?)\s*\<\/a\>/;
+	       # strip &lt; and &gt;
+	       $bug->{reporter} =~ s/&lt;/\</g;
+	       $bug->{reporter} =~ s/&gt;/\>/g;
+	  }
+	  elsif ($bug_flag =~ /Date:/) {
+	       ($bug->{date}) = $bug_flag =~ /Date:\s*(\w.+?)\s*$/;
+	       #ditch extra whitespace
+	       $bug->{date} =~ s/\s{2,}/\ /;
+	  }
+	  elsif ($bug_flag =~ /Tags:/) {
+	       ($bug->{tags}) = $bug_flag =~ /strong\>\s*(.+?)\s*\<\/strong\>/;
+	  }
+	  elsif ($bug_flag =~ /merged with /) {
+	       $bug_flag =~ s/merged with\s*//;
+	       $bug_flag =~ s/\<[^\>]+\>//g;
+               $bug_flag =~ s/\s//sg;
+	       $bug->{merged_with} = $bug_flag;
 
-	}
-	elsif ($bug_flag =~ /\>Done:\</) {
-	    $bug->{done} = 1;
-	}
+	  }
+          elsif ($bug_flag =~ /\>Done:\</) {
+               $bug->{done} = 1;
+          }
+	  elsif ($bug_flag =~ /\>Fixed\</) {
+	       $bug->{done} = 1;
+	  }
     }
 
     # report bug
@@ -131,7 +134,7 @@ sub do_id($){
     $report .= 'DONE:' if defined $bug->{done} and $bug->{done};
     $report .= '#'.$bug->{num}.':'.uc($bug->{severity}).'['.$bug->{package}.'] '.$bug->{title};
     $report .= ' ('.$bug->{tags}.')' if defined $bug->{tags};
-    $report .= ' ' . $bug->{date};
+    $report .= '; ' . $bug->{date};
     # Avoid reporting so many merged bugs.
     $report .= ' ['.join(',',splice(@{[split(/,/,$bug->{merged_with})]},0,3)).']' if defined $bug->{merged_with};
     if ($::DEBUG) {
@@ -147,11 +150,6 @@ sub old_do_id {
 
     # FIXME
     return "do_id not supported yet.";
-
-    my @results = &::getURL($url);
-    foreach (@results) {
-	&::DEBUG("do_id: $_");
-    }
 }
 
 sub do_email {
