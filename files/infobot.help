@@ -482,4 +482,4 @@ flags: D:        - can tell bot to join new channels
 flags: D:        - can [un]lock factoids
 flags: D: "r" - remove factoid.
 flags: D: "t" - teach/add factoid.
-
+flags: D: "s" - Bypass +silent on channels

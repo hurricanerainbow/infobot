@@ -839,6 +839,7 @@ my @regFlagsUser = (
 			# can [un]lock factoids
 	'r',	# remove factoid.
 	't',	# teach/add factoid.
+	's',	# Bypass +silent on channels
 );
 
 1;

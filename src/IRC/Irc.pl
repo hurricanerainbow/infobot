@@ -213,7 +213,8 @@ sub say {
 	return;
     }
 
-    if (&getChanConf('silent', $talkchannel)) {
+    if (&getChanConf('silent', $talkchannel) and not
+      (&IsFlag("s") and &verifyUser($who,$nuh{lc $who}))) {
 	&DEBUG("say: silent in $talkchannel, not saying $msg");
 	return;
     }
@@ -272,7 +273,8 @@ sub msg {
     }
 
     # some say() end up here (eg +help)
-    if (&getChanConf('silent', $nick)) {
+    if (&getChanConf('silent', $nick) and not
+       (&IsFlag("s") and &verifyUser($who,$nuh{lc $who}))) {
 	&DEBUG("msg: silent in $nick, not saying $msg");
 	return;
     }
@@ -313,7 +315,8 @@ sub action {
 	return;
     }
 
-    if (&getChanConf('silent', $target)) {
+    if (&getChanConf('silent', $target) and not
+       (&IsFlag("s") and &verifyUser($who,$nuh{lc $who}))) {
 	&DEBUG("action: silent in $target, not doing $txt");
 	return;
     }
