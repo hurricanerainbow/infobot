@@ -14,6 +14,55 @@ use vars qw($dbh $shm $bot_data_dir);
 
 package main;
 
+eval {
+     # This wrapper's sole purpose in life is to keep the dbh connection open.
+     package Bloot::DBI;
+
+     # These are DBI methods which do not require an active DB
+     # connection. [Eg, don't check to see if the database is working
+     # by pinging it for these methods.]
+     my %no_ping;
+     @no_ping{qw(ping err err_str quote disconnect clone)} = (1) x 6;
+     sub new {
+	  my $class = shift;
+	  my $dbh = shift;
+	  return undef unless $dbh;
+	  $class = ref($class) if ref($class);
+	  my $self = {dbh=>$dbh};
+	  bless $self, $class;
+	  return $self;
+     }
+
+     our $AUTOLOAD;
+     sub AUTOLOAD {
+	  my $method = $AUTOLOAD;
+	  my $self = shift;
+	  die "Undefined subroutine $method called" unless defined $self;
+	  ($method) = $method =~ /([^\:]+)$/;
+	  unshift @_, $self->{dbh};
+	  return undef if not defined $self->{dbh};
+	  goto &{$self->{dbh}->can($method)} if exists $no_ping{$method} and $no_ping{$method};
+	  my $ping_count = 0;
+	  while (++$ping_count < 10){
+	       last if $self->{dbh}->ping;
+	       $self->{dbh}->disconnect;
+	       $self->{dbh} = $self->{dbh}->clone;
+	  }
+	  if ($ping_count >=10 and not $self->{dbh}->ping){
+	       &ERROR("Tried real hard but was unable to reconnect");
+	       return undef;
+	  }
+	  $_[0] = $self->{dbh};
+	  my $coderef = $self->{dbh}->can($method);
+	  goto &$coderef if defined $coderef;
+	  # Dumb DBI doesn't have a can method for some
+	  # functions. Like func.
+	  shift;
+	  return eval "\$self->{dbh}->$method(\@_)" or die $@;
+     }
+     1;
+};
+
 #####
 # &sqlOpenDB($dbname, $dbtype, $sqluser, $sqlpass, $nofail);
 sub sqlOpenDB {
@@ -39,7 +88,7 @@ sub sqlOpenDB {
 	$hoststr = " to $param{'SQLHost'}";
     }
     # SQLite ignores $user and $pass
-    $dbh    = DBI->connect($dsn, $user, $pass);
+    $dbh    = Bloot::DBI->new(DBI->connect($dsn, $user, $pass));
 
     if ($dbh && !$dbh->err) {
 	&status("Opened $type connection$hoststr");
@@ -299,10 +348,12 @@ sub sqlInsert {
 	return;
     }
 
-    return &sqlRaw("Insert($table)", sprintf(
+    &sqlRaw("Insert($table)", sprintf(
 	"INSERT %s INTO %s (%s) VALUES (%s)",
 	($other || ''), $table, join(',',@k), join(',',@v)
     ) );
+
+    return 1;
 }
 
 #####
@@ -650,7 +701,7 @@ sub checkTables {
 	my @tables = map {s/^\`//; s/\`$//; $_;} $dbh->func('_ListTables');
 	if ($#tables == -1){
 	    @tables = $dbh->tables;
-	}
+        }
 	&status("Tables: ".join(',',@tables));
 	@db{@tables} = (1) x @tables;
 
