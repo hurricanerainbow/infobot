@@ -331,7 +331,7 @@ sub seen {
     &seenFlush();	# very evil hack. oh well, better safe than sorry.
 
     # TODO: convert to &sqlSelectRowHash();
-    my $select = 'nick,time,channel,host,message';
+    my $select = 'nick,time,channel,host,message,messagecount';
     if ($person eq 'random') {
 	@seen = &randKey('seen', $select);
     } else {
@@ -363,7 +363,7 @@ sub seen {
 
 	if (&IsChanConf('seenStats') > 0) {
 	    my $i;
-	    $i = $userstats{lc $seen[0]}{'Count'};
+	    $i = $seen[6] || $userstats{lc $seen[0]}{'Count'};
 	    $reply .= ". Has said a total of \002$i\002 messages" if (defined $i);
 	    $i = $userstats{lc $seen[0]}{'Time'};
 	    $reply .= '. Is idling for '.&Time2String(time() - $i) if (defined $i);
