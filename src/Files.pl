@@ -67,7 +67,7 @@ sub loadIRCServers {
 	next if /^\s*$/;
 	next if /^[\#\[ ]/;
 
-	if (/^(\S+)(:(\d+))?$/) {
+	if (/^\s*(\S+?)(:(\d+))?\s*$/) {
 	    push(@ircServers,$1);
 	    $ircPort{$1} = ($3 || 6667);
 	} else {
