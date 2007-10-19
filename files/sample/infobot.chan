@@ -22,6 +22,7 @@
     rootWarnMode aggressive
 
 _default
+    +News
     +BZFlag
     +Debian
     +DebianExtra

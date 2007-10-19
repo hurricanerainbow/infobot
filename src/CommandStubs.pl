@@ -881,7 +881,7 @@ sub nullski {
 &addCmdHook('listauth', ('CODEREF' => 'CmdListAuth', 'Identifier' => 'Search', Module => 'Factoids', 'Help' => 'listauth') );
 &addCmdHook('md5(sum)?', ('CODEREF' => 'md5::md5', 'Identifier' => 'md5', 'Cmdstats' => 'md5', 'Forker' => 1, 'Module' => 'md5') );
 &addCmdHook('metar', ('CODEREF' => 'Weather::Metar', 'Identifier' => 'Weather', 'Help' => 'weather', 'Cmdstats' => 'Weather', 'Forker' => 1) );
-&addCmdHook('News', ('CODEREF' => 'News::Parse', Module => 'News', 'Cmdstats' => 'News' ) );
+&addCmdHook('News', ('CODEREF' => 'News::Parse', Module => 'News', 'Cmdstats' => 'News', 'Identifier' => 'News' ) );
 &addCmdHook('(?:nick|lame)ometer(?: for)?', ('CODEREF' => 'nickometer::query', 'Identifier' => 'nickometer', 'Cmdstats' => 'nickometer', 'Forker' => 1) );
 &addCmdHook('nullski', ('CODEREF' => 'nullski', ) );
 &addCmdHook('page', ('CODEREF' => 'pager::page', 'Identifier' => 'pager', 'Cmdstats' => 'pager', 'Forker' => 1, 'Help' => 'page') );
