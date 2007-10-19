@@ -23,7 +23,8 @@ use vars qw(@ircServers);
 #use open ':std';
 
 $nickserv	= 0;
-my $maxlinelen	= 400;
+# It's probably closer to 510, but let's be cautious until we calculate it extensively.
+my $maxlinelen	= 490;
 
 sub ircloop {
     my $error	= 0;
