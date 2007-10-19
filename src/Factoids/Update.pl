@@ -120,7 +120,23 @@ sub update {
     }
 
     if ($also) {			# 'is also'.
-	if ($exists =~ /^<REPLY> see /i) {
+        my $redircount = 5;
+        my $origlhs = $lhs;
+        while ($exists =~ /^<REPLY> ?see (.*)/i) {
+            $redircount--;
+            unless ($redircount) {
+                &msg($who, "$origlhs has too many levels of redirection.");
+                return 1;
+            }
+
+            $lhs = $1;
+            $exists = &getFactoid($lhs);
+            unless( $exists ) {
+                &msg($who, "$1 is a dangling redirection.");
+                return 1;
+            }
+        }
+	if ($exists =~ /^<REPLY> ?see (.*)/i) {
 	    &TODO("Update.pl: append to linked factoid.");
 	}
 
