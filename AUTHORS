@@ -1,0 +1,36 @@
+Infobot (rebranded blootbot):
+    License: Artistic
+    Main Author:
+	- Tim Rike <Tim@Rikers.org>
+    Other Contributors:
+	- David Sobon <dms@users.sourceforge.net>
+	- Danny Jabbour [GmLB] <danny@opticaldelusion.org>
+	- Danny McGrath <djmcgrath@users.sourceforge.net>
+
+Infobot (original):
+    License: As perl (GPL & Artistic)
+	- Kevin A. Lenzo [oznoid] <lenzo@cs.cmu.edu>
+	- Patrick Cole [ltd] <???>
+
+Blootbot:
+    License: Artistic
+    Main Author:
+	- Tim Riker <Tim@Rikers.org>
+    Other Contributors:
+	- David Sobon <dms@users.sourceforge.net>
+	- Danny Jabbour [GmLB] <danny@opticaldelusion.org>
+
+Module-Reload: (idea taken)
+    License: Artistic
+	- Doug MacEachern <???>
+	- Joshua Pritikin <???>
+
+Module-Units:
+    License: GPL
+	- M-J. Dominus <mjd-perl-units-id-iut+buobvys+@plover.com>
+
+OnJoin:
+	- Corey Edwards <tensai@zmonkey.org>
+
+Quotes file (files/infobot.randtext):
+	- ??? Ask netgod/larne/is for dpkg's tcl
