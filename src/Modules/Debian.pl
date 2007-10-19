@@ -5,6 +5,9 @@
 #     Created: 20000106
 #
 
+
+# XXX Add uploader field support
+
 package Debian;
 
 use strict;
@@ -18,16 +21,48 @@ my $debian_dir	= $::bot_state_dir . '/debian';
 my $country	= 'nl'; # well .config it yourself then. ;-)
 my $protocol	= 'http';
 # EDIT THIS (i386, amd64, powerpc, [etc.]):
-my $arch = "$arch";
+my $arch = "i386";
 
 # format: "alias=real".
 my %dists	= (
 	'unstable'	=> 'sid',
 	'testing'	=> 'lenny',
 	'stable'	=> 'etch',
+        'experimental'  => 'experimental',
 	'oldstable'	=> 'sarge',
 	'incoming'	=> 'incoming',
 );
+
+my %archived_dists = (
+    woody  => 'woody',
+    potato => 'potato',
+    hamm   => 'hamm',
+    buzz   => 'buzz',
+    bo     => 'bo',
+    rex    => 'rex',
+    slink  => 'slink',
+);
+
+my %archiveurlcontents = (
+	"Contents-##DIST-$arch.gz" =>
+		"$protocol://debian.crosslink.net/debian-archive".
+		"/dists/##DIST/Contents-$arch.gz",
+);
+
+my %archiveurlpackages = (
+	"Packages-##DIST-main-$arch.gz" =>
+		"$protocol://debian.crosslink.net/debian-archive".
+		"/dists/##DIST/main/binary-$arch/Packages.gz",
+	"Packages-##DIST-contrib-$arch.gz" =>
+		"$protocol://debian.crosslink.net/debian-archive".
+		"/dists/##DIST/contrib/binary-$arch/Packages.gz",
+	"Packages-##DIST-non-free-$arch.gz" =>
+		"$protocol://debian.crosslink.net/debian-archive".
+		"/dists/##DIST/non-free/binary-$arch/Packages.gz",
+);
+    
+
+
 
 my %urlcontents = (
 	"Contents-##DIST-$arch.gz" =>
@@ -171,11 +206,11 @@ sub searchContents {
 	return;
     }
 
+    my %urls = fixDist($dist,'contents');
     if ($dist eq 'incoming') {		# nothing yet.
 	&::DEBUG('sC: dist = "incoming". no contents yet.');
 	return;
     } else {
-	my %urls = &fixDist($dist, %urlcontents);
 	# download contents file.
 	&::DEBUG('deb: download 1.') if ($debug);
 	if (!&DebianDownload($dist, %urls)) {
@@ -206,11 +241,9 @@ sub searchContents {
     $grepRE =~ s/\*/.*/g;
 
     my @files;
-    foreach (keys %urlcontents) {
-	s/##DIST/$dist/g;
-
-	next unless ( -f "$debian_dir/$_" );
-	push(@files, "$debian_dir/$_");
+    foreach (keys %urls) {
+	next unless ( -f $_ );
+	push(@files, $_);
     }
 
     if (!scalar @files) {
@@ -338,14 +371,11 @@ sub searchAuthor {
     my $start_time = &::timeget();
     &::status("Debian: starting author search.");
 
+    my %urls = fixDist($dist,'packages');
     my $files;
     my ($bad,$good) = (0,0);
-    my %urls = %urlpackages;
-
-    foreach (keys %urlpackages) {
-	s/##DIST/$dist/g;
-
-	if (! -f "$debian_dir/$_" ) {
+    foreach (keys %urls) {
+	if (! -f $_ ) {
 	    $bad++;
 	    next;
 	}
@@ -357,8 +387,7 @@ sub searchAuthor {
     &::DEBUG("deb: good = $good, bad = $bad...") if ($debug);
 
     if ($good == 0 and $bad != 0) {
-	my %urls = &fixDist($dist, %urlpackages);
-	&::DEBUG("deb: download 2.");
+        &::DEBUG("deb: download 2.");
 
 	if (!&DebianDownload($dist, %urls)) {
 	    &::ERROR("Debian(sA): could not download files.");
@@ -443,24 +472,22 @@ sub searchDesc {
 
     my $files;
     my ($bad,$good) = (0,0);
-    my %urls = %urlpackages;
+    my %urls = fixDist($dist,'packages');
 
-    foreach (keys %urlpackages) {
-	s/##DIST/$dist/g;
-
-	if (! -f "$debian_dir/$_" ) {
+    # XXX This should be abstracted elsewhere.
+    foreach (keys %urls) {
+	if (! -f $_ ) {
 	    $bad++;
 	    next;
 	}
 
 	$good++;
-	$files .= " $debian_dir/$_";
+	$files .= " $_";
     }
 
     &::DEBUG("deb(2): good = $good, bad = $bad...") if ($debug);
 
     if ($good == 0 and $bad != 0) {
-	my %urls = &fixDist($dist, %urlpackages);
 	&::DEBUG("deb: download 2c.") if ($debug);
 
 	if (!&DebianDownload($dist, %urls)) {
@@ -649,7 +676,7 @@ sub infoPackages {
 
     # download packages file.
     # hrm...
-    my %urls = &fixDist($dist, %urlpackages);
+    my %urls = &fixDist($dist,'packages');
     if ($dist ne "incoming") {
 	&::DEBUG("deb: download 3.") if ($debug);
 
@@ -766,7 +793,7 @@ sub infoStats {
     &::DEBUG("deb: infoS: dist => '$dist'.");
 
     # download packages file if needed.
-    my %urls = &fixDist($dist, %urlpackages);
+    my %urls = &fixDist($dist,'packages');
     &::DEBUG("deb: download 4.");
     if (!&DebianDownload($dist, %urls)) {
 	&::WARN("Debian(iS): could not download ANY files.");
@@ -777,18 +804,17 @@ sub infoStats {
     my %stats;
     my %total = (count => 0, maint => 0, isize => 0, csize => 0);
     my $file;
-    foreach $file (keys %urlpackages) {
-	$file =~ s/##DIST/$dist/g;	# won't work for incoming.
+    foreach $file (keys %urls) {
 	&::DEBUG("deb: file => '$file'.");
 	if (exists $stats{$file}{'count'}) {
 	    &::DEBUG("deb: hrm... duplicate open with $file???");
 	    next;
 	}
 
-	open(IN, "zcat $debian_dir/$file 2>&1 |");
+	open(IN, "zcat $file 2>&1 |");
 
-	if (! -e "$debian_dir/$file") {
-	    &::DEBUG("deb: iS: $debian_dir/$file does not exist.");
+	if (! -e "$file") {
+	    &::DEBUG("deb: iS: $file does not exist.");
 	    next;
 	}
 
@@ -843,7 +869,7 @@ sub infoStats {
 # Usage: &generateIndex();
 sub generateIndex {
     my (@dists)	= @_;
-    &::DEBUG("D: generateIndex($dists[0]) called!");
+    &::DEBUG("D: generateIndex($dists[0]) called! ".join(':',caller(),));
     if (!scalar @dists or $dists[0] eq '') {
 	&::ERROR("gI: no dists to generate index.");
 	return 1;
@@ -852,6 +878,7 @@ sub generateIndex {
     foreach (@dists) {
 	my $dist = &getDistro($_); # incase the alias is returned, possible?
 	my $idx  = $debian_dir."/Packages-$dist.idx";
+	my %urls = fixDist($_,'packages');
 
 	# TODO: check if any of the Packages file have been updated then
 	#	regenerate it, even if it's not stale.
@@ -865,13 +892,13 @@ sub generateIndex {
 	    next;
 	}
 
-	if (/^woody$/i) {
-	    &::DEBUG("deb: Copying old index of woody to -old");
-	    system("cp $idx $idx-old");
-	}
+# 	if (/^sarge$/i) {
+# 	    &::DEBUG("deb: Copying old index of sarge to -old");
+# 	    system("cp $idx $idx-old");
+# 	}
 
 	&::DEBUG("deb: gIndex: calling DebianDownload($dist, ...).") if ($debug);
-	&DebianDownload($dist, &fixDist($dist, %urlpackages) );
+	&DebianDownload($dist, &fixDist($dist,'packages') );
 
 	&::status("Debian: generating index for '$dist'.");
 	if (!open OUT, ">$idx") {
@@ -880,10 +907,7 @@ sub generateIndex {
 	}
 
 	my $packages;
-	foreach $packages (keys %urlpackages) {
-	    $packages =~ s/##DIST/$dist/;
-	    $packages =  "$debian_dir/$packages";
-
+	foreach $packages (keys %urls) {
 	    if (! -e $packages) {
 		&::ERROR("gIndex: '$packages' does not exist?");
 		next;
@@ -1012,18 +1036,17 @@ sub getDistro {
 	$dist = $defaultdist;
     }
 
-    if ($dist =~ /^(slink|hamm|rex|bo)$/i) {
-	&::DEBUG("deb: deprecated version ($dist).");
-	&::msg($::who, "Debian: deprecated distribution version.");
-	return;
-    }
-
     if (exists $dists{$dist}) {
 	&::VERB("gD: returning dists{$dist} ($dists{$dist})",2);
 	return $dists{$dist};
 
-    } else {
-	if (!grep /^\Q$dist\E$/i, %dists) {
+    }
+    elsif (exists $archived_dists{$dist}){
+	&::VERB("gD: returning archivedists{$dist} ($archived_dists{$dist})",2);
+	return $archived_dists{$dist};
+    }
+    else {
+	if (!grep(/^\Q$dist\E$/i, %dists) and !grep(/^\Q$dist\E$/i, %archived_dists)) {
 	    &::msg($::who, "invalid dist '$dist'.");
 	    return;
 	}
@@ -1035,7 +1058,7 @@ sub getDistro {
 
 sub getDistroFromStr {
     my ($str) = @_;
-    my $dists	= join '|', %dists;
+    my $dists	= join '|', %dists, %archived_dists;
     my $dist	= $defaultdist;
 
     if ($str =~ s/\s+($dists)$//i) {
@@ -1048,11 +1071,29 @@ sub getDistroFromStr {
 }
 
 sub fixDist {
-    my ($dist, %urls) = @_;
+    my ($dist, $type) = @_;
     my %new;
     my ($key,$val);
-
-    while (($key,$val) = each %urls) {
+    my %dist_urls;
+    
+    if (exists $archived_dists{$dist}){
+	if ($type eq 'contents'){
+	    %dist_urls = %archiveurlcontents;
+	}
+	else {
+	    %dist_urls = %archiveurlpackages;
+	}  
+    }
+    else {
+	if ($type eq 'contents'){
+	    %dist_urls = %urlcontents;
+	}
+	else {
+	    %dist_urls = %urlpackages;
+	}
+    }
+       
+    while (($key,$val) = each %dist_urls) {
 	$key =~ s/##DIST/$dist/;
 	$val =~	s/##DIST/$dist/;
 	### TODO: what should we do if the sar wasn't done.
@@ -1103,9 +1144,9 @@ sub debianCheck {
 	next unless ($file =~ /(gz|bz2)$/);
 
 	# TODO: add bzip2 support (debian doesn't do .bz2 anyway)
-	#my $exit = system("/bin/gzip -t '$debian_dir/$file'");
-	#next unless ($exit);
-	&::DEBUG("deb: hmr... => ".(time() - (stat($file))[8])."'.");
+	my $exit = system("/bin/gzip -t '$debian_dir/$file'");
+	next unless ($exit);
+	&::DEBUG("deb: hmr... => ".(time() - (stat($debian_dir/$file))[8])."'.");
 	next unless (time() - (stat($file))[8] > 3600);
 
 	#&::DEBUG("deb: dC: exit => '$exit'.");
