@@ -1,5 +1,5 @@
 CREATE TABLE news (
-    channel VARCHAR(16) NOT NULL,
+    channel VARCHAR(30) NOT NULL,
     id numeric DEFAULT 0 NOT NULL,
     "key" VARCHAR(16) NOT NULL,
     value text NOT NULL

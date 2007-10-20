@@ -1,7 +1,7 @@
 CREATE TABLE seen (
  nick VARCHAR(20) NOT NULL,
  time INT NOT NULL,
- channel VARCHAR(20) NOT NULL,
+ channel VARCHAR(30) NOT NULL,
  host VARCHAR(80) NOT NULL,
  message TINYTEXT NOT NULL,
  PRIMARY KEY (nick,channel)

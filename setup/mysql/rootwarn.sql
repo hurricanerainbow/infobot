@@ -3,6 +3,6 @@ CREATE TABLE rootwarn (
  attempt SMALLINT UNSIGNED,
  time INT NOT NULL,
  host VARCHAR(80) NOT NULL,
- channel VARCHAR(20) NOT NULL,
+ channel VARCHAR(30) NOT NULL,
  PRIMARY KEY (nick)
 );
