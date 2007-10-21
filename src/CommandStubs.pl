@@ -644,11 +644,6 @@ sub do_text_counters {
 	$chan = $1;
     }
 
-    if ($message =~ /^_stats(\s+(\S+))$/i) {
-	&textstats_main($2);
-	return 1;
-    }
-
     my ($type,$arg);
     if ($message =~ /^($z)stats(\s+(\S+))?$/i) {
 	$type = $1;
@@ -657,27 +652,21 @@ sub do_text_counters {
 	return 0;
     }
 
-    # even more uglier with channel/time arguments.
-    my $c	= $chan;
-#   my $c	= $chan || 'PRIVATE';
-    my $where	= 'type='.&sqlQuote($type);
-    if (defined $c) {
-	&DEBUG("c => $c");
-	$where	.= ' AND channel='.&sqlQuote($c) if (defined $c);
-    } else {
-	&DEBUG('not using chan arg');
-    }
+    my $c	= $chan || 'PRIVATE';
 
-    my $sum = (&sqlRawReturn('SELECT SUM(counter) FROM stats'
-			.' WHERE '.$where ))[0];
+    # Define various types of stats in one place.
+    # Note: sqlSelectColHash has built in sqlQuote
+    my $where_chan_type  = { channel => $c, type => $type };
+    my $where_chan_type_nick = { channel => $c, type => $type, nick => $arg};
+
+    my $sum = (&sqlSelect('stats', 'SUM(counter)', $where_chan_type))[0];
 
     if (!defined $arg or $arg =~ /^\s*$/) {
-	# this is way ugly.
 
-	# TODO: convert $where to hash
+	# get top 3 stats of $type in $chan
 	my %hash = &sqlSelectColHash('stats', 'nick,counter',
-			{ },
-			$where.' ORDER BY counter DESC LIMIT 3', 1
+			$where_chan_type,
+			'ORDER BY counter DESC LIMIT 3', 1
 	);
 	my $i;
 	my @top;
@@ -702,34 +691,32 @@ sub do_text_counters {
 	    &performStrictReply("zero counter for \037$type\037.");
 	}
     } else {
-	# TODO: convert $where to hash and use a sqlSelect
-	my $x = (&sqlRawReturn('SELECT SUM(counter) FROM stats'.
-			" WHERE $where AND nick=".&sqlQuote($arg) ))[0];
+	my $x = (&sqlSelect('stats', 'SUM(counter)', $where_chan_type_nick))[0];
 
-	if (!defined $x) {	# !defined.
+	if (!defined $x) {	# If no stats were found
 	    &performStrictReply("$arg has not said $type yet.");
 	    return 1;
 	}
 
-	# defined.
-	# TODO: convert $where to hash
-	my @array = &sqlSelect('stats', 'nick', undef,
-			$where.' ORDER BY counter', 1
+	# Get list of all nicks for channel $c and $type
+	my @array = &sqlSelectColArray('stats', 'nick',
+		$where_chan_type,
+		'ORDER BY counter DESC'
 	);
-	my $good = 0;
-	my $i = 0;
-	for ($i=0; $i<scalar @array; $i++) {
-	    next unless ($array[0] =~ /^\Q$who\E$/);
-	    $good++;
-	    last;
-	}
-	$i++;
 
 	my $total = scalar(@array);
-	my $xtra = '';
-	if ($total and $good) {
-	    my $pct = sprintf("%.01f", 100*(1+$total-$i)/$total);
-	    $xtra = ", ranked $i\002/\002$total (percentile: \002$pct\002 %)";
+	my $rank;
+	# Find position of nick $arg in the list
+	for (my $i=0; $i < $total; $i++) {
+	    next unless ($array[$i] =~ /^\Q$arg\E$/);
+	    $rank = $i + 1;
+	    last;
+	}
+
+	my $xtra;
+	if ($total and $rank) {
+	    my $pct = sprintf("%.01f", 100*($rank)/$total);
+	    $xtra = ", ranked $rank\002/\002$total (percentile: \002$pct\002 %)";
 	}
 
 	my $pct1 = sprintf("%.01f", 100*$x/$sum);
@@ -737,101 +724,6 @@ sub do_text_counters {
     }
 
     return 1;
-}
-
-sub textstats_main {
-    my($arg) = @_;
-
-    # even more uglier with channel/time arguments.
-    my $c	= $chan;
-#    my $c	= $chan || 'PRIVATE';
-    &DEBUG('not using chan arg') if (!defined $c);
-
-    # example of converting from RawReturn to sqlSelect.
-    my $where_href = (defined $c) ? { channel => $c } : '';
-    my $sum = &sqlSelect('stats', 'SUM(counter)', $where_href);
-
-    if (!defined $arg or $arg =~ /^\s*$/) {
-	# this is way ugly.
-	&DEBUG('_stats: !arg');
-
-	my %hash = &sqlSelectColHash('stats', 'nick,counter',
-		$where_href,
-		' ORDER BY counter DESC LIMIT 3', 1
-	);
-	my $i;
-	my @top;
-
-	# unfortunately we have to sort it again!
-	my $tp = 0;
-	foreach $i (sort { $b <=> $a } keys %hash) {
-	    foreach (keys %{ $hash{$i} }) {
-		my $p	= sprintf("%.01f", 100*$i/$sum);
-		$tp	+= $p;
-		push(@top, "\002$_\002 -- $i ($p%)");
-	    }
-	}
-
-	my $topstr = '';
-	if (scalar @top) {
-	    $topstr = '.  Top '.scalar(@top).': '.join(', ', @top);
-	}
-
-	if (defined $sum) {
-	    &performStrictReply("total count of \037$type\037 on \002$c\002: $sum$topstr");
-	} else {
-	    &performStrictReply("zero counter for \037$type\037.");
-	}
-
-	return;
-    }
-
-    # TODO: add nick to where_href
-    my %hash = &sqlSelectColHash('stats', 'type,counter',
-		$where_href, ' AND nick='.&sqlQuote($arg)
-    );
-
-    # this is totally messed up... needs to be fixed... and cleaned up.
-    my $total;
-    my $good;
-    my $ii;
-    my $x;
-
-    foreach (keys %hash) {
-	&DEBUG("_stats: hash{$_} => $hash{$_}");
-	# ranking.
-	# TODO: convert $where to hash
-	my $where = '';
-	my @array = &sqlSelect('stats', 'nick', undef, $where.' ORDER BY counter', 1);
-	$good = 0;
-	$ii = 0;
-	for(my $i=0; $i<scalar @array; $i++) {
-	    next unless ($array[0] =~ /^\Q$who\E$/);
-	    $good++;
-	    last;
-	}
-	$ii++;
-
-	$total = scalar(@array);
-	&DEBUG("   i => $i, good => $good, total => $total");
-	$x .= ' '.$total.'blah blah';
-    }
-
-#    return;
-
-    if (!defined $x) {	# !defined.
-	&performStrictReply("$arg has not said $type yet.");
-	return;
-    }
-
-    my $xtra = '';
-    if ($total and $good) {
-	my $pct = sprintf("%.01f", 100*(1+$total-$ii)/$total);
-	$xtra = ", ranked $ii\002/\002$total (percentile: \002$pct\002 %)";
-    }
-
-    my $pct1 = sprintf("%.01f", 100*$x/$sum);
-    &performStrictReply("\002$arg\002 has said \037$type\037 \002$x\002 times (\002$pct1\002 %)$xtra");
 }
 
 sub nullski {

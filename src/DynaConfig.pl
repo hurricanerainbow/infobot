@@ -744,9 +744,11 @@ sub chanSet {
 	if ($val eq '0') {
 	    &performStrictReply("Unsetting $what for $chan$was.");
 	    delete $chanconf{$chan}{$what};
+	    delete $cache{ircTextCounters} if $what eq 'ircTextCounters';
 	} else {
 	    &performStrictReply("Setting $what for $chan to '$val'$was.");
 	    $chanconf{$chan}{$what}	= $val;
+	    delete $cache{ircTextCounters} if $what eq 'ircTextCounters';
 	}
 
 	$update++;
@@ -763,6 +765,7 @@ sub chanSet {
 	&performStrictReply("Setting $what for $chan to '$val'$was.");
 
 	$chanconf{$chan}{$what} = $val;
+	delete $cache{ircTextCounters} if $what eq 'ircTextCounters';
 
 	$update++;
 
