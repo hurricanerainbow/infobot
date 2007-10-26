@@ -1,8 +1,12 @@
-CREATE TABLE botmail (
- srcwho VARCHAR(20) NOT NULL,
- dstwho VARCHAR(20) NOT NULL,
- srcuh VARCHAR(80) NOT NULL,
- time INT UNSIGNED DEFAULT 'UNIX_TIMESTAMP()',
- msg TEXT NOT NULL,
- PRIMARY KEY (srcwho,dstwho)
-);
+--
+-- Table structure for table `botmail`
+--
+
+CREATE TABLE `botmail` (
+  `srcwho` varchar(20) NOT NULL default '',
+  `dstwho` varchar(20) NOT NULL default '',
+  `srcuh` varchar(80) NOT NULL default '',
+  `time` int(10) unsigned default '0',
+  `msg` text NOT NULL,
+  PRIMARY KEY  (`srcwho`,`dstwho`)
+) TYPE=MyISAM;

@@ -1,14 +1,12 @@
-CREATE TABLE onjoin (
-	nick VARCHAR(20) NOT NULL,
-	channel VARCHAR(30) NOT NULL,
-	message VARCHAR(255) NOT NULL,
-	modified_by VARCHAR(20) NOT NULL DEFAULT 'nobody',
-	modified_time INT NOT NULL DEFAULT '0',
-	PRIMARY KEY (nick, channel)
-);
+--
+-- Table structure for table `onjoin`
+--
 
--- v.2 -> v.3
--- ALTER TABLE onjoin ADD COLUMN modified_by VARCHAR(20) NOT NULL DEFAULT 'nobody';
--- ALTER TABLE onjoin ADD COLUMN modified_time INT NOT NULL DEFAULT '0';
--- ** the following doesn't work for sqlite **
--- ALTER TABLE onjoin ADD PRIMARY KEY (nick, channel);
+CREATE TABLE `onjoin` (
+  `nick` varchar(20) NOT NULL default '',
+  `channel` varchar(30) NOT NULL default '',
+  `message` varchar(255) NOT NULL default '',
+  `modified_by` varchar(20) NOT NULL default 'nobody',
+  `modified_time` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`nick`,`channel`)
+) TYPE=MyISAM;
