@@ -489,9 +489,10 @@ sub netsplitCheck {
     }
 
     # yet another hack.
-    foreach (keys %channels) {
-	my $i = $cache{maxpeeps}{$chan} || 0;
-	my $j = scalar(keys %{ $channels{$chan} });
+    # FIXED: $ch should be used rather than $chan since it creates NULL channels in the hash
+    foreach my $ch (keys %channels) {
+	my $i = $cache{maxpeeps}{$ch} || 0;
+	my $j = scalar(keys %{ $channels{$ch} });
 	next unless ($i > 10 and 0.25*$i > $j);
 
 	&DEBUG("netsplit: 0.25*max($i) > current($j); possible netsplit?");
