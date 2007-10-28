@@ -24,15 +24,13 @@ sub on_generic {
 sub on_action {
     $conn = shift(@_);
     my ($event) = @_;
-    my ($nick, @args) = ($event->nick, $event->args);
+    my ($nick, $args) = ($event->nick, $event->args);
     my $chan = ($event->to)[0];
 
-    shift @args;
-
     if ($chan eq $ident) {
-	&status("* [$nick] @args");
+	&status("* [$nick] $args");
     } else {
-	&status("* $nick/$chan @args");
+	&status("* $nick/$chan $args");
     }
 }
 
