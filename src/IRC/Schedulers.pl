@@ -681,7 +681,7 @@ sub ircCheck {
 	$conn=$conns{$_};
 	my $mynick=$conn->nick();
 	&DEBUG("ircCheck for $_");
-	my @join = &getJoinChans(1);
+	my @join = &getJoinChans(900); # Display with min of 900sec delay between redisplay
 	if (scalar @join) {
 	    &FIXME('ircCheck: found channels to join! ' . join(',',@join));
 	    &joinNextChan();

@@ -26,6 +26,9 @@ $nickserv	= 0;
 # It's probably closer to 510, but let's be cautious until we calculate it extensively.
 my $maxlinelen	= 490;
 
+# Keep track of last time we displayed Chans: to avoid spam in logs
+my $lastChansTime = 0;
+
 sub ircloop {
     my $error	= 0;
     my $lastrun = 0;
@@ -839,11 +842,20 @@ sub clearIRCVars {
 }
 
 sub getJoinChans {
-    my($show)	= @_;
+    # $show should contain the min number of seconds between display
+    # of the Chans: status line. Use 0 to disable
+    my $show = shift;
 
     my @in;
     my @skip;
     my @join;
+
+    # Display "Chans:" only if more than $show seconds since last display
+    if (time() - $lastChansTime > $show) {
+    	$lastChansTime = time();
+    } else {
+    	$show = 0; # Don't display since < 15min since last
+    }
 
     # can't join any if not connected
     return @join if (!$conn);
@@ -880,8 +892,8 @@ sub getJoinChans {
     }
 
     my $str;
-    #$str .= ' in:' . join(',', sort @in) if scalar @in;
-    #$str .= ' skip:' . join(',', sort @skip) if scalar @skip;
+    $str .= ' in:' . join(',', sort @in) if scalar @in;
+    $str .= ' skip:' . join(',', sort @skip) if scalar @skip;
     $str .= ' join:' . join(',', sort @join) if scalar @join;
 
     &status("Chans: ($nick)$str") if ($show);
