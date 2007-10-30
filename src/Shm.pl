@@ -241,7 +241,7 @@ sub shmFlush {
     return if ($$ != $::bot_pid); # fork protection.
 
     if (@_) {
-	&ScheduleThis(15, 'shmFlush');
+	&ScheduleThis(15*60, 'shmFlush'); # 15 minutes
 	return if ($_[0] eq '2');
     }
 
