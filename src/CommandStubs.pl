@@ -784,6 +784,7 @@ sub nullski {
 &addCmdHook('RootWarn', ('CODEREF' => 'CmdrootWarn', 'Identifier' => 'RootWarn', 'Module' => 'RootWarn') );
 &addCmdHook('OnJoin', ('CODEREF' => 'Cmdonjoin', 'Identifier' => 'OnJoin', 'Module' => 'OnJoin') );
 &addCmdHook('Rss', ('CODEREF' => 'Rss::Rss', 'Identifier' => 'Rss', 'Cmdstats' => 'Rss', 'Forker' => 1, 'Help' => 'rss') );
+&addCmdHook('RSSFeeds',('CODEREF' => 'RSSFeeds::RSS', 'Identifier' => 'RSSFeeds', 'Forker' => 1, 'Help' => 'rssfeeds', 'Cmdstats' => 'RSSFeeds', 'Module' => 'RSSFeeds') );
 &addCmdHook('sched(stats|info)', ('CODEREF' => 'scheduleList', ) );
 &addCmdHook('scramble', ('CODEREF' => 'scramble::scramble', 'Identifier' => 'scramble', 'Cmdstats' => 'scramble', 'Forker' => 1, 'Module' => 'scramble') );
 &addCmdHook('seen', ('CODEREF' => 'seen', 'Identifier' => 'seen') );

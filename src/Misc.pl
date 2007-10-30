@@ -367,36 +367,28 @@ sub getRandom {
     return $array[int(rand(scalar @array))];
 }
 
-# Usage: &getRandomInt("30-60");
+# Usage: &getRandomInt("30-60"); &getRandomInt(5);
+# Desc : Returns a randomn integer between "X-Y" or 1 and the value passed
 sub getRandomInt {
-    my $str = $_[0];
+	my $str = shift;
 
-    if (!defined $str) {
-	&WARN("gRI: str == NULL.");
-	return;
-    }
-
-    srand();
-
-    if ($str =~ /^(\d+(\.\d+)?)$/) {
-	my $i = $1;
-	my $fuzzy = int(rand 5);
-	if ($i < 10) {
-	    return $i;
+	if ( !defined $str ) {
+		&WARN("getRandomInt: str == NULL.");
+		return undef;
 	}
-	if (rand > 0.5) {
-	    return ($i - $fuzzy)*60;
+
+	if ( $str =~ /^(\d+(\.\d+)?)$/ ) {
+		return int( rand $str ) + 1;
+	} elsif ( $str =~ /^(\d+)-(\d+)$/ ) {
+		return $1 if $1 == $2;
+		my $min = $1 < $2 ? $1 : $2;    # Swap is backwords
+		my $max = $2 > $1 ? $2 : $1;
+		return int( rand( $max - $min + 1 ) ) + $min;
 	} else {
-	    return ($i + $fuzzy)*60;
-	}
-    } elsif ($str =~ /^(\d+)-(\d+)$/) {
-	return ($2 - $1)*int(rand $1)*60;
-    } else {
-	return $str;	# hope we're safe.
-    }
 
-    &ERROR("getRandomInt: invalid arg '$str'.");
-    return 1800;
+		# &ERROR("getRandomInt: invalid arg '$str'.");
+		return undef;
+	}
 }
 
 ##########

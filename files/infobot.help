@@ -483,3 +483,9 @@ flags: D:        - can [un]lock factoids
 flags: D: "r" - remove factoid.
 flags: D: "t" - teach/add factoid.
 flags: D: "s" - Bypass +silent on channels
+
+rssfeeds: D: rssfeeds is used to control the RSS Feed tracking module
+rssfeeds: U: rssfeeds [command]
+rssfeeds: E: rssfeeds flush
+rssfeeds: D: flush - Will erase the cache file. (Must be chattr +o)
+rssfeeds: D: update - Force a manual update of the feeds. (Must be chattr +o)

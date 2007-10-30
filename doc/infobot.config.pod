@@ -364,6 +364,11 @@ freshmeat for factoids which do not exist.
 
 This controls if the bot should store uptime records or not.
 
+=item B<set rssFeedTime E<lt>minutesE<gt>>
+
+Should you decide to use the RSS Feed module, this setting controls how often
+the feeds for all channels will be polled.
+
 =back
 
 =head2 Miscellaneous configuration options

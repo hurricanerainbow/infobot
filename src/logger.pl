@@ -97,6 +97,7 @@ sub openLog {
     }
 
     if (open(LOG, ">>$file{log}")) {
+    	binmode(LOG, ":utf8");
 	&status("Opened logfile $file{log}.");
 	LOG->autoflush(1);
     } else {
@@ -375,9 +376,11 @@ sub debug_perl {
 	&status("WARN: cannot open $file: $!");
 	return;
     }
+    binmode(IN, ":utf8");
 
     # TODO: better filename.
     open(OUT, ">>debug.log");
+    binmode(OUT, ":utf8");
     print OUT "DEBUG: $str\n";
 
     # note: cannot call external functions because SIG{} does not allow us to.
@@ -412,6 +415,7 @@ sub openSQLDebug {
 	delete $param{'SQLDebug'};
 	return 0;
     }
+    binmode(SQLDEBUG, ":utf8");
 
     &status("Opened SQL Debug file: $param{'SQLDebug'}");
     return 1;

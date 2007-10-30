@@ -70,6 +70,7 @@ sub setupSchedulers {
     &factoidCheck(2);	# takes a couple of seconds on a 486. defer it
 # TODO: convert to new format... or nuke altogether.
     &newsFlush(2);
+    &rssFeeds(2);
 
     # 1 for run straight away
     &uptimeLoop(1);
@@ -99,7 +100,8 @@ sub setupSchedulers {
 
 sub ScheduleThis {
     my ($interval, $codename, @args) = @_;
-    my $waittime = &getRandomInt($interval);
+    # Set to supllied value plus a random 0-60 seconds to avoid simultaneous runs
+    my $waittime = &getRandomInt("$interval-" . ($interval+&getRandomInt(60) ) );
 
     if (!defined $waittime) {
 	&WARN("interval == waittime == UNDEF for $codename.");
@@ -124,10 +126,26 @@ sub ScheduleThis {
 #### LET THE FUN BEGIN.
 ####
 
+sub rssFeeds {
+  my $interval = $param{'rssFeedTime'} || 30;
+  if (@_) {
+    &ScheduleThis( $interval*60, 'rssFeeds' ); # minutes
+    return if ( $_[0] eq '2' );    # defer.
+  }
+  &Forker(
+    'RSSFeeds',
+    sub {
+      my $line = &RSSFeeds::RSS();
+      return unless ( defined $line );
+
+    }
+  );
+}
+
 sub randomQuote {
     my $interval = &getChanConfDefault('randomQuoteInterval', 60, $chan);
     if (@_) {
-	&ScheduleThis($interval, 'randomQuote');
+	&ScheduleThis($interval*60, 'randomQuote'); # every hour
 	return if ($_[0] eq '2');	# defer.
     }
 
@@ -153,7 +171,7 @@ sub randomFactoid {
 
     my $interval = &getChanConfDefault('randomFactoidInterval', 60, $chan);
     if (@_) {
-	&ScheduleThis($interval, 'randomFactoid');
+	&ScheduleThis($interval*60, 'randomFactoid'); # minutes
 	return if ($_[0] eq '2');	# defer.
     }
 
@@ -181,7 +199,7 @@ sub randomFactoid {
 
 sub logLoop {
     if (@_) {
-	&ScheduleThis(60, 'logLoop');
+	&ScheduleThis(3600, 'logLoop'); # 1 hour
 	return if ($_[0] eq '2');	# defer.
     }
 
@@ -250,7 +268,7 @@ sub logLoop {
 
 sub seenFlushOld {
     if (@_) {
-	&ScheduleThis(1440, 'seenFlushOld');
+	&ScheduleThis(86400, 'seenFlushOld'); # 1 day
 	return if ($_[0] eq '2');	# defer.
     }
 
@@ -292,7 +310,7 @@ sub seenFlushOld {
 
 sub newsFlush {
     if (@_) {
-	&ScheduleThis(60, 'newsFlush');
+	&ScheduleThis(3600, 'newsFlush'); # 1 hour
 	return if ($_[0] eq '2');	# defer.
     }
 
@@ -373,7 +391,7 @@ sub chanlimitCheck {
     my $mynick=$conn->nick();
 
     if (@_) {
-	&ScheduleThis($interval, 'chanlimitCheck');
+	&ScheduleThis($interval*60, 'chanlimitCheck'); # default 10 minutes
 	return if ($_[0] eq '2');
     }
 
@@ -441,7 +459,7 @@ sub netsplitCheck {
     my ($s1,$s2);
 
     if (@_) {
-	&ScheduleThis(15, 'netsplitCheck');
+	&ScheduleThis(300, 'netsplitCheck'); # every 5 minutes
 	return if ($_[0] eq '2');
     }
 
@@ -519,7 +537,7 @@ sub floodLoop {
     my $who;
 
     if (@_) {
-	&ScheduleThis(60, 'floodLoop');	# minutes.
+	&ScheduleThis(60, 'floodLoop'); # 1 minute
 	return if ($_[0] eq '2');
     }
 
@@ -545,7 +563,7 @@ sub floodLoop {
 sub seenFlush {
     if (@_) {
 	my $interval = &getChanConfDefault('seenFlushInterval', 60, $chan);
-	&ScheduleThis($interval, 'seenFlush');
+	&ScheduleThis($interval*60, 'seenFlush'); # minutes
 	return if ($_[0] eq '2');
     }
 
@@ -588,7 +606,7 @@ sub leakCheck {
     my $count = 0;
 
     if (@_) {
-	&ScheduleThis(240, 'leakCheck');
+	&ScheduleThis(14400, 'leakCheck'); # every 4 hours
 	return if ($_[0] eq '2');
     }
 
@@ -644,7 +662,7 @@ sub leakCheck {
 
 sub ignoreCheck {
     if (@_) {
-	&ScheduleThis(60, 'ignoreCheck');
+	&ScheduleThis(60, 'ignoreCheck'); # once every minute
 	return if ($_[0] eq '2');	# defer.
     }
 
@@ -672,7 +690,7 @@ sub ignoreCheck {
 
 sub ircCheck {
     if (@_) {
-	&ScheduleThis(15, 'ircCheck');
+	&ScheduleThis(300, 'ircCheck'); # every 5 minutes
 	return if ($_[0] eq '2');	# defer.
     }
 
@@ -740,7 +758,7 @@ sub ircCheck {
 
 sub miscCheck {
     if (@_) {
-	&ScheduleThis(120, 'miscCheck');
+	&ScheduleThis(7200, 'miscCheck'); # every 2 hours
 	return if ($_[0] eq '2');	# defer.
     }
 
@@ -798,7 +816,7 @@ sub miscCheck {
 
 sub miscCheck2 {
     if (@_) {
-	&ScheduleThis(240, 'miscCheck2');
+	&ScheduleThis(14400, 'miscCheck2'); # every 4 hours
 	return if ($_[0] eq '2');	# defer.
     }
 
@@ -856,7 +874,7 @@ sub uptimeLoop {
 #    return unless &IsParam('Uptime');
 
     if (@_) {
-	&ScheduleThis(60, 'uptimeLoop');
+	&ScheduleThis(3600, 'uptimeLoop'); # once per hour
 	return if ($_[0] eq '2');	# defer.
     }
 
@@ -866,7 +884,7 @@ sub uptimeLoop {
 sub slashdotLoop {
 
     if (@_) {
-	&ScheduleThis(60, 'slashdotLoop');
+	&ScheduleThis(3600, 'slashdotLoop'); # once per hour
 	return if ($_[0] eq '2');
     }
 
@@ -889,7 +907,7 @@ sub slashdotLoop {
 sub plugLoop {
 
     if (@_) {
-	&ScheduleThis(60, 'plugLoop');
+	&ScheduleThis(3600, 'plugLoop'); # once per hour
 	return if ($_[0] eq '2');
     }
 
@@ -911,7 +929,7 @@ sub plugLoop {
 
 sub kernelLoop {
     if (@_) {
-	&ScheduleThis(240, 'kernelLoop');
+	&ScheduleThis(14400, 'kernelLoop'); # once every 4 hours
 	return if ($_[0] eq '2');
     }
 
@@ -969,7 +987,7 @@ sub wingateCheck {
 ### TODO: ??
 sub wingateWriteFile {
     if (@_) {
-	&ScheduleThis(60, 'wingateWriteFile');
+	&ScheduleThis(3600, 'wingateWriteFile'); # once per hour 
 	return if ($_[0] eq '2');	# defer.
     }
 
@@ -1001,7 +1019,7 @@ sub wingateWriteFile {
 
 sub factoidCheck {
     if (@_) {
-	&ScheduleThis(720, 'factoidCheck');
+	&ScheduleThis(43200, 'factoidCheck'); # ever 12 hours
 	return if ($_[0] eq '2');	# defer.
     }
 
@@ -1046,7 +1064,7 @@ sub dccStatus {
     return unless (scalar keys %{ $dcc{CHAT} });
 
     if (@_) {
-	&ScheduleThis(10, 'dccStatus');
+	&ScheduleThis(600, 'dccStatus'); # every 10 minutes
 	return if ($_[0] eq '2');	# defer.
     }
 
