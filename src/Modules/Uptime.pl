@@ -84,10 +84,6 @@ sub uptimeWriteFile {
 
   close OUT;
   &status('--- Saved uptime records.');
-
-  return unless defined $conn;
-
-  $conn->schedule(&getRandomInt('1800-3600'), \&uptimeWriteFile, '');
 }
 
 1;
