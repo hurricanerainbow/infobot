@@ -21,35 +21,6 @@ use vars qw(%sched %schedule);
 #	uptimeLoop => ('', 60, 1),
 #};
 
-sub setupSchedulersII {
-    foreach (keys %schedule) {
-	&queueTask($_, @{ $schedule{$_} });
-    }
-}
-
-sub queueTask {
-    my($codename, $chanconfdef, $intervaldef, $defer) = @_;
-    my $t = &getChanConfDefault($chanconfdef, $intervaldef, $chan);
-    my $waittime = &getRandomInt($t);
-
-    if (!defined $waittime) {
-	&WARN("interval == waittime == UNDEF for $codename.");
-	return;
-    }
-
-    my $time = $schedule{$codename}[3];
-    if (defined $time and $time > time()) {
-	&WARN("Sched for $codename already exists in " . &Time2String(time() - $time) . ".");
-	return;
-    }
-
-    #&VERB("Scheduling \&$codename() for " . &Time2String($waittime),3);
-
-    my $retval = $conn->schedule($waittime, sub {
-		\&$codename;
-    }, @args );
-}
-
 sub setupSchedulers {
     &VERB("Starting schedulers...",2);
 
