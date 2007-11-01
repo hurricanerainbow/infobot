@@ -101,5 +101,6 @@ sub query {
 }
 
 1;
-# vim: shiftwidth=2 tabstop=2
 __END__
+
+# vim:ts=4:sw=4:expandtab:tw=80

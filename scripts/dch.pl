@@ -737,3 +737,4 @@ sub check_env_utf8 {
     }
 }
 
+# vim:ts=4:sw=4:expandtab:tw=80

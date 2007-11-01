@@ -22,3 +22,5 @@ while (($key, $val) = each %db) {
   print "$key => $val\n";
 }
 dbmclose %db;
+
+# vim:ts=4:sw=4:expandtab:tw=80

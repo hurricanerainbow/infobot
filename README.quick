@@ -12,3 +12,6 @@ DCC CHAT:
 
 for list of configuration options, run:
 	perl scripts/findparam.pl
+
+
+# vim:ts=4:sw=4:expandtab:tw=80

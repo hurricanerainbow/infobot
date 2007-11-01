@@ -121,3 +121,5 @@ sub package_bugs($){
 
 
 __END__
+
+# vim:ts=4:sw=4:expandtab:tw=80

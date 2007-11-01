@@ -18,3 +18,4 @@ sub mkpasswd {
     return crypt($what, $salt);
 }
 
+# vim:ts=4:sw=4:expandtab:tw=80

@@ -85,3 +85,5 @@ sub print_indented {
     $spaces = ":  " x $level;
     print "${spaces}$_[0]\n";
 }
+
+# vim:ts=4:sw=4:expandtab:tw=80

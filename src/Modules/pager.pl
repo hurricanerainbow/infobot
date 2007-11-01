@@ -99,4 +99,5 @@ sub pager::page {
 }
 
 'pager';
-# vim: ts=2 sw=2
+
+# vim:ts=4:sw=4:expandtab:tw=80

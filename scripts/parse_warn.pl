@@ -89,3 +89,5 @@ foreach $file (keys %done) {
 	print "=> error: could not open file.\n";
     }
 }
+
+# vim:ts=4:sw=4:expandtab:tw=80

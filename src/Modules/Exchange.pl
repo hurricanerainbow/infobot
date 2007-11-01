@@ -422,3 +422,5 @@ currency code is a bit cranky.
 =head1 AUTHORS
 
 Bobby <bobby@bofh.dk>
+
+# vim:ts=4:sw=4:expandtab:tw=80

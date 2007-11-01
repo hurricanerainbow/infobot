@@ -322,4 +322,5 @@ if (!scalar @ARGV) {
 }
 my $date = shift;
 exit &main($date);
-# vim: ts=2
+
+# vim:ts=4:sw=4:expandtab:tw=80

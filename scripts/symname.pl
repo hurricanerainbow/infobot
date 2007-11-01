@@ -102,3 +102,5 @@ sub DumpPackage {
  print $padding."scalars $scalar, size $size\n";
  return $size;
 }
+
+# vim:ts=4:sw=4:expandtab:tw=80

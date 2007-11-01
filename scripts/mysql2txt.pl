@@ -45,3 +45,5 @@ $sth->finish;
 
 print "Done.\n";
 &closeDB();
+
+# vim:ts=4:sw=4:expandtab:tw=80

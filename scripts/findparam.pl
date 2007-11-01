@@ -70,3 +70,5 @@ print "Conf:\n";
 foreach (sort keys %conf) {
     print "    $_\n";
 }
+
+# vim:ts=4:sw=4:expandtab:tw=80

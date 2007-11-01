@@ -25,3 +25,5 @@ $x = 10;
 %z = (1,2,3,4, 5, 6, \@y);
 $z = 300;
 DUMPVAR::dumpvar("Test");
+
+# vim:ts=4:sw=4:expandtab:tw=80

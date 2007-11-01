@@ -32,3 +32,5 @@ A: By default, the "chanServCheck" option is off in _default. You can
 
 	chanset _default chanServCheck 1
 	chanset #notmychannel chanServCheck 0
+
+# vim:ts=4:sw=4:expandtab:tw=80

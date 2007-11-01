@@ -14,3 +14,5 @@ Unfortunately, Net::IRC 0.70 has buggy code that does not detect DCC CHAT
 properly. to patch:
 	cd /usr/share/perl5/Net/IRC/
 	cat ~bot/patches/Net_IRC_Connection_pm.patch | patch -p0
+
+# vim:ts=4:sw=4:expandtab:tw=80

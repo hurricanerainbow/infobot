@@ -93,3 +93,5 @@ for(my $i=0; $i<scalar(@index); $i++) {
 close OUT;
 
 print "Done.\n";
+
+# vim:ts=4:sw=4:expandtab:tw=80

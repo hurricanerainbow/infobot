@@ -145,3 +145,5 @@ if (0) {
 }
 
 1;
+
+# vim:ts=4:sw=4:expandtab:tw=80

@@ -65,3 +65,5 @@ foreach (keys %factval) {
 }
 
 $dbh->disconnect();
+
+# vim:ts=4:sw=4:expandtab:tw=80

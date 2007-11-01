@@ -26,3 +26,5 @@ Method of installation.
 - There are "bugs" in the perl modules.  Read INSTALL.patches on how to fix.
 
 - Finally, './infobot'
+
+# vim:ts=4:sw=4:expandtab:tw=80

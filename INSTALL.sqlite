@@ -27,3 +27,5 @@ http://search.cpan.org/author/MSERGEANT/DBD-SQLite/
 
 You will also need the normal Perl DBD stuff which should be included in your
 Perl distribution.
+
+# vim:ts=4:sw=4:expandtab:tw=80

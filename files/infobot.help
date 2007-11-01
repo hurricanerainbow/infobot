@@ -489,3 +489,5 @@ rssfeeds: U: rssfeeds [command]
 rssfeeds: E: rssfeeds flush
 rssfeeds: D: flush - Will erase the cache file. (Must be chattr +o)
 rssfeeds: D: update - Force a manual update of the feeds. (Must be chattr +o)
+
+# vim:ts=4:sw=4:expandtab:tw=80

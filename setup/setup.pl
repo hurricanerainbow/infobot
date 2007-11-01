@@ -95,3 +95,5 @@ if ($param{'DBType'} =~ /mysql/i) {
 &status("Done.");
 
 &sqlCloseDB();
+
+# vim:ts=4:sw=4:expandtab:tw=80
