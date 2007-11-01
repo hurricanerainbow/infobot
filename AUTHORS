@@ -1,38 +1,49 @@
-Infobot (rebranded blootbot):
-    License: Artistic
-    Main Author:
-        - Tim Rike <Tim@Rikers.org>
-    Other Contributors:
-        - David Sobon <dms@users.sourceforge.net>
-        - Danny Jabbour [GmLB] <danny@opticaldelusion.org>
-        - Danny McGrath <djmcgrath@users.sourceforge.net>
+# $Id$
 
-Infobot (original):
+                                 -------------
+                                 -- AUTHORS --
+                                 -------------
+
+Infobot original:
+
     License: As perl (GPL & Artistic)
         - Kevin A. Lenzo [oznoid] <lenzo@cs.cmu.edu>
-        - Patrick Cole [ltd] <???>
+        - Patrick Cold [ltd] <???>
 
-Blootbot:
+Later forked as Blootbot (and now remerged back):
+
     License: Artistic
-    Main Author:
-        - Tim Riker <Tim@Rikers.org>
-    Other Contributors:
-        - David Sobon <dms@users.sourceforge.net>
-        - Danny Jabbour [GmLB] <danny@opticaldelusion.org>
+        Tim Riker [TimRiker] <Tim@Rikers.org>
 
-Module-Reload: (idea taken)
-    License: Artistic
-        - Doug MacEachern <???>
-        - Joshua Pritikin <???>
+Is currently maintained by:
 
-Module-Units:
-    License: GPL
-        - M-J. Dominus <mjd-perl-units-id-iut+buobvys+@plover.com>
+    - Tim Riker [TimRiker] <Tim@Rikers.org>
+    - Don Armstrong [dondelelcaro] <dondelelcaro@users.sourceforge.net>
+    - Dan McGrath [troubled] <djmcgrath@users.sourceforge.net>
+    - Eric Cote [simonrvn] <simonraven@users.sourceforge.net>
 
-OnJoin:
-	- Corey Edwards <tensai@zmonkey.org>
+and has previously been maintained by:
 
-Quotes file (files/infobot.randtext):
-	- ??? Ask netgod/larne/is for dpkg's tcl
+    - Adam Kennedy <adamkennedy@users.sourceforge.net>
+    - Corey Edwards <tensai@zmonkey.org>
+    - Danny Jabbour [GmLB] <danny@opticaldelusion.org>
+    - Dave Brown <dagbrown@users.sourceforge.net>
+    - Dave Paris <a-mused@users.sourceforge.net>
+    - David Sobon <dms@users.sourceforge.net>
+    - Doug MacEachern <???>
+    - Joshua Pritikin <???>
+    - Kevin Meltzer <kdm@users.sourceforge.net>
+    - M-J. Dominus <mjd-per-units-id-iut+buobvys+@plover.com>
+    - Martijin van Beers <lotr@users.sourceforge.net>
+    - Masque <qid@users.sourceforge.net>
+    - Peter Sergeant <sheriff_pete@users.sourceforge.net>
+    - Rich Lafferty <rich_lafferty@users.sourceforge.net>
+    - Richard Harman <rharman@users.sourceforge.net>
+    - Roderick Schertler <rschertler@users.sourceforge.net>
+    - Tony <sh3mh4mf0r4sh@users.sourceforge.net>
+
+
+Countless other people have contributed to Infobot (see THANKS), provided code
+and/or helped troubleshoot problems. Many thanks to all of them.
 
 # vim:ts=4:sw=4:expandtab:tw=80
