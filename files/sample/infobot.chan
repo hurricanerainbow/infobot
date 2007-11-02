@@ -24,6 +24,7 @@
 _default
     +News
     +BZFlag
+    +chanServCheck
     +Debian
     +DebianExtra
     +Dict

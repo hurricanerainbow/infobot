@@ -13,61 +13,58 @@
 #####
 # Usage: &hookMode($nick, $modes, @targets);
 sub hookMode {
-    my ($nick, $modes, @targets) = @_;
-    my $parity	= 0;
-
-    if ($chan =~ tr/A-Z/a-z/) {
-	&VERB("hookMode: cased $chan.",2);
-    }
+    my ( $nick, $modes, @targets ) = @_;
+    my $parity = 0;
 
     my $mode;
-    foreach $mode (split(//, $modes)) {
-	# sign.
-	if ($mode =~ /[-+]/) {
-	    $parity = 1		if ($mode eq "+");
-	    $parity = 0		if ($mode eq "-");
-	    next;
-	}
+    foreach $mode ( split( //, $modes ) ) {
 
-	# mode with target.
-	if ($mode =~ /[bklov]/) {
-	    my $target = shift @targets;
+        # sign. tmp parity needed to store current state
+        if ( $mode =~ /[-+]/ ) {
+            $parity = 1 if ( $mode eq "+" );
+            $parity = 0 if ( $mode eq "-" );
+            next;
+        }
 
-	    if ($parity) {
-		$chanstats{$chan}{'Op'}++    if ($mode eq 'o');
-		$chanstats{$chan}{'Ban'}++   if ($mode eq 'b');
-	    } else {
-		$chanstats{$chan}{'Deop'}++  if ($mode eq 'o');
-		$chanstats{$chan}{'Unban'}++ if ($mode eq 'b');
-	    }
+        # mode with target.
+        if ( $mode =~ /[bklov]/ ) {
+            my $target = shift @targets;
 
-	    # modes w/ target affecting nick => cache it.
-	    if ($mode =~ /[bov]/) {
-		$channels{$chan}{$mode}{$target}++	if  $parity;
-		delete $channels{$chan}{$mode}{$target}	if !$parity;
+            if ($parity) {
+                $chanstats{ lc $chan }{'Op'}++  if ( $mode eq 'o' );
+                $chanstats{ lc $chan }{'Ban'}++ if ( $mode eq 'b' );
+            } else {
+                $chanstats{ lc $chan }{'Deop'}++  if ( $mode eq 'o' );
+                $chanstats{ lc $chan }{'Unban'}++ if ( $mode eq 'b' );
+            }
 
-		# lets do some custom stuff.
-		if ($mode eq 'o' and $parity) {
-		    if ($nick eq 'ChanServ' and $target =~ /^\Q$ident\E$/i) {
-			&VERB("hookmode: chanserv deopped us! asking",2);
-			&chanServCheck($chan);
-		    }
+            # modes w/ target affecting nick => cache it.
+            if ( $mode =~ /[bov]/ ) {
+                $channels{ lc $chan }{$mode}{$target}++      if $parity;
+                delete $channels{ lc $chan }{$mode}{$target} if !$parity;
 
-		    &chanLimitVerify($chan);
-		}
-	    }
+                # lets do some custom stuff.
+                if ( $mode =~ /o/ and not $parity ) {
+                    if ( $target =~ /^\Q$ident\E$/i ) {
+                        &VERB( "hookmode: someone deopped us!", 2 );
+                        &chanServCheck($chan);
+                    }
 
-	    if ($mode =~ /[l]/) {
-		$channels{$chan}{$mode} = $target	if  $parity;
-		delete $channels{$chan}{$mode}		if !$parity;
-	    }
-	}
+                    &chanLimitVerify($chan);
+                }
+            }
 
-	# important channel modes, targetless.
-	if ($mode =~ /[mt]/) {
-	    $channels{$chan}{$mode}++			if  $parity;
-	    delete $channels{$chan}{$mode}		if !$parity;
-	}
+            if ( $mode =~ /[l]/ ) {
+                $channels{ lc $chan }{$mode} = $target if $parity;
+                delete $channels{ lc $chan }{$mode} if !$parity;
+            }
+        }
+
+        # important channel modes, targetless.
+        if ( $mode =~ /[mt]/ ) {
+            $channels{ lc $chan }{$mode}++      if $parity;
+            delete $channels{ lc $chan }{$mode} if !$parity;
+        }
     }
 }
 
@@ -356,13 +353,7 @@ sub chanServCheck {
 	return 0;
     }
 
-    if ($chan =~ tr/A-Z/a-z/) {
-	&DEBUG("chanServCheck: lowercased chan ($chan)");
-    }
-
-    if (! &IsChanConf('chanServ_ops') > 0) {
-	return 0;
-    }
+    return unless (&IsChanConf('chanServCheck'));
 
     &VERB("chanServCheck($chan) called.",2);
 
@@ -373,12 +364,12 @@ sub chanServCheck {
 
     # check for first hash then for next hash.
     # TODO: a function for &ischanop()? &isvoice()?
-    if (exists $channels{$chan} and exists $channels{$chan}{'o'}{$ident}) {
+    if (exists $channels{lc $chan} and exists $channels{lc $chan}{'o'}{$ident}) {
 	return 0;
     }
 
     &status("ChanServ ==> Requesting ops for $chan. (chanServCheck)");
-    &rawout("PRIVMSG ChanServ :OP $chan $ident");
+    &msg('ChanServ', "OP $chan");
     return 1;
 }
 
