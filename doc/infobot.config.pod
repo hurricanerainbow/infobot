@@ -76,13 +76,6 @@ I<FIXME: Does this actually do anything yet?>
 If the server your bot is connecting to supports nick services, you can set the
 password here that will be used to identify itself with.
 
-=item B<set chanServ_ops> E<lt>B<#chan1>E<gt> [E<lt>B<#chan2>E<gt> ... E<lt>B<#chanN>E<gt>]
-
-If the server your bot is connecting to supports channel services, you can set
-a space seperated list of channels that the bot should automatically request
-B<OP> in. Currently, the bot uses the format: S<C</msg chanserv OP #channel>>
-for each channel in the list, after it has sucessfully joined the channel.
-
 =item B<set quitMsg> E<lt>B<quit message>E<gt>
 
 When your bot intentionally disconnects from a server, it will display the

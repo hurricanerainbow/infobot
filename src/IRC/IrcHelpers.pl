@@ -353,7 +353,7 @@ sub chanServCheck {
 	return 0;
     }
 
-    return unless (&IsChanConf('chanServCheck'));
+    return unless (&IsChanConf('chanServCheck') > 0);
 
     &VERB("chanServCheck($chan) called.",2);
 
