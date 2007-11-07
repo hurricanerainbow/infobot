@@ -19,7 +19,7 @@ sub getCacheEntry {
 	&::DEBUG("rssFeed: Searching cache for $url");
 
 	open CACHE, "<$file" or return;
-	binmode( CACHE, ":utf8" );
+	binmode( CACHE, ":encoding(UTF-8)" );
 
 	while (<CACHE>) {
 		next unless /^$url:/;
@@ -38,8 +38,8 @@ sub saveCache {
 	open IN,  "<$file"     or return;
 	open OUT, ">$file.tmp" or return;
 
-	binmode( IN,  ":utf8" );
-	binmode( OUT, ":utf8" );
+	binmode( IN,  ":encoding(UTF-8)" );
+	binmode( OUT, ":encoding(UTF-8)" );
 
 	# copy all but old ones
 	while (<IN>) {
