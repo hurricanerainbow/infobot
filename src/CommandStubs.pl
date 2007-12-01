@@ -763,6 +763,7 @@ sub nullski {
 &addCmdHook('factinfo', ('CODEREF' => 'factinfo', 'Cmdstats' => 'Factoid Info', Module => 'Factoids', ) );
 &addCmdHook('factstats?', ('CODEREF' => 'factstats', 'Cmdstats' => 'Factoid Stats', Help => 'factstats', Forker => 1, 'Identifier' => 'Factoids', ) );
 &addCmdHook('help', ('CODEREF' => 'help', 'Cmdstats' => 'Help', ) );
+&addCmdHook('hex2ip', ('CODEREF' => 'hex2ip::query', 'Forker' => 1, 'Identifier' => 'hex2ip', 'Cmdstats' => 'hex2ip', 'Help' => 'hex2ip') );
 &addCmdHook('HTTPDtype', ('CODEREF' => 'HTTPDtype::HTTPDtype', 'Identifier' => 'HTTPDtype', 'Cmdstats' => 'HTTPDtype', 'Forker' => 1) );
 &addCmdHook('[ia]?spell', ('CODEREF' => 'spell::query', 'Identifier' => 'spell', 'Cmdstats' => 'spell', 'Forker' => 1, 'Help' => 'spell') );
 &addCmdHook('insult', ('CODEREF' => 'Insult::Insult', 'Forker' => 1, 'Identifier' => 'insult', 'Help' => 'insult' ) );

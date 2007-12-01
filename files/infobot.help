@@ -490,4 +490,8 @@ rssfeeds: E: rssfeeds flush
 rssfeeds: D: flush - Will erase the cache file. (Must be chattr +o)
 rssfeeds: D: update - Force a manual update of the feeds. (Must be chattr +o)
 
+hex2ip: D: Convert Hex idents for some gateways to an IP address
+hex2ip: U: ## <8 char hex value>
+hex2ip: E: ## AabBcC12
+
 # vim:ts=4:sw=4:expandtab:tw=80
