@@ -16,59 +16,59 @@ for list of configuration options, run:
 
 
 =====
-<me> blootbot: test is testing
-<blootbot> me: okay
-<me> blootbot: testing?
-<blootbot> testing is testing
+<me> infobot: test is testing
+<infobot> me: okay
+<me> infobot: testing?
+<infobot> testing is testing
 
-<me> blootbot: tests is <REPLY> testing
-<blootbot> me: okay
-<me> blootbot: tests?
-<blootbot> testing
+<me> infobot: tests is <REPLY> testing
+<infobot> me: okay
+<me> infobot: tests?
+<infobot> testing
 
-<me> blootbot: cough is <ACTION> coughs
-<blootbot> me: okay
-<me> blootbot: cough
-* blootbot/#blootbot coughs
+<me> infobot: cough is <ACTION> coughs
+<infobot> me: okay
+<me> infobot: cough
+* infobot/#infobot coughs
 
-<me> blootbot: test is <REPLY> What's (one|two|three|four|five|six)
+<me> infobot: test is <REPLY> What's (one|two|three|four|five|six)
 	times (seven|eight|nine|ten|eleven|twelve)?
-<blootbot> okay, me
-<me> blootbot: test
-<blootbot> What's four times nine?
-<me> blootbot: test?
-<blootbot> What's six times ten?
+<infobot> okay, me
+<me> infobot: test
+<infobot> What's four times nine?
+<me> infobot: test?
+<infobot> What's six times ten?
 
-<me> blootbot: op me is <ACTION> Mode change "+o $nick" on channel
+<me> infobot: op me is <ACTION> Mode change "+o $nick" on channel
 	$channel by $ident
-<blootbot> me: okay
-<me> blootbot: op me
-* blootbot/#debian-bots Mode change "+o me" on channel #blootbot by
-	blootbot
+<infobot> me: okay
+<me> infobot: op me
+* infobot/#debian-bots Mode change "+o me" on channel #infobot by
+	infobot
 
-<me> blootbot: no who am i is <REPLY> You are $nick!$user@$host on
+<me> infobot: no who am i is <REPLY> You are $nick!$user@$host on
 	$channel.
-<blootbot> okay, me
-<me> blootbot: who am i
-<blootbot> You are me!me@home.org on #blootbot.
+<infobot> okay, me
+<me> infobot: who am i
+<infobot> You are me!me@home.org on #infobot.
 
-<me> blootbot: who last spoke is <REPLY> To my knowledge, $lastspeaker
+<me> infobot: who last spoke is <REPLY> To my knowledge, $lastspeaker
 	was the last to say something worthwhile.
-<blootbot> me: okay
-<me> blootbot: who last spoke
-<blootbot> To my knowledge, me was the last to say something worthwhile.
+<infobot> me: okay
+<me> infobot: who last spoke
+<infobot> To my knowledge, me was the last to say something worthwhile.
 
-<me> blootbot: percentage is <REPLY> you are $randpercentage% lame
-<blootbot> me: okay
-<me> blootbot: percentage
-<blootbot> you are 79% lame
+<me> infobot: percentage is <REPLY> you are $randpercentage% lame
+<infobot> me: okay
+<me> infobot: percentage
+<infobot> you are 79% lame
 
-<me> blootbot: slap $1 is <action> slaps $1
-<blootbot> me: okay, me
-<me> blootbot: slap Bob
- * blootbot slaps Bob
-<me> blootbot: forget cmd: slap (.*?)
-<blootbot> me: i forgot cmd: slap (.*?)
+<me> infobot: slap $1 is <action> slaps $1
+<infobot> me: okay, me
+<me> infobot: slap Bob
+ * infobot slaps Bob
+<me> infobot: forget cmd: slap (.*?)
+<infobot> me: i forgot cmd: slap (.*?)
 
 
 #################
@@ -278,14 +278,14 @@ Usage:
 	chanstats [#channel]
 
 Example:
-	> blootbot: chanstats
-	<blootbot> i am on 2 channels: #blootbot #debian
-	<blootbot> i've cached 5 users distributed over 2 channels.	
+	> infobot: chanstats
+	<infobot> i am on 2 channels: #infobot #debian
+	<infobot> i've cached 5 users distributed over 2 channels.	
 
-	> blootbot: chanstats #blootbot
-	<blootbot> On #blootbot, there have been 1 Join, 1 Op and 20
+	> infobot: chanstats #infobot
+	<infobot> On #infobot, there have been 1 Join, 1 Op and 20
 		PublicMsgs.
-	<blootbot> At the moment, 3 Opped and 3 Total.
+	<infobot> At the moment, 3 Opped and 3 Total.
 
 
 Command: cmdstats
@@ -423,11 +423,11 @@ Usage:
 	join <#channel>[,key]
 
 Example:
-	> blootbot: join #blootbot
-	[blootbot] joining #blootbot
-	*** join/#debian blootbot (xk@router.home.org)
-	> blootbot: join #blootbot
-	[blootbot] I'm already on #blootbot...
+	> infobot: join #infobot
+	[infobot] joining #infobot
+	*** join/#debian infobot (xk@router.home.org)
+	> infobot: join #infobot
+	[infobot] I'm already on #infobot...
 
 
 
@@ -751,7 +751,7 @@ Usage:
 	$nick--
 
 Example:
-	blootbot++
+	infobot++
 	infobot--
 
 
