@@ -22,6 +22,7 @@
     rootWarnMode aggressive
 
 _default
+    +hex2ip
     +News
     +BZFlag
     +chanServCheck
