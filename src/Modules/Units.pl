@@ -5,8 +5,7 @@
 
 package Units;
 
-#use strict;	# TODO
-
+use strict;
 
 sub convertUnits {
   my ($from,$to) = @_;
@@ -26,7 +25,6 @@ sub convertUnits {
   }
   return;
 }
-
 
 1;
 
