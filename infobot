@@ -1,7 +1,9 @@
 #!/usr/bin/perl
 
-# infobot  -- copyright kevin lenzo (c) 1997-1999
-# blootbot -- copyright david sobon (c) 1999-infinity
+# infobot
+# copyright kevin lenzo (c) 1997-1999
+# copyright david sobon (c) 1999-infinity
+# Copyright (c) 2001-2008 Tim Riker <Tim@Rikers.org>
 
 use strict;
 use vars qw($bot_base_dir $bot_src_dir $bot_misc_dir $bot_state_dir

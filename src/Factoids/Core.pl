@@ -79,7 +79,7 @@ sub validFactoid {
 	/\\\%/ and last;
 	/\\\_/ and last;
 
-	# weird/special stuff. also old blootbot or stock infobot bugs.
+	# weird/special stuff. also old infobot bugs.
 	$rhs =~ /( \Q$ident\E's|\Q$ident\E's )/i and last; # ownership.
 
 	# duplication.

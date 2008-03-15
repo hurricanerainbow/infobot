@@ -8,10 +8,9 @@ INTRODUCTION
 	This bot is based upon blootbot, which was a fork of infobot-0.44.2 by
 Kevin Lenzo <lenzo@cs.cmu.edu>, which is now officially rebranded back to
 infobot!  The basis of infobot is still there but _many_ wild features have
-been added.  Along the way, a couple of typos were spotted in the original
-infobot source and fixed in this version. Without infobot, there would be no
-blootbot, and thus no infobot again, so all thanks to kevin for bringing
-infobot in the first place.
+been added.  Along the way, many issues were spotted in the original
+infobot source and fixed in this version. Many new bugs have been added as well
+Thanks to kevin for bringing infobot in the first place.
 
 
 FEATURES
