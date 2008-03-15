@@ -7,6 +7,7 @@
 
 #debian-bots
     +News
+    -OnJoin
     +RootWarn
     +chanlimitcheck
     chanlimitcheckInterval 10
@@ -20,6 +21,11 @@
     +newsKeepRead
     +newsNotifyAll
     rootWarnMode aggressive
+
+#infobot
+    -OnJoin
+    +RootWarn
+    +autojoin
 
 _default
     +hex2ip
