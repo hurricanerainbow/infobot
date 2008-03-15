@@ -157,7 +157,7 @@ sub reloadAllModules {
     my $retval = '';
 
     &VERB("Module: reloading all.",2);
-    
+
     # Reload version and save
     open(VERSION,"<VERSION");
     $bot_release = <VERSION> || "(unknown version)";

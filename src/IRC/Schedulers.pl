@@ -958,7 +958,7 @@ sub wingateCheck {
 ### TODO: ??
 sub wingateWriteFile {
     if (@_) {
-	&ScheduleThis(3600, 'wingateWriteFile'); # once per hour 
+	&ScheduleThis(3600, 'wingateWriteFile'); # once per hour
 	return if ($_[0] eq '2');	# defer.
     }
 

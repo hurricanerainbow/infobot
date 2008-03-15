@@ -60,8 +60,6 @@ my %archiveurlpackages = (
 		"$protocol://debian.crosslink.net/debian-archive".
 		"/dists/##DIST/non-free/binary-$arch/Packages.gz",
 );
-    
-
 
 
 my %urlcontents = (
@@ -1075,14 +1073,14 @@ sub fixDist {
     my %new;
     my ($key,$val);
     my %dist_urls;
-    
+
     if (exists $archived_dists{$dist}){
 	if ($type eq 'contents'){
 	    %dist_urls = %archiveurlcontents;
 	}
 	else {
 	    %dist_urls = %archiveurlpackages;
-	}  
+	}
     }
     else {
 	if ($type eq 'contents'){
@@ -1092,7 +1090,7 @@ sub fixDist {
 	    %dist_urls = %urlpackages;
 	}
     }
-       
+
     while (($key,$val) = each %dist_urls) {
 	$key =~ s/##DIST/$dist/;
 	$val =~	s/##DIST/$dist/;
