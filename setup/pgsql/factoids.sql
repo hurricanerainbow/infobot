@@ -1,18 +1,16 @@
 CREATE TABLE factoids (
-    factoid_key VARCHAR(64) NOT NULL,
-    requested_by VARCHAR(80) DEFAULT 'nobody' NOT NULL,
-    requested_time numeric(11) DEFAULT 0 NOT NULL,
+    factoid_key VARCHAR(100) NOT NULL,
+    requested_by VARCHAR(100) DEFAULT NULL,
+    requested_time numeric(11) DEFAULT NULL,
     requested_count numeric(5) DEFAULT 0 NOT NULL,
-    created_by VARCHAR(80),
-    created_time numeric(11) DEFAULT 0 NOT NULL,
-    modified_by VARCHAR(80),
-    modified_time numeric(11) DEFAULT 0 NOT NULL,
-    locked_by VARCHAR(80),
-    locked_time numeric(11) DEFAULT 0 NOT NULL,
+    created_by VARCHAR(100) DEFAULT NULL,
+    created_time numeric(11) DEFAULT NULL,
+    modified_by VARCHAR(100) DEFAULT NULL,
+    modified_time numeric(11) DEFAULT NULL,
+    locked_by VARCHAR(100) DEFAULT NULL,
+    locked_time numeric(11) DEFAULT NULL,
     factoid_value text NOT NULL
 ) WITHOUT OIDS;
-
-REVOKE ALL ON TABLE factoids FROM PUBLIC;
 
 CREATE INDEX factoids_idx_fvalue ON factoids USING hash (factoid_value);
 
