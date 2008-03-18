@@ -4,5 +4,5 @@ CREATE TABLE seen (
  channel VARCHAR(30) NOT NULL,
  host VARCHAR(80) NOT NULL,
  message TINYTEXT NOT NULL,
- PRIMARY KEY (nick,channel)
+ PRIMARY KEY (nick)
 );

@@ -4,11 +4,9 @@ CREATE TABLE seen (
     channel VARCHAR(30) NOT NULL,
     host VARCHAR(80) NOT NULL,
     message text NOT NULL,
-    hehcount numeric DEFAULT 0 NOT NULL,
-    messagecount numeric DEFAULT 0 NOT NULL
 ) WITHOUT OIDS;
 
 REVOKE ALL ON TABLE seen FROM PUBLIC;
 
 ALTER TABLE ONLY seen
-    ADD CONSTRAINT seen_pkey PRIMARY KEY (nick, channel);
+    ADD CONSTRAINT seen_pkey PRIMARY KEY (nick);

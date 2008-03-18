@@ -8,5 +8,5 @@ CREATE TABLE `seen` (
   `channel` varchar(30) NOT NULL default '',
   `host` varchar(64) NOT NULL default '',
   `message` tinytext NOT NULL,
-  PRIMARY KEY  (`nick`,`channel`)
+  PRIMARY KEY  (`nick`)
 ) TYPE=MyISAM;
