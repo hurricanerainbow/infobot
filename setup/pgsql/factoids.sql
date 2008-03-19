@@ -1,5 +1,5 @@
 CREATE TABLE factoids (
-    factoid_key VARCHAR(100) NOT NULL,
+    factoid_key VARCHAR(64) NOT NULL,
     requested_by VARCHAR(100) DEFAULT NULL,
     requested_time numeric(11) DEFAULT NULL,
     requested_count numeric(5) DEFAULT 0 NOT NULL,

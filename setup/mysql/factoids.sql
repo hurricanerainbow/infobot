@@ -3,7 +3,7 @@
 --
 
 CREATE TABLE `factoids` (
-  `factoid_key` varchar(100) NOT NULL,
+  `factoid_key` varchar(64) NOT NULL,
   `requested_by` varchar(100) default NULL,
   `requested_time` int(11) default NULL,
   `requested_count` smallint(5) unsigned NOT NULL default '0',
