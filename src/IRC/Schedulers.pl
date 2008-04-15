@@ -254,9 +254,12 @@ sub seenFlushOld {
     if ($param{'DBType'} =~ /^(pgsql|mysql|sqlite(2)?)$/i) {
 	my $query;
 
-	if ($param{'DBType'} =~ /^(mysql|sqlite(2)?)$/i) {
+	if ($param{'DBType'} =~ /^mysql$/i) {
 	    $query = "SELECT nick,time FROM seen GROUP BY nick HAVING ".
 			"UNIX_TIMESTAMP() - time > $max_time";
+    } elsif ($param{'DBType'} =~ /^sqlite(2)?$/i) {
+        $query = "SELECT nick,time FROM seen GROUP BY nick HAVING ".
+            "strftime('%s','now','localtime') - time > $max_time";
 	} else {	# pgsql.
 	    $query = "SELECT nick,time FROM seen WHERE ".
 		"extract(epoch from timestamp 'now') - time > $max_time";
