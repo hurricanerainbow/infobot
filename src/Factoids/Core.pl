@@ -390,14 +390,19 @@ sub FactoidStuff {
         my $created_by = $1;
 
         # Can they even modify factoids?
-        if (&IsFlag('m') ne 'm' and &IsFlag('M') ne 'M' and &IsFlag('o') ne 'o') {
-            &performReply("You do not have permission to modify factoids");
-            return;
+        if (&IsFlag('m') ne 'm' and
+            &IsFlag('M') ne 'M' and
+            &IsFlag('o') ne 'o') {
+                &performReply("You do not have permission to modify factoids");
+                return;
 
         # If they have +M but they didnt create the factoid
-        } elsif (&IsFlag('M') eq 'M' and $who !~ /^\Q$created_by\E$/i &IsFlag('m') ne 'm' &IsFlag('o') ne 'o') {
-            &performReply("factoid '$from' is not yours to modify.");
-            return;
+        } elsif (&IsFlag('M') eq 'M' and
+            $who !~ /^\Q$created_by\E$/i and
+            &IsFlag('m') ne 'm' and
+            &IsFlag('o') ne 'o') {
+                &performReply("factoid '$from' is not yours to modify.");
+                return;
         }
         # Else they have permission, so continue
 
@@ -445,9 +450,12 @@ sub FactoidStuff {
                 return;
 
             # If they have +M but they didnt create the factoid
-            } elsif (&IsFlag('M') eq 'M' and $who !~ /^\Q$created_by\E$/i &IsFlag('m') ne 'm' &IsFlag('o') ne 'o') {
-                &performReply("factoid '$faqtoid' is not yours to modify.");
-                return;
+            } elsif (&IsFlag('M') eq 'M' and
+                $who !~ /^\Q$created_by\E$/i and
+                &IsFlag('m') ne 'm' and
+                &IsFlag('o') ne 'o') {
+                    &performReply("factoid '$faqtoid' is not yours to modify.");
+                    return;
             }
 
 		    # excessive length.
