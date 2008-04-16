@@ -395,10 +395,7 @@ sub FactoidStuff {
             return;
 
         # If they have +M but they didnt create the factoid
-        } elsif (&IsFlag('M') eq 'M' and
-                 $who !~ /^\Q$created_by\E$/i
-                 &IsFlag('m') ne 'm'
-                 &IsFlag('o') ne 'o') {
+        } elsif (&IsFlag('M') eq 'M' and $who !~ /^\Q$created_by\E$/i &IsFlag('m') ne 'm' &IsFlag('o') ne 'o') {
             &performReply("factoid '$from' is not yours to modify.");
             return;
         }
@@ -448,10 +445,7 @@ sub FactoidStuff {
                 return;
 
             # If they have +M but they didnt create the factoid
-            } elsif (&IsFlag('M') eq 'M' and
-                     $who !~ /^\Q$created_by\E$/i
-                     &IsFlag('m') ne 'm'
-                     &IsFlag('o') ne 'o') {
+            } elsif (&IsFlag('M') eq 'M' and $who !~ /^\Q$created_by\E$/i &IsFlag('m') ne 'm' &IsFlag('o') ne 'o') {
                 &performReply("factoid '$faqtoid' is not yours to modify.");
                 return;
             }
