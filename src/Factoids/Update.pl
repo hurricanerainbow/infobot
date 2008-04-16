@@ -52,6 +52,26 @@ sub update {
     my $also    = ($rhs =~ s/^-?also //i);
     my $also_or = ($also and $rhs =~ s/\s+(or|\|\|)\s+//);
 
+    if ($also or $also_or) {
+        my $author  = &getFactInfo($from, 'created_by');
+        $author =~ /^(.*)!/;
+        my $created_by = $1;
+
+        # Can they even modify factoids?
+        if (&IsFlag('m') ne 'm' and &IsFlag('M') ne 'M' and &IsFlag('o') ne 'o') {
+            &performReply("You do not have permission to modify factoids");
+            return 1;
+
+        # If they have +M but they didnt create the factoid
+        } elsif (&IsFlag('M') eq 'M' and
+                 $who !~ /^\Q$created_by\E$/i
+                 &IsFlag('m') ne 'm'
+                 &IsFlag('o') ne 'o') {
+            &performReply("factoid '$lhs' is not yours to modify.");
+            return 1;
+        }
+    }
+
     # factoid arguments handler.
     # must start with a non-variable
     if (&IsChanConf('factoidArguments') > 0 and $lhs =~ /^[^\$]+.*\$/) {
