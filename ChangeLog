@@ -1,0 +1,7 @@
+1.5.1
+=====
+
+* Fixed bug in factoid modification code that prevented matching against
+created_by properly
+
+* New +M flag to allow modifying factoids created by same nick

@@ -383,11 +383,26 @@ sub FactoidStuff {
 		return;
 	    }
 
-	    # who == nick!user@host.
-	    if (&IsFlag('m') ne 'm' and $author !~ /^\Q$who\E\!/i) {
-		&msg($who, "factoid '$from' is not yours to modify.");
-		return;
-	    }
+	    # author == nick!user@host
+        # created_by == nick
+        my $author  = &getFactInfo($from, 'created_by');
+        $author =~ /^(.*)!/;
+        my $created_by = $1;
+
+        # Can they even modify factoids?
+        if (&IsFlag('m') ne 'm' and &IsFlag('M') ne 'M' and &IsFlag('o') ne 'o') {
+            &performReply("You do not have permission to modify factoids");
+            return;
+
+        # If they have +M but they didnt create the factoid
+        } elsif (&IsFlag('M') eq 'M' and
+                 $who !~ /^\Q$created_by\E$/i
+                 &IsFlag('m') ne 'm'
+                 &IsFlag('o') ne 'o') {
+            &performReply("factoid '$from' is not yours to modify.");
+            return;
+        }
+        # Else they have permission, so continue
 
 	    if ($_ = &getFactoid($to)) {
 		&performReply("destination factoid already exists.");
@@ -420,36 +435,56 @@ sub FactoidStuff {
 	if (my $result = &getFactoid($faqtoid)) {
 	    return 'subst: locked' if (&IsLocked($faqtoid) == 1);
 	    my $was = $result;
+        my $faqauth = &getFactInfo($faqtoid, 'created_by');
 
 	    if (($flags eq 'g' && $result =~ s/\Q$op/$np/gi) || $result =~ s/\Q$op/$np/i) {
-		# excessive length.
-		if (length $result > $param{'maxDataSize'}) {
-		    &performReply("that's too long");
-		    return;
-		}
-		# empty
-		if (length $result == 0) {
-		    &performReply("factoid would be empty. use forget?");
-		    return;
-		}
-		# min length.
-		my $faqauth = &getFactInfo($faqtoid, 'created_by');
-		if ((length $result)*2 < length $was and
-			&IsFlag('o') ne 'o' and
-			&IsHostMatch($faqauth) != 2
-		) {
-		    &performReply("too drastic change of factoid.");
-		}
+            my $author = $faqauth;
+            $author =~ /^(.*)!/;
+            my $created_by = $1;
 
-		&setFactInfo($faqtoid, 'factoid_value', $result);
-		&status("update: '$faqtoid' =is=> '$result'; was '$was'");
-		&performReply('OK');
-	    } else {
-		&performReply("that doesn't contain '$op'");
-	    }
-	} else {
-	    &performReply("i didn't have anything called '$faqtoid' to modify");
-	}
+            # Can they even modify factoids?
+            if (&IsFlag('m') ne 'm' and &IsFlag('M') ne 'M' and &IsFlag('o') ne 'o') {
+                &performReply("You do not have permission to modify factoids");
+                return;
+
+            # If they have +M but they didnt create the factoid
+            } elsif (&IsFlag('M') eq 'M' and
+                     $who !~ /^\Q$created_by\E$/i
+                     &IsFlag('m') ne 'm'
+                     &IsFlag('o') ne 'o') {
+                &performReply("factoid '$faqtoid' is not yours to modify.");
+                return;
+            }
+
+		    # excessive length.
+		    if (length $result > $param{'maxDataSize'}) {
+		        &performReply("that's too long");
+		        return;
+		    }
+            
+            # empty
+            if (length $result == 0) {
+                &performReply("factoid would be empty. Use forget instead.");
+                return;
+            }
+
+            # min length.
+            if ((length $result)*2 < length $was and
+                &IsFlag('o') ne 'o' and
+                &IsHostMatch($faqauth) != 2
+            ) {
+                &performReply("too drastic change of factoid.");
+            }
+
+            &setFactInfo($faqtoid, 'factoid_value', $result);
+            &status("update: '$faqtoid' =is=> '$result'; was '$was'");
+            &performReply('OK');
+            } else {
+                &performReply("that doesn't contain '$op'");
+            }
+        } else {
+            &performReply("i didn't have anything called '$faqtoid' to modify");
+        }
 
 	return;
     }
