@@ -11,7 +11,7 @@ require "src/Files.pl";
 $bot_src_dir = "./src/";
 
 my $dbname = shift;
-if (!defined $dbname) {
+if ( !defined $dbname ) {
     print "Usage: $0 <db name>\n";
     print "Example: $0 factoids\n";
     exit 0;
@@ -21,25 +21,25 @@ if (!defined $dbname) {
 &loadConfig("files/infobot.config");
 &loadDBModules();
 
-&openDB($param{'DBName'}, $param{'SQLUser'}, $param{'SQLPass'});
+&openDB( $param{'DBName'}, $param{'SQLUser'}, $param{'SQLPass'} );
 
 # retrieve a list of db's from the server.
 my %db;
-foreach ($dbh->func('_ListTables')) {
+foreach ( $dbh->func('_ListTables') ) {
     $db{$_} = 1;
 }
 
 # factoid db.
-if (!exists $db{$dbname}) {
+if ( !exists $db{$dbname} ) {
     print "error: $dbname does not exist as a table.\n";
     exit 1;
 }
 
 my $query = "SELECT factoid_key,factoid_value from $param{'DBName'}.$dbname";
-my $sth = $dbh->prepare($query);
+my $sth   = $dbh->prepare($query);
 $sth->execute;
-while (my @row = $sth->fetchrow_array) {
-  print "$row[0] => $row[1]\n";
+while ( my @row = $sth->fetchrow_array ) {
+    print "$row[0] => $row[1]\n";
 }
 $sth->finish;
 

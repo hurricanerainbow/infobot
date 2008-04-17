@@ -17,284 +17,303 @@ use vars qw($query $reply $finalQMark $nuh $result $talkok $who $nuh);
 use vars qw(%bots %forked);
 
 sub doQuestion {
+
     # my doesn't allow variables to be inherinted, local does.
     # following is used in math()...
-    local($query)	= @_;
-    local($reply)	= '';
-    local $finalQMark	= $query =~ s/\?+\s*$//;
-    $finalQMark		+= $query =~ s/\?\s*$//;
-    $query		=~ s/^\s+|\s+$//g;
+    local ($query) = @_;
+    local ($reply) = '';
+    local $finalQMark = $query =~ s/\?+\s*$//;
+    $finalQMark += $query =~ s/\?\s*$//;
+    $query =~ s/^\s+|\s+$//g;
 
-    if (!defined $query or $query =~ /^\s*$/) {
-	return '';
+    if ( !defined $query or $query =~ /^\s*$/ ) {
+        return '';
     }
 
-    my $questionWord	= '';
+    my $questionWord = '';
 
-    if (!$addressed) {
-	return '' unless ($finalQMark);
-	return '' unless &IsChanConf('minVolunteerLength') > 0;
-	return '' if (length $query < &::getChanConf('minVolunteerLength'));
-    } else {
-	### TODO: this should be caught in Process.pl?
-	return '' unless ($talkok);
+    if ( !$addressed ) {
+        return '' unless ($finalQMark);
+        return '' unless &IsChanConf('minVolunteerLength') > 0;
+        return '' if ( length $query < &::getChanConf('minVolunteerLength') );
+    }
+    else {
+        ### TODO: this should be caught in Process.pl?
+        return '' unless ($talkok);
 
-	# there is no flag to disable/enable asking factoids...
-	# so it was added... thanks zyxep! :)
-	if (&IsFlag('a') ne 'a' && &IsFlag('o') ne 'o') {
-	    &status("$who tried to ask us when not allowed.");
-	    return;
-	}
+        # there is no flag to disable/enable asking factoids...
+        # so it was added... thanks zyxep! :)
+        if ( &IsFlag('a') ne 'a' && &IsFlag('o') ne 'o' ) {
+            &status("$who tried to ask us when not allowed.");
+            return;
+        }
     }
 
     # dangerous; common preambles should be stripped before here
-    if ($query =~ /^forget /i or $query =~ /^no, /) {
-	return if (exists $bots{$nuh});
+    if ( $query =~ /^forget /i or $query =~ /^no, / ) {
+        return if ( exists $bots{$nuh} );
     }
 
-    if ($query =~ s/^literal\s+//i) {
-	&status("literal ask of '$query'.");
-	$literal = 1;
+    if ( $query =~ s/^literal\s+//i ) {
+        &status("literal ask of '$query'.");
+        $literal = 1;
     }
 
     # convert to canonical reference form
     my $x;
     my @query;
 
-    push(@query, $query);	# 1: push original.
+    push( @query, $query );    # 1: push original.
 
     # valid factoid.
-    if ($query =~ s/[!.]$//) {
-	push(@query, $query);
+    if ( $query =~ s/[!.]$// ) {
+        push( @query, $query );
     }
 
     $x = &normquery($query);
-    push(@query, $x) if ($x ne $query);
+    push( @query, $x ) if ( $x ne $query );
     $query = $x;
 
     $x = &switchPerson($query);
-    push(@query, $x) if ($x ne $query);
+    push( @query, $x ) if ( $x ne $query );
     $query = $x;
 
-    $query =~ s/\s+at\s*(\?*)$/$1/;	# where is x at?
-    $query =~ s/^explain\s*(\?*)/$1/i;	# explain x
-    $query = " $query ";		# side whitespaces.
+    $query =~ s/\s+at\s*(\?*)$/$1/;       # where is x at?
+    $query =~ s/^explain\s*(\?*)/$1/i;    # explain x
+    $query = " $query ";                  # side whitespaces.
 
     my $qregex = join '|', keys %{ $lang{'qWord'} };
 
     # purge prefix question string.
-    if ($query =~ s/^ ($qregex)//i) {
-	$questionWord = lc($1);
+    if ( $query =~ s/^ ($qregex)//i ) {
+        $questionWord = lc($1);
     }
 
-    if ($questionWord eq '' and $finalQMark and $addressed) {
-	$questionWord = 'where';
+    if ( $questionWord eq '' and $finalQMark and $addressed ) {
+        $questionWord = 'where';
     }
-    $query =~ s/^\s+|\s+$//g; # bleh. hacked.
-    push(@query, $query) if ($query ne $x);
+    $query =~ s/^\s+|\s+$//g;             # bleh. hacked.
+    push( @query, $query ) if ( $query ne $x );
 
-    if (&IsChanConf('factoidArguments') > 0) {
-	$result = &factoidArgs($query[0]);
+    if ( &IsChanConf('factoidArguments') > 0 ) {
+        $result = &factoidArgs( $query[0] );
 
-	return $result if (defined $result);
+        return $result if ( defined $result );
     }
 
     my @link;
-    for (my$i=0; $i<scalar @query; $i++) {
-	$query	= $query[$i];
-	$result = &getReply($query);
-	next if (!defined $result or $result eq '');
+    for ( my $i = 0 ; $i < scalar @query ; $i++ ) {
+        $query  = $query[$i];
+        $result = &getReply($query);
+        next if ( !defined $result or $result eq '' );
 
-	# 'see also' factoid redirection support.
+        # 'see also' factoid redirection support.
 
-	while ($result =~ /^see( also)? (.*?)\.?$/) {
-	    my $link	= $2;
+        while ( $result =~ /^see( also)? (.*?)\.?$/ ) {
+            my $link = $2;
 
-	    # #debian@OPN was having problems with libstdc++ factoid
-	    # redirection :) 20021116. -xk.
-	    # hrm... allow recursive loops... next if statement handles
-	    # that.
-	    if (grep /^\Q$link\E$/i, @link) {
-		&status("recursive link found; bailing out.");
-		last;
-	    }
+            # #debian@OPN was having problems with libstdc++ factoid
+            # redirection :) 20021116. -xk.
+            # hrm... allow recursive loops... next if statement handles
+            # that.
+            if ( grep /^\Q$link\E$/i, @link ) {
+                &status("recursive link found; bailing out.");
+                last;
+            }
 
-	    if (scalar @link >= 5) {
-		&status("recursive link limit (5) reached.");
-		last;
-	    }
+            if ( scalar @link >= 5 ) {
+                &status("recursive link limit (5) reached.");
+                last;
+            }
 
-	    push(@link, $link);
-	    my $newr = &getReply($link);
+            push( @link, $link );
+            my $newr = &getReply($link);
 
-	    # no such factoid. try commands
-	    if (!defined $newr || $newr =~ /^0?$/) {
-		# support command redirection.
-		# recursive cmdHooks aswell :)
-		my $done = 0;
-		$done++ if &parseCmdHook($link);
-		$message	= $link;
-		$done++ unless (&Modules());
+            # no such factoid. try commands
+            if ( !defined $newr || $newr =~ /^0?$/ ) {
 
-		return;
-	    }
-	    last if (!defined $newr or $newr eq '');
-	    $result  = $newr;
-	}
+                # support command redirection.
+                # recursive cmdHooks aswell :)
+                my $done = 0;
+                $done++ if &parseCmdHook($link);
+                $message = $link;
+                $done++ unless ( &Modules() );
 
-	if (@link) {
-	    &status("'$query' linked to: ".join(" => ", @link) );
-	}
+                return;
+            }
+            last if ( !defined $newr or $newr eq '' );
+            $result = $newr;
+        }
 
-	if ($i != 0) {
-	    &VERB("Question.pl: '$query[0]' did not exist; '$query[$i]' ($i) did",2);
-	}
+        if (@link) {
+            &status( "'$query' linked to: " . join( " => ", @link ) );
+        }
 
-	return $result;
+        if ( $i != 0 ) {
+            &VERB(
+                "Question.pl: '$query[0]' did not exist; '$query[$i]' ($i) did",
+                2
+            );
+        }
+
+        return $result;
     }
 
     ### TODO: Use &Forker(); move function to Debian.pl
-    if (&IsChanConf('debianForFactoid') > 0) {
-	&loadMyModule('Debian');
-	$result = &Debian::DebianFind($query);	# ???
-	### TODO: debian module should tell, through shm, that it went
-	###	  ok or not.
+    if ( &IsChanConf('debianForFactoid') > 0 ) {
+        &loadMyModule('Debian');
+        $result = &Debian::DebianFind($query);    # ???
+        ### TODO: debian module should tell, through shm, that it went
+        ###	  ok or not.
 ###	return $result if (defined $result);
     }
 
-    if ($questionWord ne '' or $finalQMark) {
-	# if it has not been explicitly marked as a question
-	if ($addressed and $reply eq '') {
-	    &status("notfound: <$who> ".join(' :: ', @query))
-						if ($finalQMark);
+    if ( $questionWord ne '' or $finalQMark ) {
 
-	    return '' unless (&IsParam('friendlyBots'));
+        # if it has not been explicitly marked as a question
+        if ( $addressed and $reply eq '' ) {
+            &status( "notfound: <$who> " . join( ' :: ', @query ) )
+              if ($finalQMark);
 
-	    foreach (split /\s+/, $param{'friendlyBots'}) {
-		&msg($_, ":INFOBOT:QUERY <$who> $query");
-	    }
-	}
+            return '' unless ( &IsParam('friendlyBots') );
+
+            foreach ( split /\s+/, $param{'friendlyBots'} ) {
+                &msg( $_, ":INFOBOT:QUERY <$who> $query" );
+            }
+        }
     }
 
     return $reply;
 }
 
 sub factoidArgs {
-    my($str)	= @_;
+    my ($str) = @_;
     my $result;
 
     # to make it eleeter, split each arg and use "blah OR blah or BLAH"
     # which will make it less than linear => quicker!
     # TODO: cache this, update cache when altered. !!! !!! !!!
-#    my $t = &timeget();
-    my ($first) = split(/\s+/, $str);
+    #    my $t = &timeget();
+    my ($first) = split( /\s+/, $str );
 
     # ignore split to commands [dumb commands vs. factoids] (editing commands?)
     return undef if $str =~ /\s+\=\~\s+s[\#\/\:]/;
-    my @list = &searchTable('factoids', 'factoid_key', 'factoid_key', "^cmd: $first ");
-#    my $delta_time = &timedelta($t);
-#    &DEBUG("factArgs: delta_time = $delta_time s");
-#    &DEBUG("factArgs: list => ".scalar(@list) );
+    my @list =
+      &searchTable( 'factoids', 'factoid_key', 'factoid_key', "^cmd: $first " );
+
+    #    my $delta_time = &timedelta($t);
+    #    &DEBUG("factArgs: delta_time = $delta_time s");
+    #    &DEBUG("factArgs: list => ".scalar(@list) );
 
     # from a design perspective, it's better to have the regex in
     # the factoid key to reduce repetitive processing.
 
     # it does not matter if it's not alphabetically sorted.
-    foreach (sort { length($b) <=> length($a) } @list) {
-	next if (/#DEL#/);	# deleted.
+    foreach ( sort { length($b) <=> length($a) } @list ) {
+        next if (/#DEL#/);    # deleted.
 
-	s/^cmd: //i;
-#	&DEBUG("factarg: '$str' =~ /^$_\$/");
-	my $arg = $_;
+        s/^cmd: //i;
 
-	# eval (evil!) code. cleaned up courtesy of lear.
-	my @vals;
-	eval {
-	    @vals = ($str =~ /^$arg$/i);
-	};
+        #	&DEBUG("factarg: '$str' =~ /^$_\$/");
+        my $arg = $_;
 
-	if ($@) {
-	    &WARN("factargs: regex failed! '$str' =~ /^$_\$/");
-	    next;
-	}
+        # eval (evil!) code. cleaned up courtesy of lear.
+        my @vals;
+        eval { @vals = ( $str =~ /^$arg$/i ); };
 
-	next unless (@vals);
+        if ($@) {
+            &WARN("factargs: regex failed! '$str' =~ /^$_\$/");
+            next;
+        }
 
-	if (defined $result) {
-	    &WARN("factargs: '$_' matches aswell.");
-	    next;
-	}
+        next unless (@vals);
 
-#	&DEBUG("vals => @vals");
+        if ( defined $result ) {
+            &WARN("factargs: '$_' matches aswell.");
+            next;
+        }
 
-	&status("Question: factoid Arguments for '$str'");
-	# TODO: use getReply() - need to modify it :(
-	my $i	= 0;
-	my $q	= "cmd: $_";
-	my $r	= &getFactoid($q);
-	if (!defined $r) {
-	    &DEBUG("question: !result... should this happen?");
-	    return;
-	}
+        #	&DEBUG("vals => @vals");
 
-	# update stats. old mysql/sqlite don't do +1
-	my ($count) = &sqlSelect('factoids', 'requested_count', { factoid_key => $q });
-	$count++;
-	&sqlSet('factoids', {'factoid_key' => $q}, {
-		requested_by	=> $nuh,
-		requested_time	=> time(),
-		requested_count	=> $count
-	} );
+        &status("Question: factoid Arguments for '$str'");
 
-	# end of update stats.
+        # TODO: use getReply() - need to modify it :(
+        my $i = 0;
+        my $q = "cmd: $_";
+        my $r = &getFactoid($q);
+        if ( !defined $r ) {
+            &DEBUG("question: !result... should this happen?");
+            return;
+        }
 
-	$result	= $r;
+        # update stats. old mysql/sqlite don't do +1
+        my ($count) =
+          &sqlSelect( 'factoids', 'requested_count', { factoid_key => $q } );
+        $count++;
+        &sqlSet(
+            'factoids',
+            { 'factoid_key' => $q },
+            {
+                requested_by    => $nuh,
+                requested_time  => time(),
+                requested_count => $count
+            }
+        );
 
-	$result	=~ s/^\((.*?)\): //;
-	my $vars = $1;
+        # end of update stats.
 
-	# start nasty hack to get partial &getReply() functionality.
-	$result = &SARit($result);
+        $result = $r;
 
-	foreach ( split(',', $vars) ) {
-	    my $val = $vals[$i];
-#	    &DEBUG("val => $val");
+        $result =~ s/^\((.*?)\): //;
+        my $vars = $1;
 
-	    if (!defined $val) {
-		&status("factArgs: vals[$i] == undef; not SARing '$_' for '$str'");
-		next;
-	    }
+        # start nasty hack to get partial &getReply() functionality.
+        $result = &SARit($result);
 
-	    my $done = 0;
-	    my $old = $result;
-	    while (1) {
-#		&DEBUG("Q: result => $result (1before)");
-		$result = &substVars($result,1);
-#		&DEBUG("Q: result => $result (1after)");
+        foreach ( split( ',', $vars ) ) {
+            my $val = $vals[$i];
 
-		last if ($old eq $result);
-		$old = $result;
-		$done++;
-	    }
+            #	    &DEBUG("val => $val");
 
-	    # hack.
-	    $vals[$i] =~ s/^me$/$who/gi;
+            if ( !defined $val ) {
+                &status(
+                    "factArgs: vals[$i] == undef; not SARing '$_' for '$str'");
+                next;
+            }
 
-#	    if (!$done) {
-		&status("factArgs: SARing '$_' to '$vals[$i]'.");
-		$result =~ s/\Q$_\E/$vals[$i]/g;
-#	    }
-	    $i++;
-	}
+            my $done = 0;
+            my $old  = $result;
+            while (1) {
 
-	# rest of nasty hack to get partial &getReply() functionality.
-	$result =~ s/^\s*<action>\s*(.*)/\cAACTION $1\cA/i;
-	$result =~ s/^\s*<reply>\s*//i;
+                #		&DEBUG("Q: result => $result (1before)");
+                $result = &substVars( $result, 1 );
 
-# well... lets go through all of them. not advisable if we have like
-# 1000 commands, heh.
-#	return $result;
-	$cmdstats{'Factoid Commands'}++;
+                #		&DEBUG("Q: result => $result (1after)");
+
+                last if ( $old eq $result );
+                $old = $result;
+                $done++;
+            }
+
+            # hack.
+            $vals[$i] =~ s/^me$/$who/gi;
+
+            #	    if (!$done) {
+            &status("factArgs: SARing '$_' to '$vals[$i]'.");
+            $result =~ s/\Q$_\E/$vals[$i]/g;
+
+            #	    }
+            $i++;
+        }
+
+        # rest of nasty hack to get partial &getReply() functionality.
+        $result =~ s/^\s*<action>\s*(.*)/\cAACTION $1\cA/i;
+        $result =~ s/^\s*<reply>\s*//i;
+
+        # well... lets go through all of them. not advisable if we have like
+        # 1000 commands, heh.
+        #	return $result;
+        $cmdstats{'Factoid Commands'}++;
     }
 
     return $result;

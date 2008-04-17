@@ -2,7 +2,7 @@
 
 use strict;
 use DB_File;
-if (!scalar @ARGV) {
+if ( !scalar @ARGV ) {
     print "Usage: dbm2txt <whatever dbm>\n";
     print "Example: dbm2txt.pl factoids\n";
     exit 0;
@@ -15,11 +15,11 @@ if (0) {
     openDB();
 }
 
-dbmopen(%db, $dbfile, 0644) or die "error: cannot open db. $dbfile\n";
-my ($key, $val);
-while (($key, $val) = each %db) {
-  chomp $val;
-  print "$key => $val\n";
+dbmopen( %db, $dbfile, 0644 ) or die "error: cannot open db. $dbfile\n";
+my ( $key, $val );
+while ( ( $key, $val ) = each %db ) {
+    chomp $val;
+    print "$key => $val\n";
 }
 dbmclose %db;
 

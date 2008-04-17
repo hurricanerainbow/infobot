@@ -15,19 +15,19 @@ sub Wingates {
     my $file = "$::infobot_base_dir/$::param{'ircUser'}.wingate";
     my @hosts;
 
-    open(IN, $file);
+    open( IN, $file );
     while (<IN>) {
-	chop;
-	next if (/\*$/);	# wingate. or forget about it?
-	push(@hosts,$_);
+        chop;
+        next if (/\*$/);    # wingate. or forget about it?
+        push( @hosts, $_ );
     }
     close IN;
 
     foreach (@_) {
-	next if (grep /^$_$/, @hosts);
+        next if ( grep /^$_$/, @hosts );
 
-	&::DEBUG("W: _ => '$_'.");
-	&Wingate($_);
+        &::DEBUG("W: _ => '$_'.");
+        &Wingate($_);
     }
 }
 
@@ -35,15 +35,15 @@ sub Wingate {
     my ($host) = @_;
 
     my $sock = IO::Socket::INET->new(
-	PeerAddr	=> $host,
-	PeerPort	=> 'telnet(23)',
-	Proto		=> 'tcp'
+        PeerAddr => $host,
+        PeerPort => 'telnet(23)',
+        Proto    => 'tcp'
 ###	Timeout		=> 10,		# enough :)
     );
 
-    if (!defined $sock) {
-	&::status("Wingate: connection refused to $host");
-	return;
+    if ( !defined $sock ) {
+        &::status("Wingate: connection refused to $host");
+        return;
     }
 
     $sock->timeout(10);
@@ -51,45 +51,47 @@ sub Wingate {
 
     my $errors = 0;
     my ($luser);
-    foreach $luser ($select->can_read(1)) {
-	my $buf;
-	my $len = 0;
-	if (!defined($len = sysread($luser, $buf, 512))) {
-	    &::status("Wingate: connection lost to $luser/$host.");
-	    $select->remove($luser);
-	    close($luser);
-	    next;
-	}
+    foreach $luser ( $select->can_read(1) ) {
+        my $buf;
+        my $len = 0;
+        if ( !defined( $len = sysread( $luser, $buf, 512 ) ) ) {
+            &::status("Wingate: connection lost to $luser/$host.");
+            $select->remove($luser);
+            close($luser);
+            next;
+        }
 
-	if ($len == 9) {
-	    $len = sysread($luser, $buf, 512);
-	}
+        if ( $len == 9 ) {
+            $len = sysread( $luser, $buf, 512 );
+        }
 
-	my $wingate = 0;
-	$wingate++ if ($buf =~ /^WinGate\>/);
-	$wingate++ if ($buf =~ /^Too many connected users - try again later$/);
+        my $wingate = 0;
+        $wingate++ if ( $buf =~ /^WinGate\>/ );
+        $wingate++
+          if ( $buf =~ /^Too many connected users - try again later$/ );
 
-	if ($wingate) {
-	    &::status("Wingate: RUNNING ON $host BY $::who.");
+        if ($wingate) {
+            &::status("Wingate: RUNNING ON $host BY $::who.");
 
-	    if (&::IsChanConf('wingateBan') > 0) {
-		&::ban("*!*\@$host", '');
-	    }
+            if ( &::IsChanConf('wingateBan') > 0 ) {
+                &::ban( "*!*\@$host", '' );
+            }
 
-	    my $reason	= &::getChanConf('wingateKick');
-	    if ($reason) {
-		&::kick($::who, '', $reason);
-	    }
+            my $reason = &::getChanConf('wingateKick');
+            if ($reason) {
+                &::kick( $::who, '', $reason );
+            }
 
-	    push(@::wingateBad, "$host\*");
-	    &::wingateWriteFile();
-	} else {
+            push( @::wingateBad, "$host\*" );
+            &::wingateWriteFile();
+        }
+        else {
 ###	    &::DEBUG("no wingate.");
-	}
+        }
 
-	### TODO: close telnet connection correctly!
-	$select->remove($luser);
-	close($luser);
+        ### TODO: close telnet connection correctly!
+        $select->remove($luser);
+        close($luser);
     }
 
     return;

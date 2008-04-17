@@ -25,10 +25,10 @@ sub plugParse {
     my @list;
 
     foreach (@_) {
-	next unless (/<title>(.*?)<\/title>/);
-	my $title = $1;
-	$title =~ s/&amp\;/&/g;
-	push(@list, $title);
+        next unless (/<title>(.*?)<\/title>/);
+        my $title = $1;
+        $title =~ s/&amp\;/&/g;
+        push( @list, $title );
     }
 
     return @list;
@@ -38,10 +38,10 @@ sub Plug {
     my @results = &::getURL("http://www.plug.org/index.xml");
     my $retval  = "i could not get the headlines.";
 
-    if (scalar @results) {
-	my $prefix	= 'Plug Headlines ';
-	my @list	= &plugParse(@results);
-	$retval		= &::formListReply(0, $prefix, @list);
+    if ( scalar @results ) {
+        my $prefix = 'Plug Headlines ';
+        my @list   = &plugParse(@results);
+        $retval = &::formListReply( 0, $prefix, @list );
     }
 
     &::performStrictReply($retval);
@@ -51,26 +51,26 @@ sub plugAnnounce {
     my $file = "$::param{tempDir}/plug.xml";
 
     my @Cxml = &::getURL("http://www.plug.org/index.xml");
-    if (!scalar @Cxml) {
-	&::DEBUG("sdA: failure (Cxml == NULL).");
-	return;
+    if ( !scalar @Cxml ) {
+        &::DEBUG("sdA: failure (Cxml == NULL).");
+        return;
     }
 
-    if (! -e $file) {		# first time run.
-	open(OUT, ">$file");
-	foreach (@Cxml) {
-	    print OUT "$_\n";
-	}
-	close OUT;
+    if ( !-e $file ) {    # first time run.
+        open( OUT, ">$file" );
+        foreach (@Cxml) {
+            print OUT "$_\n";
+        }
+        close OUT;
 
-	return;
+        return;
     }
 
     my @Oxml;
-    open(IN, $file);
+    open( IN, $file );
     while (<IN>) {
-	chop;
-	push(@Oxml,$_);
+        chop;
+        push( @Oxml, $_ );
     }
     close IN;
 
@@ -79,27 +79,26 @@ sub plugAnnounce {
 
     my @new;
     foreach (@Chl) {
-	last if ($_ eq $Ohl[0]);
-	push(@new, $_);
+        last if ( $_ eq $Ohl[0] );
+        push( @new, $_ );
     }
 
-    if (scalar @new == 0) {
-	&::status("Plug: no new headlines.");
-	return;
+    if ( scalar @new == 0 ) {
+        &::status("Plug: no new headlines.");
+        return;
     }
 
-    if (scalar @new == scalar @Chl) {
-	&::DEBUG("sdA: scalar(new) == scalar(Chl). bad?");
+    if ( scalar @new == scalar @Chl ) {
+        &::DEBUG("sdA: scalar(new) == scalar(Chl). bad?");
     }
 
-    open(OUT,">$file");
+    open( OUT, ">$file" );
     foreach (@Cxml) {
-	print OUT "$_\n";
+        print OUT "$_\n";
     }
     close OUT;
 
-    return "Plug: ".
-			join(" \002::\002 ", @new);
+    return "Plug: " . join( " \002::\002 ", @new );
 }
 
 1;

@@ -26,17 +26,18 @@ sub hex2ip::convert {
         push @conv, hex($3);
         push @conv, hex($4);
 
-        $result = uc "$hexstr = " . join(".", @conv);
-    } else {
+        $result = uc "$hexstr = " . join( ".", @conv );
+    }
+    else {
         $result = "Invalid string: $hexstr";
     }
 
-	return($result);
+    return ($result);
 }
 
 sub hex2ip::query {
-	&::performStrictReply(&convert(@_));
-	return;
+    &::performStrictReply( &convert(@_) );
+    return;
 }
 
 1;

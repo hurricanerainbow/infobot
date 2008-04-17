@@ -14,51 +14,53 @@ sub cliloop {
     &status("Using CLI...");
     &status("Now type what you want.");
 
-    $nuh = "local!local\@local";
-    $uh  = "local\@local";
-    $who = 'local';
+    $nuh       = "local!local\@local";
+    $uh        = "local\@local";
+    $who       = 'local';
     $orig{who} = 'local';
-    $ident = $param{'ircUser'};
-    $chan = $talkchannel = "_local";
+    $ident     = $param{'ircUser'};
+    $chan      = $talkchannel = "_local";
     $addressed = 1;
-    $msgType = 'private';
-    $host = 'local';
+    $msgType   = 'private';
+    $host      = 'local';
 
     # install libterm-readline-gnu-perl to get history support
     use Term::ReadLine;
-    my $term = new Term::ReadLine 'infobot';
+    my $term   = new Term::ReadLine 'infobot';
     my $prompt = "$who> ";
+
     #$OUT = $term->OUT || STDOUT;
-    while ( defined ($_ = $term->readline($prompt)) ) {
-	$orig{message} = $_;
-	$message = $_;
-	chomp $message;
-	last if ($message =~ m/^quit$/);
-	$_ = &process() if $message;
+    while ( defined( $_ = $term->readline($prompt) ) ) {
+        $orig{message} = $_;
+        $message = $_;
+        chomp $message;
+        last if ( $message =~ m/^quit$/ );
+        $_ = &process() if $message;
     }
     &doExit();
 }
 
 sub msg {
-    my ($nick, $msg) = @_;
-    if (!defined $nick) {
-	&ERROR("msg: nick == NULL.");
-	return;
+    my ( $nick, $msg ) = @_;
+    if ( !defined $nick ) {
+        &ERROR("msg: nick == NULL.");
+        return;
     }
 
-    if (!defined $msg) {
-	$msg ||= 'NULL';
-	&WARN("msg: msg == $msg.");
-	return;
+    if ( !defined $msg ) {
+        $msg ||= 'NULL';
+        &WARN("msg: msg == $msg.");
+        return;
     }
 
-    if ( $postprocess ) {
-	undef $postprocess;
-    } elsif ($postprocess = &getChanConf('postprocess', $talkchannel)) {
-	&DEBUG("say: $postprocess $msg");
-	&parseCmdHook($postprocess . ' ' . $msg);
-	undef $postprocess;
-	return;
+    if ($postprocess) {
+        undef $postprocess;
+    }
+    elsif ( $postprocess = &getChanConf( 'postprocess', $talkchannel ) ) {
+        &DEBUG("say: $postprocess $msg");
+        &parseCmdHook( $postprocess . ' ' . $msg );
+        undef $postprocess;
+        return;
     }
 
     &status(">$nick< $msg");
@@ -68,36 +70,36 @@ sub msg {
 
 # Usage: &action(nick || chan, txt);
 sub action {
-    my ($target, $txt) = @_;
-    if (!defined $txt) {
-	&WARN("action: txt == NULL.");
-	return;
+    my ( $target, $txt ) = @_;
+    if ( !defined $txt ) {
+        &WARN("action: txt == NULL.");
+        return;
     }
 
-    if (length $txt > 480) {
-	&status("action: txt too long; truncating.");
-	chop($txt) while (length $txt > 480);
+    if ( length $txt > 480 ) {
+        &status("action: txt too long; truncating.");
+        chop($txt) while ( length $txt > 480 );
     }
 
     &status("* $ident/$target $txt");
 }
 
 sub IsNickInChan {
-    my ($nick,$chan) = @_;
+    my ( $nick, $chan ) = @_;
     return 1;
 }
 
 sub performStrictReply {
-    &msg($who, @_);
+    &msg( $who, @_ );
 }
 
 sub performReply {
-    &msg($who, @_);
+    &msg( $who, @_ );
 }
 
 sub performAddressedReply {
     return unless ($addressed);
-    &msg($who, @_);
+    &msg( $who, @_ );
 }
 
 1;

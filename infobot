@@ -7,27 +7,28 @@
 
 use strict;
 use vars qw($bot_base_dir $bot_src_dir $bot_misc_dir $bot_state_dir
-	    $bot_data_dir $bot_config_dir $bot_log_dir $bot_run_dir
-	    $bot_pid $memusage %param
+  $bot_data_dir $bot_config_dir $bot_log_dir $bot_run_dir
+  $bot_pid $memusage %param
 );
 
 BEGIN {
-    if (@ARGV and -f $ARGV[0]) {
-	# source passed config to allow $bot_*_dir to be set.
-	do $ARGV[0];
+    if ( @ARGV and -f $ARGV[0] ) {
+
+        # source passed config to allow $bot_*_dir to be set.
+        do $ARGV[0];
     }
 
     # set any $bot_*_dir var's that aren't already set
-    $bot_base_dir	||= '.';
-    $bot_config_dir	||= 'files/';
-    $bot_data_dir	||= 'files/';
-    $bot_state_dir	||= 'files/';
-    $bot_run_dir	||= '.';
-    $bot_src_dir	||= "$bot_base_dir/src";
-    $bot_log_dir	||= "$bot_base_dir/log";
-    $bot_misc_dir	||= "$bot_base_dir/files";
+    $bot_base_dir   ||= '.';
+    $bot_config_dir ||= 'files/';
+    $bot_data_dir   ||= 'files/';
+    $bot_state_dir  ||= 'files/';
+    $bot_run_dir    ||= '.';
+    $bot_src_dir    ||= "$bot_base_dir/src";
+    $bot_log_dir    ||= "$bot_base_dir/log";
+    $bot_misc_dir   ||= "$bot_base_dir/files";
 
-    $bot_pid		= $$;
+    $bot_pid = $$;
 
     require "$bot_src_dir/logger.pl";
     require "$bot_src_dir/core.pl";
@@ -36,7 +37,7 @@ BEGIN {
     # load the configuration (params) file.
     &setupConfig();
 
-    &showProc();	# to get the first value.
+    &showProc();    # to get the first value.
     &status("Initial memory usage: $memusage kB");
     &loadCoreModules();
     &loadDBModules();
@@ -50,17 +51,19 @@ BEGIN {
 &duperuncheck();
 
 # initialize everything
-&startup();	# first time initialization.
+&startup();    # first time initialization.
 &setup();
 
-if (!&IsParam("Interface") or $param{'Interface'} =~ /IRC/) {
+if ( !&IsParam("Interface") or $param{'Interface'} =~ /IRC/ ) {
+
     # launch the irc event loop
     &ircloop();
-} else {
+}
+else {
     &cliloop();
 }
 
-exit 0;  # just so you don't look farther down in this file :)
+exit 0;        # just so you don't look farther down in this file :)
 
 # --- support routines
 
@@ -68,30 +71,32 @@ exit 0;  # just so you don't look farther down in this file :)
 
 # added by the xk
 sub duperuncheck {
-    my $pid	= $$;
-    my $file	= $file{PID};
+    my $pid  = $$;
+    my $file = $file{PID};
 
-    if ( -f $file) {
-	open(PIDFILE,$file) or die "error: cannot open $file.";
-	my $thispid = <PIDFILE> || "NULL\n";
-	close PIDFILE;
-	chop $thispid;
+    if ( -f $file ) {
+        open( PIDFILE, $file ) or die "error: cannot open $file.";
+        my $thispid = <PIDFILE> || "NULL\n";
+        close PIDFILE;
+        chop $thispid;
 
-	if ($thispid =~ /^\D$/) {
-	    &staus("warning: pidfile is invalid; wiping out.");
-	} else {
-	    if ( -d "/proc/$thispid/") {
-		&ERROR("bot is already running from this directory.");
-		&ERROR("if this is incorrect, erase '*.pid'.");
-		&ERROR("verify with 'ps -axu | grep $thispid'.");
-		exit 1;
-	    } else {
-		&status("warning: stale $file found; wiping.");
-	    }
-	}
+        if ( $thispid =~ /^\D$/ ) {
+            &staus("warning: pidfile is invalid; wiping out.");
+        }
+        else {
+            if ( -d "/proc/$thispid/" ) {
+                &ERROR("bot is already running from this directory.");
+                &ERROR("if this is incorrect, erase '*.pid'.");
+                &ERROR("verify with 'ps -axu | grep $thispid'.");
+                exit 1;
+            }
+            else {
+                &status("warning: stale $file found; wiping.");
+            }
+        }
     }
 
-    open(PIDFILE,">$file") or die "error: cannot write to $file.";
+    open( PIDFILE, ">$file" ) or die "error: cannot write to $file.";
     print PIDFILE "$pid\n";
     close PIDFILE;
 

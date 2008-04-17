@@ -13,67 +13,69 @@ package spell;
 use strict;
 
 sub spell::spell {
-	my $query = shift;
-	if ($query =~ m/[^[:alpha:]]/) {
-		return('only one word of alphabetic characters supported');
-	}
+    my $query = shift;
+    if ( $query =~ m/[^[:alpha:]]/ ) {
+        return ('only one word of alphabetic characters supported');
+    }
 
-	my $binary;
-	my @binaries = (
-		'/usr/bin/aspell',
-		'/usr/bin/ispell',
-		'/usr/bin/spell'
-	);
+    my $binary;
+    my @binaries = ( '/usr/bin/aspell', '/usr/bin/ispell', '/usr/bin/spell' );
 
-	foreach (@binaries) {
-		if (-x $_) {
-			$binary=$_;
-			last;
-		}
-	}
+    foreach (@binaries) {
+        if ( -x $_ ) {
+            $binary = $_;
+            last;
+        }
+    }
 
-	if (!$binary) {
-		return('no binary found.');
-	}
+    if ( !$binary ) {
+        return ('no binary found.');
+    }
 
-	if (!&::validExec($query)) {
-		return('argument appears to be fuzzy.');
-	}
+    if ( !&::validExec($query) ) {
+        return ('argument appears to be fuzzy.');
+    }
 
-	my $reply = "I can't find alternate spellings for '$query'";
+    my $reply = "I can't find alternate spellings for '$query'";
 
-	foreach (`/bin/echo '$query' | $binary -a -S`) {
-		chop;
-		last if !length;		# end of query.
+    foreach (`/bin/echo '$query' | $binary -a -S`) {
+        chop;
+        last if !length;    # end of query.
 
-		if (/^\@/) {		# intro line.
-			next;
-		} elsif (/^\*/) {		# possibly correct.
-			$reply = "'$query' may be spelled correctly";
-			last;
-		} elsif (/^\&/) {		# possible correction(s).
-			s/^\& (\S+) \d+ \d+: //;
-			my @array = split(/,? /);
+        if (/^\@/) {        # intro line.
+            next;
+        }
+        elsif (/^\*/) {     # possibly correct.
+            $reply = "'$query' may be spelled correctly";
+            last;
+        }
+        elsif (/^\&/) {     # possible correction(s).
+            s/^\& (\S+) \d+ \d+: //;
+            my @array = split(/,? /);
 
-			$reply = "possible spellings for $query: @array";
-			last;
-		} elsif (/^\+/) {
-			&::DEBUG("spell: '+' found => '$_'.");
-			last;
-		} elsif (/^# (.*?) 0$/) {
-			# none found.
-			last;
-		} else {
-			&::DEBUG("spell: unknown: '$_'.");
-		}
-	}
+            $reply = "possible spellings for $query: @array";
+            last;
+        }
+        elsif (/^\+/) {
+            &::DEBUG("spell: '+' found => '$_'.");
+            last;
+        }
+        elsif (/^# (.*?) 0$/) {
 
-	return($reply);
+            # none found.
+            last;
+        }
+        else {
+            &::DEBUG("spell: unknown: '$_'.");
+        }
+    }
+
+    return ($reply);
 }
 
 sub spell::query {
-	&::performStrictReply(&spell(@_));
-	return;
+    &::performStrictReply( &spell(@_) );
+    return;
 }
 
 1;

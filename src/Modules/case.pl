@@ -8,14 +8,15 @@ use strict;
 package case;
 
 sub upper {
-    my($message) = @_;
+    my ($message) = @_;
+
     # make it green like an old terminal
-    &::performStrictReply("\00303" . uc $message);
+    &::performStrictReply( "\00303" . uc $message );
 }
 
 sub lower {
-    my($message) = @_;
-    &::performStrictReply(lc $message);
+    my ($message) = @_;
+    &::performStrictReply( lc $message );
 }
 
 1;

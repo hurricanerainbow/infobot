@@ -13,26 +13,26 @@ sub kernelGetInfo {
 
 sub Kernel {
     my $retval = 'Linux kernel versions';
-    my @now = &kernelGetInfo();
-    if (!scalar @now) {
-	&::msg($::who, "failed.");
-	return;
+    my @now    = &kernelGetInfo();
+    if ( !scalar @now ) {
+        &::msg( $::who, "failed." );
+        return;
     }
 
     foreach $line (@now) {
-	$line =~ s/The latest //;
-	$line =~ s/version //;
-	$line =~ s/of //;
-	$line =~ s/the //;
-	$line =~ s/Linux //;
-	$line =~ s/kernel //;
-	$line =~ s/tree //;
-	$line =~ s/ for stable//;
-	$line =~ s/ to stable kernels//;
-	$line =~ s/ for 2.4//;
-	$line =~ s/ for 2.2//;
-	$line =~ s/ is: */: /;
-	$retval .= ', ' . $line;
+        $line =~ s/The latest //;
+        $line =~ s/version //;
+        $line =~ s/of //;
+        $line =~ s/the //;
+        $line =~ s/Linux //;
+        $line =~ s/kernel //;
+        $line =~ s/tree //;
+        $line =~ s/ for stable//;
+        $line =~ s/ to stable kernels//;
+        $line =~ s/ for 2.4//;
+        $line =~ s/ for 2.2//;
+        $line =~ s/ is: */: /;
+        $retval .= ', ' . $line;
     }
     &::performStrictReply($retval);
 }
@@ -42,48 +42,49 @@ sub kernelAnnounce {
     my @now  = &kernelGetInfo();
     my @old;
 
-    if (!scalar @now) {
-	&::DEBUG('kA: failure to retrieve.');
-	return;
+    if ( !scalar @now ) {
+        &::DEBUG('kA: failure to retrieve.');
+        return;
     }
 
-    if (! -f $file) {
-	open(OUT, ">$file");
-	foreach (@now) {
-	    print OUT "$_\n";
-	}
-	close OUT;
+    if ( !-f $file ) {
+        open( OUT, ">$file" );
+        foreach (@now) {
+            print OUT "$_\n";
+        }
+        close OUT;
 
-	return;
-    } else {
-	open(IN, $file);
-	while (<IN>) {
-	    chop;
-	    push(@old,$_);
-	}
-	close IN;
+        return;
+    }
+    else {
+        open( IN, $file );
+        while (<IN>) {
+            chop;
+            push( @old, $_ );
+        }
+        close IN;
     }
 
     my @new;
-    for(my $i=0; $i<scalar(@old); $i++) {
-	next if ($old[$i] eq $now[$i]);
-	push(@new, $now[$i]);
+    for ( my $i = 0 ; $i < scalar(@old) ; $i++ ) {
+        next if ( $old[$i] eq $now[$i] );
+        push( @new, $now[$i] );
     }
 
-    if (scalar @now != scalar @old) {
-	&::DEBUG("kA: scalar mismatch; removing and exiting.");
-	unlink $file;
-	return;
+    if ( scalar @now != scalar @old ) {
+        &::DEBUG("kA: scalar mismatch; removing and exiting.");
+        unlink $file;
+        return;
     }
 
-    if (!scalar @new) {
-	&::DEBUG("kA: no new kernels.");
-	return;
+    if ( !scalar @new ) {
+        &::DEBUG("kA: no new kernels.");
+        return;
     }
 
-    open(OUT, ">$file");
+    open( OUT, ">$file" );
     foreach (@now) {
-	print OUT "$_\n";
+        print OUT "$_\n";
     }
     close OUT;
 

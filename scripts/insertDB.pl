@@ -9,7 +9,7 @@ require "src/logger.pl";
 require "src/modules.pl";
 require "src/Factoids/DBCommon.pl";
 
-&loadConfig($bot_config_dir."/infobot.config");
+&loadConfig( $bot_config_dir . "/infobot.config" );
 &loadDBModules();
 
 unless (@_) {
@@ -18,18 +18,18 @@ unless (@_) {
 }
 
 foreach (@_) {
-    next unless ( -f $_);
+    next unless ( -f $_ );
 
-    open(IN, $_) or die "error: cannot open $_\n";
+    open( IN, $_ ) or die "error: cannot open $_\n";
     print "Opened $_ for input...\n";
 
     print "inserting... ";
     while (<IN>) {
-	next unless (/^(.*?) => (.*)$/);
+        next unless (/^(.*?) => (.*)$/);
 
-	### TODO: check if it already exists. if so, don't add.
-	&setFactInfo($1, "factoid_value", $2);
-	print ":: $1 ";
+        ### TODO: check if it already exists. if so, don't add.
+        &setFactInfo( $1, "factoid_value", $2 );
+        print ":: $1 ";
     }
 
     close IN;

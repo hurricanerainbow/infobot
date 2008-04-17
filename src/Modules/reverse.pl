@@ -8,8 +8,8 @@ use strict;
 package reverse;
 
 sub reverse {
-    my($message) = @_;
-    &::performStrictReply(join('',reverse(split('',$message))));
+    my ($message) = @_;
+    &::performStrictReply( join( '', reverse( split( '', $message ) ) ) );
 }
 
 1;

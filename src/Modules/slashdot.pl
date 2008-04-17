@@ -23,10 +23,10 @@ sub slashdotParse {
     my @list;
 
     foreach (@_) {
-	next unless (/<title>(.*?)<\/title>/);
-	my $title = $1;
-	$title =~ s/&amp\;/&/g;
-	push(@list, $title);
+        next unless (/<title>(.*?)<\/title>/);
+        my $title = $1;
+        $title =~ s/&amp\;/&/g;
+        push( @list, $title );
     }
 
     return @list;
@@ -36,10 +36,10 @@ sub Slashdot {
     my @results = &::getURL("http://slashdot.org/slashdot.xml");
     my $retval  = "i could not get the headlines.";
 
-    if (scalar @results) {
-	my $prefix	= 'Slashdot Headlines ';
-	my @list	= &slashdotParse(@results);
-	$retval		= &::formListReply(0, $prefix, @list);
+    if ( scalar @results ) {
+        my $prefix = 'Slashdot Headlines ';
+        my @list   = &slashdotParse(@results);
+        $retval = &::formListReply( 0, $prefix, @list );
     }
 
     &::performStrictReply($retval);
@@ -49,26 +49,26 @@ sub slashdotAnnounce {
     my $file = "$::param{tempDir}/slashdot.xml";
 
     my @Cxml = &::getURL("http://slashdot.org/slashdot.xml");
-    if (!scalar @Cxml) {
-	&::DEBUG("sdA: failure (Cxml == NULL).");
-	return;
+    if ( !scalar @Cxml ) {
+        &::DEBUG("sdA: failure (Cxml == NULL).");
+        return;
     }
 
-    if (! -e $file) {		# first time run.
-	open(OUT, ">$file");
-	foreach (@Cxml) {
-	    print OUT "$_\n";
-	}
-	close OUT;
+    if ( !-e $file ) {    # first time run.
+        open( OUT, ">$file" );
+        foreach (@Cxml) {
+            print OUT "$_\n";
+        }
+        close OUT;
 
-	return;
+        return;
     }
 
     my @Oxml;
-    open(IN, $file);
+    open( IN, $file );
     while (<IN>) {
-	chop;
-	push(@Oxml,$_);
+        chop;
+        push( @Oxml, $_ );
     }
     close IN;
 
@@ -77,27 +77,27 @@ sub slashdotAnnounce {
 
     my @new;
     foreach (@Chl) {
-	last if ($_ eq $Ohl[0]);
-	push(@new, $_);
+        last if ( $_ eq $Ohl[0] );
+        push( @new, $_ );
     }
 
-    if (scalar @new == 0) {
-	&::status("Slashdot: no new headlines.");
-	return;
+    if ( scalar @new == 0 ) {
+        &::status("Slashdot: no new headlines.");
+        return;
     }
 
-    if (scalar @new == scalar @Chl) {
-	&::DEBUG("sdA: scalar(new) == scalar(Chl). bad?");
+    if ( scalar @new == scalar @Chl ) {
+        &::DEBUG("sdA: scalar(new) == scalar(Chl). bad?");
     }
 
-    open(OUT,">$file");
+    open( OUT, ">$file" );
     foreach (@Cxml) {
-	print OUT "$_\n";
+        print OUT "$_\n";
     }
     close OUT;
 
-    return "Slashdot: News for nerds, stuff that matters -- ".
-			join(" \002::\002 ", @new);
+    return "Slashdot: News for nerds, stuff that matters -- "
+      . join( " \002::\002 ", @new );
 }
 
 1;

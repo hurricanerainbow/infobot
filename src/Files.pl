@@ -17,33 +17,33 @@ sub loadLang {
     my $langCount = 0;
     my $replyName;
 
-    if (!open(FILE, $file)) {
-	&ERROR("Failed reading lang file ($file): $!");
-	exit 0;
+    if ( !open( FILE, $file ) ) {
+        &ERROR("Failed reading lang file ($file): $!");
+        exit 0;
     }
 
-    undef %lang;		# for rehash.
+    undef %lang;    # for rehash.
 
     while (<FILE>) {
-	chop;
-	if ($_ eq '' || /^#/) {
-	    undef $replyName;
-	    next;
-	}
+        chop;
+        if ( $_ eq '' || /^#/ ) {
+            undef $replyName;
+            next;
+        }
 
-	if (!/^\s/) {
-	    $replyName = $_;
-	    next;
-	}
+        if ( !/^\s/ ) {
+            $replyName = $_;
+            next;
+        }
 
-	s/^[\s\t]+//g;
-	if (!$replyName) {
-	    &status("loadLang: bad line ('$_')");
-	    next;
-	}
+        s/^[\s\t]+//g;
+        if ( !$replyName ) {
+            &status("loadLang: bad line ('$_')");
+            next;
+        }
 
-	$lang{$replyName}{$_} = 1;
-	$langCount++;
+        $lang{$replyName}{$_} = 1;
+        $langCount++;
     }
     close FILE;
 
@@ -53,31 +53,32 @@ sub loadLang {
 
 # File: Irc Servers list.
 sub loadIRCServers {
-    my ($file)	= $bot_config_dir."/infobot.servers";
+    my ($file) = $bot_config_dir . "/infobot.servers";
     @ircServers = ();
-    %ircPort = ();
+    %ircPort    = ();
 
-    if (!open(FILE, $file)) {
-	&ERROR("Failed reading server list ($file): $!");
-	exit 0;
+    if ( !open( FILE, $file ) ) {
+        &ERROR("Failed reading server list ($file): $!");
+        exit 0;
     }
 
     while (<FILE>) {
-	chop;
-	next if /^\s*$/;
-	next if /^[\#\[ ]/;
+        chop;
+        next if /^\s*$/;
+        next if /^[\#\[ ]/;
 
-	if (/^\s*(\S+?)(:(\d+))?\s*$/) {
-	    push(@ircServers,$1);
-	    $ircPort{$1} = ($3 || 6667);
-	} else {
-	    &status("loadIRCServers: invalid line => '$_'.");
-	}
+        if (/^\s*(\S+?)(:(\d+))?\s*$/) {
+            push( @ircServers, $1 );
+            $ircPort{$1} = ( $3 || 6667 );
+        }
+        else {
+            &status("loadIRCServers: invalid line => '$_'.");
+        }
     }
     close FILE;
 
     $file =~ s/^.*\///;
-    &status("Loaded $file (". scalar(@ircServers) ." servers)");
+    &status( "Loaded $file (" . scalar(@ircServers) . " servers)" );
 }
 
 1;

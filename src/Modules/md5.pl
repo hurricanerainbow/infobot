@@ -8,10 +8,10 @@ use strict;
 package md5;
 
 sub md5 {
-    my($message) = @_;
+    my ($message) = @_;
     return unless &::loadPerlModule('Digest::MD5');
 
-    &::performStrictReply(&Digest::MD5::md5_hex($message));
+    &::performStrictReply( &Digest::MD5::md5_hex($message) );
 }
 
 1;

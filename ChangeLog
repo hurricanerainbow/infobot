@@ -3,6 +3,10 @@
 
 * Correction to factoid updates to treat appending as a modification
 
+* Code formatting cleanups
+
+* Removed unmaintained patches directory
+
 1.5.1
 =====
 
@@ -10,3 +14,5 @@
 created_by properly
 
 * New +M flag to allow modifying factoids created by same nick
+
+# vim:ts=4:sw=4:expandtab:tw=80

@@ -9,9 +9,9 @@ use strict;
 use warnings;
 
 sub dice::roll_array ($) {
-    my($line) = shift;
+    my ($line) = shift;
 
-    my(@throws) = ();
+    my (@throws) = ();
     return @throws unless $line =~ m{
                  ^      # beginning of line
                  (\d+)? # optional count in $1
@@ -21,24 +21,24 @@ sub dice::roll_array ($) {
                   |     # or
                     %   # a percent sign for d% = d100
                  )
-              }x;       # whitespace allowed
+              }x;    # whitespace allowed
 
-    my($num)    = $1 || 1;
-    my($type)   = $2;
+    my ($num) = $1 || 1;
+    my ($type) = $2;
 
     return @throws if $num > 100;
-    $type  = 100 if $type eq '%';
+    $type = 100 if $type eq '%';
     return @throws if $type < 2;
 
-    for( 1 .. $num ) {
-        push @throws, int (rand $type) + 1;
+    for ( 1 .. $num ) {
+        push @throws, int( rand $type ) + 1;
     }
 
     return @throws;
 }
 
 sub dice::roll ($) {
-    my($line) = shift;
+    my ($line) = shift;
 
     $line =~ s/ //g;
 
@@ -57,36 +57,37 @@ sub dice::roll ($) {
                    ([-+xX*/bB]) # a + - * / b(est) in $2
                    (\d+)        # an offset in $3
                  )?             # both of those last are optional
-              }x;               # whitespace allowed in re
+              }x;    # whitespace allowed in re
 
-    my($dice_string) = $1;
-    my($sign) = $2 || '';
-    my($offset) = $3 || 0;
+    my ($dice_string) = $1;
+    my ($sign)        = $2 || '';
+    my ($offset)      = $3 || 0;
 
     $sign = lc $sign;
 
-    my(@throws) = roll_array( $dice_string );
+    my (@throws) = roll_array($dice_string);
     return '' unless @throws > 0;
-    my($retval) = "rolled " . join(',', @throws);
+    my ($retval) = "rolled " . join( ',', @throws );
 
-    my(@result);
-    if( $sign eq 'b' ) {
+    my (@result);
+    if ( $sign eq 'b' ) {
         $offset = 0       if $offset < 0;
         $offset = @throws if $offset > @throws;
 
-        @throws = sort { $b <=> $a } @throws;   # sort numerically, descending
-        @result = @throws[ 0 .. $offset-1 ];    # pick off the $offset first ones
-	$retval .= " best $offset";
-    } else {
+        @throws = sort { $b <=> $a } @throws;  # sort numerically, descending
+        @result = @throws[ 0 .. $offset - 1 ]; # pick off the $offset first ones
+        $retval .= " best $offset";
+    }
+    else {
         @result = @throws;
         $retval .= " $sign $offset" if $sign;
     }
 
-    my($sum) = 0;
+    my ($sum) = 0;
     $sum += $_ foreach @result;
-    $sum += $offset if  $sign eq '+';
-    $sum -= $offset if  $sign eq '-';
-    $sum *= $offset if ($sign eq '*' || $sign eq 'x');
+    $sum += $offset if $sign eq '+';
+    $sum -= $offset if $sign eq '-';
+    $sum *= $offset if ( $sign eq '*' || $sign eq 'x' );
     do { $sum /= $offset; $sum = int $sum; } if $sign eq '/';
 
     return "$retval = $sum";
@@ -94,7 +95,7 @@ sub dice::roll ($) {
 
 sub dice::dice {
     my ($message) = @_;
-    srand(); # fork seems to not change rand. force it here
+    srand();    # fork seems to not change rand. force it here
     my $retval = roll($message);
 
     &::performStrictReply($retval);

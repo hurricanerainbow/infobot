@@ -20,33 +20,37 @@ sub commify {
 
 sub Quote {
     my $stock = shift;
-    my @results = &::getURL('http://quote.yahoo.com/d/quotes.csv' .
-	    "?s=$stock&f=sl1d1t1c1ohgv&e=.csv");
+    my @results =
+      &::getURL( 'http://quote.yahoo.com/d/quotes.csv'
+          . "?s=$stock&f=sl1d1t1c1ohgv&e=.csv" );
 
-
-    if (!scalar @results) {
-	&::msg($::who, "i could not get a stock quote :(");
+    if ( !scalar @results ) {
+        &::msg( $::who, "i could not get a stock quote :(" );
     }
 
     my ($reply);
     foreach my $result (@results) {
-	# get rid of the quotes
-	$result =~ s/\"//g;
 
-	my ($ticker, $recent, $date, $time, $change, $open,
-	    $high, $low, $volume) = split(',',$result);
+        # get rid of the quotes
+        $result =~ s/\"//g;
 
-	# add some commas
-	# "+ 0" removes trailing cr/lf/etc.
-	my $newvol = commify($volume + 0);
+        my (
+            $ticker, $recent, $date, $time, $change,
+            $open,   $high,   $low,  $volume
+        ) = split( ',', $result );
 
-	$reply .= ' ;; ' if $reply;
-	$reply .= "$ticker: $recent ($high/$low), $date $time, " .
-		"Opened $open, Volume $newvol, Change $change";
+        # add some commas
+        # "+ 0" removes trailing cr/lf/etc.
+        my $newvol = commify( $volume + 0 );
+
+        $reply .= ' ;; ' if $reply;
+        $reply .=
+            "$ticker: $recent ($high/$low), $date $time, "
+          . "Opened $open, Volume $newvol, Change $change";
     }
 
-    if ($reply eq '') {
-	$reply = "i couldn't get the quote for $stock. sorry. :(";
+    if ( $reply eq '' ) {
+        $reply = "i couldn't get the quote for $stock. sorry. :(";
     }
 
     &::performStrictReply($reply);

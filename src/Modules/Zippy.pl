@@ -9,22 +9,22 @@ package zippy;
 
 use strict;
 
-my $no_zippy; # Can't think of any situation in which this won't work..
+my $no_zippy;    # Can't think of any situation in which this won't work..
 
 sub zippy::get {
     my @yows;
     &::DEBUG('Reading zippy data');
     while (<DATA>) {
-	chomp;
-	push @yows, $_;
+        chomp;
+        push @yows, $_;
     }
 
-    if ($no_zippy) { # ..but just in case :-)
-	return "YOW! I'm an INFOBOT without ZIPPY!" if $::addressed;
+    if ($no_zippy) {    # ..but just in case :-)
+        return "YOW! I'm an INFOBOT without ZIPPY!" if $::addressed;
     }
 
-    srand(); # fork seems to not change rand. force it here
-    my $yow = $yows[rand(@yows)];
+    srand();            # fork seems to not change rand. force it here
+    my $yow = $yows[ rand(@yows) ];
 
     &::performStrictReply($yow);
 }

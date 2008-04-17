@@ -29,75 +29,78 @@ my $no_zsi;
 use strict;
 
 BEGIN {
-	$no_zsi = 0;
-	eval "use LWP::UserAgent";
-	$no_zsi++ if ($@);
+    $no_zsi = 0;
+    eval "use LWP::UserAgent";
+    $no_zsi++ if ($@);
 }
 
 sub queryText {
-	my ($query) = @_;
+    my ($query) = @_;
 
-	if ($no_zsi) {
-		&::status("zsi module requires LWP::UserAgent.");
-		return '';
-	}
+    if ($no_zsi) {
+        &::status("zsi module requires LWP::UserAgent.");
+        return '';
+    }
 
-	my $res_return = 5;
+    my $res_return = 5;
 
-	my $ua = new LWP::UserAgent;
-	$ua->proxy('http', $::param{'httpProxy'}) if (&::IsParam('httpProxy'));
+    my $ua = new LWP::UserAgent;
+    $ua->proxy( 'http', $::param{'httpProxy'} ) if ( &::IsParam('httpProxy') );
 
-	$ua->timeout(10);
+    $ua->timeout(10);
 
-	my $searchpath;
-	if ($query) {
-		$searchpath = "http://killefiz.de/zaurus/zsibot.php?query=$query";
-	} else {
-		$searchpath = "http://killefiz.de/zaurus/zsibot.php";
-	}
+    my $searchpath;
+    if ($query) {
+        $searchpath = "http://killefiz.de/zaurus/zsibot.php?query=$query";
+    }
+    else {
+        $searchpath = "http://killefiz.de/zaurus/zsibot.php";
+    }
 
-	my $request = new HTTP::Request('GET', "$searchpath");
-	my $response = $ua->request($request);
+    my $request = new HTTP::Request( 'GET', "$searchpath" );
+    my $response = $ua->request($request);
 
-	if (!$response->is_success) {
-		return "Something failed in connecting to the ZSI web server. Try again later.";
-	}
+    if ( !$response->is_success ) {
+        return
+"Something failed in connecting to the ZSI web server. Try again later.";
+    }
 
-	my $content = $response->content;
+    my $content = $response->content;
 
-	if ($content =~ /No entries found/im) {
-		return "No results were found searching ZSI for '$query'.";
-	}
+    if ( $content =~ /No entries found/im ) {
+        return "No results were found searching ZSI for '$query'.";
+    }
 
-	my $res_count = 0; #local counter
-	my $res_display = 0; #results displayed
+    my $res_count   = 0;    #local counter
+    my $res_display = 0;    #results displayed
 
-	my @lines = split(/\n/,$content);
+    my @lines = split( /\n/, $content );
 
-	my $result = '';
-	foreach my $line (@lines) {
-		if (length($line) > 10) {
-			my ($name, $href, $desc) = split(/\|/,$line);
+    my $result = '';
+    foreach my $line (@lines) {
+        if ( length($line) > 10 ) {
+            my ( $name, $href, $desc ) = split( /\|/, $line );
 
-			if ($res_count < $res_return) {
-				$result .= "$name ($desc) $href : ";
-				$res_display ++;
-			}
-			$res_count ++;
-		}
-	}
+            if ( $res_count < $res_return ) {
+                $result .= "$name ($desc) $href : ";
+                $res_display++;
+            }
+            $res_count++;
+        }
+    }
 
-	if (($query) && ($res_count > $res_display)) {
-		$result .= "$res_display of $res_count shown. All at http://killefiz.de/zaurus/search.php?q=$query";
-	}
+    if ( ($query) && ( $res_count > $res_display ) ) {
+        $result .=
+"$res_display of $res_count shown. All at http://killefiz.de/zaurus/search.php?q=$query";
+    }
 
-	return $result;
+    return $result;
 }
 
 sub query {
-	my ($args) = @_;
-	&::performStrictReply(&queryText($args));
-	return;
+    my ($args) = @_;
+    &::performStrictReply( &queryText($args) );
+    return;
 }
 
 1;

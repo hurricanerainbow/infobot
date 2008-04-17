@@ -8,22 +8,27 @@ package Units;
 use strict;
 
 sub convertUnits {
-  my ($from,$to) = @_;
+    my ( $from, $to ) = @_;
 
-  if ($from =~ /([+-]?[\d\.]+(?:e[+-]?[\d]+)?)\s+(temp[CFK])/){
-    $from = qq|${2}(${1})|;
-  }
+    if ( $from =~ /([+-]?[\d\.]+(?:e[+-]?[\d]+)?)\s+(temp[CFK])/ ) {
+        $from = qq|${2}(${1})|;
+    }
 
-  my $units = new IO::File;
-  open $units, '-|', 'units', $from, $to or &::DEBUG("Unable to run units: $!") and return;
-  my $response = readline ($units);
-  if ($response =~ /\s+\*\s+([+-]?[\d\.]+(?:e[+-]?[\d]+)?)/ or $response =~ /\t([+-]?[\d\.]+(?:e[+-]?[\d]+)?)/){
-    &::performStrictReply(sprintf("$from is approximately \002%.6g\002 $to", $1));
-  }
-  else {
-    &::performStrictReply("$from cannot be converted to ${to}: $response");
-  }
-  return;
+    my $units = new IO::File;
+    open $units, '-|', 'units', $from, $to
+      or &::DEBUG("Unable to run units: $!")
+      and return;
+    my $response = readline($units);
+    if (   $response =~ /\s+\*\s+([+-]?[\d\.]+(?:e[+-]?[\d]+)?)/
+        or $response =~ /\t([+-]?[\d\.]+(?:e[+-]?[\d]+)?)/ )
+    {
+        &::performStrictReply(
+            sprintf( "$from is approximately \002%.6g\002 $to", $1 ) );
+    }
+    else {
+        &::performStrictReply("$from cannot be converted to ${to}: $response");
+    }
+    return;
 }
 
 1;

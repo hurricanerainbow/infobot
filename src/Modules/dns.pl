@@ -13,41 +13,44 @@ package dns;
 use strict;
 
 sub dns::dns {
-	my $dns = shift;
-	my($match, $x, $y, $result, $pid);
+    my $dns = shift;
+    my ( $match, $x, $y, $result, $pid );
 
-	if ($dns =~ /(\d+\.\d+\.\d+\.\d+)/) {
-		use Socket;
+    if ( $dns =~ /(\d+\.\d+\.\d+\.\d+)/ ) {
+        use Socket;
 
-		&::status("DNS query by IP address: $dns");
+        &::status("DNS query by IP address: $dns");
 
-		$y = pack('C4', split(/\./, $dns));
-		$x = (gethostbyaddr($y, &AF_INET));
+        $y = pack( 'C4', split( /\./, $dns ) );
+        $x = ( gethostbyaddr( $y, &AF_INET ) );
 
-		if ($x !~ /^\s*$/) {
-			$result = "$dns is $x" unless ($x =~ /^\s*$/);
-		} else {
-			$result = "I can't find the address $dns in DNS";
-		}
+        if ( $x !~ /^\s*$/ ) {
+            $result = "$dns is $x" unless ( $x =~ /^\s*$/ );
+        }
+        else {
+            $result = "I can't find the address $dns in DNS";
+        }
 
-	} else {
+    }
+    else {
 
-		&::status("DNS query by name: $dns");
-		$x = join('.',unpack('C4',(gethostbyname($dns))[4]));
+        &::status("DNS query by name: $dns");
+        $x = join( '.', unpack( 'C4', ( gethostbyname($dns) )[4] ) );
 
-		if ($x !~ /^\s*$/) {
-			$result = "$dns is $x";
-		} else {
-			$result = "I can't find $dns in DNS";
-		}
-	}
+        if ( $x !~ /^\s*$/ ) {
+            $result = "$dns is $x";
+        }
+        else {
+            $result = "I can't find $dns in DNS";
+        }
+    }
 
-	return($result);
+    return ($result);
 }
 
 sub dns::query {
-	&::performStrictReply(&dns(@_));
-	return;
+    &::performStrictReply( &dns(@_) );
+    return;
 }
 
 1;

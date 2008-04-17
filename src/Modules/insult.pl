@@ -16,23 +16,23 @@ sub Insult {
     my @nouns;
     &::DEBUG('Reading insult data');
     while (<DATA>) {
-	chomp;
-	push(@adjs, split(' ', $1)) if /^adj\s*(.*)/;
-	push(@amts, split(' ', $1)) if /^amt\s*(.*)/;
-	push(@nouns, split(' ', $1)) if /^noun\s*(.*)/;
+        chomp;
+        push( @adjs,  split( ' ', $1 ) ) if /^adj\s*(.*)/;
+        push( @amts,  split( ' ', $1 ) ) if /^amt\s*(.*)/;
+        push( @nouns, split( ' ', $1 ) ) if /^noun\s*(.*)/;
     }
-    grep(s/\|/ /g, @adjs);
-    grep(s/\|/ /g, @amts);
-    grep(s/\|/ /g, @nouns);
-    srand(); # fork seems to not change rand. force it here
-    my $adj = @adjs[rand(@adjs)];
+    grep( s/\|/ /g, @adjs );
+    grep( s/\|/ /g, @amts );
+    grep( s/\|/ /g, @nouns );
+    srand();    # fork seems to not change rand. force it here
+    my $adj = @adjs[ rand(@adjs) ];
     my $n;
     $n = 'n' if $adj =~ /^[aeiouih]/;
-    my $amt = @amts[rand(@amts)];
-    my $adj2 = @adjs[rand(@adjs)];
-    my $noun = @nouns[rand(@nouns)];
+    my $amt   = @amts[ rand(@amts) ];
+    my $adj2  = @adjs[ rand(@adjs) ];
+    my $noun  = @nouns[ rand(@nouns) ];
     my $whois = "$insultwho is";
-    $whois = 'You are' if ($insultwho eq $::who or $insultwho eq 'me');
+    $whois = 'You are' if ( $insultwho eq $::who or $insultwho eq 'me' );
 
     &::performStrictReply("$whois nothing but a$n $adj $amt of $adj2 $noun");
 }

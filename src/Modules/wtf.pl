@@ -13,40 +13,37 @@ package wtf;
 use strict;
 
 sub wtf::wtf {
-	my $query = shift;
-	my $binary;
-	my @binaries = (
-		'/usr/games/wtf',
-		'/usr/local/bin/wtf'
-	);
-	foreach (@binaries) {
-		if (-x $_) {
-			$binary=$_;
-			last;
-		}
-	}
-	if (!$binary) {
-		return("no binary found.");
-	}
-	if ($query =~ /^$|[^\w]/){
-		return("usage: wtf <foo>.");
-	}
-	if (!&::validExec($query)) {
-		return("argument appears to be fuzzy.");
-	}
+    my $query = shift;
+    my $binary;
+    my @binaries = ( '/usr/games/wtf', '/usr/local/bin/wtf' );
+    foreach (@binaries) {
+        if ( -x $_ ) {
+            $binary = $_;
+            last;
+        }
+    }
+    if ( !$binary ) {
+        return ("no binary found.");
+    }
+    if ( $query =~ /^$|[^\w]/ ) {
+        return ("usage: wtf <foo>.");
+    }
+    if ( !&::validExec($query) ) {
+        return ("argument appears to be fuzzy.");
+    }
 
-	my $reply ='';
-	foreach (`$binary '$query' 2>&1`){
-		$reply .= $_;
-	}
-	$reply =~ s/\n/ /;
-	chomp($reply);
-	return($reply);
+    my $reply = '';
+    foreach (`$binary '$query' 2>&1`) {
+        $reply .= $_;
+    }
+    $reply =~ s/\n/ /;
+    chomp($reply);
+    return ($reply);
 }
 
 sub wtf::query {
-	&::performStrictReply(&wtf(@_));
-	return;
+    &::performStrictReply( &wtf(@_) );
+    return;
 }
 
 1;
