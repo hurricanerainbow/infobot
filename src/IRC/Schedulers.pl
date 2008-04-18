@@ -22,7 +22,7 @@ use vars qw(%sched %schedule);
 #};
 
 sub setupSchedulers {
-    &VERB( "Starting schedulers...", 2 );
+    &VERB( 'Starting schedulers...', 2 );
 
     # ONCE OFF.
 
@@ -86,13 +86,13 @@ sub ScheduleThis {
     if ( defined $time and $time > time() ) {
         &WARN(  "Sched for $codename already exists in "
               . &Time2String( time() - $time )
-              . "." );
+              . '.' );
         return;
     }
 
     &DEBUG(
         "Scheduling \&$codename() "
-          . \&$codename . " for "
+          . \&$codename . ' for '
           . &Time2String($waittime),
         3
     );
@@ -134,14 +134,14 @@ sub randomQuote {
         next unless ( &validChan($_) );
 
         my $line =
-          &getRandomLineFromFile( $bot_data_dir . "/infobot.randtext" );
+          &getRandomLineFromFile( $bot_data_dir . '/infobot.randtext' );
         if ( !defined $line ) {
-            &ERROR("random Quote: weird error?");
+            &ERROR('random Quote: weird error?');
             return;
         }
 
         &status("sending random Quote to $_.");
-        &action( $_, "Ponders: " . $line );
+        &action( $_, 'Ponders: ' . $line );
     }
     ### TODO: if there were no channels, don't reschedule until channel
     ###		configuration is modified.
@@ -163,7 +163,7 @@ sub randomFactoid {
         &status("sending random Factoid to $_.");
         while (1) {
             ( $key, $val ) =
-              &randKey( 'factoids', "factoid_key,factoid_value" );
+              &randKey( 'factoids', 'factoid_key,factoid_value' );
             &DEBUG("rF: $key, $val");
 ###	    $val =~ tr/^[A-Z]/[a-z]/;	# blah is Good => blah is good.
             last
@@ -174,7 +174,7 @@ sub randomFactoid {
 
             $error++;
             if ( $error == 5 ) {
-                &ERROR("rF: tried 5 times but failed.");
+                &ERROR('rF: tried 5 times but failed.');
                 return;
             }
         }
@@ -196,15 +196,15 @@ sub logLoop {
 
     ### check if current size is too large.
     if ( -s $file{log} > $param{'maxLogSize'} ) {
-        my $date = sprintf( "%04d%02d%02d", (gmtime)[ 5, 4, 3 ] );
-        $file{log} = $param{'logfile'} . "-" . $date;
-        &status("cycling log file.");
+        my $date = sprintf( '%04d%02d%02d', (gmtime)[ 5, 4, 3 ] );
+        $file{log} = $param{'logfile'} . '-' . $date;
+        &status('cycling log file.');
 
         if ( -e $file{log} ) {
             my $i = 1;
             my $newlog;
             while () {
-                $newlog = $file{log} . "-" . $i;
+                $newlog = $file{log} . '-' . $i;
                 last if ( !-e $newlog );
                 $i++;
             }
@@ -215,7 +215,7 @@ sub logLoop {
         CORE::system("/bin/mv '$param{'logfile'}' '$file{log}'");
         &compress( $file{log} );
         &openLog();
-        &status("cycling log file.");
+        &status('cycling log file.');
     }
 
     ### check if all the logs exceed size.
@@ -273,17 +273,17 @@ sub seenFlushOld {
 
         if ( $param{'DBType'} =~ /^mysql$/i ) {
             $query =
-                "SELECT nick,time FROM seen GROUP BY nick HAVING "
+                'SELECT nick,time FROM seen GROUP BY nick HAVING '
               . "UNIX_TIMESTAMP() - time > $max_time";
         }
         elsif ( $param{'DBType'} =~ /^sqlite(2)?$/i ) {
             $query =
-                "SELECT nick,time FROM seen GROUP BY nick HAVING "
+                'SELECT nick,time FROM seen GROUP BY nick HAVING '
               . "strftime('%s','now','localtime') - time > $max_time";
         }
         else {    # pgsql.
             $query =
-                "SELECT nick,time FROM seen WHERE "
+                'SELECT nick,time FROM seen WHERE '
               . "extract(epoch from timestamp 'now') - time > $max_time";
         }
 
@@ -299,7 +299,7 @@ sub seenFlushOld {
         }
     }
     else {
-        &FIXME( "seenFlushOld: for bad DBType:" . $param{'DBType'} . "." );
+        &FIXME( 'seenFlushOld: for bad DBType:' . $param{'DBType'} . '.' );
     }
     &VERB( "SEEN deleted $delete seen entries.", 2 );
 
@@ -412,9 +412,9 @@ sub chanlimitCheck {
         if ( scalar keys %netsplitservers ) {
             if ( defined $limit ) {
                 &status("chanlimit: netsplit; removing it for $chan.");
-                $conn->mode( $chan, "-l" );
+                $conn->mode( $chan, '-l' );
                 $cache{chanlimitChange}{$chan} = time();
-                &status("chanlimit: netsplit; removed.");
+                &status('chanlimit: netsplit; removed.');
             }
 
             next;
@@ -422,7 +422,7 @@ sub chanlimitCheck {
 
         if ( defined $limit and scalar keys %{ $channels{$chan}{''} } > $limit )
         {
-            &FIXME("LIMIT: set too low!!!");
+            &FIXME('LIMIT: set too low!!!');
             ### run NAMES again and flush it.
         }
 
@@ -455,7 +455,7 @@ sub chanlimitCheck {
             }
         }
 
-        $conn->mode( $chan, "+l", $newlimit );
+        $conn->mode( $chan, '+l', $newlimit );
         $cache{chanlimitChange}{$chan} = time();
     }
 }
@@ -473,7 +473,7 @@ sub netsplitCheck {
     #    &DEBUG("running netsplitCheck... $cache{netsplitCache}");
 
     if ( !scalar %netsplit and scalar %netsplitservers ) {
-        &DEBUG("nsC: !hash netsplit but hash netsplitservers <- removing!");
+        &DEBUG('nsC: !hash netsplit but hash netsplitservers <- removing!');
         undef %netsplitservers;
         return;
     }
@@ -529,12 +529,12 @@ sub netsplitCheck {
     }
 
     if ( !scalar %netsplit and scalar %netsplitservers ) {
-        &DEBUG("nsC: ok hash netsplit is NULL; purging hash netsplitservers");
+        &DEBUG('nsC: ok hash netsplit is NULL; purging hash netsplitservers');
         undef %netsplitservers;
     }
 
     if ( $count and !scalar keys %netsplit ) {
-        &DEBUG("nsC: netsplit is hopefully gone. reinstating chanlimit check.");
+        &DEBUG('nsC: netsplit is hopefully gone. reinstating chanlimit check.');
         &chanlimitCheck();
     }
 }
@@ -599,13 +599,13 @@ sub seenFlush {
         }
     }
     else {
-        &DEBUG("seenFlush: NO VALID FACTOID SUPPORT?");
+        &DEBUG('seenFlush: NO VALID FACTOID SUPPORT?');
     }
 
     &status("Seen: Flushed $flushed entries.") if ($flushed);
     &VERB(
         sprintf(
-            "  new seen: %03.01f%% (%d/%d)",
+            '  new seen: %03.01f%% (%d/%d)',
             $stats{'new'} * 100 / ( $stats{'count_old'} || 1 ),
             $stats{'new'},
             ( $stats{'count_old'} || 1 )
@@ -614,14 +614,14 @@ sub seenFlush {
     ) if ( $stats{'new'} );
     &VERB(
         sprintf(
-            "  now seen: %3.1f%% (%d/%d)",
+            '  now seen: %3.1f%% (%d/%d)',
             $stats{'old'} * 100 / ( &countKeys('seen') || 1 ), $stats{'old'},
             &countKeys('seen')
         ),
         2
     ) if ( $stats{'old'} );
 
-    &WARN("scalar keys seenflush != 0!") if ( scalar keys %seenflush );
+    &WARN('scalar keys seenflush != 0!') if ( scalar keys %seenflush );
 }
 
 sub leakCheck {
@@ -796,7 +796,7 @@ sub miscCheck {
 
     # SHM check.
     my @ipcs;
-    if ( -x "/usr/bin/ipcs" ) {
+    if ( -x '/usr/bin/ipcs' ) {
         @ipcs = `/usr/bin/ipcs`;
     }
     else {
@@ -805,9 +805,9 @@ sub miscCheck {
     }
 
     # make backup of important files.
-    &mkBackup( $bot_state_dir . "/infobot.chan",    60 * 60 * 24 * 3 );
-    &mkBackup( $bot_state_dir . "/infobot.users",   60 * 60 * 24 * 3 );
-    &mkBackup( $bot_base_dir . "/infobot-news.txt", 60 * 60 * 24 * 1 );
+    &mkBackup( $bot_state_dir . '/infobot.chan',    60 * 60 * 24 * 3 );
+    &mkBackup( $bot_state_dir . '/infobot.users',   60 * 60 * 24 * 3 );
+    &mkBackup( $bot_base_dir . '/infobot-news.txt', 60 * 60 * 24 * 1 );
 
     # flush cache{lobotomy}
     foreach ( keys %{ $cache{lobotomy} } ) {
@@ -870,7 +870,7 @@ sub miscCheck2 {
     # compress logs that should have been compressed.
     # TODO: use strftime?
     my ( $day, $month, $year ) = ( gmtime( time() ) )[ 3, 4, 5 ];
-    my $date = sprintf( "%04d%02d%02d", $year + 1900, $month + 1, $day );
+    my $date = sprintf( '%04d%02d%02d', $year + 1900, $month + 1, $day );
 
     if ( !opendir( DIR, "$bot_log_dir" ) ) {
         &ERROR("misccheck2: log dir $bot_log_dir does not exist.");
@@ -894,7 +894,7 @@ sub getNickInUse {
 
     # FIXME: broken for multiple connects
     #    if ($ident eq $param{'ircNick'}) {
-    #	&status("okay, got my nick back.");
+    #	&status('okay, got my nick back.');
     #	return;
     #    }
     #
@@ -1073,7 +1073,7 @@ sub factoidCheck {
     }
 
     my @list =
-      &searchTable( 'factoids', 'factoid_key', 'factoid_key', " #DEL#" );
+      &searchTable( 'factoids', 'factoid_key', 'factoid_key', ' #DEL#' );
     my $stale =
       &getChanConfDefault( 'factoidDeleteDelay', 14, $chan ) * 60 * 60 * 24;
     if ( $stale < 1 ) {
@@ -1090,9 +1090,9 @@ sub factoidCheck {
         if ( !defined $age or $age !~ /^\d+$/ ) {
             if ( scalar @list > 50 ) {
                 if ( !$cache{warnDel} ) {
-                    &WARN(  "list is over 50 ("
+                    &WARN(  'list is over 50 ('
                           . scalar(@list)
-                          . "... giving it a miss." );
+                          . '... giving it a miss.' );
                     $cache{warnDel} = 1;
                     last;
                 }
@@ -1122,7 +1122,7 @@ sub dccStatus {
         return if ( $_[0] eq '2' );           # defer.
     }
 
-    my $time = strftime( "%H:%M", gmtime( time() ) );
+    my $time = strftime( '%H:%M', gmtime( time() ) );
 
     my $c;
     foreach ( keys %channels ) {
@@ -1146,7 +1146,7 @@ sub scheduleList {
     #	b - weird time.
     ###
 
-    my $reply = "sched:";
+    my $reply = 'sched:';
     foreach ( keys %{ $irc->{_queue} } ) {
         my $q       = $_;
         my $coderef = $irc->{_queue}->{$q}->[1];

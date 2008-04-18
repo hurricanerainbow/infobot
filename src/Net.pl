@@ -14,7 +14,7 @@ sub ftpGet {
     my ( $host, $dir, $file, $lfile ) = @_;
     my $verbose_ftp = 1;
 
-    return unless &loadPerlModule("Net::FTP");
+    return unless &loadPerlModule('Net::FTP');
 
     &status("FTP: opening connection to $host.") if ($verbose_ftp);
     my $ftp = Net::FTP->new(
@@ -27,10 +27,10 @@ sub ftpGet {
 
     # login.
     if ( $ftp->login() ) {
-        &status("FTP: logged in successfully.") if ($verbose_ftp);
+        &status('FTP: logged in successfully.') if ($verbose_ftp);
     }
     else {
-        &status("FTP: login failed.");
+        &status('FTP: login failed.');
         $ftp->quit();
         return 0;
     }
@@ -58,7 +58,7 @@ sub ftpGet {
                   if ($verbose_ftp);
             }
             else {
-                &status("FTP: same size; skipping.");
+                &status('FTP: same size; skipping.');
                 system("touch $thisfile");    # lame hack.
                 $ftp->quit();
                 return 1;
@@ -66,7 +66,7 @@ sub ftpGet {
         }
     }
     else {
-        &status("FTP: file does not exist.");
+        &status('FTP: file does not exist.');
         $ftp->quit();
         return 0;
     }
@@ -84,13 +84,13 @@ sub ftpGet {
     if ( defined $lsize ) {
         &DEBUG("FTP: locsize => '$lsize'.");
         if ( $size != $lsize ) {
-            &FIXME("FTP: downloaded file seems truncated.");
+            &FIXME('FTP: downloaded file seems truncated.');
         }
     }
 
     my $delta_time = &timedelta($start_time);
     if ( $delta_time > 0 and $verbose_ftp ) {
-        &status( sprintf( "FTP: %.02f sec to complete.", $delta_time ) );
+        &status( sprintf( 'FTP: %.02f sec to complete.', $delta_time ) );
         my ( $rateunit, $rate ) = ( 'B', $size / $delta_time );
         if ( $rate > 1024 ) {
             $rate /= 1024;
@@ -109,7 +109,7 @@ sub ftpList {
     my ( $host, $dir ) = @_;
     my $verbose_ftp = 1;
 
-    return unless &loadPerlModule("Net::FTP");
+    return unless &loadPerlModule('Net::FTP');
 
     &status("FTP: opening connection to $host.") if ($verbose_ftp);
     my $ftp = Net::FTP->new( $host, 'Timeout' => 60 );
@@ -118,10 +118,10 @@ sub ftpList {
 
     # login.
     if ( $ftp->login() ) {
-        &status("FTP: logged in successfully.") if ($verbose_ftp);
+        &status('FTP: logged in successfully.') if ($verbose_ftp);
     }
     else {
-        &status("FTP: login failed.");
+        &status('FTP: login failed.');
         $ftp->quit();
         return;
     }
@@ -136,7 +136,7 @@ sub ftpList {
         return;
     }
 
-    &status("FTP: doing ls.") if ($verbose_ftp);
+    &status('FTP: doing ls.') if ($verbose_ftp);
     foreach ( $ftp->dir() ) {
 
         # modes d uid gid size month day time file.
@@ -152,7 +152,7 @@ sub ftpList {
             &DEBUG("FTP: UNKNOWN  => '$_'.");
         }
     }
-    &status( "FTP: ls done. " . scalar( keys %ftp ) . " entries." );
+    &status( 'FTP: ls done. ' . scalar( keys %ftp ) . ' entries.' );
     $ftp->quit();
 
     return %ftp;
@@ -165,7 +165,7 @@ sub getURL {
     my ( $url, $post ) = @_;
     my ( $ua, $res, $req );
 
-    return unless &loadPerlModule("LWP::UserAgent");
+    return unless &loadPerlModule('LWP::UserAgent');
 
     $ua = new LWP::UserAgent;
     $ua->proxy( 'http', $param{'httpProxy'} ) if &IsParam('httpProxy');
@@ -185,7 +185,7 @@ sub getURL {
     my $size = length( $res->content );
     if ( $size and time - $time ) {
         my $rate = int( $size / 1000 / ( time - $time ) );
-        &status("getURL: Done (took "
+        &status('getURL: Done (took '
               . &Time2String( time - $time )
               . ", $rate k/sec)" );
     }

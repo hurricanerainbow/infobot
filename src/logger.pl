@@ -110,12 +110,12 @@ sub openLog {
 
     if ( &IsParam('logType') and $param{'logType'} =~ /DAILY/i ) {
         my ( $day, $month, $year ) = ( gmtime time() )[ 3, 4, 5 ];
-        $logDate = sprintf( "%04d%02d%02d", $year + 1900, $month + 1, $day );
+        $logDate = sprintf( '%04d%02d%02d', $year + 1900, $month + 1, $day );
         $file{log} .= $logDate;
     }
 
     if ( open( LOG, ">>$file{log}" ) ) {
-        binmode( LOG, ":encoding(UTF-8)" );
+        binmode( LOG, ':encoding(UTF-8)' );
         &status("Opened logfile $file{log}.");
         LOG->autoflush(1);
     }
@@ -147,7 +147,7 @@ sub compress {
     }
 
     if ( -f "$file.gz" or -f "$file.bz2" ) {
-        &WARN("compress: file.(gz|bz2) already exists.");
+        &WARN('compress: file.(gz|bz2) already exists.');
         return 0;
     }
 
@@ -161,7 +161,7 @@ sub compress {
     }
 
     if ( !$okay ) {
-        &ERROR("no compress program found.");
+        &ERROR('no compress program found.');
         return 0;
     }
 
@@ -243,7 +243,7 @@ sub status {
 
     # Something is using this w/ NULL.
     if ( !defined $input or $input =~ /^\s*$/ ) {
-        $input = "ERROR: Blank status call? HELP HELP HELP";
+        $input = 'ERROR: Blank status call? HELP HELP HELP';
     }
 
     for ($input) {
@@ -279,7 +279,7 @@ sub status {
         }
         else {
             sleep 1;
-            &status("LOG: Throttling.");
+            &status('LOG: Throttling.');
             $reset++;
         }
     }
@@ -297,7 +297,7 @@ sub status {
         $status = "!$statcount! " . $input;
         if ( $statcount > 1000 ) {
             print LOG "ERROR: FORKED PROCESS RAN AWAY; KILLING.\n";
-            print LOG "VERB: " . ( &Time2String( $time - $forkedtime ) ) . "\n";
+            print LOG 'VERB: ' . ( &Time2String( $time - $forkedtime ) ) . "\n";
             exit 0;
         }
     }
@@ -312,10 +312,10 @@ sub status {
 
     if ( &IsParam('VERBOSITY') ) {
         if ($statcountfix) {
-            printf $_red. "!%6d!" . $ob . " ", $statcount;
+            printf $_red. '!%6d!' . $ob . ' ', $statcount;
         }
         else {
-            printf $_green. "[%6d]" . $ob . " ", $statcount;
+            printf $_green. '[%6d]' . $ob . ' ', $statcount;
         }
 
         # three uberstabs to Derek Moeller. I don't remember why but he
@@ -396,11 +396,11 @@ sub status {
 
     my $date;
     if ( &IsParam('logType') and $param{'logType'} =~ /DAILY/i ) {
-        $date = sprintf( "%02d:%02d.%02d", ( gmtime $time )[ 2, 1, 0 ] );
+        $date = sprintf( '%02d:%02d.%02d', ( gmtime $time )[ 2, 1, 0 ] );
 
         my ( $day, $month, $year ) = ( gmtime $time )[ 3, 4, 5 ];
         my $newlogDate =
-          sprintf( "%04d%02d%02d", $year + 1900, $month + 1, $day );
+          sprintf( '%04d%02d%02d', $year + 1900, $month + 1, $day );
         if ( defined $logDate and $newlogDate != $logDate ) {
             &closeLog();
             &compress( $file{log} );
@@ -425,11 +425,11 @@ sub debug_perl {
         &status("WARN: cannot open $file: $!");
         return;
     }
-    binmode( IN, ":encoding(UTF-8)" );
+    binmode( IN, ':encoding(UTF-8)' );
 
     # TODO: better filename.
-    open( OUT, ">>debug.log" );
-    binmode( OUT, ":encoding(UTF-8)" );
+    open( OUT, '>>debug.log' );
+    binmode( OUT, ':encoding(UTF-8)' );
     print OUT "DEBUG: $str\n";
 
     # note: cannot call external functions because SIG{} does not allow us to.
@@ -465,7 +465,7 @@ sub openSQLDebug {
         delete $param{'SQLDebug'};
         return 0;
     }
-    binmode( SQLDEBUG, ":encoding(UTF-8)" );
+    binmode( SQLDEBUG, ':encoding(UTF-8)' );
 
     &status("Opened SQL Debug file: $param{'SQLDebug'}");
     return 1;

@@ -32,7 +32,7 @@ sub process {
 
     &shmFlush();                     # hack.
 
-    # hack to support channel +o as "+o" in bot user file.
+    # hack to support channel +o as '+o' in bot user file.
     # requires +O in user file.
     # is $who arg lowercase?
     if ( exists $channels{$chan}{o}{ $orig{who} } && &IsFlag('O') eq 'O' ) {
@@ -44,7 +44,7 @@ sub process {
     if ($lobotomized) {
         if ( $addressed and IsFlag('o') eq 'o' ) {
             my $delta_time = time() - ( $cache{lobotomy}{$who} || 0 );
-            &msg( $who, "give me an unlobotomy." ) if ( $delta_time > 60 * 60 );
+            &msg( $who, 'give me an unlobotomy.' ) if ( $delta_time > 60 * 60 );
             $cache{lobotomy}{$who} = time();
         }
         return 'LOBOTOMY' unless IsFlag('A');
@@ -105,7 +105,7 @@ sub process {
         my @array = split / /, $message;
 
         if ( $who =~ /^_default$/i ) {
-            &performStrictReply("you are too eleet.");
+            &performStrictReply('you are too eleet.');
             return;
         }
 
@@ -147,7 +147,7 @@ sub process {
         my @array = split ' ', $message;
 
         if ( $who =~ /^_default$/i ) {
-            &performStrictReply("you are too eleet.");
+            &performStrictReply('you are too eleet.');
             return;
         }
 
@@ -171,7 +171,7 @@ sub process {
         }
 
         if ($first) {
-            &performStrictReply("First time user... adding you as Master.");
+            &performStrictReply('First time user... adding you as Master.');
             $users{$who}{FLAGS} = 'aemnorst';
         }
 
@@ -182,7 +182,7 @@ sub process {
         }
 
         if ( !defined $host ) {
-            &WARN("pass: host == NULL.");
+            &WARN('pass: host == NULL.');
             return;
         }
 
@@ -259,11 +259,11 @@ sub process {
         return '' unless ($talkok);
 
         # 'mynick: hi' or 'hi mynick' or 'hi'.
-        &status("somebody said hello");
+        &status('somebody said hello');
 
         # 50% chance of replying to a random greeting when not addressed
         if ( !defined $5 and $addressed == 0 and rand() < 0.5 ) {
-            &status("not returning unaddressed greeting");
+            &status('not returning unaddressed greeting');
             return;
         }
 
@@ -309,7 +309,7 @@ sub process {
         && &IsChanConfOrWarn('karma') )
     {
 
-    # to request factoids such as "g++" or "libstdc++", append "?" to the query.
+    # to request factoids such as 'g++' or 'libstdc++', append '?' to the query.
         my ( $term, $inc ) = ( lc $1, $2 );
 
         if ( lc $term eq lc $who ) {
@@ -370,7 +370,7 @@ sub process {
         &FactoidStuff();
     }
     elsif ( $param{'DBType'} =~ /^none$/i ) {
-        return "NO FACTOIDS.";
+        return 'NO FACTOIDS.';
     }
     else {
         &ERROR("INVALID FACTOID SUPPORT? ($param{'DBType'})");

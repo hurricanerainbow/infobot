@@ -30,7 +30,7 @@ sub chaninfo {
         ### line 1.
         foreach ( keys %channels ) {
             if ( /^\s*$/ or / / ) {
-                &status("chanstats: fe channels: chan == NULL.");
+                &status('chanstats: fe channels: chan == NULL.');
 
                 #&ircCheck();
                 next;
@@ -42,7 +42,7 @@ sub chaninfo {
         foreach $chan ( sort { $chans{$b} <=> $chans{$a} } keys %chans ) {
             push( @array, "$chan/" . $chans{$chan} );
         }
-        &performStrictReply( $reply . ": " . join( ', ', @array ) );
+        &performStrictReply( $reply . ': ' . join( ', ', @array ) );
 
         ### total user count.
         foreach $chan ( keys %channels ) {
@@ -66,7 +66,7 @@ sub chaninfo {
               . &fixPlural( 'user', $uucount )
               . ", distributed over \002$chans\002 "
               . &fixPlural( 'channel', $chans )
-              . "." );
+              . '.' );
         &ircCheck();
 
         return;
@@ -90,7 +90,7 @@ sub chaninfo {
     my $reply =
         "On \002$chan\002, there "
       . &fixPlural( 'has', scalar(@array) )
-      . " been "
+      . ' been '
       . &IJoin(@array);
 
     # Step 1b: check channel inconstencies.
@@ -108,7 +108,7 @@ sub chaninfo {
         );
 
         if ( $delta_stats > $total ) {
-            &ERROR("chaninfo: delta_stats exceeds total users.");
+            &ERROR('chaninfo: delta_stats exceeds total users.');
         }
     }
 
@@ -125,7 +125,7 @@ sub chaninfo {
 
         push( @array, "\002$int\002 $type" );
     }
-    $reply .= ".  At the moment, " . &IJoin(@array);
+    $reply .= '.  At the moment, ' . &IJoin(@array);
 
     # Step 3:
     my %new;
@@ -153,7 +153,7 @@ sub cmdstats {
     my @array;
 
     if ( !scalar( keys %cmdstats ) ) {
-        &performReply("no-one has run any commands yet");
+        &performReply('no-one has run any commands yet');
         return;
     }
 
@@ -170,7 +170,7 @@ sub cmdstats {
             push( @array, "\002$int\002 of $_" );
         }
     }
-    &performStrictReply( "command usage include " . &IJoin(@array) . "." );
+    &performStrictReply( 'command usage include ' . &IJoin(@array) . '.' );
 }
 
 # Factoid extension info. xk++
@@ -180,7 +180,7 @@ sub factinfo {
 
     if ( $faqtoid =~ /^\-(\S+)(\s+(.*))$/ ) {
         &msg( $who,
-            "error: individual factoid info queries not supported as yet." );
+            'error: individual factoid info queries not supported as yet.' );
         &msg( $who,
             "it's possible that the factoid mistakenly begins with '-'." );
         return;
@@ -301,7 +301,7 @@ sub tell {
         $message = $tell_obj;
         $done++ unless ( &Modules() );
 
-        &VERB( "tell: setting old values of who and msgType.", 2 );
+        &VERB( 'tell: setting old values of who and msgType.', 2 );
         $who     = $oldwho;
         $msgType = $oldmtype;
 
@@ -336,7 +336,7 @@ sub tell {
 
 sub countryStats {
     if ( exists $cache{countryStats} ) {
-        &msg( $who, "countrystats is already running!" );
+        &msg( $who, 'countrystats is already running!' );
         return;
     }
 
@@ -381,17 +381,17 @@ sub do_countrystats {
 
     my @list;
     foreach ( sort { $b <=> $a } keys %count ) {
-        my $str = join( ", ", sort keys %{ $count{$_} } );
+        my $str = join( ', ', sort keys %{ $count{$_} } );
 
         #	push(@list, "$str ($_)");
-        my $perc = sprintf( "%.01f", 100 * $_ / $total );
+        my $perc = sprintf( '%.01f', 100 * $_ / $total );
         $perc =~ s/\.0+$//;
         push( @list, "$str ($_, $perc %)" );
     }
 
     # TODO: move this into a scheduler
     $msgType = 'private';
-    &performStrictReply( &formListReply( 0, "Country Stats ", @list ) );
+    &performStrictReply( &formListReply( 0, 'Country Stats ', @list ) );
 
     delete $cache{countryStats};
     delete $cache{on_who_Hack};
@@ -405,10 +405,10 @@ sub userCommands {
 
     # conversion: ascii.
     if ( $message =~ /^(asci*|chr) (\d+)$/ ) {
-        &DEBUG("ascii/chr called ...");
+        &DEBUG('ascii/chr called ...');
         return unless ( &IsChanConfOrWarn('allowConv') );
 
-        &DEBUG("ascii/chr called");
+        &DEBUG('ascii/chr called');
 
         $arg    = $2;
         $result = chr($arg);
@@ -455,13 +455,13 @@ sub userCommands {
         }
 
         if ( length $arg > 80 ) {
-            &msg( $who, "Too long." );
+            &msg( $who, 'Too long.' );
             return;
         }
 
         my $retval;
         foreach ( split //, $arg ) {
-            $retval .= sprintf( " %X", ord($_) );
+            $retval .= sprintf( ' %X', ord($_) );
         }
 
         &performStrictReply("$arg is$retval");
@@ -516,7 +516,7 @@ sub userCommands {
         return unless ( &hasFlag('n') );
 
         &status("USER reload $who");
-        &performStrictReply("reloading...");
+        &performStrictReply('reloading...');
         my $modules = &reloadAllModules();
         &performStrictReply("reloaded:$modules");
         return;
@@ -532,26 +532,26 @@ sub userCommands {
             return;
         }
 
-        my $val = &getFactInfo( $factoid, "factoid_value" );
+        my $val = &getFactInfo( $factoid, 'factoid_value' );
         if ( !defined $val or $val eq '' ) {
             &msg( $who, "error: '$factoid' does not exist." );
             return;
         }
         &DEBUG("val => '$val'.");
         my @list =
-          &searchTable( 'factoids', "factoid_key", "factoid_value", "^$val\$" );
+          &searchTable( 'factoids', 'factoid_key', 'factoid_value', "^$val\$" );
 
         if ( scalar @list == 1 ) {
             &msg( $who, "hrm... '$factoid' is unique." );
             return;
         }
         if ( scalar @list > 5 ) {
-            &msg( $who, "A bit too many factoids to be redirected, hey?" );
+            &msg( $who, 'A bit too many factoids to be redirected, hey?' );
             return;
         }
 
         my @redir;
-        &status( "Redirect '$factoid' (" . ($#list) . ")..." );
+        &status( "Redirect '$factoid' (" . ($#list) . ')...' );
         for (@list) {
             my $x = $_;
             next if (/^\Q$factoid\E$/i);
@@ -559,15 +559,15 @@ sub userCommands {
             &status("  Redirecting '$_'.");
             my $was = &getFactoid($_);
             if ( $was =~ /<REPLY> see/i ) {
-                &status("warn: not redirecting a redirection.");
+                &status('warn: not redirecting a redirection.');
                 next;
             }
 
             &DEBUG("  was '$was'.");
             push( @redir, $x );
-            &setFactInfo( $x, "factoid_value", "<REPLY> see $factoid" );
+            &setFactInfo( $x, 'factoid_value', "<REPLY> see $factoid" );
         }
-        &status("Done.");
+        &status('Done.');
 
         &msg( $who,
             &formListReply( 0, "'$factoid' is redirected to by '", @redir ) );
@@ -602,7 +602,7 @@ sub userCommands {
     # cpustats.
     if ( $message =~ /^cpustats$/i ) {
         if ( $^O !~ /linux/ ) {
-            &ERROR("cpustats: your OS is not supported yet.");
+            &ERROR('cpustats: your OS is not supported yet.');
             return;
         }
 
@@ -614,10 +614,10 @@ sub userCommands {
         close STAT;
 
         # utime(13) + stime(14).
-        my $cpu_usage = sprintf( "%.01f", ( $data[13] + $data[14] ) / 100 );
+        my $cpu_usage = sprintf( '%.01f', ( $data[13] + $data[14] ) / 100 );
 
         # cutime(15) + cstime (16).
-        my $cpu_usage2 = sprintf( "%.01f", ( $data[15] + $data[16] ) / 100 );
+        my $cpu_usage2 = sprintf( '%.01f', ( $data[15] + $data[16] ) / 100 );
         my $time       = time() - $^T;
         my $raw_perc   = $cpu_usage * 100 / $time;
         my $raw_perc2  = $cpu_usage2 * 100 / $time;
@@ -627,21 +627,21 @@ sub userCommands {
         my $ratio;
 
         if ( $raw_perc > 1 ) {
-            $perc  = sprintf( "%.01f", $raw_perc );
-            $perc2 = sprintf( "%.01f", $raw_perc2 );
-            $total = sprintf( "%.01f", $raw_perc + $raw_perc2 );
+            $perc  = sprintf( '%.01f', $raw_perc );
+            $perc2 = sprintf( '%.01f', $raw_perc2 );
+            $total = sprintf( '%.01f', $raw_perc + $raw_perc2 );
         }
         elsif ( $raw_perc > 0.1 ) {
-            $perc  = sprintf( "%.02f", $raw_perc );
-            $perc2 = sprintf( "%.02f", $raw_perc2 );
-            $total = sprintf( "%.02f", $raw_perc + $raw_perc2 );
+            $perc  = sprintf( '%.02f', $raw_perc );
+            $perc2 = sprintf( '%.02f', $raw_perc2 );
+            $total = sprintf( '%.02f', $raw_perc + $raw_perc2 );
         }
         else {    # <=0.1
-            $perc  = sprintf( "%.03f", $raw_perc );
-            $perc2 = sprintf( "%.03f", $raw_perc2 );
-            $total = sprintf( "%.03f", $raw_perc + $raw_perc2 );
+            $perc  = sprintf( '%.03f', $raw_perc );
+            $perc2 = sprintf( '%.03f', $raw_perc2 );
+            $total = sprintf( '%.03f', $raw_perc + $raw_perc2 );
         }
-        $ratio = sprintf( "%.01f", 100 * $perc / ( $perc + $perc2 ) );
+        $ratio = sprintf( '%.01f', 100 * $perc / ( $perc + $perc2 ) );
 
         &performStrictReply( "Total CPU usage: \002$cpu_usage\002 s ... "
               . "Total used: \002$total\002 % "
@@ -663,7 +663,7 @@ sub userCommands {
 
         my $connectivity =
           100 * ( $total_time - $ircstats{'OffTime'} ) / $total_time;
-        my $p = sprintf( "%.03f", $connectivity );
+        my $p = sprintf( '%.03f', $connectivity );
         $p =~ s/(\.\d*)0+$/$1/;
         if ( $p =~ s/\.0$// ) {
 

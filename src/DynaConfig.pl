@@ -42,7 +42,7 @@ sub readUserFile {
     my $f = "$bot_state_dir/infobot.users";
 
     if ( !-f $f ) {
-        &DEBUG("userfile not found; new fresh run detected.");
+        &DEBUG('userfile not found; new fresh run detected.');
         return;
     }
 
@@ -51,7 +51,7 @@ sub readUserFile {
         my $s2 = -s "$f~";
 
         if ( $s2 > $s1 * 3 ) {
-            &FIXME("rUF: backup file bigger than current file.");
+            &FIXME('rUF: backup file bigger than current file.');
         }
     }
 
@@ -67,7 +67,7 @@ sub readUserFile {
 
     my $ver = <IN>;
     if ( $ver !~ /^#v1/ ) {
-        &ERROR("old or invalid user file found.");
+        &ERROR('old or invalid user file found.');
         &closeLog();
         exit 1;       # correct?
     }
@@ -145,7 +145,7 @@ sub readUserFile {
 
     &status(
         sprintf(
-            "USERFILE: Loaded: %d users, %d bans, %d ignore",
+            'USERFILE: Loaded: %d users, %d bans, %d ignore',
             scalar( keys %users ) - 1,
             scalar( keys %bans ),      # ??
             scalar( keys %ignore ),    # ??
@@ -155,7 +155,7 @@ sub readUserFile {
 
 sub writeUserFile {
     if ( !scalar keys %users ) {
-        &DEBUG("wUF: nothing to write.");
+        &DEBUG('wUF: nothing to write.');
         return;
     }
 
@@ -263,7 +263,7 @@ sub writeUserFile {
 "--- Saved USERFILE ($cusers users; $cbans bans; $cignore ignore) at $time"
     );
     if ( defined $msgType and $msgType =~ /^chat$/ ) {
-        &performStrictReply("--- Writing user file...");
+        &performStrictReply('--- Writing user file...');
     }
 }
 
@@ -278,7 +278,7 @@ sub readChanFile {
         my $s2 = -s "$f~";
 
         if ( $s2 > $s1 * 3 ) {
-            &FIXME("rCF: backup file bigger than current file.");
+            &FIXME('rCF: backup file bigger than current file.');
         }
     }
 
@@ -336,12 +336,12 @@ sub readChanFile {
     }
 
     &status(
-        "CHANFILE: Loaded: " . ( scalar( keys %chanconf ) - 1 ) . " chans" );
+        'CHANFILE: Loaded: ' . ( scalar( keys %chanconf ) - 1 ) . ' chans' );
 }
 
 sub writeChanFile {
     if ( !scalar keys %chanconf ) {
-        &DEBUG("wCF: nothing to write.");
+        &DEBUG('wCF: nothing to write.');
         return;
     }
 
@@ -365,7 +365,7 @@ sub writeChanFile {
             foreach ( keys %chanconf ) {
                 $chan = $_;
 
-                next if ( $chan eq "_default" );
+                next if ( $chan eq '_default' );
                 next unless ( exists $chanconf{$chan}{$opt} );
                 next unless ( $val eq $chanconf{$chan}{$opt} );
 
@@ -385,7 +385,7 @@ sub writeChanFile {
         my ( %optsval, %opts );
         foreach ( keys %chanconf ) {
             $chan = $_;
-            next if ( $chan eq "_default" );
+            next if ( $chan eq '_default' );
             my $opt;
 
             foreach ( keys %{ $chanconf{$chan} } ) {
@@ -438,12 +438,12 @@ sub writeChanFile {
     close OUT;
 
     $wtime_chanfile = time();
-    &status("--- Saved CHANFILE ("
+    &status('--- Saved CHANFILE ('
           . scalar( keys %chanconf )
           . " chans) at $time" );
 
     if ( defined $msgType and $msgType =~ /^chat$/ ) {
-        &performStrictReply("--- Writing chan file...");
+        &performStrictReply('--- Writing chan file...');
     }
 }
 
@@ -483,7 +483,7 @@ sub verifyUser {
     $userHandle = '';
 
     foreach $user ( keys %users ) {
-        next if ( $user eq "_default" );
+        next if ( $user eq '_default' );
 
         foreach $m ( keys %{ $users{$user}{HOSTS} } ) {
             $m =~ s/\?/./g;
@@ -510,7 +510,7 @@ sub verifyUser {
         }
     }
 
-    $userHandle ||= "_default";
+    $userHandle ||= '_default';
 
     # what's talkchannel for?
     $talkWho{$talkchannel} = $who if ( defined $talkchannel );
@@ -616,7 +616,7 @@ sub ignoreDel {
             push( @match, $chan );
         }
 
-        &DEBUG( "iD: scalar => " . scalar( keys %{ $ignore{$chan} } ) );
+        &DEBUG( 'iD: scalar => ' . scalar( keys %{ $ignore{$chan} } ) );
     }
 
     if ( scalar @match ) {
@@ -710,7 +710,7 @@ sub banDel {
             push( @match, $chan );
         }
 
-        &DEBUG( "bans: scalar => " . scalar( keys %{ $bans{$chan} } ) );
+        &DEBUG( 'bans: scalar => ' . scalar( keys %{ $bans{$chan} } ) );
     }
 
     if ( scalar @match ) {
@@ -736,7 +736,7 @@ sub getUser {
     my ($user) = @_;
 
     if ( !defined $user ) {
-        &WARN("getUser: user == NULL.");
+        &WARN('getUser: user == NULL.');
         return;
     }
 
@@ -757,7 +757,7 @@ sub getUser {
 sub chanSet {
     my ( $cmd, $chan, $what, $val ) = @_;
 
-    if ( $cmd eq "+chan" ) {
+    if ( $cmd eq '+chan' ) {
         if ( exists $chanconf{$chan} ) {
             &performStrictReply("chan $chan already exists.");
             return;
@@ -779,10 +779,10 @@ sub chanSet {
     my $update = 0;
 
     if ( defined $what and $what =~ s/^([+-])(\S+)/$2/ ) {
-        ### ".chanset +blah"
-        ### ".chanset +blah 10"		-- error.
+        ### '.chanset +blah'
+        ### '.chanset +blah 10'		-- error.
 
-        my $set = ( $1 eq "+" ) ? 1 : 0;
+        my $set = ( $1 eq '+' ) ? 1 : 0;
         my $was = $chanconf{$chan}{$what};
 
         if ($set) {    # add/set.
@@ -821,7 +821,7 @@ sub chanSet {
 
     }
     elsif ( defined $val ) {
-        ### ".chanset blah testing"
+        ### '.chanset blah testing'
 
         my $was = $chanconf{$chan}{$what};
         if ( defined $was and $was eq $val ) {
@@ -838,11 +838,11 @@ sub chanSet {
 
     }
     else {    # read only.
-        ### ".chanset"
-        ### ".chanset blah"
+        ### '.chanset'
+        ### '.chanset blah'
 
         if ( !defined $what ) {
-            &WARN("chanset/DC: what == undefine.");
+            &WARN('chanset/DC: what == undefine.');
             return;
         }
 
@@ -892,7 +892,7 @@ sub rehashConfVars {
         }
     }
 
-    &DEBUG("end of rehashConfVars");
+    &DEBUG('end of rehashConfVars');
 
     delete $cache{confvars};
 }

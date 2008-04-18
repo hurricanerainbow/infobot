@@ -468,7 +468,7 @@ sub on_endofnames {
 
     &chanServCheck($chan);
 
-    # schedule used to solve ircu (OPN) "target too fast" problems.
+    # schedule used to solve ircu (OPN) 'target too fast' problems.
     $conn->schedule( 5, sub { &joinNextChan(); } );
 }
 
@@ -825,10 +825,10 @@ sub on_notice {
         $check++ if ( $args =~ /nickname.*owned/i );
 
         if ($check) {
-            &status("nickserv told us to register; doing it.");
+            &status('nickserv told us to register; doing it.');
 
             if ( &IsParam('nickServ_pass') ) {
-                &status("NickServ: ==> Identifying.");
+                &status('NickServ: ==> Identifying.');
                 &rawout("PRIVMSG NickServ :IDENTIFY $param{'nickServ_pass'}");
                 return;
             }
@@ -845,7 +845,7 @@ sub on_notice {
                 next unless &chanServCheck($_);
                 next if ($done);
                 &DEBUG(
-                    "nickserv activated or restarted; doing chanserv check.");
+                    'nickserv activated or restarted; doing chanserv check.');
                 $done++;
             }
 
@@ -874,7 +874,7 @@ sub on_other {
     my $chan    = ( $event->to )[0];
     my $nick    = $event->nick;
 
-    &status("!!! other called.");
+    &status('!!! other called.');
     &status("!!! $event->args");
 }
 
@@ -928,7 +928,7 @@ sub on_ping_reply {
     my $nick    = $event->nick;
     my $t       = ( $event->args )[1];
     if ( !defined $t ) {
-        &WARN("on_ping_reply: t == undefined.");
+        &WARN('on_ping_reply: t == undefined.');
         return;
     }
 
@@ -954,7 +954,7 @@ sub on_public {
 
     # rare case should this happen - catch it just in case.
     if ( $bot_pid != $$ ) {
-        &ERROR("run-away fork; exiting.");
+        &ERROR('run-away fork; exiting.');
         &delForked($forker);
     }
 
@@ -969,7 +969,7 @@ sub on_public {
     # cache it.
     my $time = time();
     if ( !$cache{ircTextCounters} ) {
-        &DEBUG("caching ircTextCounters for first time.");
+        &DEBUG('caching ircTextCounters for first time.');
         my @str = split( /\s+/, &getChanConf('ircTextCounters') );
         for (@str) { $_ = quotemeta($_); }
         $cache{ircTextCounters} = join( '|', @str );
@@ -982,7 +982,7 @@ sub on_public {
         &VERB( "textcounters: $x matched for $who", 2 );
         my $c = $chan || 'PRIVATE';
 
-        # better to do "counter=counter+1".
+        # better to do 'counter=counter+1'.
         # but that will avoid time check.
         my ( $v, $t ) = &sqlSelect(
             'stats',

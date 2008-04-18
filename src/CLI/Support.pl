@@ -11,15 +11,15 @@ my $postprocess;
 use vars qw($uh $message);
 
 sub cliloop {
-    &status("Using CLI...");
-    &status("Now type what you want.");
+    &status('Using CLI...');
+    &status('Now type what you want.');
 
     $nuh       = "local!local\@local";
     $uh        = "local\@local";
     $who       = 'local';
     $orig{who} = 'local';
     $ident     = $param{'ircUser'};
-    $chan      = $talkchannel = "_local";
+    $chan      = $talkchannel = '_local';
     $addressed = 1;
     $msgType   = 'private';
     $host      = 'local';
@@ -43,7 +43,7 @@ sub cliloop {
 sub msg {
     my ( $nick, $msg ) = @_;
     if ( !defined $nick ) {
-        &ERROR("msg: nick == NULL.");
+        &ERROR('msg: nick == NULL.');
         return;
     }
 
@@ -72,12 +72,12 @@ sub msg {
 sub action {
     my ( $target, $txt ) = @_;
     if ( !defined $txt ) {
-        &WARN("action: txt == NULL.");
+        &WARN('action: txt == NULL.');
         return;
     }
 
     if ( length $txt > 480 ) {
-        &status("action: txt too long; truncating.");
+        &status('action: txt too long; truncating.');
         chop($txt) while ( length $txt > 480 );
     }
 

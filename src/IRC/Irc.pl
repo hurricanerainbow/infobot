@@ -39,14 +39,14 @@ sub ircloop {
 
         # JUST IN CASE. irq was complaining about this.
         if ( $lastrun == time() ) {
-            &DEBUG("ircloop: hrm... lastrun == time()");
+            &DEBUG('ircloop: hrm... lastrun == time()');
             $error++;
             sleep 10;
             next;
         }
 
         if ( !defined $host ) {
-            &DEBUG("ircloop: ircServers[x] = NULL.");
+            &DEBUG('ircloop: ircServers[x] = NULL.');
             $lastrun = time();
             next;
         }
@@ -57,19 +57,19 @@ sub ircloop {
         $error++;
 
         if ( $error % 3 == 0 and $error != 0 ) {
-            &status("IRC: Could not connect.");
-            &status("IRC: ");
+            &status('IRC: Could not connect.');
+            &status('IRC: ');
             next;
         }
 
         if ( $error >= 3 * 2 ) {
-            &status("IRC: cannot connect to any IRC servers; stopping.");
+            &status('IRC: cannot connect to any IRC servers; stopping.');
             &shutdown();
             exit 1;
         }
     }
 
-    &status("IRC: ok, done one cycle of IRC servers; trying again.");
+    &status('IRC: ok, done one cycle of IRC servers; trying again.');
 
     &loadIRCServers();
     goto loop;
@@ -119,16 +119,16 @@ sub irc {
         $args{'Nick'} = $mynick;
         $conns{$mynick} = $irc->newconn(%args);
         if ( !defined $conns{$mynick} ) {
-            &ERROR("IRC: connection failed.");
+            &ERROR('IRC: connection failed.');
             &ERROR(
 "add \"set ircHost 0.0.0.0\" to your config. If that does not work"
             );
             &ERROR(
-"Please check /etc/hosts to see if you have a localhost line like:"
+'Please check /etc/hosts to see if you have a localhost line like:'
             );
-            &ERROR("127.0.0.1   localhost    localhost");
+            &ERROR('127.0.0.1   localhost    localhost');
             &ERROR(
-                "If this is still a problem, please contact the maintainer.");
+                'If this is still a problem, please contact the maintainer.');
         }
         $conns{$mynick}->maxlinelen($maxlinelen);
 
@@ -200,7 +200,7 @@ sub irc {
     # should likely listen on a tcp port instead
     #$irc->addfh(STDIN, \&on_stdin, 'r');
 
-    &status("starting main loop");
+    &status('starting main loop');
 
     $irc->start;
 }
@@ -234,7 +234,7 @@ sub say {
     }
 
     if ( &getChanConf( 'silent', $talkchannel )
-        and not( &IsFlag("s") and &verifyUser( $who, $nuh{ lc $who } ) ) )
+        and not( &IsFlag('s') and &verifyUser( $who, $nuh{ lc $who } ) ) )
     {
         &DEBUG("say: silent in $talkchannel, not saying $msg");
         return;
@@ -286,7 +286,7 @@ sub say {
 sub msg {
     my ( $nick, $msg ) = @_;
     if ( !defined $nick ) {
-        &ERROR("msg: nick == NULL.");
+        &ERROR('msg: nick == NULL.');
         return;
     }
 
@@ -298,7 +298,7 @@ sub msg {
 
     # some say() end up here (eg +help)
     if ( &getChanConf( 'silent', $nick )
-        and not( &IsFlag("s") and &verifyUser( $who, $nuh{ lc $who } ) ) )
+        and not( &IsFlag('s') and &verifyUser( $who, $nuh{ lc $who } ) ) )
     {
         &DEBUG("msg: silent in $nick, not saying $msg");
         return;
@@ -338,19 +338,19 @@ sub action {
     my $mynick = $conn->nick();
     my ( $target, $txt ) = @_;
     if ( !defined $txt ) {
-        &WARN("action: txt == NULL.");
+        &WARN('action: txt == NULL.');
         return;
     }
 
     if ( &getChanConf( 'silent', $target )
-        and not( &IsFlag("s") and &verifyUser( $who, $nuh{ lc $who } ) ) )
+        and not( &IsFlag('s') and &verifyUser( $who, $nuh{ lc $who } ) ) )
     {
         &DEBUG("action: silent in $target, not doing $txt");
         return;
     }
 
     if ( length $txt > 480 ) {
-        &status("action: txt too long; truncating.");
+        &status('action: txt too long; truncating.');
         chop($txt) while ( length $txt > 480 );
     }
 
@@ -362,7 +362,7 @@ sub action {
 sub notice {
     my ( $target, $txt ) = @_;
     if ( !defined $txt ) {
-        &WARN("notice: txt == NULL.");
+        &WARN('notice: txt == NULL.');
         return;
     }
 
@@ -414,7 +414,7 @@ sub performReply {
     my ($reply) = @_;
 
     if ( !defined $reply or $reply =~ /^\s*$/ ) {
-        &DEBUG("performReply: reply == NULL.");
+        &DEBUG('performReply: reply == NULL.');
         return;
     }
 
@@ -492,7 +492,7 @@ sub dccsay {
     my ( $who, $reply ) = @_;
 
     if ( !defined $reply or $reply =~ /^\s*$/ ) {
-        &WARN("dccsay: reply == NULL.");
+        &WARN('dccsay: reply == NULL.');
         return;
     }
 
@@ -537,7 +537,7 @@ sub joinchan {
     return if ( $conn->join( $chan, $key ) );
     return if ( &validChan($chan) );
 
-    &DEBUG("joinchan: join failed. trying connect!");
+    &DEBUG('joinchan: join failed. trying connect!');
     &clearIRCVars();
     $conn->connect();
 
@@ -571,7 +571,7 @@ sub part {
 
 sub mode {
     my ( $chan, @modes ) = @_;
-    my $modes = join( " ", @modes );
+    my $modes = join( ' ', @modes );
 
     if ( &validChan($chan) == 0 ) {
         &ERROR("mode: invalid chan => '$chan'.");
@@ -676,11 +676,11 @@ sub unban {
 sub quit {
     my ($quitmsg) = @_;
     if ( defined $conn ) {
-        &status( "QUIT " . $conn->nick() . " has quit IRC ($quitmsg)" );
+        &status( 'QUIT ' . $conn->nick() . " has quit IRC ($quitmsg)" );
         $conn->quit($quitmsg);
     }
     else {
-        &WARN("quit: could not quit!");
+        &WARN('quit: could not quit!');
     }
 }
 
@@ -689,12 +689,12 @@ sub nick {
     my $mynick = $conn->nick();
 
     if ( !defined $newnick ) {
-        &ERROR("nick: nick == NULL.");
+        &ERROR('nick: nick == NULL.');
         return;
     }
 
     if ( !defined $mynick ) {
-        &WARN("nick: mynick == NULL.");
+        &WARN('nick: mynick == NULL.');
         return;
     }
 
@@ -705,7 +705,7 @@ sub nick {
     if ($bad) {
         &WARN(  "Nick: not going to try to change from $mynick to $newnick. ["
               . scalar(gmtime)
-              . "]" );
+              . ']' );
 
         # hrm... over time we lose track of our own nick.
         #return;
@@ -759,8 +759,8 @@ sub joinNextChan {
         my $timestr = &Time2String($delta);
 
         # FIXME: @join should be @in instead (hacked to 10)
-        #my $rate	= sprintf("%.1f", $delta / @in);
-        my $rate = sprintf( "%.1f", $delta / 10 );
+        #my $rate	= sprintf('%.1f', $delta / @in);
+        my $rate = sprintf( '%.1f', $delta / 10 );
         delete $cache{joinTime};
 
         &status("time taken to join all chans: $timestr; rate: $rate sec/join");
@@ -799,7 +799,7 @@ sub IsNickInChan {
     $chan =~ tr/A-Z/a-z/;    # not lowercase unfortunately.
 
     if ( $chan =~ /^$/ ) {
-        &DEBUG("INIC: chan == NULL.");
+        &DEBUG('INIC: chan == NULL.');
         return 0;
     }
 
@@ -814,7 +814,7 @@ sub IsNickInChan {
     else {
         foreach ( keys %channels ) {
             next unless (/[A-Z]/);
-            &DEBUG("iNIC: hash channels contains mixed cased chan!!!");
+            &DEBUG('iNIC: hash channels contains mixed cased chan!!!');
         }
         return 0;
     }
@@ -850,7 +850,7 @@ sub validChan {
     if ( defined $channels{$chan} or exists $channels{$chan} ) {
         if ( $chan =~ /^_?default$/ ) {
 
-            #	    &WARN("validC: chan cannot be _default! returning 0!");
+            #	    &WARN('validC: chan cannot be _default! returning 0!');
             return 0;
         }
 
@@ -901,7 +901,7 @@ sub getJoinChans {
     my @skip;
     my @join;
 
-    # Display "Chans:" only if more than $show seconds since last display
+    # Display 'Chans:' only if more than $show seconds since last display
     if ( time() - $lastChansTime > $show ) {
         $lastChansTime = time();
     }
@@ -959,7 +959,7 @@ sub getJoinChans {
 
 sub closeDCC {
 
-    #    &DEBUG("closeDCC called.");
+    #    &DEBUG('closeDCC called.');
     my $type;
 
     foreach $type ( keys %dcc ) {

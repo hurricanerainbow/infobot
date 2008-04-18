@@ -21,8 +21,8 @@ sub hookMode {
 
         # sign. tmp parity needed to store current state
         if ( $mode =~ /[-+]/ ) {
-            $parity = 1 if ( $mode eq "+" );
-            $parity = 0 if ( $mode eq "-" );
+            $parity = 1 if ( $mode eq '+' );
+            $parity = 0 if ( $mode eq '-' );
             next;
         }
 
@@ -47,7 +47,7 @@ sub hookMode {
                 # lets do some custom stuff.
                 if ( $mode =~ /o/ and not $parity ) {
                     if ( $target =~ /^\Q$ident\E$/i ) {
-                        &VERB( "hookmode: someone deopped us!", 2 );
+                        &VERB( 'hookmode: someone deopped us!', 2 );
                         &chanServCheck($chan);
                     }
 
@@ -141,10 +141,10 @@ sub hookMsg {
     else {
 
         # dcc?
-        &FIXME("floodwho = ???");
+        &FIXME('floodwho = ???');
     }
 
-    my $val = &getChanConfDefault( 'floodRepeat', "2:5", $c );
+    my $val = &getChanConfDefault( 'floodRepeat', '2:5', $c );
     my ( $count, $interval ) = split /:/, $val;
 
     # flood repeat protection.
@@ -171,9 +171,9 @@ sub hookMsg {
             }
             &msg( $who,
                     join( ' ', @who )
-                  . " already said that "
+                  . ' already said that '
                   . ( time - $time )
-                  . " seconds ago" );
+                  . ' seconds ago' );
 
             ### TODO: delete old floodwarn{} keys.
             my $floodwarn = 0;
@@ -208,12 +208,12 @@ sub hookMsg {
 
         # unaddressed, public only.
 
-        ### TODO: use a separate "short-time" hash.
+        ### TODO: use a separate 'short-time' hash.
         my @data;
         @data = keys %{ $flood{$floodwho} } if ( exists $flood{$floodwho} );
     }
 
-    $val = &getChanConfDefault( 'floodMessages', "5:30", $c );
+    $val = &getChanConfDefault( 'floodMessages', '5:30', $c );
     ( $count, $interval ) = split /:/, $val;
 
     # flood overflow protection.
@@ -233,7 +233,7 @@ sub hookMsg {
             &status("FLOOD overflow detected from $floodwho; ignoring");
 
             &ignoreAdd( "*!$uh", $chan, $expire,
-                "flood overflow auto-detected." );
+                'flood overflow auto-detected.' );
             return;
         }
 
@@ -312,7 +312,7 @@ sub hookMsg {
 
     if ( defined $nuh ) {
         if ( !defined $userHandle ) {
-            &DEBUG("line 1074: need verifyUser?");
+            &DEBUG('line 1074: need verifyUser?');
             &verifyUser( $who, $nuh );
         }
     }
@@ -383,9 +383,9 @@ sub chanLimitVerify {
     &status("clc: big change in limit for $chan ($delta);"
           . "going for it. (was: $l; now: "
           . ( $count + $plus )
-          . ")" );
+          . ')' );
 
-    $conn->mode( $chan, "+l", $count + $plus );
+    $conn->mode( $chan, '+l', $count + $plus );
     $cache{chanlimitChange}{$chan} = time();
 }
 
@@ -393,7 +393,7 @@ sub chanServCheck {
     ($chan) = @_;
 
     if ( !defined $chan or $chan =~ /^\s*$/ ) {
-        &WARN("chanServCheck: chan == NULL.");
+        &WARN('chanServCheck: chan == NULL.');
         return 0;
     }
 

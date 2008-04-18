@@ -13,12 +13,12 @@ use vars qw($AUTOLOAD $no_timehires $bot_version $bot_release);
 ### REQUIRED MODULES.
 ###
 
-eval "use IO::Socket";
+eval 'use IO::Socket';
 if ($@) {
-    &ERROR("no IO::Socket?");
+    &ERROR('no IO::Socket?');
     exit 1;
 }
-&showProc(" (IO::Socket)");
+&showProc(' (IO::Socket)');
 
 ### THIS IS NOT LOADED ON RELOAD :(
 my @myModulesLoadNow;
@@ -35,7 +35,7 @@ BEGIN {
 sub loadCoreModules {
     my @mods = &getPerlFiles($bot_src_dir);
 
-    &status("Loading CORE modules...");
+    &status('Loading CORE modules...');
 
     foreach ( sort @mods ) {
         my $mod = "$bot_src_dir/$_";
@@ -58,31 +58,31 @@ sub loadDBModules {
     # TODO: use function to load module.
 
     if ( $param{'DBType'} =~ /^(mysql|SQLite(2)?|pgsql)$/i ) {
-        eval "use DBI";
+        eval 'use DBI';
         if ($@) {
-            &ERROR( "No support for DBI::" . $param{'DBType'} . ", exiting!" );
+            &ERROR( 'No support for DBI::' . $param{'DBType'} . ', exiting!' );
             exit 1;
         }
-        &status( "Loading " . $param{'DBType'} . " support." );
+        &status( 'Loading ' . $param{'DBType'} . ' support.' );
         $f = "$bot_src_dir/dbi.pl";
         require $f;
         $moduleAge{$f} = ( stat $f )[9];
 
-        &showProc( " (DBI::" . $param{'DBType'} . ")" );
+        &showProc( ' (DBI::' . $param{'DBType'} . ')' );
     }
     else {
-        &WARN("DB support DISABLED.");
+        &WARN('DB support DISABLED.');
         return;
     }
 }
 
 sub loadFactoidsModules {
     if ( !&IsParam('factoids') ) {
-        &status("Factoid support DISABLED.");
+        &status('Factoid support DISABLED.');
         return;
     }
 
-    &status("Loading Factoids modules...");
+    &status('Loading Factoids modules...');
 
     foreach ( &getPerlFiles("$bot_src_dir/Factoids") ) {
         my $mod = "$bot_src_dir/Factoids/$_";
@@ -101,17 +101,17 @@ sub loadFactoidsModules {
 sub loadIRCModules {
     my ($interface) = &whatInterface();
     if ( $interface =~ /IRC/ ) {
-        &status("Loading IRC modules...");
+        &status('Loading IRC modules...');
 
-        eval "use Net::IRC";
+        eval 'use Net::IRC';
         if ($@) {
-            &ERROR("libnet-irc-perl is not installed!");
+            &ERROR('libnet-irc-perl is not installed!');
             exit 1;
         }
-        &showProc(" (Net::IRC)");
+        &showProc(' (Net::IRC)');
     }
     else {
-        &status("IRC support DISABLED.");
+        &status('IRC support DISABLED.');
 
         # disabling forking. Why?
         #$param{forking}	= 0;
@@ -140,11 +140,11 @@ sub loadMyModulesNow {
     my $loaded = 0;
     my $total  = 0;
 
-    &status("Loading MyModules...");
+    &status('Loading MyModules...');
     foreach (@myModulesLoadNow) {
         $total++;
         if ( !defined $_ ) {
-            &WARN("mMLN: null element.");
+            &WARN('mMLN: null element.');
             next;
         }
 
@@ -165,11 +165,11 @@ sub loadMyModulesNow {
 sub reloadAllModules {
     my $retval = '';
 
-    &VERB( "Module: reloading all.", 2 );
+    &VERB( 'Module: reloading all.', 2 );
 
     # Reload version and save
-    open( VERSION, "<VERSION" );
-    $bot_release = <VERSION> || "(unknown version)";
+    open( VERSION, '<VERSION' );
+    $bot_release = <VERSION> || '(unknown version)';
     chomp($bot_release);
     $bot_version = "infobot $bot_release -- $^O";
     close(VERSION);
@@ -179,7 +179,7 @@ sub reloadAllModules {
         $retval .= &reloadModule($_);
     }
 
-    &VERB( "Module: reloading done.", 2 );
+    &VERB( 'Module: reloading done.', 2 );
     return $retval;
 }
 
@@ -277,7 +277,7 @@ sub loadPerlModule {
 sub loadMyModule {
     my ($modulename) = @_;
     if ( !defined $modulename ) {
-        &WARN("loadMyModule: module is NULL.");
+        &WARN('loadMyModule: module is NULL.');
         return 0;
     }
 
@@ -295,7 +295,7 @@ sub loadMyModule {
             &shutdown() if ( defined $shm and defined $dbh );
         }
         else {                     # child.
-            &DEBUG("b4 delfork 1");
+            &DEBUG('b4 delfork 1');
             &delForked($modulename);
         }
 
@@ -306,7 +306,7 @@ sub loadMyModule {
     if ($@) {
         &ERROR("cannot load my module: $modulename");
         if ( $bot_pid != $$ ) {    # child.
-            &DEBUG("b4 delfork 2");
+            &DEBUG('b4 delfork 2');
             &delForked($modulename);
             exit 1;
         }
@@ -323,16 +323,16 @@ sub loadMyModule {
 }
 
 $no_timehires = 0;
-eval "use Time::HiRes qw(gettimeofday tv_interval)";
+eval 'use Time::HiRes qw(gettimeofday tv_interval)';
 if ($@) {
-    &WARN("No Time::HiRes?");
+    &WARN('No Time::HiRes?');
     $no_timehires = 1;
 }
-&showProc(" (Time::HiRes)");
+&showProc(' (Time::HiRes)');
 
 sub AUTOLOAD {
     if ( !defined $AUTOLOAD and defined $::AUTOLOAD ) {
-        &DEBUG("AUTOLOAD: hrm.. ::AUTOLOAD defined!");
+        &DEBUG('AUTOLOAD: hrm.. ::AUTOLOAD defined!');
     }
     return unless ( defined $AUTOLOAD );
     return if ( $AUTOLOAD =~ /__/ );    # internal.

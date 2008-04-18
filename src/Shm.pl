@@ -16,7 +16,7 @@ sub openSHM {
     my $size        = 2000;
 
     if ( &IsParam('noSHM') ) {
-        &status("Shared memory: Disabled. WARNING: bot may become unreliable");
+        &status('Shared memory: Disabled. WARNING: bot may become unreliable');
         return 0;
     }
 
@@ -30,8 +30,8 @@ sub openSHM {
         return $_;
     }
     else {
-        &ERROR("openSHM: failed.");
-        &ERROR("Please delete some shared memory with ipcs or ipcrm.");
+        &ERROR('openSHM: failed.');
+        &ERROR('Please delete some shared memory with ipcs or ipcrm.');
         exit 1;
     }
 }
@@ -99,10 +99,10 @@ sub shmWrite {
     my $read = &shmRead($key);
     $read =~ s/\0+//g;
     if ( $read eq '' ) {
-        $str = sprintf( "%s:%d:%d: ", $param{ircUser}, $bot_pid, time() );
+        $str = sprintf( '%s:%d:%d: ', $param{ircUser}, $bot_pid, time() );
     }
     else {
-        $str = $read . "||" . $str;
+        $str = $read . '||' . $str;
     }
 
     if ( !shmwrite( $key, $str, $position, $size ) ) {
@@ -123,7 +123,7 @@ sub addForked {
     $forker = $name;
 
     if ( !defined $name ) {
-        &WARN("addForked: name == NULL.");
+        &WARN('addForked: name == NULL.');
         return 0;
     }
 
@@ -193,12 +193,12 @@ sub addForked {
 
         }
         elsif ( -d "/proc/$forked{$name}{PID}" ) {
-            &status("fork: still running; good. BAIL OUT.");
+            &status('fork: still running; good. BAIL OUT.');
             return 0;
 
         }
         else {
-            &WARN("Found dead fork; removing and resetting.");
+            &WARN('Found dead fork; removing and resetting.');
             $continue = 1;
         }
 
@@ -233,7 +233,7 @@ sub delForked {
     return if ( $$ == $bot_pid );
 
     if ( !defined $name ) {
-        &WARN("delForked: name == NULL.");
+        &WARN('delForked: name == NULL.');
         POSIX::_exit(0);
     }
 
@@ -288,7 +288,7 @@ sub shmFlush {
         if (/^DCC SEND (\S+) (\S+)$/) {
             my ( $nick, $file ) = ( $1, $2 );
             if ( exists $dcc{'SEND'}{$who} ) {
-                &msg( $nick, "DCC already active." );
+                &msg( $nick, 'DCC already active.' );
             }
             else {
                 &DEBUG("shm: dcc sending $2 to $1.");
