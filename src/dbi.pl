@@ -54,7 +54,7 @@ eval {
             $self->{dbh} = $self->{dbh}->clone;
         }
         if ( $ping_count >= 10 and not $self->{dbh}->ping ) {
-            &ERROR("Tried real hard but was unable to reconnect");
+            &ERROR('Tried real hard but was unable to reconnect');
             return undef;
         }
         $_[0] = $self->{dbh};
@@ -89,7 +89,7 @@ sub sqlOpenDB {
     # SQLHost should be unset for SQLite
     if ( exists $param{'SQLHost'} and $param{'SQLHost'} ) {
 
-        # PostgreSQL requires ";" and keyword 'host'. See perldoc Pg -- troubled
+        # PostgreSQL requires ';' and keyword 'host'. See perldoc Pg -- troubled
         if ( $type eq 'Pg' ) {
             $dsn .= ";host=$param{SQLHost}";
         }
@@ -146,12 +146,12 @@ sub sqlSelectMany {
     my $sth;
 
     if ( !defined $select or $select =~ /^\s*$/ ) {
-        &WARN("sqlSelectMany: select == NULL.");
+        &WARN('sqlSelectMany: select == NULL.');
         return;
     }
 
     if ( !defined $table or $table =~ /^\s*$/ ) {
-        &WARN("sqlSelectMany: table == NULL.");
+        &WARN('sqlSelectMany: table == NULL.');
         return;
     }
 
@@ -181,7 +181,7 @@ sub sqlSelectMany {
 sub sqlSelect {
     my $sth = &sqlSelectMany(@_);
     if ( !defined $sth ) {
-        &WARN("sqlSelect failed.");
+        &WARN('sqlSelect failed.');
         return;
     }
     my @retval = $sth->fetchrow_array;
@@ -206,7 +206,7 @@ sub sqlSelectColArray {
     my @retval;
 
     if ( !defined $sth ) {
-        &WARN("sqlSelect failed.");
+        &WARN('sqlSelect failed.');
         return;
     }
 
@@ -227,17 +227,17 @@ sub sqlSelectColHash {
     my ( $table, $select, $where_href, $other, $type ) = @_;
     my $sth = &sqlSelectMany( $table, $select, $where_href, $other );
     if ( !defined $sth ) {
-        &WARN("sqlSelectColhash failed.");
+        &WARN('sqlSelectColhash failed.');
         return;
     }
     my %retval;
 
     if ( defined $type and $type == 2 ) {
-        &DEBUG("sqlSelectColHash: type 2!");
+        &DEBUG('sqlSelectColHash: type 2!');
         while ( my @row = $sth->fetchrow_array ) {
             $retval{ $row[0] } = join( ':', $row[ 1 .. $#row ] );
         }
-        &DEBUG( "sqlSelectColHash: count => " . scalar( keys %retval ) );
+        &DEBUG( 'sqlSelectColHash: count => ' . scalar( keys %retval ) );
 
     }
     elsif ( defined $type and $type == 1 ) {
@@ -273,7 +273,7 @@ sub sqlSelectColHash {
 sub sqlSelectRowHash {
     my $sth = &sqlSelectMany(@_);
     if ( !defined $sth ) {
-        &WARN("sqlSelectRowHash failed.");
+        &WARN('sqlSelectRowHash failed.');
         return;
     }
     my $retval = $sth->fetchrow_hashref();
@@ -298,12 +298,12 @@ sub sqlSet {
     my ( $table, $where_href, $data_href ) = @_;
 
     if ( !defined $table or $table =~ /^\s*$/ ) {
-        &WARN("sqlSet: table == NULL.");
+        &WARN('sqlSet: table == NULL.');
         return;
     }
 
     if ( !defined $data_href or ref($data_href) ne 'HASH' ) {
-        &WARN("sqlSet: data_href == NULL.");
+        &WARN('sqlSet: data_href == NULL.');
         return;
     }
 
@@ -311,7 +311,7 @@ sub sqlSet {
     my $k = join( ',', keys %{$where_href} );
     my $result = &sqlSelect( $table, $k, $where_href );
 
-    #    &DEBUG("result is not defined :(") if (!defined $result);
+    #    &DEBUG('result is not defined :(') if (!defined $result);
 
  # this was hardwired to use sqlUpdate. sqlite does not do inserts on sqlUpdate.
     if ( defined $result ) {
@@ -340,7 +340,7 @@ sub sqlUpdate {
     my ( $table, $data_href, $where_href ) = @_;
 
     if ( !defined $data_href or ref($data_href) ne 'HASH' ) {
-        &WARN("sqlSet: data_href == NULL.");
+        &WARN('sqlSet: data_href == NULL.');
         return 0;
     }
 
@@ -361,7 +361,7 @@ sub sqlInsert {
 # note: ^^^ doesnt actually do anything lol. Need code to s/1/DELAYED/ below -- troubled
 
     if ( !defined $data_href or ref($data_href) ne 'HASH' ) {
-        &WARN("sqlInsert: data_href == NULL.");
+        &WARN('sqlInsert: data_href == NULL.');
         return;
     }
 
@@ -370,14 +370,14 @@ sub sqlInsert {
     my @v = @{$v_aref};
 
     if ( !@k or !@v ) {
-        &WARN("sqlInsert: keys or vals is NULL.");
+        &WARN('sqlInsert: keys or vals is NULL.');
         return;
     }
 
     &sqlRaw(
         "Insert($table)",
         sprintf(
-            "INSERT %s INTO %s (%s) VALUES (%s)",
+            'INSERT %s INTO %s (%s) VALUES (%s)',
             ( $other || '' ),
             $table,
             join( ',', @k ),
@@ -394,7 +394,7 @@ sub sqlReplace {
     my ( $table, $data_href, $pkey ) = @_;
 
     if ( !defined $data_href or ref($data_href) ne 'HASH' ) {
-        &WARN("sqlReplace: data_href == NULL.");
+        &WARN('sqlReplace: data_href == NULL.');
         return;
     }
 
@@ -403,7 +403,7 @@ sub sqlReplace {
     my @v = @{$v_aref};
 
     if ( !@k or !@v ) {
-        &WARN("sqlReplace: keys or vals is NULL.");
+        &WARN('sqlReplace: keys or vals is NULL.');
         return;
     }
 
@@ -416,13 +416,13 @@ sub sqlReplace {
 # PGSql syntax: UPDATE table SET key = 'value', key2 = 'value2' WHERE key = 'value'
 
         #	&sqlRaw("Replace($table)", sprintf(
-        #		"INSERT INTO %s (%s) VALUES (%s)",
+        #		'INSERT INTO %s (%s) VALUES (%s)',
         #		$table, join(',',@k), join(',',@v)
         #	));
         &WARN(
             "DEBUG: ($pkey = ) "
               . sprintf(
-                "REPLACE INTO %s (%s) VALUES (%s)",
+                'REPLACE INTO %s (%s) VALUES (%s)',
                 $table,
                 join( ',', @k ),
                 join( ',', @v )
@@ -434,7 +434,7 @@ sub sqlReplace {
         &sqlRaw(
             "Replace($table)",
             sprintf(
-                "REPLACE INTO %s (%s) VALUES (%s)",
+                'REPLACE INTO %s (%s) VALUES (%s)',
                 $table,
                 join( ',', @k ),
                 join( ',', @v )
@@ -451,7 +451,7 @@ sub sqlDelete {
     my ( $table, $where_href ) = @_;
 
     if ( !defined $where_href or ref($where_href) ne 'HASH' ) {
-        &WARN("sqlDelete: where_href == NULL.");
+        &WARN('sqlDelete: where_href == NULL.');
         return;
     }
 
@@ -470,7 +470,7 @@ sub sqlRaw {
     my $sth;
 
     if ( !defined $query or $query =~ /^\s*$/ ) {
-        &WARN("sqlRaw: query == NULL.");
+        &WARN('sqlRaw: query == NULL.');
         return 0;
     }
 
@@ -500,7 +500,7 @@ sub sqlRawReturn {
     my $sth;
 
     if ( !defined $query or $query =~ /^\s*$/ ) {
-        &WARN("sqlRawReturn: query == NULL.");
+        &WARN('sqlRawReturn: query == NULL.');
         return 0;
     }
 
@@ -532,7 +532,7 @@ sub hashref2where {
     my ($href) = @_;
 
     if ( !defined $href ) {
-        &WARN("hashref2where: href == NULL.");
+        &WARN('hashref2where: href == NULL.');
         return;
     }
 
@@ -554,14 +554,14 @@ sub hashref2where {
         }
     }
 
-    return join( ' AND ', map { $_ . "=" . $hash{$_} } keys %hash );
+    return join( ' AND ', map { $_ . '=' . $hash{$_} } keys %hash );
 }
 
 sub hashref2update {
     my ($href) = @_;
 
     if ( ref($href) ne 'HASH' ) {
-        &WARN("hashref2update: href is not HASH ref.");
+        &WARN('hashref2update: href is not HASH ref.');
         return;
     }
 
@@ -581,14 +581,14 @@ sub hashref2update {
         $hash{$k} = $v;
     }
 
-    return join( ', ', map { $_ . "=" . $hash{$_} } sort keys %hash );
+    return join( ', ', map { $_ . '=' . $hash{$_} } sort keys %hash );
 }
 
 sub hashref2array {
     my ($href) = @_;
 
     if ( ref($href) ne 'HASH' ) {
-        &WARN("hashref2update: href is not HASH ref.");
+        &WARN('hashref2update: href is not HASH ref.');
         return;
     }
 
@@ -637,7 +637,7 @@ sub randKey {
     my $query = "SELECT $select FROM $table LIMIT 1 OFFSET $rand";
     if ( $param{DBType} =~ /^mysql$/i ) {
 
-        # WARN: only newer MySQL supports "LIMIT limit OFFSET offset"
+        # WARN: only newer MySQL supports 'LIMIT limit OFFSET offset'
         $query = "SELECT $select FROM $table LIMIT $rand,1";
     }
     my $sth = $dbh->prepare($query);
@@ -669,9 +669,9 @@ sub searchTable {
         $str = $1;
     }
     else {
-        $str .= "%" if ( $str =~ s/^\^// );
-        $str = "%" . $str if ( $str =~ s/\$$// );
-        $str = "%" . $str . "%" if ( $str eq $origStr );    # el-cheapo fix.
+        $str .= '%' if ( $str =~ s/^\^// );
+        $str = '%' . $str if ( $str =~ s/\$$// );
+        $str = '%' . $str . '%' if ( $str eq $origStr );    # el-cheapo fix.
     }
 
     $str =~ s/\_/\\_/g;
@@ -700,7 +700,7 @@ sub searchTable {
 
 sub sqlCreateTable {
     my ( $table, $dbtype ) = @_;
-    my (@path) = ( $bot_data_dir, ".", "..", "../.." );
+    my (@path) = ( $bot_data_dir, '.', '..', '../..' );
     my $found = 0;
     my $data;
     $dbtype = lc $dbtype;
@@ -734,7 +734,7 @@ sub checkTables {
     my %db;
 
     if ( $param{DBType} =~ /^mysql$/i ) {
-        my $sql = "SHOW DATABASES";
+        my $sql = 'SHOW DATABASES';
         foreach ( &sqlRawReturn($sql) ) {
             $database_exists++ if ( $_ eq $param{'DBName'} );
         }
@@ -750,7 +750,7 @@ sub checkTables {
         if ( $#tables == -1 ) {
             @tables = $dbh->tables;
         }
-        &status( "Tables: " . join( ',', @tables ) );
+        &status( 'Tables: ' . join( ',', @tables ) );
         @db{@tables} = (1) x @tables;
 
     }
@@ -771,7 +771,7 @@ sub checkTables {
         # $sql_showDB = SQL to select the DB list
         # $sql_showTBL = SQL to select all tables for the current connection
 
-        my $sql_showDB  = "SELECT datname FROM pg_database";
+        my $sql_showDB  = 'SELECT datname FROM pg_database';
         my $sql_showTBL = "SELECT tablename FROM pg_tables \
 		WHERE schemaname = 'public'";
 
@@ -781,7 +781,7 @@ sub checkTables {
 
         unless ($database_exists) {
             &status("Creating PostgreSQL database $param{'DBName'}");
-            &status("(actually, not really, please read the INSTALL file)");
+            &status('(actually, not really, please read the INSTALL file)');
         }
 
 # retrieve a list of db's from the server. This code is from mysql above, please check -- troubled
@@ -789,7 +789,7 @@ sub checkTables {
         if ( $#tables == -1 ) {
             @tables = $dbh->tables;
         }
-        &status( "Tables: " . join( ',', @tables ) );
+        &status( 'Tables: ' . join( ',', @tables ) );
         @db{@tables} = (1) x @tables;
     }
 
