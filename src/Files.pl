@@ -53,7 +53,7 @@ sub loadLang {
 
 # File: Irc Servers list.
 sub loadIRCServers {
-    my ($file) = $bot_config_dir . "/infobot.servers";
+    my ($file) = $bot_config_dir . '/infobot.servers';
     @ircServers = ();
     %ircPort    = ();
 
@@ -78,7 +78,7 @@ sub loadIRCServers {
     close FILE;
 
     $file =~ s/^.*\///;
-    &status( "Loaded $file (" . scalar(@ircServers) . " servers)" );
+    &status( "Loaded $file (" . scalar(@ircServers) . ' servers)' );
 }
 
 1;

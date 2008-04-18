@@ -49,7 +49,7 @@ $SIG{'__WARN__'} = 'doWarn';
 $last{buflen}    = 0;
 $last{say}       = '';
 $last{msg}       = '';
-$userHandle      = "_default";
+$userHandle      = '_default';
 $wingaterun      = time();
 $firsttime       = 1;
 $utime_userfile  = 0;
@@ -83,7 +83,7 @@ $notcount   = 0;
 ###
 
 open( VERSION, '<VERSION' );
-$bot_release = <VERSION> || "(unknown version)";
+$bot_release = <VERSION> || '(unknown version)';
 chomp($bot_release);
 close(VERSION);
 $bot_version = "infobot $bot_release -- $^O";
@@ -106,7 +106,7 @@ sub doExit {
     my ($sig) = @_;
 
     if ( defined $flag_quit ) {
-        &WARN("doExit: quit already called.");
+        &WARN('doExit: quit already called.');
         return;
     }
     $flag_quit = 1;
@@ -117,7 +117,7 @@ sub doExit {
     elsif ( $bot_pid == $$ ) {    # parent.
         &status("parent caught SIG$sig (pid $$).") if ( defined $sig );
 
-        &status("--- Start of quit.");
+        &status('--- Start of quit.');
         $ident ||= 'infobot';     # lame hack.
 
         &status("Memory Usage: $memusage KiB");
@@ -145,7 +145,7 @@ sub doExit {
         &closeLog();
         &closeSQLDebug() if ( &IsParam('SQLDebug') );
 
-        &status("--- QUIT.");
+        &status('--- QUIT.');
     }
     else {    # child.
         &status("child caught SIG$sig (pid $$).");
@@ -207,12 +207,12 @@ sub getChanConfList {
         my $chan = $_;
         my @array = grep /^$param$/, keys %{ $chanconf{$chan} };
 
-#&DEBUG("gCCL param => $param, chan => $chan, keys => " . join(':',keys %{ $chanconf{$chan} }) . " array => " . join(':', @array)) if ($param eq 'whatever');
+#&DEBUG("gCCL param => $param, chan => $chan, keys => " . join(':',keys %{ $chanconf{$chan} }) . ' array => ' . join(':', @array)) if ($param eq 'whatever');
 
         next unless ( scalar @array );
 
         if ( scalar @array > 1 ) {
-            &WARN("multiple items found?");
+            &WARN('multiple items found?');
         }
 
         if ( $chanconf{$chan}{$param} eq '0' ) {
@@ -237,7 +237,7 @@ sub IsChanConf {
     my $debug = 0;    # 1 if ($param eq 'whatever');
 
     if ( !defined $param ) {
-        &WARN("IsChanConf: param == NULL.");
+        &WARN('IsChanConf: param == NULL.');
         return 0;
     }
 
@@ -248,7 +248,7 @@ sub IsChanConf {
         return 1;
     }
 
-    $chan ||= "_default";
+    $chan ||= '_default';
 
     my $old = $chan;
     if ( $chan =~ tr/A-Z/a-z/ ) {
@@ -314,18 +314,18 @@ sub getChanConf {
     my ( $param, $c ) = @_;
 
     if ( !defined $param ) {
-        &WARN("gCC: param == NULL.");
+        &WARN('gCC: param == NULL.');
         return 0;
     }
 
     # this looks evil...
     if ( 0 and !defined $chan ) {
-        &DEBUG("gCC: ok !chan... doing _default instead.");
+        &DEBUG('gCC: ok !chan... doing _default instead.');
     }
 
     $c ||= $chan;
-    $c ||= "_default";
-    $c = "_default" if ( $c eq "*" );    # FIXME
+    $c ||= '_default';
+    $c = '_default' if ( $c eq '*' );    # FIXME
     my @c = grep /^\Q$c\E$/i, keys %chanconf;
 
     if (@c) {
@@ -339,13 +339,13 @@ sub getChanConf {
         return $chanconf{ $c[0] }{$param};
     }
 
-    #&DEBUG("gCC: returning _default... " . $chanconf{"_default"}{$param});
-    return $chanconf{"_default"}{$param};
+    #&DEBUG('gCC: returning _default... ' . $chanconf{'_default'}{$param});
+    return $chanconf{'_default'}{$param};
 }
 
 sub getChanConfDefault {
     my ( $what, $default, $chan ) = @_;
-    $chan ||= "_default";
+    $chan ||= '_default';
 
     if ( exists $param{$what} ) {
         if ( !exists $cache{config}{$what} ) {
@@ -374,7 +374,7 @@ sub findChanConf {
     my ($param) = @_;
 
     if ( !defined $param ) {
-        &WARN("param == NULL.");
+        &WARN('param == NULL.');
         return 0;
     }
 
@@ -453,10 +453,10 @@ sub showProc {
 sub setup {
     &showProc(" (\&openLog before)");
     &openLog();    # write, append.
-    &status("--- Started logging.");
+    &status('--- Started logging.');
 
     # read.
-    &loadLang( $bot_data_dir . "/infobot.lang" );
+    &loadLang( $bot_data_dir . '/infobot.lang' );
     &loadIRCServers();
     &readUserFile();
     &readChanFile();
@@ -470,7 +470,7 @@ sub setup {
     );
     &checkTables();
 
-    &status( "Setup: " . &countKeys('factoids') . " factoids." );
+    &status( 'Setup: ' . &countKeys('factoids') . ' factoids.' );
     &getChanConfDefault( 'sendPrivateLimitLines', 3,    $chan );
     &getChanConfDefault( 'sendPrivateLimitBytes', 1000, $chan );
     &getChanConfDefault( 'sendPublicLimitLines',  3,    $chan );
@@ -481,12 +481,12 @@ sub setup {
     $param{tempDir} =~ s#\~/#$ENV{HOME}/#;
 
     &status("Initial memory usage: $memusage KiB");
-    &status("-------------------------------------------------------");
+    &status('-------------------------------------------------------');
 }
 
 sub setupConfig {
     $param{'VERBOSITY'} = 1;
-    &loadConfig( $bot_config_dir . "/infobot.config" );
+    &loadConfig( $bot_config_dir . '/infobot.config' );
 
     foreach (qw(ircNick ircUser ircName DBType tempDir)) {
         next if &IsParam($_);
@@ -495,11 +495,11 @@ sub setupConfig {
     }
 
     if ( $param{tempDir} =~ s#\~/#$ENV{HOME}/# ) {
-        &VERB( "Fixing up tempDir.", 2 );
+        &VERB( 'Fixing up tempDir.', 2 );
     }
 
     if ( $param{tempDir} =~ /~/ ) {
-        &ERROR("parameter tempDir still contains tilde.");
+        &ERROR('parameter tempDir still contains tilde.');
         exit 1;
     }
 
@@ -515,7 +515,7 @@ sub setupConfig {
 
 sub startup {
     if ( &IsParam('DEBUG') ) {
-        &status("enabling debug diagnostics.");
+        &status('enabling debug diagnostics.');
 
         # I thought disabling this reduced memory usage by 1000 KiB.
         use diagnostics;
@@ -531,7 +531,7 @@ sub shutdown {
     my ($sig) = @_;
 
     # reverse order of &setup().
-    &status("--- shutdown called.");
+    &status('--- shutdown called.');
 
     # hack.
     $ident ||= 'infobot';
@@ -571,9 +571,9 @@ sub restart {
 
         &ircCheck();    # heh, evil!
 
-        &DCCBroadcast( "-HUP called.", 'm' );
+        &DCCBroadcast( '-HUP called.', 'm' );
         &shutdown($sig);
-        &loadConfig( $bot_config_dir . "/infobot.config" );
+        &loadConfig( $bot_config_dir . '/infobot.config' );
         &reloadAllModules() if ( &IsParam('DEBUG') );
         &setup();
 
@@ -591,7 +591,7 @@ sub loadConfig {
     if ( !open( FILE, $file ) ) {
         &ERROR("Failed to read configuration file ($file): $!");
         &status(
-"Please read the INSTALL file on how to install and setup this file."
+'Please read the INSTALL file on how to install and setup this file.'
         );
         exit 0;
     }

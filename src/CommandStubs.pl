@@ -315,7 +315,7 @@ sub uptime {
     my $count = 1;
     &msg( $who, "- Uptime for $ident -" );
     &msg( $who,
-        "Now: " . &Time2String( &uptimeNow() ) . " running $bot_version" );
+        'Now: ' . &Time2String( &uptimeNow() ) . " running $bot_version" );
 
     foreach ( &uptimeGetInfo() ) {
         /^(\d+)\.\d+ (.*)/;
@@ -629,13 +629,13 @@ sub do_verstats {
 
             my %sorted;
             my $unknown = $total - $vtotal;
-            my $perc = sprintf( "%.1f", $unknown * 100 / $total );
+            my $perc = sprintf( '%.1f', $unknown * 100 / $total );
             $perc =~ s/.0$//;
             $sorted{$perc}{'unknown/cloak'} = "$unknown ($perc%)" if ($unknown);
 
             foreach ( keys %ver ) {
                 my $count = scalar keys %{ $ver{$_} };
-                $perc = sprintf( "%.01f", $count * 100 / $total );
+                $perc = sprintf( '%.01f', $count * 100 / $total );
                 $perc =~ s/.0$//;    # lame compression.
 
                 $sorted{$perc}{$_} = "$count ($perc%)";
@@ -718,7 +718,7 @@ sub do_text_counters {
         my $tp = 0;
         foreach $i ( sort { $b <=> $a } keys %hash ) {
             foreach ( keys %{ $hash{$i} } ) {
-                my $p = sprintf( "%.01f", 100 * $i / $sum );
+                my $p = sprintf( '%.01f', 100 * $i / $sum );
                 $tp += $p;
                 push( @top, "\002$_\002 -- $i ($p%)" );
             }
@@ -762,12 +762,12 @@ sub do_text_counters {
 
         my $xtra;
         if ( $total and $rank ) {
-            my $pct = sprintf( "%.01f", 100 * ($rank) / $total );
+            my $pct = sprintf( '%.01f', 100 * ($rank) / $total );
             $xtra =
               ", ranked $rank\002/\002$total (percentile: \002$pct\002 %)";
         }
 
-        my $pct1 = sprintf( "%.01f", 100 * $x / $sum );
+        my $pct1 = sprintf( '%.01f', 100 * $x / $sum );
         &performStrictReply(
 "\002$arg\002 has said \037$type\037 \002$x\002 times (\002$pct1\002 %)$xtra"
         );

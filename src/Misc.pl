@@ -13,7 +13,7 @@ use vars qw($msgType $who $bot_pid $nuh $shm $force_public_reply
 
 sub help {
     my $topic = shift;
-    my $file  = $bot_data_dir . "/infobot.help";
+    my $file  = $bot_data_dir . '/infobot.help';
     my %help  = ();
 
     # crude hack for performStrictReply() to work as expected.
@@ -54,7 +54,7 @@ sub help {
         foreach ( sort keys %help ) {
             push( @array, $_ );
             $reply =
-              scalar(@array) . " topics: " . join( "\002,\002 ", @array );
+              scalar(@array) . ' topics: ' . join( "\002,\002 ", @array );
             $i++;
 
             if ( length $reply > 400 or $count == $i ) {
@@ -89,7 +89,7 @@ sub getPath {
         return $1;
     }
     else {
-        return ".";
+        return '.';
     }
 }
 
@@ -130,7 +130,7 @@ sub formListReply {
     $maxlen -= 30;
 
     # no results.
-    return $prefix . "returned no results." unless ($total);
+    return $prefix . 'returned no results.' unless ($total);
 
     # random.
     if ($rand) {
@@ -147,7 +147,7 @@ sub formListReply {
         }
     }
     elsif ( $total > $maxshow ) {
-        &status("formListReply: truncating list.");
+        &status('formListReply: truncating list.');
 
         @list = @list[ 0 .. $maxshow - 1 ];
     }
@@ -157,7 +157,7 @@ sub formListReply {
     while () {
         $reply = $prefix . "(\002" . scalar(@list) . "\002";
         $reply .= " of \002$total\002" if ( $total != scalar @list );
-        $reply .= "): " . join( " \002;;\002 ", @list ) . ".";
+        $reply .= '): ' . join( " \002;;\002 ", @list ) . '.';
 
         last if ( length($reply) < $maxlen and scalar(@list) <= $maxshow );
         last if ( scalar(@list) == 1 );
@@ -194,7 +194,7 @@ sub Time2String {
 
     if ( $time < 0 ) {
         $time   = -$time;
-        $prefix = "- ";
+        $prefix = '- ';
     }
 
     $t[0] = int($time) % 60;
@@ -237,7 +237,7 @@ sub fixFileList {
 
         if ( scalar @keys > 3 ) {
             pop @keys while ( scalar @keys > 3 );
-            push( @keys, "..." );
+            push( @keys, '...' );
         }
 
         if ( $i > 1 ) {
@@ -257,7 +257,7 @@ sub fixFileList {
 sub fixString {
     my ( $str, $level ) = @_;
     if ( !defined $str ) {
-        &WARN("fixString: str == NULL.");
+        &WARN('fixString: str == NULL.');
         return '';
     }
 
@@ -268,7 +268,7 @@ sub fixString {
 
         next unless ( defined $level );
         if (s/[\cA-\c_]//ig) {    # remove control characters.
-            &DEBUG("stripped control chars");
+            &DEBUG('stripped control chars');
         }
     }
 
@@ -280,12 +280,12 @@ sub fixPlural {
     my ( $str, $int ) = @_;
 
     if ( !defined $str ) {
-        &WARN("fixPlural: str == NULL.");
+        &WARN('fixPlural: str == NULL.');
         return;
     }
 
     if ( !defined $int or $int =~ /^\D+$/ ) {
-        &WARN("fixPlural: int != defined or int");
+        &WARN('fixPlural: int != defined or int');
         return $str;
     }
 
@@ -334,7 +334,7 @@ sub getRandomLineFromFile {
     close IN;
 
     if ( !scalar @lines ) {
-        &ERROR("GRLF: nothing loaded?");
+        &ERROR('GRLF: nothing loaded?');
         return;
     }
 
@@ -362,7 +362,7 @@ sub getLineFromFile {
         close IN;
 
         if ( $lineno > scalar @lines ) {
-            &ERROR("getLineFromFile: lineno exceeds line count from file.");
+            &ERROR('getLineFromFile: lineno exceeds line count from file.');
             return 0;
         }
 
@@ -384,13 +384,13 @@ sub getRandom {
     return $array[ int( rand( scalar @array ) ) ];
 }
 
-# Usage: &getRandomInt("30-60"); &getRandomInt(5);
-# Desc : Returns a randomn integer between "X-Y" or 1 and the value passed
+# Usage: &getRandomInt('30-60'); &getRandomInt(5);
+# Desc : Returns a randomn integer between 'X-Y' or 1 and the value passed
 sub getRandomInt {
     my $str = shift;
 
     if ( !defined $str ) {
-        &WARN("getRandomInt: str == NULL.");
+        &WARN('getRandomInt: str == NULL.');
         return undef;
     }
 
@@ -439,7 +439,7 @@ sub IsHostMatch {
     }
 
     if ( !defined $thisnuh ) {
-        &WARN("IHM: thisnuh == NULL.");
+        &WARN('IHM: thisnuh == NULL.');
         return 0;
     }
     elsif ( $thisnuh =~ /^(\S+)!(\S+)@(\S+)/ ) {
@@ -469,12 +469,12 @@ sub isStale {
     my ( $file, $age ) = @_;
 
     if ( !defined $age ) {
-        &WARN("isStale: age == NULL.");
+        &WARN('isStale: age == NULL.');
         return 1;
     }
 
     if ( !defined $file ) {
-        &WARN("isStale: file == NULL.");
+        &WARN('isStale: file == NULL.');
         return 1;
     }
 
@@ -483,7 +483,7 @@ sub isStale {
     return 1 unless ( -f $file );
     if ( $file =~ /idx/ ) {
         my $age2 = time() - ( stat($file) )[9];
-        &VERB( "stale: $age2. (" . &Time2String($age2) . ")", 2 );
+        &VERB( "stale: $age2. (" . &Time2String($age2) . ')', 2 );
     }
     $age *= 60 * 60 * 24 if ( $age >= 0 and $age < 30 );
 
@@ -529,7 +529,7 @@ sub makeHostMask {
 
     my @array = split( /\./, $host );
     return $nu . $host if ( scalar @array <= 3 );
-    return $nu . "*." . join( '.', @{array}[ 1 .. $#array ] );
+    return $nu . '*.' . join( '.', @{array}[ 1 .. $#array ] );
 }
 
 # Usage: &makeRandom(int);
@@ -627,7 +627,7 @@ sub Forker {
     my $pid;
 
     &shmFlush();
-    &VERB( "double fork detected; not forking.", 2 ) if ( $$ != $bot_pid );
+    &VERB( 'double fork detected; not forking.', 2 ) if ( $$ != $bot_pid );
 
     if ( &IsParam('forking') and $$ == $bot_pid ) {
         return unless &addForked($label);
@@ -650,7 +650,7 @@ sub Forker {
     ### TODO: use AUTOLOAD
     ### very lame hack.
     if ( $label !~ /-/ and !&loadMyModule($label) ) {
-        &DEBUG("Forker: failed?");
+        &DEBUG('Forker: failed?');
         &delForked($label);
     }
 
@@ -658,7 +658,7 @@ sub Forker {
         $code->();    # weird, hey?
     }
     else {
-        &WARN("Forker: code not defined!");
+        &WARN('Forker: code not defined!');
     }
 
     &delForked($label);
