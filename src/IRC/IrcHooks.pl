@@ -66,14 +66,14 @@ sub on_chat {
         my $success = 0;
 
         if ( $userHandle eq '_default' ) {
-            &WARN("DCC CHAT: _default/guest not allowed.");
+            &WARN('DCC CHAT: _default/guest not allowed.');
             return;
         }
 
         ### TODO: prevent users without CRYPT chatting.
         if ( !defined $crypto ) {
-            &TODO("dcc close chat");
-            &msg( $who, "nope, no guest logins allowed..." );
+            &TODO('dcc close chat');
+            &msg( $who, 'nope, no guest logins allowed...' );
             return;
         }
 
@@ -82,9 +82,9 @@ sub on_chat {
             # stolen from eggdrop.
             $conn->privmsg( $sock, "Connected to $ident" );
             $conn->privmsg( $sock,
-                "Commands start with '.' (like '.quit' or '.help')" );
+                'Commands start with "." (like ".quit" or ".help")' );
             $conn->privmsg( $sock,
-                "Everything else goes out to the party line." );
+                'Everything else goes out to the party line.' );
 
             &dccStatus(2) unless ( exists $sched{'dccStatus'}{RUNNING} );
 
@@ -92,11 +92,11 @@ sub on_chat {
 
         }
         else {
-            &status("DCC CHAT: incorrect pass; closing connection.");
+            &status('DCC CHAT: incorrect pass; closing connection.');
             &DEBUG("chat: sock => '$sock'.");
 ###	    $sock->close();
             delete $dcc{'CHAT'}{$nick};
-            &FIXME("chat: after closing sock.");
+            &FIXME('chat: after closing sock.');
             ### BUG: close seizes bot. why?
         }
 
@@ -126,7 +126,7 @@ sub on_chat {
         return unless ( defined $retval );
         return if ( $retval eq $noreply );
 
-        $conn->privmsg( $dcc{'CHAT'}{$who}, "Invalid command." );
+        $conn->privmsg( $dcc{'CHAT'}{$who}, 'Invalid command.' );
 
     }
     else {    # dcc chat arena.
@@ -163,17 +163,17 @@ sub on_endofmotd {
 
     # first time run.
     if ( !exists $users{_default} ) {
-        &status("!!! First time run... adding _default user.");
+        &status('!!! First time run... adding _default user.');
         $users{_default}{FLAGS} = 'amrt';
-        $users{_default}{HOSTS}{"*!*@*"} = 1;
+        $users{_default}{HOSTS}{'*!*@*'} = 1;
     }
 
     if ( scalar keys %users < 2 ) {
-        &status( "!" x 40 );
+        &status( '!' x 40 );
         &status(
 "!!! Ok.  Now type '/msg $ident PASS <pass>' to get master access through DCC CHAT."
         );
-        &status( "!" x 40 );
+        &status( '!' x 40 );
     }
 
     # end of first time run.
@@ -197,8 +197,8 @@ sub on_endofmotd {
     if ( &IsParam('ircUMode') ) {
         &VERB( "Attempting change of user modes to $param{'ircUMode'}.", 2 );
         if ( $param{'ircUMode'} !~ /^[-+]/ ) {
-            &WARN("ircUMode had no +- prefix; adding +");
-            $param{'ircUMode'} = "+" . $param{'ircUMode'};
+            &WARN('ircUMode had no +- prefix; adding +');
+            $param{'ircUMode'} = '+' . $param{'ircUMode'};
         }
 
         &rawout("MODE $ident $param{'ircUMode'}");
@@ -212,13 +212,13 @@ sub on_endofmotd {
 
     # Q, as on quakenet.org.
     if ( &IsParam('Q_pass') ) {
-        &status("Authing to Q...");
+        &status('Authing to Q...');
         &rawout(
 "PRIVMSG Q\@CServe.quakenet.org :AUTH $param{'Q_user'} $param{'Q_pass'}"
         );
     }
 
-    &status("End of motd. Now lets join some channels...");
+    &status('End of motd. Now lets join some channels...');
 
     #&joinNextChan();
 }
@@ -248,9 +248,9 @@ sub on_dcc {
     # pity Net::IRC doesn't store nuh. Here's a hack :)
     if ( !exists $nuh{ lc $nick } ) {
         $conn->whois($nick);
-        $nuh{$nick} = "GETTING-NOW";    # trying.
+        $nuh{$nick} = 'GETTING-NOW';    # trying.
     }
-    $type ||= "???";
+    $type ||= '???';
 
     if ( $type eq 'SEND' ) {            # GET for us.
             # incoming DCC SEND. we're receiving a file.
@@ -293,7 +293,7 @@ sub on_dcc_close {
 
     # DCC CHAT close on fork exit workaround.
     if ( $bot_pid != $$ ) {
-        &WARN("run-away fork; exiting.");
+        &WARN('run-away fork; exiting.');
         &delForked($forker);
     }
 
@@ -325,7 +325,7 @@ sub on_dcc_open {
     &status("on_dcc_open type=$type nick=$nick sock=$sock");
 
     $msgType = 'chat';
-    $type ||= "???";
+    $type ||= '???';
     ### BUG: who is set to bot's nick?
 
     # lets do it.
@@ -338,7 +338,7 @@ sub on_dcc_open {
         # very cheap hack.
         ### TODO: run ScheduleThis inside on_dcc_open_chat recursively
         ###	1,3,5,10 seconds then fail.
-        if ( $nuh{$nick} eq "GETTING-NOW" ) {
+        if ( $nuh{$nick} eq 'GETTING-NOW' ) {
             &ScheduleThis( 3 / 60, 'on_dcc_open_chat', $nick, $sock );
         }
         else {
@@ -347,7 +347,7 @@ sub on_dcc_open {
 
     }
     elsif ( $type eq 'SEND' ) {
-        &status("Starting DCC receive.");
+        &status('Starting DCC receive.');
         foreach ( $event->args ) {
             &status("  => '$_'.");
         }
@@ -363,7 +363,7 @@ sub on_dcc_open {
 sub on_dcc_open_chat {
     my ( undef, $nick, $sock ) = @_;
 
-    if ( $nuh{$nick} eq "GETTING-NOW" ) {
+    if ( $nuh{$nick} eq 'GETTING-NOW' ) {
         &FIXME("getting nuh for $nick failed.");
         return;
     }
@@ -376,7 +376,7 @@ sub on_dcc_open_chat {
 
     if ( !exists $users{$userHandle}{HOSTS} ) {
         &performStrictReply(
-            "you have no hosts defined in my user file; rejecting.");
+            'you have no hosts defined in my user file; rejecting.');
         $sock->close();
         return;
     }
@@ -386,14 +386,14 @@ sub on_dcc_open_chat {
 
     # TODO: don't make DCC CHAT established in the first place.
     if ( $userHandle eq '_default' ) {
-        &dccsay( $nick, "_default/guest not allowed" );
+        &dccsay( $nick, '_default/guest not allowed' );
         $sock->close();
         return;
     }
 
     if ( defined $crypto ) {
-        &status( "DCC CHAT: going to use " . $nick . "'s crypt." );
-        &dccsay( $nick, "Enter your password." );
+        &status( "DCC CHAT: going to use $nick\'s crypt." );
+        &dccsay( $nick, 'Enter your password.' );
     }
     else {
 
@@ -421,13 +421,13 @@ sub on_disconnect {
     &clearIRCVars();
 
     if ( !defined $conn ) {
-        &WARN("on_disconnect: self is undefined! WTF");
-        &DEBUG("running function irc... lets hope this works.");
+        &WARN('on_disconnect: self is undefined! WTF');
+        &DEBUG('running function irc... lets hope this works.');
         &irc();
         return;
     }
 
-    &WARN("scheduling call ircCheck() in 60s");
+    &WARN('scheduling call ircCheck() in 60s');
     &clearIRCVars();
     &ScheduleThis( 1, 'ircCheck' );
 }
@@ -440,7 +440,7 @@ sub on_endofnames {
     # sync time should be done in on_endofwho like in BitchX
     if ( exists $cache{jointime}{$chan} ) {
         my $delta_time =
-          sprintf( "%.03f", &timedelta( $cache{jointime}{$chan} ) );
+          sprintf( '%.03f', &timedelta( $cache{jointime}{$chan} ) );
         $delta_time = 0 if ( $delta_time <= 0 );
         if ( $delta_time > 100 ) {
             &WARN("endofnames: delta_time > 100 ($delta_time)");
@@ -488,7 +488,7 @@ sub on_invite {
     my $nick = $event->nick;
 
     if ( $nick =~ /^\Q$ident\E$/ ) {
-        &DEBUG("on_invite: self invite.");
+        &DEBUG('on_invite: self invite.');
         return;
     }
 
@@ -520,7 +520,7 @@ sub on_join {
     if ( !&IsParam('noSHM')
         && time() > ( $sched{shmFlush}{TIME} || time() ) + 3600 )
     {
-        &DEBUG("looks like schedulers died somewhere... restarting...");
+        &DEBUG('looks like schedulers died somewhere... restarting...');
         &setupSchedulers();
     }
 
@@ -537,7 +537,7 @@ sub on_join {
         $netsplit = 1;
 
         if ( !scalar keys %netsplit ) {
-            &DEBUG("on_join: netsplit hash is now empty!");
+            &DEBUG('on_join: netsplit hash is now empty!');
             undef %netsplitservers;
             &netsplitCheck();    # any point in running this?
             &chanlimitCheck();
@@ -545,7 +545,7 @@ sub on_join {
     }
 
     if ( $netsplit and !exists $cache{netsplit} ) {
-        &VERB( "on_join: ok.... re-running chanlimitCheck in 60.", 2 );
+        &VERB('on_join: ok.... re-running chanlimitCheck in 60.', 2);
         $conn->schedule(
             60,
             sub {
@@ -567,7 +567,7 @@ sub on_join {
     );
 
     $channels{$chan}{''}{$who}++;
-    $nuh = $who . "!" . $user . "\@" . $host;
+    $nuh = $who . '!' . $user . '@' . $host;
     $nuh{ lc $who } = $nuh unless ( exists $nuh{ lc $who } );
 
     ### on-join bans.
@@ -587,7 +587,7 @@ sub on_join {
             &DEBUG(" bans_on_chan($chan) => $_");
         }
 
-        my $reason = "no reason";
+        my $reason = 'no reason';
         foreach ( $chan, '*' ) {
             next unless ( exists $bans{$_} );
             next unless ( exists $bans{$_}{$ban} );
@@ -716,7 +716,7 @@ sub on_msg {
 
     ( $user, $host ) = split( /\@/, $event->userhost );
     $uh      = $event->userhost();
-    $nuh     = $nick . "!" . $uh;
+    $nuh     = $nick . '!' . $uh;
     $msgtime = time();
     $h       = $host;
 
@@ -945,7 +945,7 @@ sub on_public {
     my $nick = $event->nick;
     $who     = $nick;
     $uh      = $event->userhost();
-    $nuh     = $nick . "!" . $uh;
+    $nuh     = $nick . '!' . $uh;
     $msgType = 'public';
 
     # TODO: move this out of hookMsg to here?
@@ -986,7 +986,7 @@ sub on_public {
         # but that will avoid time check.
         my ( $v, $t ) = &sqlSelect(
             'stats',
-            "counter,time",
+            'counter,time',
             {
                 nick    => $who,
                 type    => $x,
@@ -999,10 +999,12 @@ sub on_public {
         if ( ( defined $t && $time - $t > 60 ) or ( !defined $t ) ) {
             &sqlSet(
                 'stats',
-                { 'nick' => $who },
                 {
-                    type    => $x,
-                    channel => $c,
+			        'nick' => $who,
+                    'type'    => $x,
+                    'channel' => $c,
+                },
+                {
                     time    => $time,
                     counter => $v,
                 }
@@ -1053,14 +1055,14 @@ sub on_quit {
             next unless ( exists $channels{$_}{'l'} );
 
             &DEBUG("on_quit: netsplit detected on $_; disabling chan limit.");
-            $conn->mode( $_, "-l" );
+            $conn->mode( $_, '-l' );
         }
 
         $netsplit{ lc $nick } = time();
         if ( !exists $netsplitservers{$1}{$2} ) {
             &status("netsplit detected between $1 and $2 at ["
                   . scalar(gmtime)
-                  . "]" );
+                  . ']' );
             $netsplitservers{$1}{$2} = time();
         }
     }
@@ -1170,10 +1172,10 @@ sub on_topicinfo {
 
     my $timestr;
     if ( time() - $time > 60 * 60 * 24 ) {
-        $timestr = "at " . gmtime $time;
+        $timestr = 'at ' . gmtime $time;
     }
     else {
-        $timestr = &Time2String( time() - $time ) . " ago";
+        $timestr = &Time2String( time() - $time ) . ' ago';
     }
 
     &status(">>> set by $b_cyan$setby$ob $timestr");
@@ -1273,7 +1275,7 @@ sub on_who {
     $conn = shift(@_);
     my ($event) = @_;
     my @args    = $event->args;
-    my $str     = $args[5] . "!" . $args[2] . "\@" . $args[3];
+    my $str     = $args[5] . '!' . $args[2] . '@' . $args[3];
 
     if ( $cache{on_who_Hack} ) {
         $cache{nuhInfo}{ lc $args[5] }{Nick} = $args[5];
@@ -1284,11 +1286,11 @@ sub on_who {
     }
 
     if ( $args[5] =~ /^nickserv$/i and !$nickserv ) {
-        &DEBUG("ok... we did a who for nickserv.");
+        &DEBUG('ok... we did a who for nickserv.');
         &rawout("PRIVMSG NickServ :IDENTIFY $param{'nickServ_pass'}");
     }
 
-    $nuh{ lc $args[5] } = $args[5] . "!" . $args[2] . "\@" . $args[3];
+    $nuh{ lc $args[5] } = $args[5] . '!' . $args[2] . '@' . $args[3];
 }
 
 sub on_whois {
@@ -1296,7 +1298,7 @@ sub on_whois {
     my ($event) = @_;
     my @args = $event->args;
 
-    $nuh{ lc $args[1] } = $args[1] . "!" . $args[2] . "\@" . $args[3];
+    $nuh{ lc $args[1] } = $args[1] . '!' . $args[2] . '@' . $args[3];
 }
 
 sub on_whoischannels {
