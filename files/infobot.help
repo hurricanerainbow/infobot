@@ -2,76 +2,32 @@
 #  Author: Tim Riker <Tim@Rikers.org>
 ###
 
+# Special entry
 main: I learn mainly by observing declarative statements such as "x is at http://www.xxx.com", and then reply when people ask things like "where can i find x?"
 
 action: This is used to override the usual response. "x is <action> does the hokey-pokey". When asked about x, the bot does this "* infobot does the hokey-pokey"
 
+addressing: It is a good idea if I stay in REQUIRE mode so that I won't yell out random crap if I listen in too hard.  Currently there is no way to turn this off on-the-fly. (REQUIRE mode requires me to be addressed by name if I am to respond)
+
 alternation: The || symbol in an entry causes an infobot to choose one of the replies at random. "X is Y||Z" will produce "X is Y" or "X is Z" randomly.
 
 author: oznoid (mailto:lenzo@ri.cmu.edu) is my original author.
-
-dollar variables: D: To be used in factoids
-dollar variables: $Fdunno      - ...
-dollar variables: $Fquestion   - ...
-dollar variables: $Fupdate     - ...
-dollar variables: $channel     - channel from which the factoid was requested
-dollar variables: $date        - current date (GMT)
-dollar variables: $day         - day of week (full name, locale)
-dollar variables: $factoids    - factoid count
-dollar variables: $host        - hostname of factoid requester
-dollar variables: $ident       - bot nick
-dollar variables: $lastspeaker - ...
-dollar variables: $memusage    - ...
-dollar variables: $rand        - random number, also $rand100.2
-dollar variables: $randnick    - random nick
-dollar variables: $startTime   - start time
-dollar variables: $time        - current time (GMT)
-dollar variables: $uptime      - ...
-dollar variables: $user        - username of factoid requester
-dollar variables: $who         - nick of factoid requester
-
-corrections: If I come back with "...but x is at http://xx.xx.xx" or something like that, and you want to change the entry, use "no, x is at http://sdfsdfsdf".  The "No," tells me to supercede the existing value.
-corrections: you can append stuff to a factoid with "also". "x is also at ..."
-
-math: D: math expresions can be evaluated. This uses Perl syntax.
-math: E: 1+1
-math: + - add
-math: - - subtract
-math: * - multiply
-math: / - division
-math: ** - to the power
-math: pi - pi
-math: & - and
-math: | = or
-math: ^ - xor
-
-redirection: If a factoid x contains simply "<reply> see y", then when asked for x, I will deliver factoidor command result y instead.
-
-reply: There is a special tag, <reply>, that is used to override the usual response.  Usually, a response is "X is Y", but it can be made "Y" by making the entry "X is <reply> Y".
-
-# now the commands...
-
-adduser: D: Administrative command to add new user to the .users file
-adduser: U: ## <user> <mask>
-adduser: E: ## bloot bloot!bloot@example.com
-
-addressing: It is a good idea if I stay in REQUIRE mode so that I won't yell out random crap if I listen in too hard.  Currently there is no way to turn this off on-the-fly. (REQUIRE mode requires me to be addressed by name if I am to respond)
 
 babelfish: D: Frontend to babelfish translating service provided by http://babelfish.altavista.com/ Note that utf8 is used for non-ascii characters.
 babelfish: U: x <fromLang> <toLang> <words>
 babelfish: U: translate <fromLang> <toLang> <words>
 babelfish: E: x en de your cars rock
 
--ban: D: FIXME:
--ban: U: ## <mask|user>
--ban: E: ## *!*@owns.org
--ban: E: ## MoronMan
+bandel: D: FIXME:
+bandel: U: ## <mask|user>
+bandel: E: ## *!*@owns.org
+bandel: E: ## MoronMan
 
-+ban: D: FIXME:
-+ban: U: ## <mask|user> [chan] [time] [reason]
-+ban: E: ## *!*@owns.org #bots 60 stop flooding.
-+ban: E: ## *!*@*microsoft.com STOOPID
-+ban: E: ## MoronMan
+banadd: D: FIXME:
+banadd: U: ## <mask|user> [chan] [time] [reason]
+banadd: E: ## *!*@owns.org #bots 60 stop flooding.
+banadd: E: ## *!*@*microsoft.com STOOPID
+banadd: E: ## MoronMan
 
 botmail: D: Send someone botmail
 botmail: U: ## {for <who>[:] <message>}|stats|check|read
@@ -80,13 +36,13 @@ botmail: E: ## stats
 botmail: E: ## check
 botmail: E: ## read
 
--chan: D: Leave a channel permanently
--chan: U: ## -#channel
--chan: E: ## -#botpark
+chanadd: D: Join a channel permanently
+chanadd: U: ## #channel
+chanadd: E: ## #botpark
 
-+chan: D: Join a channel permanently
-+chan: U: ## #channel
-+chan: E: ## #botpark
+chandel: D: Leave a channel permanently
+chandel: U: ## -#channel
+chandel: E: ## -#botpark
 
 chaninfo: D: Display channel statistics on Op, Ban, Deop, Unban, Part, Join, SignOff, PublicMsg, Kick and Topic
 chaninfo: U: ## [#channel]
@@ -129,6 +85,9 @@ contents: E: ## x11amp potato
 
 cookie: I can feed your appetite with random factoids.
 
+corrections: If I come back with "...but x is at http://xx.xx.xx" or something like that, and you want to change the entry, use "no, x is at http://sdfsdfsdf".  The "No," tells me to supercede the existing value.
+corrections: you can append stuff to a factoid with "also". "x is also at ..."
+
 cpustats: cpustats dumps the bot's cpu usage this session
 
 crypt: It's good that you thought about encryption. I can do it for you.
@@ -148,10 +107,6 @@ dauthor: E: ## Wichert potato
 
 dbugs: D: Show the current count of release critical bugs (latest versions)
 dbugs: U: ##
-
-deluser: D: Administrative command to remove a user from the .users file
-deluser: U: ## <user>
-deluser: E: ## bloot
 
 ddesc: D: Search the Description: lines in Debian packages
 ddesc: U: ## <string> [dist]
@@ -175,6 +130,26 @@ dns: E: ## 3.1.33.7
 
 do: D: operator command to do things in a channel
 do: U: ## <chan> <what>
+
+dollar variables: D: To be used in factoids
+dollar variables: $Fdunno      - ...
+dollar variables: $Fquestion   - ...
+dollar variables: $Fupdate     - ...
+dollar variables: $channel     - channel from which the factoid was requested
+dollar variables: $date        - current date (GMT)
+dollar variables: $day         - day of week (full name, locale)
+dollar variables: $factoids    - factoid count
+dollar variables: $host        - hostname of factoid requester
+dollar variables: $ident       - bot nick
+dollar variables: $lastspeaker - ...
+dollar variables: $memusage    - ...
+dollar variables: $rand        - random number, also $rand100.2
+dollar variables: $randnick    - random nick
+dollar variables: $startTime   - start time
+dollar variables: $time        - current time (GMT)
+dollar variables: $uptime      - ...
+dollar variables: $user        - username of factoid requester
+dollar variables: $who         - nick of factoid requester
 
 dstats: D: Show basic stats on the current size of the Debian distros
 dstats: U: ## [dist]
@@ -208,6 +183,22 @@ factstats: == unrequest -- unrequested factoids.
 factstats: == vandalism -- ??
 factstats: E: ## new
 
+flags: D: Flags for chattr command
+flags: D: "A" - bot administration over /msg (default is only via DCC CHAT)
+flags: D: "O" - dynamic ops (as on channel). (automatic +o)
+flags: D: "T" - add topics.
+flags: D: "a" - ask/request factoid.
+flags: D: "m" - modify all factoids. (includes renaming)
+flags: D: "M" - modify own factoids. (includes renaming)
+flags: D: "n" - bot owner, can "reload"
+flags: D: "o" - master of bot (automatic +amrt)
+flags: D:        - can search on factoid strings shorter than 2 chars
+flags: D:        - can tell bot to join new channels
+flags: D:        - can [un]lock factoids
+flags: D: "r" - remove factoid.
+flags: D: "t" - teach/add factoid.
+flags: D: "s" - Bypass +silent on channels
+
 forget: If I have an old/redundant factoid x, "forget x" will cause me to erase it.
 
 freshmeat: D: Frontend to www.freshmeat.net
@@ -217,6 +208,21 @@ freshmeat: E: ## infobot
 hex: D: Convert ascii to hex
 hex: U: ## <string>
 hex: E: ## carrot
+
+hex2ip: D: Convert Hex idents for some gateways to an IP address
+hex2ip: U: ## <8 char hex value>
+hex2ip: E: ## AabBcC12
+
+hostadd: D: admin command to list or add hostmasks to a user account
+hostadd: U: ## [user] [<mask>]
+hostadd: E: ## owner
+hostadd: E: ## *!*@owns.org
+hostadd: E: ## owner leet!leet@*.heh.org
+
+hostdel: D: admin command to remove hostmask from a user account
+hostdel: U: ## [user] <mask>
+hostdel: E: ## *!*@owns.org
+hostdel: E: ## owner leet!leet@*.heh.org
 
 httpdtype: D: Get httpd server software version / configuration
 httpdtype: U: ## <hostname>
@@ -274,6 +280,18 @@ lock: U: ## <factoid>
 lock: E: ## abuse
 lock: N: By default, only registered "ops" on the bots or factoids matching the user's nick are able to lock factoids.
 lock: N: Requires factoid extension (extra) support enabled.
+
+math: D: math expresions can be evaluated. This uses Perl syntax.
+math: E: 1+1
+math: + - add
+math: - - subtract
+math: * - multiply
+math: / - division
+math: ** - to the power
+math: pi - pi
+math: & - and
+math: | = or
+math: ^ - xor
 
 md5: D: calculates the md5sum of a given string
 md5: U: ## <string>
@@ -349,9 +367,13 @@ quote: D: Frontend to yahoo's online stock market share listing
 quote: U: ## <query...>
 quote: E: ## RHAT,MSFT
 
+redirection: If a factoid x contains simply "<reply> see y", then when asked for x, I will deliver factoidor command result y instead.
+
 rename: D: Factoid renaming
 rename: U: ## 'from' 'to'
 rename: E: ## 'infobot' 'infobot'
+
+reply: There is a special tag, <reply>, that is used to override the usual response.  Usually, a response is "X is Y", but it can be made "Y" by making the entry "X is <reply> Y".
 
 reverse: D: reverses a given string
 reverse: U: ## <string>
@@ -447,7 +469,19 @@ unlock: E: ## abuse
 uptime: D: Show the current uptime, and the top 3 uptimes recorded
 uptime: U: ##
 
+useradd: D: Administrative command to add new user to the .users file
+useradd: U: ## <user> <mask>
+useradd: E: ## SomeAccount SomeAccount!someguy@example.com
+
+userdel: D: Administrative command to remove a user from the .users file
+userdel: U: ## <user>
+userdel: E: ## SomeAccount
+
 wantnick: If someone's taken my nick (I hope not) and I'm using some temporary nick, I can change back to my original nick if it's not taken (again).
+
+whois: D: List available information for an account on the bot
+whois: U: ## <account>
+whois: E: ## SomeAccount
 
 wikipedia: D: Frontend to the Wikipedia at http://www.wikipedia.org/wiki/ Note that utf8 is used for non-ascii characters.
 wikipedia: U: ## <topic>
@@ -458,41 +492,10 @@ wtf: D: Interface to the BSD wtf command
 wtf: U: ## <abbreviation>
 wtf: E: ## iirc
 
--host: D: admin command to remove hostmask from a user account
--host: U: ## [user] <mask>
--host: E: ## *!*@owns.org
--host: E: ## owner leet!leet@*.heh.org
-
-+host: D: admin command to list or add hostmasks to a user account
-+host: U: ## [user] [<mask>]
-+host: E: ## owner
-+host: E: ## *!*@owns.org
-+host: E: ## owner leet!leet@*.heh.org
-
-flags: D: Flags for chattr command
-flags: D: "A" - bot administration over /msg (default is only via DCC CHAT)
-flags: D: "O" - dynamic ops (as on channel). (automatic +o)
-flags: D: "T" - add topics.
-flags: D: "a" - ask/request factoid.
-flags: D: "m" - modify all factoids. (includes renaming)
-flags: D: "M" - modify own factoids. (includes renaming)
-flags: D: "n" - bot owner, can "reload"
-flags: D: "o" - master of bot (automatic +amrt)
-flags: D:        - can search on factoid strings shorter than 2 chars
-flags: D:        - can tell bot to join new channels
-flags: D:        - can [un]lock factoids
-flags: D: "r" - remove factoid.
-flags: D: "t" - teach/add factoid.
-flags: D: "s" - Bypass +silent on channels
-
 rssfeeds: D: rssfeeds is used to control the RSS Feed tracking module
 rssfeeds: U: rssfeeds [command]
 rssfeeds: E: rssfeeds flush
 rssfeeds: D: flush - Will erase the cache file. (Must be chattr +o)
 rssfeeds: D: update - Force a manual update of the feeds. (Must be chattr +o)
-
-hex2ip: D: Convert Hex idents for some gateways to an IP address
-hex2ip: U: ## <8 char hex value>
-hex2ip: E: ## AabBcC12
 
 # vim:ts=4:sw=4:expandtab:tw=80

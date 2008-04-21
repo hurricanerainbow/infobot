@@ -23,7 +23,8 @@ my @regFlagsUser = (
     'O',    # dynamic ops (as on channel). (automatic +o)
     'T',    # add topics.
     'a',    # ask/request factoid.
-    'm',    # modify factoid. (includes renaming)
+    'm',    # modify all factoids. (includes renaming)
+    'M',    # modify own factoids. (includes renaming)
     'n',    # bot owner, can 'reload'
     'o',    # master of bot (automatic +amrt)
             # can search on factoid strings shorter than 2 chars
@@ -757,7 +758,7 @@ sub getUser {
 sub chanSet {
     my ( $cmd, $chan, $what, $val ) = @_;
 
-    if ( $cmd eq '+chan' ) {
+    if ( $cmd eq 'chanadd' ) {
         if ( exists $chanconf{$chan} ) {
             &performStrictReply("chan $chan already exists.");
             return;

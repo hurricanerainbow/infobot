@@ -776,14 +776,6 @@ sub do_text_counters {
     return 1;
 }
 
-sub nullski {
-    my ($arg) = @_;
-    return unless ( defined $arg );
-
-    # big security hole
-    #foreach (`$arg`) { &msg($who,$_); }
-}
-
 %cmdhooks=();
 ###
 ### START ADDING HOOKS.
@@ -827,7 +819,6 @@ sub nullski {
 &addCmdHook('metar', ('CODEREF' => 'Weather::Metar', 'Identifier' => 'Weather', 'Help' => 'weather', 'Cmdstats' => 'Weather', 'Forker' => 1) );
 &addCmdHook('News', ('CODEREF' => 'News::Parse', Module => 'News', 'Cmdstats' => 'News', 'Identifier' => 'News' ) );
 &addCmdHook('(?:nick|lame)ometer(?: for)?', ('CODEREF' => 'nickometer::query', 'Identifier' => 'nickometer', 'Cmdstats' => 'nickometer', 'Forker' => 1) );
-&addCmdHook('nullski', ('CODEREF' => 'nullski', ) );
 &addCmdHook('OnJoin', ('CODEREF' => 'Cmdonjoin', 'Identifier' => 'OnJoin', 'Module' => 'OnJoin') );
 &addCmdHook('page', ('CODEREF' => 'pager::page', 'Identifier' => 'pager', 'Cmdstats' => 'pager', 'Forker' => 1, 'Help' => 'page') );
 &addCmdHook('piglatin', ('CODEREF' => 'piglatin::piglatin', 'Identifier' => 'piglatin', 'Cmdstats' => 'piglatin', 'Forker' => 1) );

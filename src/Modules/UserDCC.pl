@@ -573,8 +573,8 @@ sub userDCC {
         return;
     }
 
-    # +chan.
-    if ( $message =~ /^(chanset|\+chan)(\s+(.*?))?$/ ) {
+    # chanadd.
+    if ( $message =~ /^(chanset|chanadd)(\s+(.*?))?$/ ) {
         my $cmd     = $1;
         my $args    = $3;
         my $no_chan = 0;
@@ -668,13 +668,14 @@ sub userDCC {
         return;
     }
 
-    if ( $message =~ /^(chanunset|\-chan)(\s+(.*))?$/ ) {
+    if ( $message =~ /^(chanunset|chandel)(\s+(.*))?$/ ) {
         return unless ( &hasFlag('n') );
+        my $cmd     = $1;
         my $args    = $3;
         my $no_chan = 0;
 
         if ( !defined $args ) {
-            &help('chanunset');
+            &help($cmd);
             return;
         }
 
@@ -981,10 +982,10 @@ sub userDCC {
         return;
     }
 
-    if ( $message =~ /^([-+])host(\s+(.*))?$/ ) {
-        my $cmd = $1 . 'host';
+    if ( $message =~ /^(hostadd|hostdel)(\s+(.*))?$/ ) {
+        my $cmd = $1;
         my (@args) = split /[\s\t]+/, $3 || '';
-        my $state = ( $1 eq "+" ) ? 1 : 0;
+        my $state = ( $1 eq "hostadd" ) ? 1 : 0;
 
         if ( !scalar @args ) {
             &help($cmd);
@@ -1070,11 +1071,11 @@ sub userDCC {
         return;
     }
 
-    if ( $message =~ /^([-+])ban(\s+(.*))?$/ ) {
-        my $cmd     = $1 . 'ban';
+    if ( $message =~ /^(banadd|bandel)(\s+(.*))?$/ ) {
+        my $cmd     = $1;
         my $flatarg = $3;
         my (@args) = split /[\s\t]+/, $3 || '';
-        my $state = ( $1 eq "+" ) ? 1 : 0;
+        my $state = ( $1 eq "banadd" ) ? 1 : 0;
 
         if ( !scalar @args ) {
             &help($cmd);
@@ -1164,7 +1165,7 @@ sub userDCC {
 
         my $user = &getUser($arg);
         if ( !defined $user ) {
-            &performStrictReply("whois: user $user does not exist.");
+            &performStrictReply("whois: user '$arg' does not exist.");
             return;
         }
 
@@ -1378,22 +1379,21 @@ sub userDCC {
         return;
     }
 
-    # adduser/deluser.
-    if ( $message =~ /^(add|del)user(\s+(.*))?$/i ) {
-        my $str    = $1;
-        my $strstr = $1 . 'user';
+    # useradd/userdel.
+    if ( $message =~ /^(useradd|userdel)(\s+(.*))?$/i ) {
+        my $cmd    = $1;
         my @args   = split /\s+/, $3 || '';
         my $args   = $3;
-        my $state  = ( $str =~ /^(add)$/ ) ? 1 : 0;
+        my $state  = ( $cmd eq "useradd" ) ? 1 : 0;
 
         if ( !scalar @args ) {
-            &help($strstr);
+            &help($cmd);
             return;
         }
 
-        if ( $str eq 'add' ) {
+        if ( $cmd eq 'useradd' ) {
             if ( scalar @args != 2 ) {
-                &performStrictReply('adduser requires hostmask argument.');
+                &performStrictReply('useradd requires hostmask argument.');
                 return;
             }
         }
