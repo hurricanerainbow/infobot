@@ -466,6 +466,10 @@ unlock: D: Factoid unlocking to allow removal by others.
 unlock: U: ## <factoid>
 unlock: E: ## abuse
 
+upsidedown: D: display a string in pseudo upside down unicode text
+upsidedown: U: ## <string>
+upsidedown: E: ## When will infobot achieve world domination?
+
 uptime: D: Show the current uptime, and the top 3 uptimes recorded
 uptime: U: ##
 
