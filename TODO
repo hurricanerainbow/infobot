@@ -34,7 +34,6 @@ TODO:
 		- need to modify parseCmdHooks for user flags?
 	- make timers below 5 or 10 mins non-random values.
 	- create a .csv import/export program
-	- unicode flip module a la http://www.revfad.com/flip.html
 -- EFFORT 1.
 	- make IRC/Schedulers.pl work 100%.
 		- intervals must be multiple of the smallest one otherwise

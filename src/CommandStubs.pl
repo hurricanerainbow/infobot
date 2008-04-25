@@ -834,6 +834,7 @@ sub do_text_counters {
 &addCmdHook('slashdot', ('CODEREF' => 'Slashdot::Slashdot', 'Identifier' => 'slashdot', 'Forker' => 1, 'Cmdstats' => 'slashdot') );
 &addCmdHook('tell|explain', ('CODEREF' => 'tell', Help => 'tell', Identifier => 'allowTelling', Cmdstats => 'Tell') );
 &addCmdHook('uc', ('CODEREF' => 'case::upper', 'Identifier' => 'case', 'Cmdstats' => 'case', 'Forker' => 1, 'Module' => 'case') );
+&addCmdHook('upsidedown', ('CODEREF' => 'upsidedown::upsidedown', 'Identifier' => 'upsidedown', 'Cmdstats' => 'upsidedown', 'Forker' => 1, 'Module' => 'upsidedown') );
 &addCmdHook('Uptime', ('CODEREF' => 'uptime', 'Identifier' => 'Uptime', 'Cmdstats' => 'Uptime') );
 &addCmdHook('u(ser)?info', ('CODEREF' => 'userinfo', 'Identifier' => 'UserInfo', 'Help' => 'userinfo', 'Module' => 'UserInfo') );
 &addCmdHook('verstats', ('CODEREF' => 'do_verstats' ) );
