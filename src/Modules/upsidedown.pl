@@ -126,7 +126,13 @@ sub turnedstr {
     my $turned = '';
     my $tlength = 0;
 
+    # add reverse mappings
+    foreach my $up (keys %updown) {
+        $updown{$updown{$up}} = $up if ! exists $updown{$updown{$up}};
+    }
+
     for my $char ( $str =~ /(\X)/g ) {
+#print STDERR "str=\"$str\" char=\"$char\"\n";
         if ( exists $updown{$char} ) {
             my $t = $updown{$char};
             $t = $missing if !length($t);
@@ -153,6 +159,8 @@ sub upsidedown {
     &::performStrictReply( turnedstr( $message ) );
 }
 
+#binmode(STDERR, "encoding(UTF-8)");
+#print STDERR turnedstr("upsidedown ɟǝpɔqɐabcdef") . "\n";
 1;
 
 # vim:ts=4:sw=4:expandtab:tw=80
