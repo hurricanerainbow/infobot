@@ -7,6 +7,7 @@
 #
 
 use strict;
+use utf8;
 
 use vars qw($statcount $bot_pid $forkedtime $statcountfix $addressed);
 use vars qw($logDate $logold $logcount $logtime $logrepeat $running);
@@ -91,6 +92,7 @@ sub cl {
 
 # logging support.
 sub openLog {
+    binmode( STDOUT, ':encoding(UTF-8)' );
     return unless ( &IsParam('logfile') );
     $file{log} = $param{'logfile'};
 
