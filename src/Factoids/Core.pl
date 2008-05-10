@@ -20,7 +20,7 @@ sub validFactoid {
 
         # allow the following only if they have been made on purpose.
         if ( $rhs ne '' and $rhs !~ /^</ ) {
-            / \Q$ident$/i and last;    # someone said i'm something.
+            / \Q$ident\E$/i and last;    # someone said i'm something.
             /^i('m)? /    and last;
             /^(it|that|there|what)('s)?(\s+|$)/ and last;
             /^you('re)?(\s+|$)/                 and last;
@@ -84,7 +84,7 @@ sub validFactoid {
         $rhs =~ /( \Q$ident\E's|\Q$ident\E's )/i and last;    # ownership.
 
         # duplication.
-        $rhs =~ /^\Q$lhs /i and last;
+        $rhs =~ /^\Q$lhs\E /i and last;
         last if ( $rhs =~ /^is /i and / is$/ );
 
         $valid++;
@@ -552,12 +552,14 @@ sub FactoidStuff {
     for ($question) {
 
         # fix the string.
-        s/^hey([, ]+)where/where/i;
+        s/^where is //i;
         s/\s+\?$/?/;
-        s/^whois /who is /i
-          ;    # Must match ^, else factoids with "whois" anywhere break
-        s/where can i find/where is/i;
-        s/how about/where is/i;
+        s/^whois //i;   # Must match ^, else factoids with "whois" anywhere break
+        s/^who is //i;
+        s/^what is (a|an)?//i;
+        s/^how do i //i;
+        s/^where can i (find|get|download)//i;
+        s/^how about //i;
         s/ da / the /ig;
 
         # clear the string of useless words.

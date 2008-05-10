@@ -23,7 +23,6 @@ sub doQuestion {
     local ($query) = @_;
     local ($reply) = '';
     local $finalQMark = $query =~ s/\?+\s*$//;
-    $finalQMark += $query =~ s/\?\s*$//;
     $query =~ s/^\s+|\s+$//g;
 
     if ( !defined $query or $query =~ /^\s*$/ ) {
@@ -34,8 +33,16 @@ sub doQuestion {
 
     if ( !$addressed ) {
         return '' unless ($finalQMark);
-        return '' unless &IsChanConf('minVolunteerLength') > 0;
-        return '' if ( length $query < &::getChanConf('minVolunteerLength') );
+        return ''
+          if (
+            length $query <
+            &::getChanConfDefault( 'minVolunteerLength', 2, $chan ) or
+            $param{'addressing'} =~ m/require/i );
+        return ''
+          if (
+            length $query >
+            &::getChanConfDefault( 'maxVolunteerLength', 512, $chan ) or
+            $param{'addressing'} =~ m/require/i );
     }
     else {
         ### TODO: this should be caught in Process.pl?

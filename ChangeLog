@@ -1,3 +1,13 @@
+1.5.3
+=====
+
+* New maxVolunteerLength to govern max size of non addressed replies
+
+* Cleaned up some of the regex code for what the bot considers a question
+
+* Fixed an obscure and undocumented variable that was disabling "query?"
+questions in non addressed mode
+
 1.5.2
 =====
 

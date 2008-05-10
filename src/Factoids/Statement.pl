@@ -58,6 +58,24 @@ sub doStatement {
     if ( $in =~ /(^|\s)(is|are)(\s|$)/i ) {
         my ( $lhs, $mhs, $rhs ) = ( $`, $&, $' );
 
+        # Quit if they are over the limits. Check done here since Core.pl calls
+        # this mid sub and Question.pl needs its own check as well. NOTE: $in is
+        # used in this place since lhs and rhs are really undefined for unwanted
+        # teaching. Mainly, the "is" could be anywhere within a 510 byte or so
+        # block of text, so the total size was choosen since the sole purpose of
+        # this logic is to not hammer the db with pointless factoids that were
+        # only meant to be general conversation.
+        return ''
+          if (
+            length $in <
+            &::getChanConfDefault( 'minVolunteerLength', 2, $chan ) or
+            $param{'addressing'} =~ m/require/i ) and not $addressed;
+        return ''
+          if (
+            length $in >
+            &::getChanConfDefault( 'maxVolunteerLength', 512, $chan ) or
+            $param{'addressing'} =~ m/require/i ) and not $addressed;
+
         # allows factoid arguments to be updated. -lear.
         $lhs =~ s/^(cmd: )?(.*)/$1||'' . lc $2/e;
 

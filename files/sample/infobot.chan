@@ -76,7 +76,8 @@ _default
     maxListReplyCount 15
     maxListReplyLength 400
     +md5
-    minVolunteerLength 50
+    minVolunteerLength 2
+    maxVolunteerLength 512
     +nickometer
     +pager
     +piglatin
