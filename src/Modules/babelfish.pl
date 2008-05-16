@@ -115,6 +115,10 @@ sub translate {
         $translated =~ s/<[^>]*>/ /sg;
         # \n to space
         $translated =~ s/[\n\r\t]/ /g;
+        # strip leading whitespace
+        $translated =~ s/^\s+//sg;
+        # strip trailing whitespace
+        $translated =~ s/\s+$//sg;
         # strip multiple whitespace
         $translated =~ s/\s+/ /sg;
 
