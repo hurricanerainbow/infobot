@@ -14,7 +14,8 @@ package babelfish;
 use strict;
 
 my $no_babelfish;
-my $url = 'http://babelfish.av.com/tr';
+#my $url = 'http://babelfish.av.com/tr';
+my $url = 'http://babelfish.yahoo.com/translate_txt';
 
 BEGIN {
     eval "use URI::Escape";    # utility functions for encoding the
@@ -98,27 +99,27 @@ sub translate {
     if ( $res->is_success ) {
         my $html = $res->content;
 
-        # This method subject to change with the whims of Altavista's design
-        # staff.
+        # This method subject to change with the whims of Babelfish design staff.
         ($translated) = $html;
-
-        $translated =~ s/<[^>]*>//sg;
+        # strip page head
+        $translated =~ s/.*<\/head>//sg;
+        &::DEBUG("================================\n$translated\n========================\n");
+        # convert back to spaces
         $translated =~ s/&nbsp;/ /sg;
+        # strip multiple whitespace
+        $translated =~ s/\s+/ /sg;
+        # strip up to result
+        $translated =~ s/.*<div id="result">//sg;
+        # strip rest of page
+        $translated =~ s/<\/div.*//sg;
+        # strip all markup
+        $translated =~ s/<[^>]*>//sg;
+        # \n to space
+        $translated =~ s/\n/ /g;
+        # strip multiple whitespace
         $translated =~ s/\s+/ /sg;
 
-        #&::DEBUG("$translated\n===remove <attributes>\n");
-
-        $translated =~ s/\s*Translate again.*//i;
-        &::DEBUG("$translated\n===remove after 'Translate again'\n");
-
-        $translated =~ s/[^:]*?:\s*(Help\s*)?//s;
-        &::DEBUG( "len="
-              . length($translated)
-              . " $translated\n===remove to first ':', optional Help\n" );
-
-        $translated =~ s/\n/ /g;
-
-        # FIXME: should we do unicode->iso (no. use utf8!)
+        # FIXME: any entities to utf8?
     }
     else {
         $translated = ":(";    # failure
@@ -146,20 +147,6 @@ sub babelfish {
         &::performStrictReply( &babelfishParam( lc $1, lc $2, lc $3 ) );
     }
     return;
-}
-
-if (0) {
-    if ( -t STDIN ) {
-
-#my $result = babelfish::babelfish('en sp hello world');
-#my $result = babelfish::babelfish('en sp The cheese is old and moldy, where is the bathroom?');
-        my $result =
-          babelfish::babelfish(
-            'en gr doesn\'t seem to translate things longer than 40 characters'
-          );
-        $result =~ s/; /\n/g;
-        print "Babelfish says: \"$result\"\n";
-    }
 }
 
 1;
