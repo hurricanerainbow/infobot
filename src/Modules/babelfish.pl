@@ -74,11 +74,8 @@ sub babelfishParam {
 
     my $req = HTTP::Request->new( 'POST', $url );
 
-    # babelfish ignored this, but it SHOULD work
-    # Accept-Charset: iso-8859-1
-    #  $req->header('Accept-Charset' => 'iso-8859-1');
-    #  print $req->header('Accept-Charset');
-    $req->header( 'Accept-Language' => 'en' );
+    $req->header('Accept-Language' => 'en-us');
+    $req->header('Accept-Charset' => 'UTF-8,*');
     $req->content_type('application/x-www-form-urlencoded');
 
     return translate( $phrase, "${from}_${to}", $req, $ua );
@@ -103,19 +100,21 @@ sub translate {
         ($translated) = $html;
         # strip page head
         $translated =~ s/.*<\/head>//sg;
-        &::DEBUG("================================\n$translated\n========================\n");
+        # clean before doc-body
+        $translated =~ s/.*<div id="doc-body"[^>]*>//sg;
+        # clean after first form
+        $translated =~ s/<\/form>.*//sg;
         # convert back to spaces
         $translated =~ s/&nbsp;/ /sg;
-        # strip multiple whitespace
-        $translated =~ s/\s+/ /sg;
+        &::DEBUG("================================\n$translated\n========================\n");
         # strip up to result
         $translated =~ s/.*<div id="result">//sg;
         # strip rest of page
         $translated =~ s/<\/div.*//sg;
         # strip all markup
-        $translated =~ s/<[^>]*>//sg;
+        $translated =~ s/<[^>]*>/ /sg;
         # \n to space
-        $translated =~ s/\n/ /g;
+        $translated =~ s/[\n\r\t]/ /g;
         # strip multiple whitespace
         $translated =~ s/\s+/ /sg;
 
