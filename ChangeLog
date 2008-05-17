@@ -12,6 +12,11 @@ questions in non addressed mode
 
 * Added chanset and help for verstats to allow disabling of command to prevent abuse
 
+* Fixed verstats to warn the channel about who involked the command and bug that
+was causing the output to go to random channels due to loss of variable scope
+
+* Added infobot client to verstats and cleaned up a few other client regex
+
 1.5.2
 =====
 

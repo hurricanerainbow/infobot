@@ -1201,11 +1201,17 @@ sub on_crversion {
     }
     push( @vernick, $nick );
 
+    &DEBUG("on_crversion: Got '$ver' from $nick");
+
     if ( $ver =~ /bitchx/i ) {
         $ver{bitchx}{$nick} = $ver;
 
     }
-    elsif ( $ver =~ /xc\!|xchat/i ) {
+    elsif ( $ver =~ /infobot/i ) {
+        $ver{infobot}{$nick} = $ver;
+
+    }
+    elsif ( $ver =~ /(xc\!|xchat)/i ) {
         $ver{xchat}{$nick} = $ver;
 
     }
@@ -1213,20 +1219,19 @@ sub on_crversion {
         $ver{irssi}{$nick} = $ver;
 
     }
-    elsif ( $ver =~ /epic|(Third Eye)/i ) {
+    elsif ( $ver =~ /(epic|Third Eye)/i ) {
         $ver{epic}{$nick} = $ver;
 
     }
-    elsif ( $ver =~ /ircII|PhoEniX/i ) {
+    elsif ( $ver =~ /(ircII|PhoEniX)/i ) {
         $ver{ircII}{$nick} = $ver;
 
     }
     elsif ( $ver =~ /mirc/i ) {
-
-        #	&DEBUG("verstats: mirc: $nick => '$ver'.");
+        # Apparently, mIRC gets the reply as "VERSION " and doesnt like the
+        # space, so mirc matching is considered bugged.
         $ver{mirc}{$nick} = $ver;
 
-        # ok... then we get to the lesser known/used clients.
     }
     elsif ( $ver =~ /ircle/i ) {
         $ver{ircle}{$nick} = $ver;

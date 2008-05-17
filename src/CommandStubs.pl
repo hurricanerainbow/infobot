@@ -591,8 +591,14 @@ sub do_verstats {
         return;
     }
 
-    &msg( $who, "Sending CTCP VERSION to $chan; results in 60s." );
-    $conn->ctcp( 'VERSION', $chan );
+    &msg( $who,  "Sending CTCP VERSION to $chan; results in 60s." );
+    &msg( $chan, "WARNING: $who has forced me to CTCP VERSION the channel!" );
+
+    # Workaround for bug in Net::Irc, provided by quin@freenode. Details at:
+    # http://rt.cpan.org/Public/Bug/Display.html?id=11421
+    # $conn->ctcp( 'VERSION', $chan );
+    $conn->sl("PRIVMSG $chan :\001VERSION\001");
+
     $cache{verstats}{chan}    = $chan;
     $cache{verstats}{who}     = $who;
     $cache{verstats}{msgType} = $msgType;
@@ -618,7 +624,6 @@ sub do_verstats {
             my $vtotal = 0;
             my $c      = lc $cache{verstats}{chan};
             my $total  = keys %{ $channels{$c}{''} };
-            $chan    = $c;
             $who     = $cache{verstats}{who};
             $msgType = $cache{verstats}{msgType};
             delete $cache{verstats};    # sufficient?
@@ -651,8 +656,7 @@ sub do_verstats {
             }
 
             # hack. this is one major downside to scheduling.
-            $chan = $c;
-            &performStrictReply(
+            &msg($c,
                 &formListReply( 0, "IRC Client versions for $c ", @list ) );
 
             # clean up not-needed data structures.
@@ -669,7 +673,9 @@ sub verstats_flush {
         last unless ( scalar @vernicktodo );
 
         my $n = shift(@vernicktodo);
-        $conn->ctcp( 'VERSION', $n );
+        #$conn->ctcp( 'VERSION', $n );
+        # See do_verstats $conn->sl for explantaion
+        $conn->sl("PRIVMSG $n :\001VERSION\001");
     }
 
     return unless ( scalar @vernicktodo );
