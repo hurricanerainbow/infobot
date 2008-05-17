@@ -6,7 +6,6 @@ Q: The bot exits after I run 'factstats testing' or 'kernel' or anything
 A: No, this is not a bug in the bot but rather Net::IRC.  A cheap hack is
    to edit /usr/lib/perl5/Net/IRC/Connection.pm, search for DESTROY, and
    comment out '$self->quit();'
-A: Apply the patches in the patches/ directory.
 
 
 Q: I notice that, in the bot logs, the bot attempts to close all current

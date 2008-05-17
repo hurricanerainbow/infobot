@@ -40,28 +40,6 @@ Finally, start your bot by changing to the base dir and type:
 
 
 
-                                 -------------
-                                 -- Patches --
-                                 -------------
-
-- apply *.patch patches inside patches/
-    - cd /usr/lib/perl5/WWW/Search
-    - patch -p0 < WWW::Search::Google.patch
-
-- alternatively, move the files from patches/
-    - mv patches/Google.pm /usr/lib/perl5/WWW/Search/
-
-
-Net::IRC DCC CHAT
------------------
-Unfortunately, Net::IRC 0.70 has buggy code that does not detect DCC CHAT
-properly. to patch:
-    - cd /usr/share/perl5/Net/IRC/
-    - cat ~bot/patches/Net_IRC_Connection_pm.patch | patch -p0
-
-
-
-
                                 ----------------
                                 -- PostgreSQL --
                                 ----------------
