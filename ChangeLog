@@ -8,6 +8,8 @@
 * Fixed an obscure and undocumented variable that was disabling "query?"
 questions in non addressed mode
 
+* Fixed bug in babelfish module due to site/html changes
+
 1.5.2
 =====
 
