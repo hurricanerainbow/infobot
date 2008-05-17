@@ -10,6 +10,8 @@ questions in non addressed mode
 
 * Fixed bug in babelfish module due to site/html changes
 
+* Added chanset and help for verstats to allow disabling of command to prevent abuse
+
 1.5.2
 =====
 

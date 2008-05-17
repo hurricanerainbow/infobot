@@ -837,7 +837,7 @@ sub do_text_counters {
 &addCmdHook('upsidedown', ('CODEREF' => 'upsidedown::upsidedown', 'Identifier' => 'upsidedown', 'Cmdstats' => 'upsidedown', 'Forker' => 1, 'Module' => 'upsidedown') );
 &addCmdHook('Uptime', ('CODEREF' => 'uptime', 'Identifier' => 'Uptime', 'Cmdstats' => 'Uptime') );
 &addCmdHook('u(ser)?info', ('CODEREF' => 'userinfo', 'Identifier' => 'UserInfo', 'Help' => 'userinfo', 'Module' => 'UserInfo') );
-&addCmdHook('verstats', ('CODEREF' => 'do_verstats' ) );
+&addCmdHook('verstats', ('CODEREF' => 'do_verstats', 'Identifier' => 'verstats', 'Help' => 'verstats', 'Cmdstats' => 'verstats') );
 &addCmdHook('Weather', ('CODEREF' => 'Weather::Weather', 'Identifier' => 'Weather', 'Help' => 'weather', 'Cmdstats' => 'Weather', 'Forker' => 1, 'Module' => 'Weather') );
 &addCmdHook('wiki(pedia)?', ('CODEREF' => 'wikipedia::wikipedia', 'Identifier' => 'wikipedia', 'Cmdstats' => 'wikipedia', 'Forker' => 1, 'Help' => 'wikipedia', 'Module' => 'wikipedia') );
 &addCmdHook('wtf', ('CODEREF' => 'wtf::query', 'Identifier' => 'wtf', 'Cmdstats' => 'wtf', 'Forker' => 1, 'Help' => 'wtf', 'Module' => 'wtf') );

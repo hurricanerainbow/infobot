@@ -481,6 +481,11 @@ userdel: D: Administrative command to remove a user from the .users file
 userdel: U: ## <user>
 userdel: E: ## SomeAccount
 
+verstats: D: Commnd to CTCP VERSION the specified channel for client statistics
+verstats: U: ## <channel>
+verstats: E: ## #infobot
+verstats: E: < infobot> IRC Client versions for #infobot (2): unknown/cloak - 3 (75%) ;; irssi - 1 (25%).
+
 wantnick: If someone's taken my nick (I hope not) and I'm using some temporary nick, I can change back to my original nick if it's not taken (again).
 
 whois: D: List available information for an account on the bot
