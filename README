@@ -21,7 +21,7 @@ FEATURES
 	* Improved factoid search, allowing search by key or value.
 	* Freshmeat support (freshmeat.net)
 	* Debian Contents and Packages, search and info.
-	* ChanServ/NickServ (OPN) support.
+	* ChanServ/NickServ (freenode) support.
 	* WWW-Search (eg: google for BLAH)
 	* Slashdot, Kernel and Freshmeat auto-update announcements.
 	* Units conversion (provided by external module, Units-Module)
@@ -76,10 +76,6 @@ However, these people do not realize the potential of open wingates.
 	Please beta test it and report bugs as I have not had the time to
 test all modifications properly (and extensively).  Suggestions are
 welcomed.
-
-	gp@OPN is currently working on a C version of infobot or
-blootbot, not based on the above source base.  Core factoid code and
-mysql support works - but that is it.
 
 
 MODIFICATIONS
@@ -139,13 +135,13 @@ modifications, aswell as giving suggestions and ideas in the early
 development stages. Bashing of modifications courtesy of larne, irq, lilo
 and \broken.
 
-	mu@OPN for the SAR (=~ s///) and Topic history patch.
+	mu@freenode for the SAR (=~ s///) and Topic history patch.
 
 	someone emailed me a patch to fix up telnet but I accidently
 deleted the message together with the patch after replying to the guy. I
 hope to get that same guy to re-send me the patch...
 
-	MbM@OPN sent a patch to clean up behaviour of factoids
+	MbM@freenode sent a patch to clean up behaviour of factoids
 (adding, removing, modifying).  Thanks.
 
 
