@@ -349,7 +349,8 @@ sub process {
 
         # allow administration of bot via messages (default is DCC CHAT only)
         if ( &IsFlag('A') ) {
-            &loadMyModule('UserDCC');
+            # UserDCC.pl should autoload now from IRC/. Remove if desired
+            #&loadMyModule('UserDCC');
             $er = &userDCC();
             if ( !defined $er ) {
                 return 'SOMETHING 2';
