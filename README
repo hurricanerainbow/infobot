@@ -9,35 +9,30 @@ INTRODUCTION
 Kevin Lenzo <lenzo@cs.cmu.edu>, which is now officially rebranded back to
 infobot!  The basis of infobot is still there but _many_ wild features have
 been added.  Along the way, many issues were spotted in the original
-infobot source and fixed in this version. Many new bugs have been added as well
+infobot source and fixed in this version. Many new bugs have been added as well.
 Thanks to kevin for bringing infobot in the first place.
 
 
 FEATURES
 	* Additional information stored with factoids. (factinfo)
-	* Wide range of statistics for Bot, Factoids, IRC, Debian.
+	* Wide range of statistics for Bot, Factoids, IRC, Debian
 	  (status, factstats, ircstats, chanstats, cmdstats)
-	* Advanced topic management. (the first cool feature)
-	* Improved factoid search, allowing search by key or value.
+	* Advanced topic management
+	* Improved factoid search, allowing search by key or value
 	* Freshmeat support (freshmeat.net)
-	* Debian Contents and Packages, search and info.
-	* ChanServ/NickServ (freenode) support.
-	* WWW-Search (eg: google for BLAH)
-	* Slashdot, Kernel and Freshmeat auto-update announcements.
-	* Units conversion (provided by external module, Units-Module)
+	* Debian Contents and Packages, search and info
+	* ChanServ/NickServ (freenode) support
+	* WWW-Search (eg: google for BLAH) (NOTE: Currently broken)
+	* Slashdot, Kernel, RSS and Freshmeat auto-update announcements
+	* Units conversion (provided by external "units" program)
 
 
 DESIGN
-	- Modularity. Ability to disable IRC or Factoid support.
+	- Modularity. Ability to disable IRC or Factoid support
 	- Funky pseudo Module autoloader support
-	- Eleet Forker() function
-
-
-IMPROVEMENTS
-	* log file is not opened and closed for each line of data
-		=> unblocked logging is used.
-	* seen data is not flushed for each public message on IRC
-		=> caching and flushing over an interval is used.
+	- Modules called via Forker() to avoid blocking
+    - Non blocking logs
+    - Seen data periodicaly flushed for efficiency
 
 
 HISTORY
@@ -122,11 +117,11 @@ through DCC CHAT. /chat <BOT NICK>.  All commands must be prepended by
 
 
 UNTESTED:
-	- user statistics shown by 'seen'. bug in this?
+	- user statistics shown by 'seen'.
 	- User Information Services.
 	- new wingate caching/file-read code.
 	- disabling IRC/factoid support code.
-	- PG supports need to be worked and thoroughly tested.
+	- PGSql support needs to be more thoroughly tested.
 
 
 CONTRIBUTIONS
