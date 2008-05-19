@@ -26,8 +26,9 @@ sub process {
     $learnok = 1 if ($addressed);
     if ( $param{'learn'} =~ /^HUNGRY$/i ) {
         $learnok  = 1;
-        $addrchar = 1;
-        $talkok   = 1;
+        #FIXME: why can we talk if we just want to learn?
+        #$addrchar = 1;
+        #$talkok   = 1;
     }
 
     &shmFlush();                     # hack.
