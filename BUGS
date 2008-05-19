@@ -1,5 +1,8 @@
 Known bugs that should be dealt with soon as possible:
 
+    * Multiple nick per server is in need of some testing and make be
+    incomplete or buggy in some parts of the bot
+
     * Older CMD: foo's cannot be used or removed. Must be removed manually from
     the database with SQL
 
