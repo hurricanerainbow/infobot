@@ -150,7 +150,7 @@ sub on_ison {
     &DEBUG("on_ison: x1 = '$x1', x2 => '$x2'");
 }
 
-sub on_endofmotd {
+sub on_connected {
     $conn = shift(@_);
 
     # update IRCStats.

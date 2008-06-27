@@ -172,7 +172,7 @@ sub irc {
         $conns{$mynick}->add_global_handler( 352, \&on_who );
         $conns{$mynick}->add_global_handler( 353, \&on_names );
         $conns{$mynick}->add_global_handler( 366, \&on_endofnames );
-        $conns{$mynick}->add_global_handler( 376, \&on_endofmotd )
+        $conns{$mynick}->add_global_handler( "001", \&on_connected )
           ;    # on_connect.
         $conns{$mynick}->add_global_handler( 433, \&on_nick_taken );
         $conns{$mynick}->add_global_handler( 439, \&on_targettoofast );
