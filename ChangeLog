@@ -17,6 +17,8 @@ was causing the output to go to random channels due to loss of variable scope
 
 * Added infobot client to verstats and cleaned up a few other client regex
 
+* Fixed talkok bug with 'how are you' statement
+
 1.5.2
 =====
 
