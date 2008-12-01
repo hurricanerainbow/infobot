@@ -1,5 +1,18 @@
 1.5.4
 =====
+* Updates to DebianExtra.pl:
+- use soap for bug_info
+- totally replace do_id with the copy from DebianBugs.pl
+- fix ||= typo
+- fix url->uri typo
+- fix -> typo
+- add some more debugging code to the do_id code
+- remove useless bug =>
+- disable debugging output of the soap object returned
+- soap returns multiple bugs in a single shot
+- use strftime on the date
+
+* check for and use of old blootbot.(users|chan) files
 
 
 1.5.3

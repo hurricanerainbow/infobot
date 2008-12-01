@@ -73,79 +73,51 @@ sub debianBugs {
     }
 }
 
+use SOAP::Lite;
+
 sub do_id($) {
-    my ($bug_num) = shift;
+    my ($bug_num,$options) = @_;
+
+    $options ||= {};
 
     if ( not $bug_num =~ /^\#?\d+$/ ) {
+        warn "Bug is not a number!" and return undef
+          if not $options->{return_warnings};
         return "Bug is not a number!";
     }
     $bug_num =~ s/^\#//;
-    my @results =
-      &::getURL("http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=$bug_num");
-    my $report = join( "\n", @results );
-
-    # strip down report to relevant header information.
-    #    $report =~ s/\r//sig;
-    $report =~ /<BODY[^>]*>(.+?)<HR>/si;
-    $report = $1;
-    my $bug = {};
-    ( $bug->{num}, $bug->{title} ) =
-      $report =~ m#\#(\d+)\<\/A\>\<BR\>(.+?)\<\/H1\>#is;
-    &::DEBUG("Bugnum: $bug->{num}\n");
-    $bug->{title} =~ s/&lt;/\</g;
-    $bug->{title} =~ s/&gt;/\>/g;
-    $bug->{title} =~ s/&quot;/\"/g;
-    &::DEBUG("Title: $bug->{title}\n");
-    $bug->{severity} = 'n';    #Default severity is normal
-    my @bug_flags = split /(?<!\&.t)[;\.]\n/s, $report;
-
-    foreach my $bug_flag (@bug_flags) {
-        $bug_flag =~ s/\n//g;
-        &::DEBUG("Bug_flag: $bug_flag\n");
-        if ( $bug_flag =~ /Severity:/i ) {
-            ( $bug->{severity} ) =
-              $bug_flag =~ /(wishlist|minor|normal|important|serious|grave)/i;
-
-            # Just leave the leter instead of the whole thing.
-            $bug->{severity} =~ s/^(.).+$/$1/;
-        }
-        elsif ( $bug_flag =~ /Package:/ ) {
-            ( $bug->{package} ) = $bug_flag =~ /\"\>\s*([^\<\>\"]+?)\s*\<\/a\>/;
-        }
-        elsif ( $bug_flag =~ /Reported by:/ ) {
-            ( $bug->{reporter} ) = $bug_flag =~ /\"\>\s*(.+?)\s*\<\/a\>/;
-
-            # strip &lt; and &gt;
-            $bug->{reporter} =~ s/&lt;/\</g;
-            $bug->{reporter} =~ s/&gt;/\>/g;
-        }
-        elsif ( $bug_flag =~ /Date:/ ) {
-            ( $bug->{date} ) = $bug_flag =~ /Date:\s*(\w.+?)\s*$/;
-
-            #ditch extra whitespace
-            $bug->{date} =~ s/\s{2,}/\ /;
-        }
-        elsif ( $bug_flag =~ /Tags:/ ) {
-            ( $bug->{tags} ) = $bug_flag =~ /strong\>\s*(.+?)\s*\<\/strong\>/;
-        }
-        elsif ( $bug_flag =~ /merged with / ) {
-            $bug_flag =~ s/merged with\s*//;
-            $bug_flag =~ s/\<[^\>]+\>//g;
-            $bug_flag =~ s/\s//sg;
-            $bug->{merged_with} = $bug_flag;
-
-        }
-        elsif ( $bug_flag =~ /\>Done:\</ ) {
-            $bug->{done} = 1;
-        }
-        elsif ( $bug_flag =~ /\>Fixed\</ ) {
-            $bug->{done} = 1;
-        }
+    my $soap = SOAP::Lite->uri('Debbugs/SOAP/1')->
+	proxy('http://bugs.debian.org/cgi-bin/soap.cgi');
+    $soap->transport->env_proxy();
+    my $temp = $soap->get_status($bug_num);
+    use Data::Dumper;
+    # enabling this will cause amazing amounts of output
+    # &::DEBUG(Dumper($temp));
+    if ($temp->fault) {
+	return "Some failure (".$temp->fault->{faultstring}.")";
     }
-
+    my $result = $temp->result();
+    &::DEBUG(Dumper($result));
+    if (not defined $result) {
+	return "No such bug (or some kind of error)";
+    }
+    ($result) = values %{$result};
+    my $bug = {};
+    $bug->{num} = $result->{bug_num};
+    $bug->{title} = $result->{subject};
+    $bug->{severity} = $result->{severity};    #Default severity is normal
+    # Just leave the leter instead of the whole thing.
+    $bug->{severity} =~ s/^(.).+$/$1/;
+    $bug->{package} = $result->{package};
+    $bug->{reporter} = $result->{submitter};
+    use POSIX;
+    $bug->{date} = POSIX::strftime(q(%a, %d %b %Y %H:%M:%S UTC),gmtime($result->{date}));
+    $bug->{tags} = $result->{keywords};
+    $bug->{done} = defined $result->{done} && length($result->{done}) > 0;
+    $bug->{merged_with} = $result->{mergedwith};
     # report bug
 
-    $report = '';
+    my $report = '';
     $report .= 'DONE:' if defined $bug->{done} and $bug->{done};
     $report .= '#'
       . $bug->{num} . ':'
@@ -160,10 +132,6 @@ sub do_id($) {
       . join( ',', splice( @{ [ split( /,/, $bug->{merged_with} ) ] }, 0, 3 ) )
       . ']'
       if defined $bug->{merged_with};
-    if ($::DEBUG) {
-        use Data::Dumper;
-        &::DEBUG( Dumper($bug) );
-    }
     return $report;
 }
 

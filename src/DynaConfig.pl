@@ -41,6 +41,9 @@ my @regFlagsUser = (
 
 sub readUserFile {
     my $f = "$bot_state_dir/infobot.users";
+    if (! -e $f and -e "$bot_state_dir/blootbot.users") {
+	 $f = "$bot_state_dir/blootbot.users";
+    }
 
     if ( !-f $f ) {
         &DEBUG('userfile not found; new fresh run detected.');
@@ -274,6 +277,9 @@ sub writeUserFile {
 
 sub readChanFile {
     my $f = "$bot_state_dir/infobot.chan";
+    if (-e "$bot_state_dir/infobot.chan" and -e "$bot_state_dir/blootbot.chan") {
+	 $f = "$bot_state_dir/blootbot.chan";
+    }
     if ( -f $f and -f "$f~" ) {
         my $s1 = -s $f;
         my $s2 = -s "$f~";
