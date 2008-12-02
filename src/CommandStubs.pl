@@ -182,17 +182,16 @@ sub Modules {
         return;
     }
 
-    # google searching. Simon++
-    my $w3search_regex = 'google';
+    # google searching -- thanks Brett Cave
     if ( $message =~
-        /^(?:search\s+)?($w3search_regex)\s+(?:for\s+)?['"]?(.*?)["']?\s*\?*$/i
+        /^(\s+)?google\s+['"]?(.*?)["']?\s*\?*$/i
       )
     {
-        return unless ( &IsChanConfOrWarn('W3Search') );
+        return unless ( &IsChanConfOrWarn('Google') );
 
-        &Forker( 'W3Search', sub { &W3Search::W3Search( $1, $2 ); } );
+        &Forker( 'Google', sub { &Google::GoogleSearch( $2 ); } );
 
-        $cmdstats{'W3Search'}++;
+        $cmdstats{'Google'}++;
         return;
     }
 

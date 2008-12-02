@@ -14,6 +14,11 @@
 
 * check for and use of old blootbot.(users|chan) files
 
+* Retired the old broken W3Search module in favour of a working Google search
+
+* Removed +W3Search in infobot.chan, added +Google (don't forget to update your
+configs)
+
 
 1.5.3
 =====
