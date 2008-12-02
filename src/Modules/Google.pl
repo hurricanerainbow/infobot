@@ -36,11 +36,19 @@ sub GoogleSearch {
         return;
     }
 
+    # No results found
+    if ( not $Search->responseData->results ) {
+        &::DEBUG( "Google::GoogleSearch> $retval" );
+        &::msg( $::who, $retval);
+        &::msg( $::who, $Search->responseStatus );
+        return;
+    }
+
     my $data    = $Search->responseData;
     my $cursor  = $data->cursor;
     my @results = $data->results;
-
     my $count;
+
     $retval = "$where says \"\002$what\002\" is at ";
     foreach my $r (@results) {
         my $url = $r->url;
