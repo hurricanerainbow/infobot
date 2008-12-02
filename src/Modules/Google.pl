@@ -11,22 +11,28 @@ my $maxshow = 5;
 
 sub GoogleSearch {
     my ( $what, $type ) = @_;
-    my $where  = "Google";
+    # $where set to official google colors ;)
+    my $where  = "\00312G\0034o\0038o\00312g\0033l\0034e\003";
     my $retval = "$where can't find \002$what\002";
     my $Search;
+    my $referer = "irc://$::server/$::chan/$::who";
 
     return unless &::loadPerlModule("REST::Google::Search");
 
-    REST::Google::Search->http_referer('http://infobot.sourceforge.net/');
+    &::DEBUG( "Google::GoogleSearch->referer = $referer" );
+    &::status( "Google::GoogleSearch> Searching Google for: $what");
+    REST::Google::Search->http_referer( $referer );
     $Search = REST::Google::Search->new( q => $what );
 
     if ( !defined $Search ) {
         &::msg( $::who, "$where is invalid search." );
+        &::WARN( "Google::GoogleSearch> $::who generated an invalid search: $where");
         return;
     }
 
     if ( $Search->responseStatus != 200 ) {
         &::msg( $::who, "http error returned." );
+        &::WARN( "Google::GoogleSearch> http error returned: $Search->responseStatus");
         return;
     }
 
@@ -35,10 +41,10 @@ sub GoogleSearch {
     my @results = $data->results;
 
     my $count;
-    $retval = "$where says \002$what\002 is at ";
+    $retval = "$where says \"\002$what\002\" is at ";
     foreach my $r (@results) {
         my $url = $r->url;
-        $retval .= ' or ' if ( $count > 0 );
+        $retval .= " \002or\002 " if ( $count > 0 );
         $retval .= $url;
         last if ++$count >= $maxshow;
     }
