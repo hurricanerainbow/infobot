@@ -40,7 +40,6 @@ sub GoogleSearch {
     if ( not $Search->responseData->results ) {
         &::DEBUG( "Google::GoogleSearch> $retval" );
         &::msg( $::who, $retval);
-        &::msg( $::who, $Search->responseStatus );
         return;
     }
 
