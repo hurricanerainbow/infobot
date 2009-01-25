@@ -69,6 +69,9 @@ foreach (@ARGV) {
         $key =~ s/\t/ /g;
         $value =~ s/\t/ /g;
 
+        # The key needs to be lower case to match query case
+        $key = lc $key;
+
         ### TODO: check if it already exists. if so, don't add.
         ### TODO: combine 2 setFactInfo's into single
         &setFactInfo( $key, "factoid_value", $value );
