@@ -51,9 +51,14 @@ sub GoogleSearch {
     $retval = "$where says \"\002$what\002\" is at ";
     foreach my $r (@results) {
         my $url = $r->url;
+
+        # Returns a string with each %XX sequence replaced with the actual byte
+        # (octet). From URI::Escape uri_unescape()
+        $url =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
+
         $retval .= " \002or\002 " if ( $count > 0 );
         $retval .= $url;
-        last if ++$count >= $maxshow;
+        last if ++$count >= $maxshow; # Only seems to return max of 4?
     }
 
     &::performStrictReply($retval);
