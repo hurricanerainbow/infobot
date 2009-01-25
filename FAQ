@@ -16,6 +16,28 @@ A: Yes, but at the moment, you need to manually use SQL commands in your
 
    sql> DELETE FROM factoids WHERE created_by = 'areacodes.fact';
 
+Q: Where can I download some existing fact packs?
+A: As of yet, the fact packs aren't available in SVN. You can try the
+   original infobot web site at:
+
+     http://www.infobot.org/factpacks/
+
+   NOTE: The import script can't yet handle compressed files, so you must
+   extract the factpacks in advance.
+
+Q: How can I make my own fact packs?
+A: The syntax is pretty basic. You just need a plain text file that has
+   one key/value pair per line. Comment lines begin with a "#" character
+   and are ignored, as are blank lines. Extra whitespace around key/value
+   pairs should hopefully be stripped out as well. A few example lines from
+   the areacodes.fact file:
+
+     # Sample comment here
+     area code 011 => the International Access Code
+     area code 201 => Hackensack, Morristown and Newark, New Jersey
+     area code 202 => Washington, District of Columbia
+
+
 Q: The bot exits after I run 'factstats testing' or 'kernel' or anything
    that uses fork(). Is this a bug in the bot?
 
