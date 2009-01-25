@@ -3,6 +3,7 @@
 $| = 1;
 
 use strict;
+use File::Basename;
 use vars qw($bot_base_dir $bot_src_dir $bot_misc_dir $bot_state_dir
   $bot_data_dir $bot_config_dir $bot_log_dir $bot_run_dir
     $bot_pid $memusage %param
@@ -75,7 +76,7 @@ foreach (@ARGV) {
         ### TODO: check if it already exists. if so, don't add.
         ### TODO: combine 2 setFactInfo's into single
         &setFactInfo( $key, "factoid_value", $value );
-        &setFactInfo( $key, "created_by", $file );
+        &setFactInfo( $key, "created_by", basename($file) );
         print ":: $key ";
     }
 
