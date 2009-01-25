@@ -1,5 +1,9 @@
 1.5.4
 =====
+* scripts/insertDB.pl
+- renamed to factpack.pl
+- should work properly now (needs testing)
+
 * Updates to DebianExtra.pl:
 - use soap for bug_info
 - totally replace do_id with the copy from DebianBugs.pl
