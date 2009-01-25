@@ -1,5 +1,21 @@
 # $Id$
 
+Q: What are factpacks and how do I install them?
+A: A factpack is a partial database of factoids that you can import into
+   your configured infobot by running the script called "factpack.pl".
+
+   # IMPORTANT: Run from the bots base directory!
+   eg: ./scripts/factpack.pl /path/to/areacodes.fact
+
+Q: Can I remove a fact pack I have installed?
+A: Yes, but at the moment, you need to manually use SQL commands in your
+   favorite SQL program. The "created_by" field in the factoids will be
+   set to the filename of the fact pack you installed. For example, if
+   you installed the "areacodes.fact" file, "created_by" would be set to
+   "areacodes.fact". The SQL to remove the above example would be:
+
+   sql> DELETE FROM factoids WHERE created_by = 'areacodes.fact';
+
 Q: The bot exits after I run 'factstats testing' or 'kernel' or anything
    that uses fork(). Is this a bug in the bot?
 
