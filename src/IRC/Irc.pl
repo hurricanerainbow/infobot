@@ -522,6 +522,7 @@ sub joinchan {
     my ( $chan, $key ) = @_;
     $key ||= &getChanConf( 'chankey', $chan );
     $key ||= '';
+    my $mynick = $conn->nick();
 
     # forgot for about 2 years to implement channel keys when moving
     # over to Net::IRC...
@@ -532,7 +533,7 @@ sub joinchan {
     }
 
     #} else {
-    &status("joining $b_blue$chan $key$ob");
+    &status("$mynick joining $b_blue$chan $key$ob");
 
     return if ( $conn->join( $chan, $key ) );
     return if ( &validChan($chan) );
