@@ -2,7 +2,11 @@
 # was deprecated and requires a key that google no longer provides. 
 # This new module uses REST::Google::Search 
 # Modified by db <db@cave.za.net> 12-01-2008. 
- 
+#
+# Usage: 'chanset _default +Google' in query window with your bot
+#        to enable it in all channels
+#        /msg botnick google <query> OR <addressCharacter>google <query> to use
+
 package Google;
 
 use strict;
@@ -67,3 +71,9 @@ sub GoogleSearch {
 1;
  
 # vim:ts=4:sw=4:expandtab:tw=80 
+# Local Variables:
+# mode: cperl
+# tab-width: 4
+# fill-column: 80
+# indent-tabs-mode: nil
+# End:
