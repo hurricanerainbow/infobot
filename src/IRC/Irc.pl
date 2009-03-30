@@ -117,6 +117,7 @@ sub irc {
 "Connecting to port $port of server $server ($resolve) as $mynick ..."
         );
         $args{'Nick'} = $mynick;
+        $args{'Username'} = $mynick;
         $conns{$mynick} = $irc->newconn(%args);
         if ( !defined $conns{$mynick} ) {
             &ERROR('IRC: connection failed.');
