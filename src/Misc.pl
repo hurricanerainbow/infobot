@@ -688,8 +688,8 @@ sub closeStats {
             'stats',
             'counter',
             {
-                nick => $type,
-                type => 'cmdstats',
+                'nick' => $type,
+                'type' => 'cmdstats',
             }
         );
         my $z = 0;
@@ -699,11 +699,13 @@ sub closeStats {
 
         &sqlSet(
             'stats',
-            { 'nick' => $type },
             {
-                type    => 'cmdstats',
-                'time'  => time(),
-                counter => $i,
+		'nick' => $type,
+                'type' => 'cmdstats',
+	    },
+            {
+                'time' => time(),
+                'counter' => $i,
             }
         );
     }
