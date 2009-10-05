@@ -1,0 +1,13 @@
+$bot_state_dir = '/home/ravenbird/infobot/files';
+$bot_data_dir  = '/home/ravenbird/infobot/files';
+$bot_src_dir   = '/home/ravenbird/infobot/src';
+$bot_log_dir   = '/home/ravenbird/infobot/log';
+$bot_run_dir   = '/home/ravenbird/infobot';
+#    $bot_base_dir	||= '/home/ravenbird/infobot';			# '.'
+#    $bot_config_dir	||= '/home/ravenbird/infobot/files';	# 'files/'
+#    $bot_data_dir	||= '/home/ravenbird/infobot/files';	# 'files/'
+#    $bot_state_dir	||= '/home/ravenbird/infobot/files';	# 'files/'
+#    $bot_run_dir	||= '/home/ravenbird/infobot';			# '.'
+#    $bot_src_dir	||= "/home/ravenbird/infobot/src";		# $bot_base_dir/src
+#    $bot_log_dir	||= "/home/ravenbird/infobot/log";		# $bot_base_dir/log
+#    $bot_misc_dir	||= "/home/ravenbird/infobot/files";	# $bot_base_dir/files

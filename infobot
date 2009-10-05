@@ -19,16 +19,22 @@ BEGIN {
     }
 
     # set any $bot_*_dir var's that aren't already set
-    $bot_base_dir   ||= '.';
-    $bot_config_dir ||= 'files/';
-    $bot_data_dir   ||= 'files/';
-    $bot_state_dir  ||= 'files/';
-    $bot_run_dir    ||= '.';
+    $bot_base_dir	||= '/SOME/DIRECTORY/HERE';
+    $bot_config_dir	||= "$bot_base_dir/files/";
+    $bot_data_dir	||= "$bot_base_dir/files/";
+    $bot_state_dir	||= "$bot_base_dir/files/";
+    $bot_run_dir	    ||= "$bot_base_dir";
     $bot_src_dir    ||= "$bot_base_dir/src";
     $bot_log_dir    ||= "$bot_base_dir/log";
-    $bot_misc_dir   ||= "$bot_base_dir/files";
+    $bot_misc_dir	||= "$bot_base_dir/files";
+
+    require "$bot_config_dir/directories";
 
     $bot_pid = $$;
+
+    $bot_base_dir = $bot_state_dir;
+
+	unshift @INC,"$bot_src_dir","$bot_src_dir/Modules";
 
     require "$bot_src_dir/logger.pl";
     require "$bot_src_dir/core.pl";
@@ -104,5 +110,3 @@ sub duperuncheck {
 }
 
 1;
-
-# vim:ts=4:sw=4:expandtab:tw=80
