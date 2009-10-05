@@ -1,0 +1,6 @@
+/infobot-*
+/*.pid
+/temp
+/tmp
+/*.sqlite
+
