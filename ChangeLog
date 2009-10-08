@@ -23,6 +23,7 @@
 * Removed +W3Search in infobot.chan, added +Google (don't forget to update your
 configs)
 
+* Fixed minor typo in seen.sql for Pgsql (closes #2868436)
 
 1.5.3
 =====
