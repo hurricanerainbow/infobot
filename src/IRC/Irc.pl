@@ -112,80 +112,79 @@ sub irc {
     $args{'LocalAddr'} = $param{'ircHost'}   if ( $param{'ircHost'} );
     $args{'Password'}  = $param{'ircPasswd'} if ( $param{'ircPasswd'} );
 
-    foreach my $mynick ( split ',', $param{'ircNick'} ) {
-        &status(
-"Connecting to port $port of server $server ($resolve) as $mynick ..."
-        );
-        $args{'Nick'} = $mynick;
-        $args{'Username'} = $mynick;
-        $conns{$mynick} = $irc->newconn(%args);
-        if ( !defined $conns{$mynick} ) {
-            &ERROR('IRC: connection failed.');
-            &ERROR(
-"add \"set ircHost 0.0.0.0\" to your config. If that does not work"
-            );
-            &ERROR(
-'Please check /etc/hosts to see if you have a localhost line like:'
-            );
-            &ERROR('127.0.0.1   localhost    localhost');
-            &ERROR(
-                'If this is still a problem, please contact the maintainer.');
-        }
-        $conns{$mynick}->maxlinelen($maxlinelen);
+    foreach my $mynick ( sort split ',', $param{'ircNick'} ) {
+	if (!defined $conns{$mynick}) {
+	    &status("Connecting to port $port of server $server ($resolve) as $mynick ...");
+	    $args{'Nick'} = $mynick;
+	    $args{'Username'} = $mynick;
+	    $conns{$mynick} = $irc->newconn(%args);
+	    # FIXME: connections should happen in the background and get retried per nick
+	    #sleep(10.0);
+	    if ( !defined $param{'ircHost'} and !defined $conns{$mynick} ) {
+		&ERROR("IRC: $mynick @ $server connection failed.");
+		&ERROR("add \"set ircHost 0.0.0.0\" to your config. If that does not work");
+		&ERROR('Please check /etc/hosts to see if you have a localhost line like:');
+		&ERROR('127.0.0.1   localhost    localhost');
+		&ERROR('If this is still a problem, please contact the maintainer.');
+	    }
+	    if (defined $conns{$mynick}) {
+		$conns{$mynick}->maxlinelen($maxlinelen);
 
-        # handler stuff.
-        $conns{$mynick}->add_global_handler( 'caction',   \&on_action );
-        $conns{$mynick}->add_global_handler( 'cdcc',      \&on_dcc );
-        $conns{$mynick}->add_global_handler( 'cping',     \&on_ping );
-        $conns{$mynick}->add_global_handler( 'crping',    \&on_ping_reply );
-        $conns{$mynick}->add_global_handler( 'cversion',  \&on_version );
-        $conns{$mynick}->add_global_handler( 'crversion', \&on_crversion );
-        $conns{$mynick}->add_global_handler( 'dcc_open',  \&on_dcc_open );
-        $conns{$mynick}->add_global_handler( 'dcc_close', \&on_dcc_close );
-        $conns{$mynick}->add_global_handler( 'chat',      \&on_chat );
-        $conns{$mynick}->add_global_handler( 'msg',       \&on_msg );
-        $conns{$mynick}->add_global_handler( 'public',    \&on_public );
-        $conns{$mynick}->add_global_handler( 'join',      \&on_join );
-        $conns{$mynick}->add_global_handler( 'part',      \&on_part );
-        $conns{$mynick}->add_global_handler( 'topic',     \&on_topic );
-        $conns{$mynick}->add_global_handler( 'invite',    \&on_invite );
-        $conns{$mynick}->add_global_handler( 'kick',      \&on_kick );
-        $conns{$mynick}->add_global_handler( 'mode',      \&on_mode );
-        $conns{$mynick}->add_global_handler( 'nick',      \&on_nick );
-        $conns{$mynick}->add_global_handler( 'quit',      \&on_quit );
-        $conns{$mynick}->add_global_handler( 'notice',    \&on_notice );
-        $conns{$mynick}
-          ->add_global_handler( 'whoischannels', \&on_whoischannels );
-        $conns{$mynick}
-          ->add_global_handler( 'useronchannel', \&on_useronchannel );
-        $conns{$mynick}->add_global_handler( 'whois',      \&on_whois );
-        $conns{$mynick}->add_global_handler( 'other',      \&on_other );
-        $conns{$mynick}->add_global_handler( 'disconnect', \&on_disconnect );
-        $conns{$mynick}
-          ->add_global_handler( [ 251, 252, 253, 254, 255 ], \&on_init );
+		# handler stuff.
+		$conns{$mynick}->add_global_handler( 'caction',   \&on_action );
+		$conns{$mynick}->add_global_handler( 'cdcc',      \&on_dcc );
+		$conns{$mynick}->add_global_handler( 'cping',     \&on_ping );
+		$conns{$mynick}->add_global_handler( 'crping',    \&on_ping_reply );
+		$conns{$mynick}->add_global_handler( 'cversion',  \&on_version );
+		$conns{$mynick}->add_global_handler( 'crversion', \&on_crversion );
+		$conns{$mynick}->add_global_handler( 'dcc_open',  \&on_dcc_open );
+		$conns{$mynick}->add_global_handler( 'dcc_close', \&on_dcc_close );
+		$conns{$mynick}->add_global_handler( 'chat',      \&on_chat );
+		$conns{$mynick}->add_global_handler( 'msg',       \&on_msg );
+		$conns{$mynick}->add_global_handler( 'public',    \&on_public );
+		$conns{$mynick}->add_global_handler( 'join',      \&on_join );
+		$conns{$mynick}->add_global_handler( 'part',      \&on_part );
+		$conns{$mynick}->add_global_handler( 'topic',     \&on_topic );
+		$conns{$mynick}->add_global_handler( 'invite',    \&on_invite );
+		$conns{$mynick}->add_global_handler( 'kick',      \&on_kick );
+		$conns{$mynick}->add_global_handler( 'mode',      \&on_mode );
+		$conns{$mynick}->add_global_handler( 'nick',      \&on_nick );
+		$conns{$mynick}->add_global_handler( 'quit',      \&on_quit );
+		$conns{$mynick}->add_global_handler( 'notice',    \&on_notice );
+		$conns{$mynick}
+		  ->add_global_handler( 'whoischannels', \&on_whoischannels );
+		$conns{$mynick}
+		  ->add_global_handler( 'useronchannel', \&on_useronchannel );
+		$conns{$mynick}->add_global_handler( 'whois',      \&on_whois );
+		$conns{$mynick}->add_global_handler( 'other',      \&on_other );
+		$conns{$mynick}->add_global_handler( 'disconnect', \&on_disconnect );
+		$conns{$mynick}
+		  ->add_global_handler( [ 251, 252, 253, 254, 255 ], \&on_init );
 
-        #	$conns{$mynick}->add_global_handler(302, \&on_init); # userhost
-        $conns{$mynick}->add_global_handler( 303, \&on_ison );         # notify.
-        $conns{$mynick}->add_global_handler( 315, \&on_endofwho );
-        $conns{$mynick}->add_global_handler( 422, \&on_endofwho );     # nomotd.
-        $conns{$mynick}->add_global_handler( 324, \&on_modeis );
-        $conns{$mynick}->add_global_handler( 333, \&on_topicinfo );
-        $conns{$mynick}->add_global_handler( 352, \&on_who );
-        $conns{$mynick}->add_global_handler( 353, \&on_names );
-        $conns{$mynick}->add_global_handler( 366, \&on_endofnames );
-        $conns{$mynick}->add_global_handler( "001", \&on_connected )
-          ;    # on_connect.
-        $conns{$mynick}->add_global_handler( 433, \&on_nick_taken );
-        $conns{$mynick}->add_global_handler( 439, \&on_targettoofast );
+		#	$conns{$mynick}->add_global_handler(302, \&on_init); # userhost
+		$conns{$mynick}->add_global_handler( 303, \&on_ison );         # notify.
+		$conns{$mynick}->add_global_handler( 315, \&on_endofwho );
+		$conns{$mynick}->add_global_handler( 422, \&on_endofwho );     # nomotd.
+		$conns{$mynick}->add_global_handler( 324, \&on_modeis );
+		$conns{$mynick}->add_global_handler( 333, \&on_topicinfo );
+		$conns{$mynick}->add_global_handler( 352, \&on_who );
+		$conns{$mynick}->add_global_handler( 353, \&on_names );
+		$conns{$mynick}->add_global_handler( 366, \&on_endofnames );
+		$conns{$mynick}->add_global_handler( "001", \&on_connected )
+		  ;    # on_connect.
+		$conns{$mynick}->add_global_handler( 433, \&on_nick_taken );
+		$conns{$mynick}->add_global_handler( 439, \&on_targettoofast );
 
-        # for proper joinnextChan behaviour
-        $conns{$mynick}->add_global_handler( 471, \&on_chanfull );
-        $conns{$mynick}->add_global_handler( 473, \&on_inviteonly );
-        $conns{$mynick}->add_global_handler( 474, \&on_banned );
-        $conns{$mynick}->add_global_handler( 475, \&on_badchankey );
-        $conns{$mynick}->add_global_handler( 443, \&on_useronchan );
+		# for proper joinnextChan behaviour
+		$conns{$mynick}->add_global_handler( 471, \&on_chanfull );
+		$conns{$mynick}->add_global_handler( 473, \&on_inviteonly );
+		$conns{$mynick}->add_global_handler( 474, \&on_banned );
+		$conns{$mynick}->add_global_handler( 475, \&on_badchankey );
+		$conns{$mynick}->add_global_handler( 443, \&on_useronchan );
 
-        # end of handler stuff.
+		# end of handler stuff.
+	    }
+	}
     }
 
     &clearIRCVars();
@@ -739,21 +738,23 @@ sub invite {
 # Usage: &joinNextChan();
 sub joinNextChan {
     my $joined = 0;
-    foreach ( sort keys %conns ) {
-        $conn = $conns{$_};
-        my $mynick = $conn->nick();
-        my @join   = getJoinChans(1);
+    #foreach ( sort keys %conns ) {
+        #$conn = $conns{$mynick};
+	if (defined $conn) {
+	    my $mynick = $conn->nick();
+	    my @join   = getJoinChans(1);
 
-        if ( scalar @join ) {
-            my $chan = shift @join;
-            &joinchan($chan);
+	    if ( scalar @join ) {
+		my $chan = shift @join;
+		&joinchan($chan);
 
-            if ( my $i = scalar @join ) {
-                &status("joinNextChan: $mynick $i chans to join.");
-            }
-            $joined = 1;
-        }
-    }
+		if ( my $i = scalar @join ) {
+		    &status("joinNextChan: $mynick $i chans to join.");
+		}
+		$joined = 1;
+	    }
+	}
+    #}
     return if $joined;
 
     if ( exists $cache{joinTime} ) {
