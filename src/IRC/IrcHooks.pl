@@ -816,24 +816,25 @@ sub on_notice {
     my $nick    = $event->nick();
     my $chan    = ( $event->to )[0];
     my $args    = ( $event->args )[0];
+    my $mynick  = $conn->nick();
 
     if ( $nick =~ /^NickServ$/i ) {    # nickserv.
-        &status("NickServ: <== '$args'");
+        &status("NickServ: $mynick <== '$args'");
 
         my $check = 0;
         $check++ if ( $args =~ /^This nickname is registered/i );
         $check++ if ( $args =~ /nickname.*owned/i );
 
         if ($check) {
-            &status('nickserv told us to register; doing it.');
+            &status("nickserv told $mynick to register; doing it.");
 
             if ( &IsParam('nickServ_pass') ) {
-                &status('NickServ: ==> Identifying.');
+                &status("NickServ: ==> Identifying as $mynick.");
                 &rawout("PRIVMSG NickServ :IDENTIFY $param{'nickServ_pass'}");
                 return;
             }
             else {
-                &status("We can't tell nickserv a passwd ;(");
+                &status("$mynick can't tell nickserv a passwd ;(");
             }
         }
 
@@ -844,8 +845,7 @@ sub on_notice {
             foreach ( &ChanConfList('chanServ_ops') ) {
                 next unless &chanServCheck($_);
                 next if ($done);
-                &DEBUG(
-                    'nickserv activated or restarted; doing chanserv check.');
+                &DEBUG('nickserv activated or restarted; doing chanserv check.');
                 $done++;
             }
 
