@@ -721,6 +721,7 @@ sub ircCheck {
     $cache{statusSafe} = 1;
     foreach ( sort keys %conns ) {
         $conn = $conns{$_};
+	next if (!defined $conn);
         my $mynick = $conn->nick();
         &DEBUG("ircCheck for $_");
         # Display with min of 900sec delay between redisplay
