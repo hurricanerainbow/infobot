@@ -170,12 +170,9 @@ sub on_connected {
 
     if ( scalar keys %users < 2 ) {
         &status( '!' x 40 );
-        &status(
-"!!! Ok.  Now type '/msg $ident PASS <pass>' to get master access through DCC CHAT."
-        );
+        &status("!!! Ok.  Now type '/msg $ident PASS <pass>' to get master access through DCC CHAT.");
         &status( '!' x 40 );
     }
-
     # end of first time run.
 
     if ( &IsChanConf('Wingate') > 0 ) {
@@ -213,12 +210,10 @@ sub on_connected {
     # Q, as on quakenet.org.
     if ( &IsParam('Q_pass') ) {
         &status('Authing to Q...');
-        &rawout(
-"PRIVMSG Q\@CServe.quakenet.org :AUTH $param{'Q_user'} $param{'Q_pass'}"
-        );
+        &rawout("PRIVMSG Q\@CServe.quakenet.org :AUTH $param{'Q_user'} $param{'Q_pass'}");
     }
 
-    &status('End of motd. Now lets join some channels...');
+    &status("$ident End of motd. Now lets join some channels...");
 
     #&joinNextChan();
 }
