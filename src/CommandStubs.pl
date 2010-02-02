@@ -791,6 +791,7 @@ sub do_text_counters {
 &addCmdHook('bzflist', ('CODEREF' => 'BZFlag::list', 'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag', 'Forker' => 1, 'Module' => 'BZFlag') );
 &addCmdHook('bzfquery', ('CODEREF' => 'BZFlag::query', 'Identifier' => 'BZFlag', 'Cmdstats' => 'BZFlag', 'Forker' => 1, 'Module' => 'BZFlag') );
 &addCmdHook('chan(stats|info)', ('CODEREF' => 'chaninfo', ) );
+&addCmdHook('conn(stats|info)', ('CODEREF' => 'conninfo', ) );
 &addCmdHook('cmd(stats|info)', ('CODEREF' => 'cmdstats', ) );
 &addCmdHook('convert', ('CODEREF' => 'convert', 'Forker' => 1, 'Identifier' => 'Units', 'Help' => 'convert') );
 &addCmdHook('(cookie|random)', ('CODEREF' => 'cookie', 'Forker' => 1, 'Identifier' => 'Factoids') );

@@ -201,7 +201,7 @@ sub process {
     }
 
     # allowOutsiders.
-    if ( &IsParam('disallowOutsiders') and $msgType =~ /private/i ) {
+    if ( &IsParam('disallowOutsiders') and $msgType =~ /private/i and IsFlag('o') ne 'o' ) {
         my $found = 0;
 
         foreach ( keys %channels ) {

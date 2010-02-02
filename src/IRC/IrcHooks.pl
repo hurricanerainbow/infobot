@@ -170,12 +170,9 @@ sub on_connected {
 
     if ( scalar keys %users < 2 ) {
         &status( '!' x 40 );
-        &status(
-"!!! Ok.  Now type '/msg $ident PASS <pass>' to get master access through DCC CHAT."
-        );
+        &status("!!! Ok.  Now type '/msg $ident PASS <pass>' to get master access through DCC CHAT.");
         &status( '!' x 40 );
     }
-
     # end of first time run.
 
     if ( &IsChanConf('Wingate') > 0 ) {
@@ -213,12 +210,10 @@ sub on_connected {
     # Q, as on quakenet.org.
     if ( &IsParam('Q_pass') ) {
         &status('Authing to Q...');
-        &rawout(
-"PRIVMSG Q\@CServe.quakenet.org :AUTH $param{'Q_user'} $param{'Q_pass'}"
-        );
+        &rawout("PRIVMSG Q\@CServe.quakenet.org :AUTH $param{'Q_user'} $param{'Q_pass'}");
     }
 
-    &status('End of motd. Now lets join some channels...');
+    &status("$ident End of motd. Now lets join some channels...");
 
     #&joinNextChan();
 }
@@ -816,24 +811,25 @@ sub on_notice {
     my $nick    = $event->nick();
     my $chan    = ( $event->to )[0];
     my $args    = ( $event->args )[0];
+    my $mynick  = $conn->nick();
 
     if ( $nick =~ /^NickServ$/i ) {    # nickserv.
-        &status("NickServ: <== '$args'");
+        &status("NickServ: $mynick <== '$args'");
 
         my $check = 0;
         $check++ if ( $args =~ /^This nickname is registered/i );
         $check++ if ( $args =~ /nickname.*owned/i );
 
         if ($check) {
-            &status('nickserv told us to register; doing it.');
+            &status("nickserv told $mynick to register; doing it.");
 
             if ( &IsParam('nickServ_pass') ) {
-                &status('NickServ: ==> Identifying.');
+                &status("NickServ: ==> Identifying as $mynick.");
                 &rawout("PRIVMSG NickServ :IDENTIFY $param{'nickServ_pass'}");
                 return;
             }
             else {
-                &status("We can't tell nickserv a passwd ;(");
+                &status("$mynick can't tell nickserv a passwd ;(");
             }
         }
 
@@ -844,8 +840,7 @@ sub on_notice {
             foreach ( &ChanConfList('chanServ_ops') ) {
                 next unless &chanServCheck($_);
                 next if ($done);
-                &DEBUG(
-                    'nickserv activated or restarted; doing chanserv check.');
+                &DEBUG('nickserv activated or restarted; doing chanserv check.');
                 $done++;
             }
 
