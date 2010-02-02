@@ -173,6 +173,11 @@ sub cmdstats {
     &performStrictReply( 'command usage include ' . &IJoin(@array) . '.' );
 }
 
+# Command statistics.
+sub conninfo {
+    &performStrictReply( 'connection info ' . &IJoin(sort keys %::conns) );
+}
+
 # Factoid extension info. xk++
 sub factinfo {
     my $faqtoid = lc shift(@_);
