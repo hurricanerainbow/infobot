@@ -105,7 +105,7 @@ sub irc {
 
     my %args = (
         Nick    => $param{'ircNick'},
-        Server  => $server,
+        Server  => $resolv,
         Port    => $port,
         Ircname => $param{'ircName'},
     );
