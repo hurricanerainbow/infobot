@@ -151,15 +151,12 @@ sub irc {
 		$conns{$mynick}->add_global_handler( 'nick',      \&on_nick );
 		$conns{$mynick}->add_global_handler( 'quit',      \&on_quit );
 		$conns{$mynick}->add_global_handler( 'notice',    \&on_notice );
-		$conns{$mynick}
-		  ->add_global_handler( 'whoischannels', \&on_whoischannels );
-		$conns{$mynick}
-		  ->add_global_handler( 'useronchannel', \&on_useronchannel );
+		$conns{$mynick}->add_global_handler( 'whoischannels', \&on_whoischannels );
+		$conns{$mynick}->add_global_handler( 'useronchannel', \&on_useronchannel );
 		$conns{$mynick}->add_global_handler( 'whois',      \&on_whois );
 		$conns{$mynick}->add_global_handler( 'other',      \&on_other );
 		$conns{$mynick}->add_global_handler( 'disconnect', \&on_disconnect );
-		$conns{$mynick}
-		  ->add_global_handler( [ 251, 252, 253, 254, 255 ], \&on_init );
+		$conns{$mynick}->add_global_handler( [ 251, 252, 253, 254, 255 ], \&on_init );
 
 		#	$conns{$mynick}->add_global_handler(302, \&on_init); # userhost
 		$conns{$mynick}->add_global_handler( 303, \&on_ison );         # notify.
@@ -738,23 +735,20 @@ sub invite {
 # Usage: &joinNextChan();
 sub joinNextChan {
     my $joined = 0;
-    #foreach ( sort keys %conns ) {
-        #$conn = $conns{$mynick};
-	if (defined $conn) {
-	    my $mynick = $conn->nick();
-	    my @join   = getJoinChans(1);
+    if (defined $conn) {
+	my $mynick = $conn->nick();
+	my @join   = getJoinChans(1);
 
-	    if ( scalar @join ) {
-		my $chan = shift @join;
-		&joinchan($chan);
+	if ( scalar @join ) {
+	    my $chan = shift @join;
+	    &joinchan($chan);
 
-		if ( my $i = scalar @join ) {
-		    &status("joinNextChan: $mynick $i chans to join.");
-		}
-		$joined = 1;
+	    if ( my $i = scalar @join ) {
+		&status("joinNextChan: $mynick $i chans to join.");
 	    }
+	    $joined = 1;
 	}
-    #}
+    }
     return if $joined;
 
     if ( exists $cache{joinTime} ) {
