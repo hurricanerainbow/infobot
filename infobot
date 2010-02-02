@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 # infobot
 # copyright kevin lenzo (c) 1997-1999
@@ -19,7 +19,8 @@ BEGIN {
     }
 
     # set any $bot_*_dir var's that aren't already set
-    $bot_base_dir	||= '/SOME/DIRECTORY/HERE';
+    $bot_base_dir	||= `pwd`;
+    chomp($bot_base_dir);
     $bot_config_dir	||= "$bot_base_dir/files/";
     $bot_data_dir	||= "$bot_base_dir/files/";
     $bot_state_dir	||= "$bot_base_dir/files/";
@@ -27,8 +28,6 @@ BEGIN {
     $bot_src_dir    ||= "$bot_base_dir/src";
     $bot_log_dir    ||= "$bot_base_dir/log";
     $bot_misc_dir	||= "$bot_base_dir/files";
-
-    require "$bot_config_dir/directories";
 
     $bot_pid = $$;
 
