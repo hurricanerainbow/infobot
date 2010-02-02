@@ -170,12 +170,21 @@ sub cmdstats {
             push( @array, "\002$int\002 of $_" );
         }
     }
-    &performStrictReply( 'command usage include ' . &IJoin(@array) . '.' );
+    &performStrictReply( 'command usage includes ' . &IJoin(@array) . '.' );
 }
 
 # Command statistics.
 sub conninfo {
-    &performStrictReply( 'connection info ' . &IJoin(sort keys %::conns) );
+    my $reply = 'conninfo:';
+    my $key;
+    foreach $key ( sort keys %::conns ) {
+        my $myconn = $::conns{$key};
+	$reply .= " $key/";
+	next if (!defined $myconn);
+        my $mynick = $myconn->nick();
+	$reply .= "$mynick";
+    }
+    &performStrictReply( "conninfo: $reply.");
 }
 
 # Factoid extension info. xk++
