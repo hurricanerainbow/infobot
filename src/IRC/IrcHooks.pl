@@ -1087,7 +1087,7 @@ sub on_quit {
     # revert to main nick. Note that Net::IRC only knows our main nick
     if ( $nick eq $conn->nick() ) {
         &status("nickchange: own nick \"$nick\" became free; changing.");
-        &nick($mynick);
+        &nick($nick);
     }
 }
 
