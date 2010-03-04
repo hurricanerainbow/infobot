@@ -84,6 +84,13 @@ contents: U: ## <string> [dist]
 contents: E: ## strings.h
 contents: E: ## x11amp potato
 
+convert: D: Convert from one unit to another
+convert: U: ## [number] <units> to <units>
+convert: E: ## 55 degF to degC
+convert: E: ## 60 mph to kph
+convert: E: ## 60 miles per hour to km/hour
+convert: E: ## gallons to cm^3
+
 cookie: I can feed your appetite with random factoids.
 
 corrections: If I come back with "...but x is at http://xx.xx.xx" or something like that, and you want to change the entry, use "no, x is at http://sdfsdfsdf".  The "No," tells me to supercede the existing value.
