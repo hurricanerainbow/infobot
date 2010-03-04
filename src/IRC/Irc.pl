@@ -19,9 +19,6 @@ use vars qw($notcount $nottime $notsize $msgcount $msgtime $msgsize
 use vars qw($b_blue $ob);
 use vars qw(@ircServers);
 
-#use open ':utf8';
-#use open ':std';
-
 $nickserv = 0;
 
 # It's probably closer to 510, but let's be cautious until we calculate it extensively.
@@ -128,6 +125,12 @@ sub irc {
 		&ERROR('If this is still a problem, please contact the maintainer.');
 	    }
 	    if (defined $conns{$mynick}) {
+		# explicit binmode for socket as "use open" does not seem to work here
+		#binmode $conns{$mynick}->{_socket}, ":utf8";
+		#binmode $conns{$mynick}->{_socket}, ":encoding(UTF-8)";
+		# TODO: need to input bytes, but output utf8
+		binmode $conns{$mynick}->{_socket}, ":bytes";
+
 		$conns{$mynick}->maxlinelen($maxlinelen);
 
 		# handler stuff.
