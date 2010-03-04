@@ -126,7 +126,10 @@ sub irc {
 	    }
 	    if (defined $conns{$mynick}) {
 		# explicit binmode for socket as "use open" does not seem to work here
-		binmode $conns{$mynick}->{_socket}, ":encoding(UTF-8)";
+		#binmode $conns{$mynick}->{_socket}, ":utf8";
+		#binmode $conns{$mynick}->{_socket}, ":encoding(UTF-8)";
+		# TODO: need to input bytes, but output utf8
+		binmode $conns{$mynick}->{_socket}, ":bytes";
 
 		$conns{$mynick}->maxlinelen($maxlinelen);
 
