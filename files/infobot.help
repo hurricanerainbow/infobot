@@ -251,7 +251,7 @@ join: U: ## <#chan> [key]
 join: E: ## #botpark
 join: E: ## #botpark rules
 
-karma: Karma is a community rating system.  Use "X++" to increase the karma, or "X--" to decrease it.  Ask for ratings using "karma for X?"
+karma: Karma is a community rating system.  Use "X++" to increase the karma, or "X--" to decrease it.  Ask for ratings using "karma for X?". Karma updates must be in a channel, not private.
 
 kernel: D: Frontend to linux.kernel.org's finger response.
 kernel: U: ##
