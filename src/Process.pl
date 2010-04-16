@@ -304,14 +304,18 @@ sub process {
     ###
 
     # karma. set...
-    if (   $msgType =~ /public/i
-        && $message =~ /^(\S+)(--|\+\+)\s*$/
+    if (   $message =~ /^(\S+)(--|\+\+)\s*$/
         && $addressed
         && &IsChanConfOrWarn('karma') )
     {
 
-    # to request factoids such as 'g++' or 'libstdc++', append '?' to the query.
+        # for factoids such as 'g++' or 'libstdc++', append '?' to query.
         my ( $term, $inc ) = ( lc $1, $2 );
+
+        if( !( $msgType =~ /public/i ) ) {
+            &msg( $who, "please use karma in a channel only");
+            return;
+        }
 
         if ( lc $term eq lc $who ) {
             &msg( $who, "please don't karma yourself" );
