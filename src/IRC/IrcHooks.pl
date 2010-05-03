@@ -620,7 +620,8 @@ sub on_join {
     ### ROOTWARN:
     &rootWarn( $who, $user, $host, $chan )
       if ( &IsChanConf('RootWarn') > 0
-        && $user =~ /^~?r(oo|ew|00)t$/i );
+        && $user eq 'root' );
+        #&& $user =~ /^~?r(oo|ew|00)t$/i );
 
     ### emit a message based on who just joined
     &onjoin( $who, $user, $host, $chan ) if ( &IsChanConf('OnJoin') > 0 );
