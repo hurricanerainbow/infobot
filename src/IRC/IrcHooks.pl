@@ -1328,8 +1328,8 @@ sub on_chanfull {
     my ($event) = @_;
     my @args = $event->args;
 
-    &status(">>> chanfull/$b_blue$args[1]$ob");
-
+    &status(">>> chanfull/$b_blue$args[1]$ob, removing autojoin");
+    delete $chanconf{$chan}{autojoin};
     &joinNextChan();
 }
 
@@ -1338,8 +1338,8 @@ sub on_inviteonly {
     my ($event) = @_;
     my @args = $event->args;
 
-    &status(">>> inviteonly/$b_cyan$args[1]$ob");
-
+    &status(">>> inviteonly/$b_cyan$args[1]$ob, removing autojoin");
+    delete $chanconf{$chan}{autojoin};
     &joinNextChan();
 }
 
