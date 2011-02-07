@@ -156,6 +156,7 @@ dollar variables: $randnick    - random nick
 dollar variables: $startTime   - start time
 dollar variables: $time        - current time (GMT)
 dollar variables: $uptime      - ...
+dollar variables: $urlchannel  - html encoded channel from which the factoid was requested
 dollar variables: $user        - username of factoid requester
 dollar variables: $who         - nick of factoid requester
 

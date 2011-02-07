@@ -314,6 +314,11 @@ sub substVars {
         $reply =~ s/\$host(name)?/$hostname/g;
     }
     $reply =~ s/\$chan(nel)?/$talkchannel/g;
+    if ( $reply =~ /\$urlchannel/ ) {
+	my $urlchannel = $talkchannel;
+        $urlchannel =~ s/([^\w])/sprintf("%%%02x",ord($1))/gie;
+	$reply =~ s/\$urlchannel?/$urlchannel/g;
+    }
     if ( $msgType =~ /public/ ) {
         $reply =~ s/\$lastspeaker/$lastWho{$talkchannel}/g;
     }
