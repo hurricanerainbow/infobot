@@ -502,6 +502,8 @@ sub userDCC {
 
         &status("USER reload $who");
         &performStrictReply("reloading...");
+        &readUserFile();
+        &readChanFile();
         &reloadAllModules();
         &performStrictReply("reloaded.");
 

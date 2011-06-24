@@ -531,6 +531,8 @@ sub userCommands {
 
         &status("USER reload $who");
         &performStrictReply('reloading...');
+        &readUserFile();
+        &readChanFile();
         my $modules = &reloadAllModules();
         &performStrictReply("reloaded:$modules");
         return;
