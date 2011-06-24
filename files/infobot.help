@@ -242,6 +242,9 @@ httpdtype: D: Get httpd server software version / configuration
 httpdtype: U: ## <hostname>
 httpdtype: E: ## example.com
 
+identify: D: identify in a PRIVATE message with infobot to add new mask to user account
+identify: E: ## <password>
+
 ignore: D: ignore list management
 ignore: E: ## [mask chan expire comment]
 ignore: E: addignore guu!*@*
