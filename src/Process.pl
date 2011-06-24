@@ -275,7 +275,7 @@ sub process {
     }
 
     # greetings.
-    if ( $message =~ /how (the hell )?are (ya|you)( doin\'?g?)?\?*$/ && $talkok ) {
+    if ( $message =~ /how (the he(ck|ll) )?are (ya|you)( doin\'?g?)?\?*$/ && $talkok ) {
 
         &performReply( &getRandom( keys %{ $lang{'howareyou'} } ) );
         return;
