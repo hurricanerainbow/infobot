@@ -156,6 +156,7 @@ dollar variables: $randnick    - random nick
 dollar variables: $startTime   - start time
 dollar variables: $time        - current time (GMT)
 dollar variables: $uptime      - ...
+dollar variables: $urlchannel  - html encoded channel from which the factoid was requested
 dollar variables: $user        - username of factoid requester
 dollar variables: $who         - nick of factoid requester
 
@@ -241,6 +242,9 @@ httpdtype: D: Get httpd server software version / configuration
 httpdtype: U: ## <hostname>
 httpdtype: E: ## example.com
 
+identify: D: identify in a PRIVATE message with infobot to add new mask to user account
+identify: E: ## <password>
+
 ignore: D: ignore list management
 ignore: E: ## [mask chan expire comment]
 ignore: E: addignore guu!*@*
@@ -251,7 +255,7 @@ join: U: ## <#chan> [key]
 join: E: ## #botpark
 join: E: ## #botpark rules
 
-karma: Karma is a community rating system.  Use "X++" to increase the karma, or "X--" to decrease it.  Ask for ratings using "karma for X?"
+karma: Karma is a community rating system.  Use "X++" to increase the karma, or "X--" to decrease it.  Ask for ratings using "karma for X?". Karma updates must be in a channel, not private.
 
 kernel: D: Frontend to linux.kernel.org's finger response.
 kernel: U: ##

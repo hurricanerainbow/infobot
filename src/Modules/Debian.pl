@@ -28,14 +28,17 @@ my $arch = "i386";
 # format: "alias=real".
 my %dists = (
     'unstable'     => 'sid',
-    'testing'      => 'lenny',
-    'stable'       => 'etch',
+    'testing'      => 'wheezy',
+    'stable'       => 'squeeze',
     'experimental' => 'experimental',
-    'oldstable'    => 'sarge',
+    'oldstable'    => 'lenny',
     'incoming'     => 'incoming',
 );
 
 my %archived_dists = (
+	lenny  => 'lenny',
+	etch   => 'etch',
+	sarge  => 'sarge',
     woody  => 'woody',
     potato => 'potato',
     hamm   => 'hamm',

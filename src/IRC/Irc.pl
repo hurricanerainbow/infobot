@@ -130,6 +130,7 @@ sub irc {
 		#binmode $conns{$mynick}->{_socket}, ":encoding(UTF-8)";
 		# TODO: need to input bytes, but output utf8
 		binmode $conns{$mynick}->{_socket}, ":bytes";
+		binmode $conns{$mynick}->socket, ":bytes";
 
 		$conns{$mynick}->maxlinelen($maxlinelen);
 

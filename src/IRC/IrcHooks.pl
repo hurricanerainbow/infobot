@@ -620,7 +620,8 @@ sub on_join {
     ### ROOTWARN:
     &rootWarn( $who, $user, $host, $chan )
       if ( &IsChanConf('RootWarn') > 0
-        && $user =~ /^~?r(oo|ew|00)t$/i );
+        && $user eq 'root' );
+        #&& $user =~ /^~?r(oo|ew|00)t$/i );
 
     ### emit a message based on who just joined
     &onjoin( $who, $user, $host, $chan ) if ( &IsChanConf('OnJoin') > 0 );
@@ -1327,8 +1328,8 @@ sub on_chanfull {
     my ($event) = @_;
     my @args = $event->args;
 
-    &status(">>> chanfull/$b_blue$args[1]$ob");
-
+    &status(">>> chanfull/$b_blue$args[1]$ob, removing autojoin");
+    delete $chanconf{$chan}{autojoin};
     &joinNextChan();
 }
 
@@ -1337,8 +1338,8 @@ sub on_inviteonly {
     my ($event) = @_;
     my @args = $event->args;
 
-    &status(">>> inviteonly/$b_cyan$args[1]$ob");
-
+    &status(">>> inviteonly/$b_cyan$args[1]$ob, removing autojoin");
+    delete $chanconf{$chan}{autojoin};
     &joinNextChan();
 }
 
